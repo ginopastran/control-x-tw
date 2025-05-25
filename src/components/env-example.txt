@@ -1,0 +1,18 @@
+# Variables de entorno para Control-X
+
+# MongoDB
+MONGODB_URI="mongodb+srv://usuario:contraseña@cluster.mongodb.net/controlxapp?retryWrites=true&w=majority"
+
+# API de X (Twitter)
+X_CLIENT_ID="TuClientID"
+X_CLIENT_SECRET="TuClientSecret"
+
+# URL de la API (para callbacks de OAuth)
+# Para desarrollo local, esto no es necesario
+# NEXT_PUBLIC_API_URL="https://tu-dominio.com"
+
+# Clave para el worker de tareas programadas
+WORKER_API_KEY="clave_secreta_para_worker"
+
+# Otras configuraciones
+NODE_ENV="development" # Cambiar a "production" en producción 
