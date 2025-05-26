@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.9.1",
-    "@heroui/react": "^2.7.8",
+    "@heroui/react": "^2.8.0-beta.6",
     "@prisma/client": "^6.8.2",
     "@tailwindcss/vite": "^4.1.7",
     "bcryptjs": "^3.0.2",
