@@ -1,6 +1,14 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTokenPayload } from "@/lib/auth";
+import {
+  Card,
+  CardBody,
+  CardHeader,
+  CardFooter,
+  Button,
+  Divider,
+} from "@heroui/react";
 
 export default async function Home() {
   // Verificar si el usuario está autenticado y redirigir a /admin
@@ -22,24 +30,30 @@ export default async function Home() {
         </div>
 
         <div className="flex justify-center mb-8">
-          <Link
+          <Button
+            as={Link}
             href="/login"
-            className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors mr-4"
+            color="primary"
+            size="lg"
+            className="mr-4"
           >
             Iniciar Sesión
-          </Link>
-          <Link
+          </Button>
+          <Button
+            as={Link}
             href="/register"
-            className="px-6 py-3 bg-gray-200 text-gray-800 font-medium rounded-lg hover:bg-gray-300 transition-colors"
+            color="default"
+            variant="flat"
+            size="lg"
           >
             Registrarse
-          </Link>
+          </Button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-          {/* Botón de Cuentas */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
-            <div className="flex items-center justify-center mb-4">
+          {/* Tarjeta de Cuentas */}
+          <Card className="shadow-md">
+            <CardHeader className="flex flex-col items-center pb-0">
               <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
                 <svg
                   className="w-8 h-8 text-blue-600 dark:text-blue-400"
@@ -55,18 +69,20 @@ export default async function Home() {
                   />
                 </svg>
               </div>
-            </div>
-            <h2 className="text-xl font-semibold text-center text-gray-800 dark:text-white mb-2">
-              Gestionar Cuentas
-            </h2>
-            <p className="text-gray-500 dark:text-gray-400 text-center text-sm">
-              Administra y organiza todas tus cuentas de X en un solo lugar
-            </p>
-          </div>
+            </CardHeader>
+            <CardBody className="text-center">
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">
+                Gestionar Cuentas
+              </h2>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">
+                Administra y organiza todas tus cuentas de X en un solo lugar
+              </p>
+            </CardBody>
+          </Card>
 
-          {/* Botón de Tweets */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
-            <div className="flex items-center justify-center mb-4">
+          {/* Tarjeta de Tweets */}
+          <Card className="shadow-md">
+            <CardHeader className="flex flex-col items-center pb-0">
               <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
                 <svg
                   className="w-8 h-8 text-green-600 dark:text-green-400"
@@ -82,14 +98,16 @@ export default async function Home() {
                   />
                 </svg>
               </div>
-            </div>
-            <h2 className="text-xl font-semibold text-center text-gray-800 dark:text-white mb-2">
-              Publicar Tweets
-            </h2>
-            <p className="text-gray-500 dark:text-gray-400 text-center text-sm">
-              Crea y programa tweets para todas tus cuentas
-            </p>
-          </div>
+            </CardHeader>
+            <CardBody className="text-center">
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">
+                Publicar Tweets
+              </h2>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">
+                Crea y programa tweets para todas tus cuentas
+              </p>
+            </CardBody>
+          </Card>
         </div>
 
         <div className="mt-12 text-center">

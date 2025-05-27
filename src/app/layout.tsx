@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Navbar from "./components/Navbar";
+import NavbarComponent from "./components/Navbar";
 import { HeroUIProvider } from "@heroui/react";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -22,7 +22,7 @@ export default function RootLayout({
         className={`${inter.className} dark min-h-screen bg-gray-50 dark:bg-gray-900`}
       >
         <HeroUIProvider>
-          <Navbar />
+          <NavbarComponent />
           <main className="pt-20 min-h-screen">{children}</main>
         </HeroUIProvider>
       </body>

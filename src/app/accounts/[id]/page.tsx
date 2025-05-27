@@ -2,7 +2,27 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
+import {
+  Card,
+  CardBody,
+  CardHeader,
+  Button,
+  Input,
+  Chip,
+  Spinner,
+  Avatar,
+  Divider,
+  Link,
+  Breadcrumbs,
+  BreadcrumbItem,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
+  Tooltip,
+} from "@heroui/react";
 
 interface XAccount {
   _id: string;
@@ -13,7 +33,11 @@ interface XAccount {
   createdAt: string;
 }
 
-export default function EditAccountPage({ params }: { params: { id: string } }) {
+export default function EditAccountPage({
+  params,
+}: {
+  params: { id: string };
+}) {
   const [account, setAccount] = useState<XAccount | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -21,6 +45,7 @@ export default function EditAccountPage({ params }: { params: { id: string } }) 
   const [newLabel, setNewLabel] = useState("");
   const [developerTag, setDeveloperTag] = useState("");
   const [saving, setSaving] = useState(false);
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const router = useRouter();
 
   useEffect(() => {
@@ -53,12 +78,12 @@ export default function EditAccountPage({ params }: { params: { id: string } }) 
   };
 
   const handleRemoveLabel = (labelToRemove: string) => {
-    setLabels(labels.filter(label => label !== labelToRemove));
+    setLabels(labels.filter((label) => label !== labelToRemove));
   };
 
   const handleSave = async () => {
     if (!account) return;
-    
+
     setSaving(true);
     try {
       const response = await fetch(`/api/accounts/${params.id}`, {
@@ -85,194 +110,436 @@ export default function EditAccountPage({ params }: { params: { id: string } }) 
     }
   };
 
+  const handleDeleteAccount = async () => {
+    try {
+      const response = await fetch(`/api/accounts/${params.id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Error al eliminar la cuenta");
+      }
+
+      router.push("/accounts");
+    } catch (err) {
+      setError("Error al eliminar la cuenta. Intente nuevamente.");
+      console.error(err);
+    }
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex justify-center items-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      <div className="flex justify-center items-center min-h-screen">
+        <Spinner size="lg" label="Cargando cuenta..." />
       </div>
     );
   }
 
   if (!account) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex justify-center items-center">
-        <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow max-w-md w-full mx-4">
-          <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-          </svg>
-          <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">Cuenta no encontrada</h3>
-          <div className="mt-6">
-            <Link
-              href="/accounts"
-              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+      <div className="max-w-2xl mx-auto px-4 py-8">
+        <Card>
+          <CardBody className="text-center py-12">
+            <svg
+              className="mx-auto h-12 w-12 text-default-300 mb-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              Volver a la lista
-            </Link>
-          </div>
-        </div>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+              />
+            </svg>
+            <h3 className="text-lg font-medium mb-2">Cuenta no encontrada</h3>
+            <p className="text-default-500 mb-6">
+              La cuenta que buscas no existe o fue eliminada.
+            </p>
+            <Button
+              color="primary"
+              onPress={() => router.push("/accounts")}
+              startContent={
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                  />
+                </svg>
+              }
+            >
+              Volver a Cuentas
+            </Button>
+          </CardBody>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {error && (
-          <div className="mb-6 p-4 rounded-md bg-red-50 border border-red-200">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Breadcrumbs */}
+      <Breadcrumbs className="mb-6">
+        <BreadcrumbItem onPress={() => router.push("/admin")}>
+          Inicio
+        </BreadcrumbItem>
+        <BreadcrumbItem onPress={() => router.push("/accounts")}>
+          Cuentas
+        </BreadcrumbItem>
+        <BreadcrumbItem>@{account.username}</BreadcrumbItem>
+      </Breadcrumbs>
+
+      {error && (
+        <Card className="mb-6">
+          <CardBody>
+            <div className="flex items-center text-danger">
+              <svg
+                className="h-5 w-5 mr-3"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              {error}
+            </div>
+          </CardBody>
+        </Card>
+      )}
+
+      {/* Header de la cuenta */}
+      <Card className="mb-6">
+        <CardHeader className="flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <Avatar
+              name={account.username[0].toUpperCase()}
+              size="lg"
+              className="text-large"
+            />
+            <div>
+              <h1 className="text-2xl font-bold">@{account.username}</h1>
+              <p className="text-default-500">
+                Editar información de la cuenta
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Tooltip content="Ver tweets programados">
+              <Button
+                variant="flat"
+                color="secondary"
+                startContent={
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                    />
+                  </svg>
+                }
+                onPress={() => router.push(`/tweets?accountId=${params.id}`)}
+              >
+                Tweets
+              </Button>
+            </Tooltip>
+            <Button
+              variant="flat"
+              startContent={
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                  />
                 </svg>
-              </div>
-              <div className="ml-3">
-                <p className="text-sm text-red-700">{error}</p>
-              </div>
-            </div>
+              }
+              onPress={() => router.push("/accounts")}
+            >
+              Volver
+            </Button>
           </div>
-        )}
+        </CardHeader>
+      </Card>
 
-        <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center">
-                <div className="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
-                  <span className="text-xl font-medium text-blue-700 dark:text-blue-300">
-                    {account.username[0].toUpperCase()}
-                  </span>
-                </div>
-                <h1 className="ml-4 text-xl font-bold text-gray-900 dark:text-white">
-                  @{account.username}
-                </h1>
+      {/* Información de la cuenta */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <Card>
+          <CardBody>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-primary">
+                {account.userId}
               </div>
-              <div className="flex items-center space-x-2">
-                <Link
-                  href={`/tweets?accountId=${params.id}`}
-                  className="inline-flex items-center px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
-                >
-                  <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                  </svg>
-                  Acciones
-                </Link>
-                <Link
-                  href="/accounts"
-                  className="inline-flex items-center px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
-                >
-                  <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                  </svg>
-                  Volver
-                </Link>
-              </div>
+              <div className="text-small text-default-500">ID de Usuario</div>
             </div>
+          </CardBody>
+        </Card>
+        <Card>
+          <CardBody>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-success">
+                {labels.length}
+              </div>
+              <div className="text-small text-default-500">Etiquetas</div>
+            </div>
+          </CardBody>
+        </Card>
+        <Card>
+          <CardBody>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-secondary">
+                {new Date(account.createdAt).toLocaleDateString()}
+              </div>
+              <div className="text-small text-default-500">Conectado</div>
+            </div>
+          </CardBody>
+        </Card>
+      </div>
+
+      {/* Formulario de edición */}
+      <Card className="mb-6">
+        <CardHeader>
+          <h2 className="text-xl font-semibold">Configuración de la Cuenta</h2>
+        </CardHeader>
+        <CardBody className="space-y-6">
+          {/* Campo de desarrollador */}
+          <div>
+            <Input
+              label="Cuenta de Desarrollador"
+              placeholder="Etiqueta de cuenta desarrollador"
+              value={developerTag}
+              onValueChange={setDeveloperTag}
+              description="Identifica qué cuenta de desarrollador de Twitter se usa para esta cuenta"
+              startContent={
+                <svg
+                  className="w-4 h-4 text-default-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+                  />
+                </svg>
+              }
+            />
           </div>
 
-          <div className="px-6 py-4 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                  ID de Usuario
-                </label>
-                <p className="text-sm text-gray-900 dark:text-white font-mono">
-                  {account.userId}
-                </p>
-              </div>
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                  Fecha de Conexión
-                </label>
-                <p className="text-sm text-gray-900 dark:text-white">
-                  {new Date(account.createdAt).toLocaleDateString()}
-                </p>
-              </div>
+          <Divider />
+
+          {/* Gestión de etiquetas */}
+          <div>
+            <div className="mb-4">
+              <h3 className="text-lg font-medium mb-2">Etiquetas</h3>
+              <p className="text-small text-default-500">
+                Organiza tus cuentas con etiquetas personalizadas
+              </p>
             </div>
 
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Cuenta de Desarrollador
-              </label>
-              <input
-                type="text"
-                value={developerTag}
-                onChange={(e) => setDeveloperTag(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                placeholder="Etiqueta de cuenta desarrollador"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Etiquetas
-              </label>
-              <div className="flex flex-wrap gap-2 mb-3">
+            {/* Etiquetas existentes */}
+            {labels.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-4">
                 {labels.map((label, index) => (
-                  <span
+                  <Chip
                     key={index}
-                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                    size="md"
+                    variant="flat"
+                    color="primary"
+                    onClose={() => handleRemoveLabel(label)}
                   >
                     {label}
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveLabel(label)}
-                      className="ml-1.5 inline-flex items-center justify-center flex-shrink-0 w-4 h-4 rounded-full hover:bg-blue-200 dark:hover:bg-blue-800 focus:outline-none"
-                    >
-                      <span className="sr-only">Eliminar etiqueta</span>
-                      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                      </svg>
-                    </button>
-                  </span>
+                  </Chip>
                 ))}
               </div>
-              <div className="flex space-x-2">
-                <input
-                  type="text"
-                  value={newLabel}
-                  onChange={(e) => setNewLabel(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && handleAddLabel()}
-                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                  placeholder="Nueva etiqueta"
-                />
-                <button
-                  onClick={handleAddLabel}
-                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  Añadir
-                </button>
-              </div>
-            </div>
-          </div>
+            )}
 
-          <div className="px-6 py-4 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600">
-            <div className="flex justify-end space-x-3">
-              <button
-                onClick={() => router.push("/accounts")}
-                className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            {/* Agregar nueva etiqueta */}
+            <div className="flex gap-2">
+              <Input
+                placeholder="Nueva etiqueta"
+                value={newLabel}
+                onValueChange={setNewLabel}
+                onKeyPress={(e) => e.key === "Enter" && handleAddLabel()}
+                className="flex-1"
+              />
+              <Button
+                color="primary"
+                onPress={handleAddLabel}
+                isDisabled={
+                  !newLabel.trim() || labels.includes(newLabel.trim())
+                }
+                startContent={
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 4v16m8-8H4"
+                    />
+                  </svg>
+                }
               >
-                Cancelar
-              </button>
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-              >
-                {saving ? (
-                  <>
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
-                    Guardando...
-                  </>
-                ) : (
-                  'Guardar Cambios'
-                )}
-              </button>
+                Añadir
+              </Button>
             </div>
           </div>
-        </div>
+        </CardBody>
+      </Card>
+
+      {/* Zona de peligro */}
+      <Card className="border-danger-200">
+        <CardHeader>
+          <h2 className="text-xl font-semibold text-danger">Zona de Peligro</h2>
+        </CardHeader>
+        <CardBody>
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-medium text-danger">Eliminar cuenta</h3>
+              <p className="text-small text-default-500">
+                Esta acción no se puede deshacer. Se eliminarán todos los datos
+                asociados.
+              </p>
+            </div>
+            <Button
+              color="danger"
+              variant="bordered"
+              onPress={onOpen}
+              startContent={
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  />
+                </svg>
+              }
+            >
+              Eliminar Cuenta
+            </Button>
+          </div>
+        </CardBody>
+      </Card>
+
+      {/* Botones de acción */}
+      <div className="flex justify-end gap-3 mt-6">
+        <Button
+          variant="flat"
+          onPress={() => router.push("/accounts")}
+          startContent={
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          }
+        >
+          Cancelar
+        </Button>
+        <Button
+          color="primary"
+          onPress={handleSave}
+          isLoading={saving}
+          startContent={
+            !saving && (
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            )
+          }
+        >
+          {saving ? "Guardando..." : "Guardar Cambios"}
+        </Button>
       </div>
+
+      {/* Modal de confirmación de eliminación */}
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalContent>
+          <ModalHeader>
+            <div className="flex items-center gap-2 text-danger">
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fillRule="evenodd"
+                  d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              Confirmar eliminación
+            </div>
+          </ModalHeader>
+          <ModalBody>
+            <p>
+              ¿Estás seguro que deseas eliminar la cuenta{" "}
+              <span className="font-bold">@{account.username}</span>?
+            </p>
+            <p className="text-small text-default-500">
+              Esta acción no se puede deshacer y se eliminarán todos los datos
+              asociados incluyendo tweets programados y configuraciones.
+            </p>
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="light" onPress={onClose}>
+              Cancelar
+            </Button>
+            <Button color="danger" onPress={handleDeleteAccount}>
+              Eliminar Cuenta
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
   );
-} 
+}

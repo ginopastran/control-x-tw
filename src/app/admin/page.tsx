@@ -1,7 +1,15 @@
 import { getTokenPayload } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
 import User from "@/models/User";
-import { Button } from "@heroui/react";
+import {
+  Card,
+  CardBody,
+  CardHeader,
+  CardFooter,
+  Button,
+  Divider,
+  Link,
+} from "@heroui/react";
 
 async function getUserData(userId: string) {
   await connectDB();
@@ -22,30 +30,33 @@ export default async function AdminPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-8">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
-          Panel de Administración
-        </h1>
-
+      <Card className="mb-8">
+        <CardHeader>
+          <h1 className="text-2xl font-bold">Panel de Administración</h1>
+        </CardHeader>
+        <Divider />
         {userData && (
-          <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg">
-            <p className="text-blue-800 dark:text-blue-300">
-              Bienvenido, <span className="font-semibold">{userData.name}</span>
-              <span className="ml-2 px-2 py-1 bg-blue-200 dark:bg-blue-800 text-blue-800 dark:text-blue-200 text-xs rounded-full">
-                {userData.role}
-              </span>
-            </p>
-            <p className="text-sm text-blue-700 dark:text-blue-400 mt-1">
-              {userData.email}
-            </p>
-          </div>
+          <CardBody>
+            <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg">
+              <p className="text-blue-800 dark:text-blue-300">
+                Bienvenido,{" "}
+                <span className="font-semibold">{userData.name}</span>
+                <span className="ml-2 px-2 py-1 bg-blue-200 dark:bg-blue-800 text-blue-800 dark:text-blue-200 text-xs rounded-full">
+                  {userData.role}
+                </span>
+              </p>
+              <p className="text-sm text-blue-700 dark:text-blue-400 mt-1">
+                {userData.email}
+              </p>
+            </div>
+          </CardBody>
         )}
-      </div>
+      </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-          <div className="flex items-center mb-4">
-            <div className="p-3 rounded-full bg-blue-100 dark:bg-blue-900/30 mr-4">
+        <Card className="p-3">
+          <CardBody className="flex flex-row items-center gap-4">
+            <div className="p-3 rounded-full bg-blue-100 dark:bg-blue-900/30">
               <svg
                 className="w-6 h-6 text-blue-600 dark:text-blue-400"
                 fill="none"
@@ -61,25 +72,27 @@ export default async function AdminPage() {
               </svg>
             </div>
             <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Cuentas de X
-              </p>
-              <h3 className="text-xl font-bold text-gray-800 dark:text-white">
-                Gestionar
-              </h3>
+              <p className="text-sm text-default-500">Cuentas de X</p>
+              <h3 className="text-xl font-bold">Gestionar</h3>
             </div>
-          </div>
-          <a
-            href="/accounts"
-            className="text-blue-600 dark:text-blue-400 text-sm font-medium hover:underline"
-          >
-            Ir a cuentas →
-          </a>
-        </div>
+          </CardBody>
+          <CardFooter>
+            <Button
+              as={Link}
+              href="/accounts"
+              color="primary"
+              variant="flat"
+              className="w-full"
+              endContent={<span>→</span>}
+            >
+              Ir a cuentas
+            </Button>
+          </CardFooter>
+        </Card>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-          <div className="flex items-center mb-4">
-            <div className="p-3 rounded-full bg-green-100 dark:bg-green-900/30 mr-4">
+        <Card className="p-3">
+          <CardBody className="flex flex-row items-center gap-4">
+            <div className="p-3 rounded-full bg-green-100 dark:bg-green-900/30">
               <svg
                 className="w-6 h-6 text-green-600 dark:text-green-400"
                 fill="none"
@@ -95,23 +108,27 @@ export default async function AdminPage() {
               </svg>
             </div>
             <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Tweets</p>
-              <h3 className="text-xl font-bold text-gray-800 dark:text-white">
-                Publicar
-              </h3>
+              <p className="text-sm text-default-500">Tweets</p>
+              <h3 className="text-xl font-bold">Publicar</h3>
             </div>
-          </div>
-          <a
-            href="/tweets"
-            className="text-green-600 dark:text-green-400 text-sm font-medium hover:underline"
-          >
-            Ir a tweets →
-          </a>
-        </div>
+          </CardBody>
+          <CardFooter>
+            <Button
+              as={Link}
+              href="/tweets"
+              color="success"
+              variant="flat"
+              className="w-full"
+              endContent={<span>→</span>}
+            >
+              Ir a tweets
+            </Button>
+          </CardFooter>
+        </Card>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-          <div className="flex items-center mb-4">
-            <div className="p-3 rounded-full bg-purple-100 dark:bg-purple-900/30 mr-4">
+        <Card className="p-3">
+          <CardBody className="flex flex-row  items-center gap-4">
+            <div className="p-3 rounded-full bg-purple-100 dark:bg-purple-900/30">
               <svg
                 className="w-6 h-6 text-purple-600 dark:text-purple-400"
                 fill="none"
@@ -127,21 +144,23 @@ export default async function AdminPage() {
               </svg>
             </div>
             <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Programador
-              </p>
-              <h3 className="text-xl font-bold text-gray-800 dark:text-white">
-                Acciones
-              </h3>
+              <p className="text-sm text-default-500">Programador</p>
+              <h3 className="text-xl font-bold">Acciones</h3>
             </div>
-          </div>
-          <a
-            href="/scheduler"
-            className="text-purple-600 dark:text-purple-400 text-sm font-medium hover:underline"
-          >
-            Ir al programador →
-          </a>
-        </div>
+          </CardBody>
+          <CardFooter>
+            <Button
+              as={Link}
+              href="/scheduler"
+              color="secondary"
+              variant="flat"
+              className="w-full"
+              endContent={<span>→</span>}
+            >
+              Ir al programador
+            </Button>
+          </CardFooter>
+        </Card>
       </div>
     </div>
   );

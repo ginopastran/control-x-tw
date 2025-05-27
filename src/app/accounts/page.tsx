@@ -1,8 +1,31 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
+import {
+  Table,
+  TableHeader,
+  TableColumn,
+  TableBody,
+  TableRow,
+  TableCell,
+  Button,
+  Chip,
+  Spinner,
+  Card,
+  CardBody,
+  CardHeader,
+  Avatar,
+  Divider,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
+  Badge,
+  Tooltip,
+} from "@heroui/react";
 
 interface XAccount {
   _id: string;
@@ -11,33 +34,58 @@ interface XAccount {
   developerTag: string;
   labels: string[];
   createdAt: string;
+  hasAccessToken: boolean;
+  hasRefreshToken: boolean;
+  needsReauth: boolean;
+  tokenInfo?: {
+    isValid: boolean;
+    expiresAt: string;
+    lastRefresh: string;
+    hoursToExpiry: number | null;
+    status: "VALID" | "NEEDS_REFRESH" | "EXPIRED" | "INVALID";
+  };
+}
+
+interface DebugData {
+  stats: {
+    total: number;
+    valid: number;
+    needsRefresh: number;
+    expired: number;
+    invalid: number;
+    needsReauth: number;
+  };
+  accounts: XAccount[];
 }
 
 export default function AccountsPage() {
-  const [accounts, setAccounts] = useState<XAccount[]>([]);
+  const [debugData, setDebugData] = useState<DebugData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [selectedAccount, setSelectedAccount] = useState<XAccount | null>(null);
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const router = useRouter();
 
   useEffect(() => {
-    const fetchAccounts = async () => {
-      try {
-        const response = await fetch("/api/accounts");
-        if (!response.ok) {
-          throw new Error("Error al cargar las cuentas");
-        }
-        const data = await response.json();
-        setAccounts(data);
-      } catch (err) {
-        setError("Error al cargar las cuentas. Intente nuevamente.");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAccounts();
+    fetchAccountsData();
   }, []);
+
+  const fetchAccountsData = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/debug/accounts");
+      if (!response.ok) {
+        throw new Error("Error al cargar las cuentas");
+      }
+      const data = await response.json();
+      setDebugData(data);
+    } catch (err) {
+      setError("Error al cargar las cuentas. Intente nuevamente.");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAddAccount = () => {
     router.push("/api/auth/x/login");
@@ -49,12 +97,12 @@ export default function AccountsPage() {
         const response = await fetch(`/api/accounts/${id}`, {
           method: "DELETE",
         });
-        
+
         if (!response.ok) {
           throw new Error("Error al eliminar la cuenta");
         }
-        
-        setAccounts(accounts.filter(account => account._id !== id));
+
+        await fetchAccountsData();
       } catch (err) {
         setError("Error al eliminar la cuenta. Intente nuevamente.");
         console.error(err);
@@ -62,146 +110,553 @@ export default function AccountsPage() {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Cuentas de X Conectadas
-          </h1>
-          <button 
-            onClick={handleAddAccount}
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-          >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Conectar Nueva Cuenta
-          </button>
-        </div>
-        
-        {error && (
-          <div className="mb-6 p-4 rounded-md bg-red-50 border border-red-200">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="ml-3">
-                <p className="text-sm text-red-700">{error}</p>
-              </div>
-            </div>
-          </div>
-        )}
-        
-        {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-          </div>
-        ) : accounts.length === 0 ? (
-          <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow">
-            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-            </svg>
-            <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">No hay cuentas conectadas</h3>
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Comienza conectando tu primera cuenta de X.</p>
-            <div className="mt-6">
-              <button
-                onClick={handleAddAccount}
-                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-              >
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                Conectar Nueva Cuenta
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead className="bg-gray-50 dark:bg-gray-700">
-                  <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Usuario
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Cuenta Desarrollador
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Etiquetas
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Fecha Conexión
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                      Acciones
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                  {accounts.map((account) => (
-                    <tr key={account._id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0 h-10 w-10">
-                            <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
-                              <span className="text-lg font-medium text-gray-600 dark:text-gray-300">
-                                {account.username[0].toUpperCase()}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900 dark:text-white">
-                              @{account.username}
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900 dark:text-white">{account.developerTag}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex flex-wrap gap-1">
-                          {account.labels.map((label, index) => (
-                            <span 
-                              key={index}
-                              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                            >
-                              {label}
-                            </span>
-                          ))}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                        {new Date(account.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex space-x-3">
-                          <Link
-                            href={`/accounts/${account._id}`}
-                            className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
-                          >
-                            Editar
-                          </Link>
-                          <button
-                            onClick={() => handleDeleteAccount(account._id)}
-                            className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition-colors"
-                          >
-                            Eliminar
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+  const handleInvalidateToken = async (accountId: string) => {
+    try {
+      const response = await fetch(`/api/accounts/${accountId}/invalidate`, {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        throw new Error("Error al invalidar el token");
+      }
+
+      await fetchAccountsData();
+      onClose();
+    } catch (err) {
+      setError("Error al invalidar el token. Intente nuevamente.");
+      console.error(err);
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "VALID":
+        return "success";
+      case "NEEDS_REFRESH":
+        return "warning";
+      case "EXPIRED":
+        return "danger";
+      case "INVALID":
+        return "danger";
+      default:
+        return "default";
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case "VALID":
+        return "Válido";
+      case "NEEDS_REFRESH":
+        return "Necesita Refresh";
+      case "EXPIRED":
+        return "Expirado";
+      case "INVALID":
+        return "Inválido";
+      default:
+        return "Desconocido";
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <Spinner size="lg" label="Cargando cuentas..." />
       </div>
+    );
+  }
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-3xl font-bold">Cuentas de X Conectadas</h1>
+          <p className="text-default-500 mt-2">
+            Gestiona tus cuentas conectadas y su estado de autenticación
+          </p>
+        </div>
+        <Button
+          color="primary"
+          size="lg"
+          onPress={handleAddAccount}
+          startContent={
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+          }
+        >
+          Conectar Nueva Cuenta
+        </Button>
+      </div>
+
+      {/* Estadísticas */}
+      {debugData && (
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
+          <Card>
+            <CardBody className="text-center">
+              <div className="text-2xl font-bold text-primary">
+                {debugData.stats.total}
+              </div>
+              <div className="text-small text-default-500">Total</div>
+            </CardBody>
+          </Card>
+          <Card>
+            <CardBody className="text-center">
+              <div className="text-2xl font-bold text-success">
+                {debugData.stats.valid}
+              </div>
+              <div className="text-small text-default-500">Válidas</div>
+            </CardBody>
+          </Card>
+          <Card>
+            <CardBody className="text-center">
+              <div className="text-2xl font-bold text-warning">
+                {debugData.stats.needsRefresh}
+              </div>
+              <div className="text-small text-default-500">Refresh</div>
+            </CardBody>
+          </Card>
+          <Card>
+            <CardBody className="text-center">
+              <div className="text-2xl font-bold text-danger">
+                {debugData.stats.expired}
+              </div>
+              <div className="text-small text-default-500">Expiradas</div>
+            </CardBody>
+          </Card>
+          <Card>
+            <CardBody className="text-center">
+              <div className="text-2xl font-bold text-danger">
+                {debugData.stats.invalid}
+              </div>
+              <div className="text-small text-default-500">Inválidas</div>
+            </CardBody>
+          </Card>
+          <Card>
+            <CardBody className="text-center">
+              <div className="text-2xl font-bold text-secondary">
+                {debugData.stats.needsReauth}
+              </div>
+              <div className="text-small text-default-500">Re-auth</div>
+            </CardBody>
+          </Card>
+        </div>
+      )}
+
+      {error && (
+        <Card className="mb-6">
+          <CardBody>
+            <div className="flex items-center text-danger">
+              <svg
+                className="h-5 w-5 mr-3"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              {error}
+            </div>
+          </CardBody>
+        </Card>
+      )}
+
+      {/* Tabla de cuentas */}
+      {debugData && debugData.accounts.length === 0 ? (
+        <Card>
+          <CardBody className="text-center py-12">
+            <svg
+              className="mx-auto h-12 w-12 text-default-300 mb-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+              />
+            </svg>
+            <h3 className="text-lg font-medium mb-2">
+              No hay cuentas conectadas
+            </h3>
+            <p className="text-default-500 mb-6">
+              Comienza conectando tu primera cuenta de X.
+            </p>
+            <Button color="primary" onPress={handleAddAccount}>
+              Conectar Nueva Cuenta
+            </Button>
+          </CardBody>
+        </Card>
+      ) : (
+        <Table
+          aria-label="Cuentas de X conectadas"
+          classNames={{
+            wrapper: "shadow-lg",
+          }}
+        >
+          <TableHeader>
+            <TableColumn>CUENTA</TableColumn>
+            <TableColumn>DESARROLLADOR</TableColumn>
+            <TableColumn>ESTADO TOKEN</TableColumn>
+            <TableColumn>EXPIRACIÓN</TableColumn>
+            <TableColumn>ETIQUETAS</TableColumn>
+            <TableColumn>ACCIONES</TableColumn>
+          </TableHeader>
+          <TableBody>
+            {(debugData?.accounts || []).map((account) => (
+              <TableRow key={account._id}>
+                <TableCell>
+                  <div className="flex items-center gap-3">
+                    <Avatar
+                      name={account.username[0].toUpperCase()}
+                      size="sm"
+                      className="flex-shrink-0"
+                    />
+                    <div>
+                      <div className="font-medium">@{account.username}</div>
+                      <div className="text-small text-default-500">
+                        {account.userId}
+                      </div>
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="text-small">{account.developerTag}</div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex flex-col gap-1">
+                    {account.tokenInfo ? (
+                      <>
+                        <Chip
+                          color={getStatusColor(account.tokenInfo.status)}
+                          size="sm"
+                          variant="flat"
+                        >
+                          {getStatusText(account.tokenInfo.status)}
+                        </Chip>
+                        {account.needsReauth && (
+                          <Chip color="danger" size="sm" variant="bordered">
+                            Necesita Re-auth
+                          </Chip>
+                        )}
+                      </>
+                    ) : (
+                      <Chip color="default" size="sm">
+                        Sin info
+                      </Chip>
+                    )}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  {account.tokenInfo ? (
+                    <div className="text-small">
+                      {account.tokenInfo.hoursToExpiry !== null ? (
+                        <div>
+                          <div
+                            className={`font-medium ${
+                              account.tokenInfo.hoursToExpiry < 1
+                                ? "text-danger"
+                                : account.tokenInfo.hoursToExpiry < 24
+                                ? "text-warning"
+                                : "text-success"
+                            }`}
+                          >
+                            {account.tokenInfo.hoursToExpiry > 0
+                              ? `${account.tokenInfo.hoursToExpiry}h restantes`
+                              : "Expirado"}
+                          </div>
+                          <div className="text-tiny text-default-400">
+                            {new Date(
+                              account.tokenInfo.expiresAt
+                            ).toLocaleString()}
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="text-default-400">Sin fecha</span>
+                      )}
+                    </div>
+                  ) : (
+                    <span className="text-default-400">N/A</span>
+                  )}
+                </TableCell>
+                <TableCell>
+                  <div className="flex flex-wrap gap-1">
+                    {(account.labels || []).map((label, index) => (
+                      <Chip
+                        key={index}
+                        size="sm"
+                        variant="flat"
+                        color="primary"
+                      >
+                        {label}
+                      </Chip>
+                    ))}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <Tooltip content="Ver detalles">
+                      <Button
+                        isIconOnly
+                        size="sm"
+                        variant="flat"
+                        onPress={() => {
+                          setSelectedAccount(account);
+                          onOpen();
+                        }}
+                      >
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                          />
+                        </svg>
+                      </Button>
+                    </Tooltip>
+                    <Tooltip content="Editar cuenta">
+                      <Button
+                        isIconOnly
+                        size="sm"
+                        variant="flat"
+                        color="primary"
+                        onPress={() => router.push(`/accounts/${account._id}`)}
+                      >
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                          />
+                        </svg>
+                      </Button>
+                    </Tooltip>
+                    <Tooltip content="Eliminar cuenta">
+                      <Button
+                        isIconOnly
+                        size="sm"
+                        variant="flat"
+                        color="danger"
+                        onPress={() => handleDeleteAccount(account._id)}
+                      >
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          />
+                        </svg>
+                      </Button>
+                    </Tooltip>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
+
+      {/* Modal de detalles */}
+      <Modal isOpen={isOpen} onClose={onClose} size="2xl">
+        <ModalContent>
+          <ModalHeader>
+            Detalles de la cuenta @{selectedAccount?.username}
+          </ModalHeader>
+          <ModalBody>
+            {selectedAccount && (
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-medium mb-2">Información básica</h4>
+                  <div className="grid grid-cols-2 gap-4 text-small">
+                    <div>
+                      <span className="text-default-500">Usuario:</span>
+                      <span className="ml-2">@{selectedAccount.username}</span>
+                    </div>
+                    <div>
+                      <span className="text-default-500">ID:</span>
+                      <span className="ml-2">{selectedAccount.userId}</span>
+                    </div>
+                    <div>
+                      <span className="text-default-500">Desarrollador:</span>
+                      <span className="ml-2">
+                        {selectedAccount.developerTag}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-default-500">Conectado:</span>
+                      <span className="ml-2">
+                        {new Date(
+                          selectedAccount.createdAt
+                        ).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <Divider />
+
+                <div>
+                  <h4 className="font-medium mb-2">Estado de tokens</h4>
+                  <div className="space-y-2 text-small">
+                    <div className="flex justify-between">
+                      <span>Access Token:</span>
+                      <Chip
+                        size="sm"
+                        color={
+                          selectedAccount.hasAccessToken ? "success" : "danger"
+                        }
+                      >
+                        {selectedAccount.hasAccessToken
+                          ? "Presente"
+                          : "Ausente"}
+                      </Chip>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Refresh Token:</span>
+                      <Chip
+                        size="sm"
+                        color={
+                          selectedAccount.hasRefreshToken ? "success" : "danger"
+                        }
+                      >
+                        {selectedAccount.hasRefreshToken
+                          ? "Presente"
+                          : "Ausente"}
+                      </Chip>
+                    </div>
+                    {selectedAccount.tokenInfo && (
+                      <>
+                        <div className="flex justify-between">
+                          <span>Estado:</span>
+                          <Chip
+                            size="sm"
+                            color={getStatusColor(
+                              selectedAccount.tokenInfo.status
+                            )}
+                          >
+                            {getStatusText(selectedAccount.tokenInfo.status)}
+                          </Chip>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Último refresh:</span>
+                          <span>
+                            {new Date(
+                              selectedAccount.tokenInfo.lastRefresh
+                            ).toLocaleString()}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Expira:</span>
+                          <span>
+                            {new Date(
+                              selectedAccount.tokenInfo.expiresAt
+                            ).toLocaleString()}
+                          </span>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {selectedAccount.needsReauth && (
+                  <>
+                    <Divider />
+                    <Card className="bg-danger-50 border-danger-200">
+                      <CardBody>
+                        <div className="flex items-start gap-3">
+                          <svg
+                            className="w-5 h-5 text-danger mt-0.5"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                          <div>
+                            <div className="font-medium text-danger">
+                              Re-autenticación requerida
+                            </div>
+                            <div className="text-small text-danger-600 mt-1">
+                              Esta cuenta necesita ser reconectada para
+                              funcionar correctamente.
+                            </div>
+                          </div>
+                        </div>
+                      </CardBody>
+                    </Card>
+                  </>
+                )}
+              </div>
+            )}
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="light" onPress={onClose}>
+              Cerrar
+            </Button>
+            {selectedAccount?.needsReauth ? (
+              <Button
+                color="primary"
+                onPress={() => router.push("/api/auth/x/login")}
+              >
+                Reconectar cuenta
+              </Button>
+            ) : selectedAccount?.tokenInfo &&
+              !selectedAccount.tokenInfo.isValid ? (
+              <Button
+                color="warning"
+                onPress={() =>
+                  selectedAccount && handleInvalidateToken(selectedAccount._id)
+                }
+              >
+                Invalidar token
+              </Button>
+            ) : null}
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
   );
-} 
+}

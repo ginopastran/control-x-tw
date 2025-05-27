@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import { randomBytes, createHash } from "crypto";
 
 const CLIENT_ID = process.env.X_CLIENT_ID!;
-const REDIRECT_URI = process.env.NEXT_PUBLIC_API_URL 
-  ? `${process.env.NEXT_PUBLIC_API_URL}/api/auth/x/callback` 
+const REDIRECT_URI = process.env.NEXT_PUBLIC_API_URL
+  ? `${process.env.NEXT_PUBLIC_API_URL}/api/auth/x/callback`
   : "http://localhost:3000/api/auth/x/callback";
 
 // Alcances/permisos necesarios para la API de X
@@ -19,13 +19,11 @@ const SCOPES = [
 // Función para generar un desafío PKCE
 function generatePKCE() {
   // Generar un verifier aleatorio
-  const verifier = randomBytes(32).toString('base64url');
-  
+  const verifier = randomBytes(32).toString("base64url");
+
   // Generar el challenge con SHA-256
-  const challenge = createHash('sha256')
-    .update(verifier)
-    .digest('base64url');
-    
+  const challenge = createHash("sha256").update(verifier).digest("base64url");
+
   return { verifier, challenge };
 }
 
@@ -33,7 +31,7 @@ export async function GET() {
   try {
     // Generar un estado aleatorio más largo para mayor seguridad
     const state = randomBytes(32).toString("hex");
-    
+
     // Generar PKCE para mayor seguridad
     const { verifier, challenge } = generatePKCE();
 
@@ -47,11 +45,18 @@ export async function GET() {
     authUrl.searchParams.append("code_challenge_method", "S256");
     authUrl.searchParams.append("code_challenge", challenge);
 
-    console.log(`Iniciando autenticación con X: Redirección a ${authUrl.hostname}`);
+    // FORZAR LOGOUT Y SELECCIÓN DE CUENTA
+    // Esto hace que Twitter siempre muestre la pantalla de login
+    // y permita elegir una cuenta diferente
+    authUrl.searchParams.append("force_login", "true");
+
+    console.log(
+      `Iniciando autenticación con X: Redirección a ${authUrl.hostname}`
+    );
 
     // Crear la respuesta con la redirección
     const response = NextResponse.redirect(authUrl.toString());
-    
+
     // Configurar las cookies con opciones más seguras
     const cookieOptions = {
       httpOnly: true,
@@ -59,7 +64,7 @@ export async function GET() {
       sameSite: "lax" as const,
       path: "/",
       maxAge: 60 * 15, // 15 minutos
-      domain: process.env.COOKIE_DOMAIN || undefined
+      domain: process.env.COOKIE_DOMAIN || undefined,
     };
 
     // Limpiar cookies existentes primero
@@ -70,18 +75,20 @@ export async function GET() {
     response.cookies.set({
       name: "oauth_state",
       value: state,
-      ...cookieOptions
+      ...cookieOptions,
     });
 
     response.cookies.set({
       name: "code_verifier",
       value: verifier,
-      ...cookieOptions
+      ...cookieOptions,
     });
 
     return response;
   } catch (error) {
     console.error("Error al iniciar autenticación con X:", error);
-    return NextResponse.redirect(new URL("/error?message=Error+al+iniciar+autenticacion", REDIRECT_URI));
+    return NextResponse.redirect(
+      new URL("/error?message=Error+al+iniciar+autenticacion", REDIRECT_URI)
+    );
   }
-} 
+}

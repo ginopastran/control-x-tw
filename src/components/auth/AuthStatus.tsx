@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Button } from "@heroui/react";
 
 interface AuthStatusProps {
   user: {
@@ -42,31 +43,56 @@ export default function AuthStatus({ user }: AuthStatusProps) {
 
   if (!user) {
     return (
-      <div className="flex items-center space-x-2">
-        <Link href="/login" className="text-blue-600 hover:text-blue-800">
+      <div className="flex items-center gap-2">
+        <Button
+          as={Link}
+          href="/login"
+          color="primary"
+          variant="flat"
+          size="sm"
+        >
           Iniciar Sesión
-        </Link>
-        <span className="text-gray-400">|</span>
-        <Link href="/register" className="text-blue-600 hover:text-blue-800">
+        </Button>
+        <Button
+          as={Link}
+          href="/register"
+          color="primary"
+          variant="light"
+          size="sm"
+        >
           Registrarse
-        </Link>
+        </Button>
       </div>
     );
   }
 
   return (
-    <div className="flex items-center space-x-4">
-      <div className="text-sm text-gray-700">
-        <span className="font-medium">{user.name}</span>
-        <span className="text-xs ml-1 text-gray-500">({user.role})</span>
+    <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2">
+        <div className="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-bold">
+          {user.name.substring(0, 2).toUpperCase()}
+        </div>
+        <div className="hidden md:block">
+          <span
+            className={`ml-1 px-2 py-0.5 text-xs rounded-full ${
+              user.role === "SUPERADMIN"
+                ? "bg-red-100 text-red-800"
+                : "bg-blue-100 text-blue-800"
+            }`}
+          >
+            {user.role}
+          </span>
+        </div>
       </div>
-      <button
+      <Button
+        color="danger"
+        variant="light"
+        size="sm"
         onClick={handleLogout}
-        disabled={isLoggingOut}
-        className="text-sm text-red-600 hover:text-red-800 disabled:opacity-70"
+        isDisabled={isLoggingOut}
       >
-        {isLoggingOut ? "Cerrando sesión..." : "Cerrar Sesión"}
-      </button>
+        {isLoggingOut ? "..." : "Cerrar Sesión"}
+      </Button>
     </div>
   );
 }

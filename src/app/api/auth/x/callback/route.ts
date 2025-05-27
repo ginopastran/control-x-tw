@@ -7,8 +7,8 @@ import TokenInfo from "@/models/TokenInfo";
 
 const CLIENT_ID = process.env.X_CLIENT_ID!;
 const CLIENT_SECRET = process.env.X_CLIENT_SECRET!;
-const REDIRECT_URI = process.env.NEXT_PUBLIC_API_URL 
-  ? `${process.env.NEXT_PUBLIC_API_URL}/api/auth/x/callback` 
+const REDIRECT_URI = process.env.NEXT_PUBLIC_API_URL
+  ? `${process.env.NEXT_PUBLIC_API_URL}/api/auth/x/callback`
   : "http://localhost:3000/api/auth/x/callback";
 
 export async function GET(req: NextRequest) {
@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax" as const,
       path: "/",
-      domain: process.env.COOKIE_DOMAIN || undefined
+      domain: process.env.COOKIE_DOMAIN || undefined,
     };
 
     // Función para crear respuesta con cookies limpias
@@ -42,47 +42,68 @@ export async function GET(req: NextRequest) {
 
     // Verificar si hay error en la respuesta de X
     if (error) {
-      console.error(`Error de autenticación de X: ${error} - ${errorDescription}`);
+      console.error(
+        `Error de autenticación de X: ${error} - ${errorDescription}`
+      );
       return createResponse(
-        new URL(`/error?message=${encodeURIComponent(`Error de X: ${errorDescription || error}`)}`, req.url).toString()
+        new URL(
+          `/error?message=${encodeURIComponent(
+            `Error de X: ${errorDescription || error}`
+          )}`,
+          req.url
+        ).toString()
       );
     }
 
     // Verificar parámetros obligatorios
     if (!code) {
       return createResponse(
-        new URL("/error?message=No+se+recibió+el+código+de+autorización", req.url).toString()
+        new URL(
+          "/error?message=No+se+recibió+el+código+de+autorización",
+          req.url
+        ).toString()
       );
     }
 
     // Verificar el estado CSRF
     if (!state || !savedState) {
-      console.error("Error de estado CSRF:", { 
-        receivedState: state, 
-        hasSavedState: !!savedState 
+      console.error("Error de estado CSRF:", {
+        receivedState: state,
+        hasSavedState: !!savedState,
       });
       return createResponse(
-        new URL("/error?message=Error+de+autenticación:+Estado+no+encontrado", req.url).toString()
+        new URL(
+          "/error?message=Error+de+autenticación:+Estado+no+encontrado",
+          req.url
+        ).toString()
       );
     }
 
     if (state !== savedState) {
       console.error("Error de coincidencia de estado CSRF:", {
         receivedState: state,
-        savedState: savedState
+        savedState: savedState,
       });
       return createResponse(
-        new URL("/error?message=Error+de+autenticación:+Estado+inválido", req.url).toString()
+        new URL(
+          "/error?message=Error+de+autenticación:+Estado+inválido",
+          req.url
+        ).toString()
       );
     }
 
     if (!codeVerifier) {
       return createResponse(
-        new URL("/error?message=Error+de+autenticación:+Verificador+no+encontrado", req.url).toString()
+        new URL(
+          "/error?message=Error+de+autenticación:+Verificador+no+encontrado",
+          req.url
+        ).toString()
       );
     }
 
-    console.log("Código de autorización recibido, intercambiando por tokens...");
+    console.log(
+      "Código de autorización recibido, intercambiando por tokens..."
+    );
 
     // Preparar la solicitud para intercambiar el código por tokens
     const tokenRequest = new URLSearchParams({
@@ -94,24 +115,36 @@ export async function GET(req: NextRequest) {
     });
 
     // Usar Authorization Basic para mayor seguridad
-    const authHeader = `Basic ${Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString("base64")}`;
+    const authHeader = `Basic ${Buffer.from(
+      `${CLIENT_ID}:${CLIENT_SECRET}`
+    ).toString("base64")}`;
 
     // Intercambiar el code por tokens
-    const tokenResponse = await fetch("https://api.twitter.com/2/oauth2/token", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "Authorization": authHeader,
-      },
-      body: tokenRequest,
-    });
+    const tokenResponse = await fetch(
+      "https://api.twitter.com/2/oauth2/token",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          Authorization: authHeader,
+        },
+        body: tokenRequest,
+      }
+    );
 
     const tokenData = await tokenResponse.json();
 
     if (!tokenResponse.ok) {
       console.error("Error al obtener token:", tokenData);
       return createResponse(
-        new URL(`/error?message=${encodeURIComponent(`Error al obtener token: ${tokenData.error_description || tokenData.error}`)}`, req.url).toString()
+        new URL(
+          `/error?message=${encodeURIComponent(
+            `Error al obtener token: ${
+              tokenData.error_description || tokenData.error
+            }`
+          )}`,
+          req.url
+        ).toString()
       );
     }
 
@@ -119,33 +152,44 @@ export async function GET(req: NextRequest) {
     if (!tokenData.access_token) {
       console.error("Access token no recibido:", tokenData);
       return createResponse(
-        new URL("/error?message=No+se+recibió+el+token+de+acceso", req.url).toString()
+        new URL(
+          "/error?message=No+se+recibió+el+token+de+acceso",
+          req.url
+        ).toString()
       );
     }
 
     console.log("Tokens obtenidos, recuperando información del usuario...");
 
     // Obtener información del usuario
-    const userResponse = await fetch("https://api.twitter.com/2/users/me?user.fields=username,name,profile_image_url", {
-      headers: {
-        "Authorization": `Bearer ${tokenData.access_token}`,
-      },
-    });
+    const userResponse = await fetch(
+      "https://api.twitter.com/2/users/me?user.fields=username,name,profile_image_url",
+      {
+        headers: {
+          Authorization: `Bearer ${tokenData.access_token}`,
+        },
+      }
+    );
 
     const userData = await userResponse.json();
 
     if (!userResponse.ok) {
       console.error("Error al obtener información del usuario:", userData);
       return createResponse(
-        new URL("/error?message=Error+al+obtener+información+del+usuario", req.url).toString()
+        new URL(
+          "/error?message=Error+al+obtener+información+del+usuario",
+          req.url
+        ).toString()
       );
     }
 
     // Conectar a la base de datos y guardar/actualizar la cuenta
     await connectDB();
-    
-    const existingAccount = await XAccount.findOne({ userId: userData.data.id });
-    
+
+    const existingAccount = await XAccount.findOne({
+      userId: userData.data.id,
+    });
+
     if (existingAccount) {
       // Actualizar tokens de la cuenta existente
       existingAccount.accessToken = tokenData.access_token;
@@ -162,12 +206,14 @@ export async function GET(req: NextRequest) {
           refreshToken: tokenData.refresh_token || existingAccount.refreshToken,
           expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 horas
           lastRefresh: new Date(),
-          isValid: true
+          isValid: true,
         },
         { upsert: true }
       );
-      
-      return createResponse(new URL("/accounts?success=Cuenta+actualizada", req.url).toString());
+
+      return createResponse(
+        new URL("/accounts?success=Cuenta+actualizada", req.url).toString()
+      );
     } else {
       // Crear nueva cuenta
       const newAccount = await XAccount.create({
@@ -186,15 +232,22 @@ export async function GET(req: NextRequest) {
         refreshToken: tokenData.refresh_token || "",
         expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 horas
         lastRefresh: new Date(),
-        isValid: true
+        isValid: true,
       });
-      
-      return createResponse(new URL("/accounts?success=Cuenta+conectada", req.url).toString());
+
+      return createResponse(
+        new URL("/accounts?success=Cuenta+conectada", req.url).toString()
+      );
     }
   } catch (error: any) {
     console.error("Error en el proceso de autenticación:", error);
     return NextResponse.redirect(
-      new URL(`/error?message=${encodeURIComponent(`Error: ${error.message || 'Error desconocido'}`)}`, req.url)
+      new URL(
+        `/error?message=${encodeURIComponent(
+          `Error: ${error.message || "Error desconocido"}`
+        )}`,
+        req.url
+      )
     );
   }
 }
