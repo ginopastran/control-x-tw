@@ -1,14 +1,14 @@
+import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
+import { Providers } from "./providers";
 import NavbarComponent from "./components/Navbar";
-import { HeroUIProvider } from "@heroui/react";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Control-X",
-  description: "Gestiona tus cuentas de X",
+  title: "Control X",
+  description: "Control X - Twitter Automation Tool",
 };
 
 export default function RootLayout({
@@ -17,14 +17,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es">
-      <body
-        className={`${inter.className} dark min-h-screen bg-gray-50 dark:bg-gray-900`}
-      >
-        <HeroUIProvider>
+    <html lang="es" className="dark">
+      <body className={`${inter.className} min-h-screen `}>
+        <Providers>
           <NavbarComponent />
           <main className="pt-20 min-h-screen">{children}</main>
-        </HeroUIProvider>
+        </Providers>
       </body>
     </html>
   );

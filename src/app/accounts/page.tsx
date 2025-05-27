@@ -37,6 +37,10 @@ interface XAccount {
   hasAccessToken: boolean;
   hasRefreshToken: boolean;
   needsReauth: boolean;
+  useOwnCredentials?: boolean;
+  credentialsVerified?: boolean;
+  userAppName?: string;
+  appCreatedAt?: string;
   tokenInfo?: {
     isValid: boolean;
     expiresAt: string;
@@ -58,12 +62,25 @@ interface DebugData {
   accounts: XAccount[];
 }
 
+interface RateLimitData {
+  // Add appropriate properties for RateLimitData
+}
+
 export default function AccountsPage() {
   const [debugData, setDebugData] = useState<DebugData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedAccount, setSelectedAccount] = useState<XAccount | null>(null);
+  const [rateLimitData, setRateLimitData] = useState<RateLimitData | null>(
+    null
+  );
+  const [loadingRateLimits, setLoadingRateLimits] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: isConnectionTypeOpen,
+    onOpen: onConnectionTypeOpen,
+    onClose: onConnectionTypeClose,
+  } = useDisclosure();
   const router = useRouter();
 
   useEffect(() => {
@@ -88,7 +105,17 @@ export default function AccountsPage() {
   };
 
   const handleAddAccount = () => {
+    onConnectionTypeOpen();
+  };
+
+  const handleOAuthConnection = () => {
+    onConnectionTypeClose();
     router.push("/api/auth/x/login");
+  };
+
+  const handleApiKeysConnection = () => {
+    onConnectionTypeClose();
+    router.push("/accounts/new/api-keys");
   };
 
   const handleDeleteAccount = async (id: string) => {
@@ -156,6 +183,29 @@ export default function AccountsPage() {
       default:
         return "Desconocido";
     }
+  };
+
+  const checkRateLimits = async (accountId: string) => {
+    try {
+      setLoadingRateLimits(true);
+      const response = await fetch(
+        `/api/debug/rate-limits?accountId=${accountId}`
+      );
+      if (!response.ok) {
+        throw new Error("Error al verificar rate limits");
+      }
+      const data = await response.json();
+      setRateLimitData(data);
+    } catch (err) {
+      setError("Error al verificar rate limits. Intente nuevamente.");
+      console.error(err);
+    } finally {
+      setLoadingRateLimits(false);
+    }
+  };
+
+  const handleConfigureApiKeys = (account: XAccount) => {
+    router.push(`/accounts/${account._id}/api-keys`);
   };
 
   if (loading) {
@@ -442,6 +492,64 @@ export default function AccountsPage() {
                         </svg>
                       </Button>
                     </Tooltip>
+                    <Tooltip
+                      content={
+                        account.useOwnCredentials
+                          ? "Configurar API Keys propias"
+                          : "Usar API Keys propias"
+                      }
+                    >
+                      <Button
+                        isIconOnly
+                        size="sm"
+                        variant="flat"
+                        color={
+                          account.useOwnCredentials &&
+                          account.credentialsVerified
+                            ? "success"
+                            : "warning"
+                        }
+                        onPress={() => handleConfigureApiKeys(account)}
+                      >
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15 7a2 2 0 012 2m2 0v6a2 2 0 01-2 2H5a2 2 0 01-2-2V9a2 2 0 012-2h4m4 0V5a2 2 0 00-2-2H9a2 2 0 00-2 2v2m4 0h2m-6 4v2a2 2 0 002 2h2a2 2 0 002-2v-2m-6 0h6"
+                          />
+                        </svg>
+                      </Button>
+                    </Tooltip>
+                    <Tooltip content="Verificar Rate Limits">
+                      <Button
+                        isIconOnly
+                        size="sm"
+                        variant="flat"
+                        color="secondary"
+                        isLoading={loadingRateLimits}
+                        onPress={() => checkRateLimits(account._id)}
+                      >
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                          />
+                        </svg>
+                      </Button>
+                    </Tooltip>
                     <Tooltip content="Editar cuenta">
                       <Button
                         isIconOnly
@@ -654,6 +762,125 @@ export default function AccountsPage() {
                 Invalidar token
               </Button>
             ) : null}
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      {/* Modal de selección de tipo de conexión */}
+      <Modal
+        isOpen={isConnectionTypeOpen}
+        onClose={onConnectionTypeClose}
+        size="lg"
+        placement="center"
+      >
+        <ModalContent>
+          <ModalHeader className="flex flex-col gap-1">
+            <h3 className="text-xl font-bold">Conectar Nueva Cuenta</h3>
+            <p className="text-small text-default-500 font-normal">
+              Elige cómo quieres agregar tu cuenta de X
+            </p>
+          </ModalHeader>
+          <ModalBody className="gap-6">
+            <div className="grid gap-4">
+              {/* Opción OAuth */}
+              <Card
+                isPressable
+                onPress={handleOAuthConnection}
+                className="border-2 border-transparent hover:border-primary transition-colors"
+              >
+                <CardBody className="p-6">
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0">
+                      <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
+                        <svg
+                          className="w-6 h-6 text-primary"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                          />
+                        </svg>
+                      </div>
+                    </div>
+                    <div className="flex-grow">
+                      <h4 className="text-lg font-semibold mb-2">
+                        OAuth 2.0 (Recomendado)
+                      </h4>
+                      <p className="text-default-600 text-sm mb-3">
+                        Conecta tu cuenta de forma segura usando el flujo
+                        oficial de X. No necesitas credenciales de
+                        desarrollador.
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <Chip size="sm" color="success" variant="flat">
+                          Fácil
+                        </Chip>
+                        <Chip size="sm" color="primary" variant="flat">
+                          Seguro
+                        </Chip>
+                      </div>
+                    </div>
+                  </div>
+                </CardBody>
+              </Card>
+
+              {/* Opción API Keys */}
+              <Card
+                isPressable
+                onPress={handleApiKeysConnection}
+                className="border-2 border-transparent hover:border-secondary transition-colors"
+              >
+                <CardBody className="p-6">
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0">
+                      <div className="w-12 h-12 bg-secondary-100 rounded-lg flex items-center justify-center">
+                        <svg
+                          className="w-6 h-6 text-secondary"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
+                          />
+                        </svg>
+                      </div>
+                    </div>
+                    <div className="flex-grow">
+                      <h4 className="text-lg font-semibold mb-2">
+                        Claves de Desarrollador
+                      </h4>
+                      <p className="text-default-600 text-sm mb-3">
+                        Usa tus propias credenciales de la app de desarrollador
+                        de X. Ideal para tener rate limits independientes (17
+                        tweets/día).
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <Chip size="sm" color="secondary" variant="flat">
+                          Rate Limits Propios
+                        </Chip>
+                        <Chip size="sm" color="warning" variant="flat">
+                          Requiere Dev Account
+                        </Chip>
+                      </div>
+                    </div>
+                  </div>
+                </CardBody>
+              </Card>
+            </div>
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="light" onPress={onConnectionTypeClose}>
+              Cancelar
+            </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

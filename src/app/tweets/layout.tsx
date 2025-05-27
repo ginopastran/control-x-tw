@@ -1,12 +1,14 @@
 "use client";
 
-export default function TweetsLayout({ children }: { children: React.ReactNode }) {
+export default function TweetsLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="flex min-h-screen ">
       {/* Main content */}
-      <div className="flex-grow">
-        {children}
-      </div>
+      <div className="flex-grow">{children}</div>
     </div>
   );
-} 
+}

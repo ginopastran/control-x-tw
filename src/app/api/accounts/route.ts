@@ -7,12 +7,10 @@ import { NextResponse, NextRequest } from "next/server";
 export async function GET(req: NextRequest) {
   try {
     await connectDB();
-    
+
     // Obtener todas las cuentas de X ordenadas por fecha de creación (más recientes primero)
-    const accounts = await XAccount.find({})
-      .sort({ createdAt: -1 })
-      .lean();
-    
+    const accounts = await XAccount.find({}).sort({ createdAt: -1 }).lean();
+
     return NextResponse.json(accounts);
   } catch (error) {
     console.error("Error al obtener cuentas:", error);
@@ -25,17 +23,46 @@ export async function GET(req: NextRequest) {
 
 // POST: agregar una nueva cuenta
 export async function POST(request: Request) {
-  await connectDB();
-  const body = await request.json();
+  try {
+    await connectDB();
+    const body = await request.json();
 
-  const newAccount = await XAccount.create({
-    username: body.username,
-    userId: body.userId,
-    accessToken: body.accessToken,
-    refreshToken: body.refreshToken || "",
-    developerTag: body.developerTag,
-    labels: body.labels || [],
-  });
+    // Verificar que no exista una cuenta con el mismo username
+    const existingAccount = await XAccount.findOne({ username: body.username });
+    if (existingAccount) {
+      return NextResponse.json(
+        { error: "Ya existe una cuenta con este username" },
+        { status: 400 }
+      );
+    }
 
-  return NextResponse.json(newAccount);
+    // Crear nueva cuenta
+    const accountData = {
+      username: body.username,
+      userId: body.userId || `manual_${body.username}_${Date.now()}`, // Generar ID si no se proporciona
+      accessToken: body.accessToken || "",
+      refreshToken: body.refreshToken || "",
+      developerTag: body.developerTag || "manual",
+      labels: body.labels || [],
+      useOwnCredentials: body.useOwnCredentials || false,
+      credentialsVerified: false,
+      hasAccessToken: !!body.accessToken,
+      hasRefreshToken: !!body.refreshToken,
+      needsReauth: false,
+    };
+
+    const newAccount = await XAccount.create(accountData);
+
+    return NextResponse.json({
+      success: true,
+      account: newAccount,
+      message: "Cuenta creada exitosamente",
+    });
+  } catch (error) {
+    console.error("Error al crear cuenta:", error);
+    return NextResponse.json(
+      { error: "Error al crear la cuenta" },
+      { status: 500 }
+    );
+  }
 }
