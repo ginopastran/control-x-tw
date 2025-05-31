@@ -6,6 +6,38 @@ import { decryptCredentials } from "@/services/cryptoService";
 import { logError, logAction } from "@/lib/log-action";
 import crypto from "crypto";
 
+const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY!;
+
+// Función para extraer y validar tweet ID de URL o ID directo
+const extractAndValidateTweetId = (input: string): string | undefined => {
+  if (!input?.trim()) return undefined;
+
+  // Si es solo un número, devolverlo
+  if (/^\d+$/.test(input.trim())) {
+    return input.trim();
+  }
+
+  // Si es una URL, extraer el ID
+  try {
+    const url = new URL(input);
+    const pathParts = url.pathname.split("/");
+    const statusIndex = pathParts.indexOf("status");
+
+    if (statusIndex !== -1 && pathParts[statusIndex + 1]) {
+      const tweetId = pathParts[statusIndex + 1].split("?")[0]; // Remover query params
+
+      // Validar que sea numérico
+      if (/^\d+$/.test(tweetId)) {
+        return tweetId;
+      }
+    }
+  } catch {
+    // No es una URL válida, intentar como ID directo
+  }
+
+  return undefined;
+};
+
 // Función para generar OAuth 1.0a signature
 const generateOAuth1Signature = (
   method: string,
@@ -156,6 +188,49 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Validar que las acciones que requieren userId tengan este campo
+    const actionsRequiringUserId = ["like", "retweet"];
+    if (actionsRequiringUserId.includes(action) && !account.userId) {
+      return NextResponse.json(
+        {
+          error: `La cuenta @${account.username} no tiene userId configurado. Este campo es requerido para la acción ${action}`,
+        },
+        { status: 400 }
+      );
+    }
+
+    // Validar y procesar tweetId
+    let validatedTweetId: string | undefined;
+    const actionsRequiringTweetId = ["like", "retweet", "reply"];
+    if (actionsRequiringTweetId.includes(action)) {
+      if (!tweetId) {
+        return NextResponse.json(
+          { error: `tweetId es requerido para la acción ${action}` },
+          { status: 400 }
+        );
+      }
+
+      // Validar que el tweetId sea válido
+      validatedTweetId = extractAndValidateTweetId(tweetId);
+      if (!validatedTweetId) {
+        return NextResponse.json(
+          {
+            error: `tweetId inválido: "${tweetId}". Debe ser un ID numérico o una URL válida de Twitter.`,
+          },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Validar que las acciones que requieren texto lo tengan
+    const actionsRequiringText = ["tweet", "reply"];
+    if (actionsRequiringText.includes(action) && !text?.trim()) {
+      return NextResponse.json(
+        { error: `text es requerido para la acción ${action}` },
+        { status: 400 }
+      );
+    }
+
     // Determinar qué credenciales usar
     let accessToken: string;
     let accessTokenSecret: string | undefined;
@@ -237,17 +312,17 @@ export async function POST(req: NextRequest) {
           break;
         case "like":
           endpoint = `https://api.twitter.com/2/users/${account.userId}/likes`;
-          body = { tweet_id: tweetId };
+          body = { tweet_id: validatedTweetId };
           break;
         case "retweet":
           endpoint = `https://api.twitter.com/2/users/${account.userId}/retweets`;
-          body = { tweet_id: tweetId };
+          body = { tweet_id: validatedTweetId };
           break;
         case "reply":
           endpoint = "https://api.twitter.com/2/tweets";
           body = {
             text,
-            reply: { in_reply_to_tweet_id: tweetId },
+            reply: { in_reply_to_tweet_id: validatedTweetId },
           };
           break;
         default:
@@ -366,14 +441,32 @@ export async function POST(req: NextRequest) {
               status: response.status,
               error,
               endpoint,
+              requestBody: body,
               useOwnCredentials,
+              headers: Object.fromEntries(response.headers.entries()),
             });
 
-            const errorObj = new Error(
-              error.detail ||
-                error.message ||
-                `Error ${response.status} de Twitter API`
-            );
+            // Crear mensaje de error más específico
+            let errorMessage = "";
+
+            if (error.detail) {
+              errorMessage = error.detail;
+            } else if (error.title && error.detail) {
+              errorMessage = `${error.title}: ${error.detail}`;
+            } else if (error.message) {
+              errorMessage = error.message;
+            } else if (response.status === 400) {
+              if (action === "like" || action === "retweet") {
+                errorMessage = `Parámetros inválidos para ${action}. Verifica que el userId (${account.userId}) y tweetId (${validatedTweetId}) sean correctos.`;
+              } else {
+                errorMessage =
+                  "Uno o más parámetros de la solicitud son inválidos.";
+              }
+            } else {
+              errorMessage = `Error ${response.status} de Twitter API`;
+            }
+
+            const errorObj = new Error(errorMessage);
             (errorObj as any).status = response.status;
             throw errorObj;
           }
@@ -487,14 +580,32 @@ export async function POST(req: NextRequest) {
               status: response.status,
               error,
               endpoint,
+              requestBody: body,
               useOwnCredentials,
+              headers: Object.fromEntries(response.headers.entries()),
             });
 
-            const errorObj = new Error(
-              error.detail ||
-                error.message ||
-                `Error ${response.status} de Twitter API`
-            );
+            // Crear mensaje de error más específico
+            let errorMessage = "";
+
+            if (error.detail) {
+              errorMessage = error.detail;
+            } else if (error.title && error.detail) {
+              errorMessage = `${error.title}: ${error.detail}`;
+            } else if (error.message) {
+              errorMessage = error.message;
+            } else if (response.status === 400) {
+              if (action === "like" || action === "retweet") {
+                errorMessage = `Parámetros inválidos para ${action}. Verifica que el userId (${account.userId}) y tweetId (${validatedTweetId}) sean correctos.`;
+              } else {
+                errorMessage =
+                  "Uno o más parámetros de la solicitud son inválidos.";
+              }
+            } else {
+              errorMessage = `Error ${response.status} de Twitter API`;
+            }
+
+            const errorObj = new Error(errorMessage);
             (errorObj as any).status = response.status;
             throw errorObj;
           }
