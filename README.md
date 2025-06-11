@@ -1,87 +1,83 @@
-# Control-X: Gestor Centralizado de Cuentas de X (Twitter)
+# Control-X Bot de Twitter
 
-## Descripción
-Control-X es una aplicación web que permite administrar múltiples cuentas de X (anteriormente Twitter) de manera centralizada. Diseñada para gestionar eficientemente la interacción en la plataforma X a través de su API oficial.
+Bot automatizado para gestionar múltiples cuentas de Twitter/X con funcionalidades avanzadas.
 
-## Características Principales
+## 🆕 Nuevas Funcionalidades
 
-### 1. Gestión de Cuentas
-- Administración centralizada de múltiples cuentas de X
-- Organización de cuentas mediante etiquetas personalizables
-- Vista unificada de todas las cuentas conectadas
+### Seguir y Dejar de Seguir Usuarios
 
-### 2. Programador de Acciones
-- Programación de tweets, respuestas, likes y retweets
-- Configuración de retrasos personalizados entre acciones
-- Ejecución automática de acciones programadas
-- Selección múltiple de cuentas para acciones en masa
+El bot ahora incluye la capacidad de seguir y dejar de seguir usuarios automáticamente:
 
-### 3. Características de Automatización
-- Retrasos configurables para cada acción
-- Retrasos incrementales entre acciones
-- Monitoreo en tiempo real del estado de las acciones
-- Sistema de gestión de errores y notificaciones
+#### Características:
 
-## Requisitos Técnicos
+- ✅ **Seguir usuarios**: Automatiza el proceso de seguir cuentas
+- ✅ **Dejar de seguir**: Automatiza el proceso de unfollow
+- ✅ **Múltiples formatos de entrada**:
+  - Username: `@username` o `username`
+  - ID numérico: `123456789`
+  - URL completa: `https://twitter.com/username` o `https://x.com/username`
+- ✅ **Validación automática** de usuarios objetivos
+- ✅ **Conversión automática** de username a ID cuando es necesario
+- ✅ **Delays inteligentes** para respetar rate limits
+- ✅ **Reintentos automáticos** con backoff exponencial
 
-### Dependencias Principales
-- Next.js
-- React
-- Twitter API v2
-- MongoDB (para almacenamiento de datos)
+#### Límites de la API de X:
 
-### Configuración Necesaria
-1. Credenciales de la API de X (Twitter)
-2. Base de datos MongoDB
-3. Variables de entorno configuradas
+- **Follows/Unfollows**: 400 acciones por día por cuenta
+- **Delay recomendado**: 5+ segundos entre acciones
+- **Rate limit**: Más estricto que likes/retweets
 
-## Configuración del Proyecto
+### Mejoras en Funcionalidades Existentes
 
-1. Clonar el repositorio:
-```bash
-git clone [URL_DEL_REPOSITORIO]
-```
+#### Likes Mejorados:
 
-2. Instalar dependencias:
-```bash
-npm install
-```
+- ✅ **Mejor manejo de errores** con reintentos inteligentes
+- ✅ **Rate limiting mejorado** con jitter aleatorio
+- ✅ **Más tipos de errores recuperables**
+- ✅ **Feedback visual mejorado**
 
-3. Configurar variables de entorno:
-Crear un archivo `.env.local` con:
-```
-MONGODB_URI=tu_uri_de_mongodb
-TWITTER_API_KEY=tu_api_key
-TWITTER_API_SECRET=tu_api_secret
-```
+#### Sistema de Reintentos:
 
-4. Iniciar el servidor de desarrollo:
-```bash
-npm run dev
-```
+- ✅ **Backoff exponencial** con variabilidad aleatoria
+- ✅ **Detección inteligente** de errores recuperables:
+  - 429 (Too Many Requests)
+  - 500 (Internal Server Error)
+  - 502 (Bad Gateway)
+  - 503 (Service Unavailable)
+  - 504 (Gateway Timeout)
+  - Timeouts de conexión
 
-## Uso
+#### Interfaz de Usuario:
 
-### Gestión de Cuentas
-1. Agregar nuevas cuentas desde el panel de administración
-2. Asignar etiquetas para organización
-3. Verificar el estado de autenticación de cada cuenta
+- ✅ **Campo dedicado** para usuario objetivo
+- ✅ **Validación en tiempo real**
+- ✅ **Botones específicos** para follow/unfollow
+- ✅ **Consejos y límites** visibles en la UI
+- ✅ **Limpieza automática** de campos tras éxito
+- ✅ **Notificaciones informativas** por tipo de acción
 
-### Programación de Acciones
-1. Seleccionar el tipo de acción (tweet, respuesta, like, retweet)
-2. Elegir las cuentas objetivo
-3. Configurar los retrasos deseados
-4. Programar y ejecutar las acciones
+## 🚀 Uso
 
-## Consideraciones de Seguridad
-- Todas las credenciales se almacenan de forma segura
-- Implementación de límites de tasa para cumplir con las políticas de X
-- Sistema de manejo de errores robusto
+1. **Selecciona las cuentas** que realizarán la acción
+2. **Para seguir/dejar de seguir**:
+   - Introduce el usuario objetivo en el campo correspondiente
+   - Formats válidos: `@username`, `username`, `123456789`, o URL completa
+   - Haz clic en "Seguir" o "Dejar de Seguir"
+3. **Configura delays apropiados**:
+   - Follow/Unfollow: 5+ segundos recomendados
+   - Likes/Retweets: 2+ segundos
 
-## Soporte
+## ⚠️ Consideraciones Importantes
 
-Para reportar problemas o solicitar nuevas características, por favor crear un issue en el repositorio.
+- **Rate Limits**: X tiene límites estrictos. Respeta los delays recomendados
+- **Credenciales**: Las acciones de escritura requieren credenciales propias verificadas
+- **Monitoreo**: Revisa los resultados después de cada acción masiva
+- **Suspensiones**: El uso excesivo puede resultar en suspensiones temporales
 
-## Licencia
+## 🛠️ Tecnologías
 
-Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
+- **Backend**: Node.js + Express
+- **Frontend**: Next.js + TypeScript
+- **Base de datos**: MongoDB
+- **API**: Twitter API v2
+- **Autenticación**: OAuth 1.0a + OAuth 2.0
