@@ -24,6 +24,7 @@ import {
   addToast,
 } from "@heroui/react";
 import { CalendarDate, Time } from "@internationalized/date";
+import { fromZonedTime, toZonedTime, formatInTimeZone } from "date-fns-tz";
 import AccountSelector from "@/components/AccountSelector";
 
 interface Account {
@@ -213,8 +214,11 @@ export default function SchedulePage() {
     setLoading(true);
 
     try {
-      // Crear fecha y hora programada
-      const scheduledDateTime = new Date(
+      // Crear fecha y hora programada en zona horaria argentina
+      const argentineTimeZone = "America/Argentina/Buenos_Aires";
+
+      // Crear fecha local en zona horaria argentina
+      const localDateTime = new Date(
         scheduledDate.year,
         scheduledDate.month - 1,
         scheduledDate.day,
@@ -222,17 +226,34 @@ export default function SchedulePage() {
         scheduledTime.minute
       );
 
-      // Verificar que la fecha sea futura
-      if (scheduledDateTime <= new Date()) {
+      // Convertir la fecha local argentina a UTC para el backend
+      const scheduledDateTime = fromZonedTime(localDateTime, argentineTimeZone);
+
+      // Verificar que la fecha sea futura (comparar en hora argentina)
+      const nowInArgentina = toZonedTime(new Date(), argentineTimeZone);
+      if (localDateTime <= nowInArgentina) {
         addToast({
           title: "Error",
-          description: "La fecha y hora debe ser futura",
+          description: "La fecha y hora debe ser futura (hora argentina)",
           color: "danger",
         });
         return;
       }
 
-      const response = await fetch("/api/queue/add", {
+      console.log(
+        "🇦🇷 Fecha programada (Argentina):",
+        formatInTimeZone(
+          scheduledDateTime,
+          argentineTimeZone,
+          "yyyy-MM-dd HH:mm:ss zzz"
+        )
+      );
+      console.log(
+        "🌍 Fecha programada (UTC):",
+        scheduledDateTime.toISOString()
+      );
+
+      const response = await fetch("http://localhost:3001/api/queue/add", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -260,8 +281,10 @@ export default function SchedulePage() {
         title: "Acción Programada",
         description: `${
           result.actions.length
-        } acciones programadas para ${formatScheduledTime(
-          scheduledDateTime.toISOString()
+        } acciones programadas para ${formatInTimeZone(
+          scheduledDateTime,
+          argentineTimeZone,
+          "dd/MM/yyyy 'a las' HH:mm 'hs (Argentina)'"
         )}`,
         color: "success",
       });
@@ -294,9 +317,12 @@ export default function SchedulePage() {
 
   const cancelScheduledAction = async (actionId: string) => {
     try {
-      const response = await fetch(`/api/queue/cancel/${actionId}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `http://localhost:3001/api/queue/cancel/${actionId}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -329,8 +355,16 @@ export default function SchedulePage() {
   };
 
   const formatScheduledTime = (timeString: string) => {
-    const date = new Date(timeString);
-    return date.toLocaleString();
+    const argentineTimeZone = "America/Argentina/Buenos_Aires";
+    try {
+      return formatInTimeZone(
+        new Date(timeString),
+        argentineTimeZone,
+        "dd/MM/yyyy HH:mm 'hs (Argentina)'"
+      );
+    } catch (error) {
+      return "Fecha inválida";
+    }
   };
 
   const getActionIcon = (action: string) => {
@@ -436,7 +470,7 @@ export default function SchedulePage() {
                       )}
 
                       <div className="flex flex-wrap gap-1 mb-2">
-                        {action.accountIds.map((accountId) => (
+                        {(action.accountIds || []).map((accountId) => (
                           <Chip key={accountId} size="sm" variant="bordered">
                             @{getAccountName(accountId)}
                           </Chip>

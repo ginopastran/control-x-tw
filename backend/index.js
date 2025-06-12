@@ -94,6 +94,7 @@ app.get("/api/queue/status", (req, res) => {
 
   const scheduledActionsInfo = scheduledActions.map((action) => ({
     id: action.id,
+    accountIds: [action.accountId], // Convertir a array para compatibilidad con frontend
     accountUsername: action.accountUsername,
     accountLabels: action.account?.labels || [], // Añadir labels de la cuenta
     action: action.action,
@@ -1003,7 +1004,7 @@ async function createTwitterClient(account) {
       account.ownClientSecret
     ) {
       console.log(
-        `�� Fallback a OAuth 2.0 para ${account.username} (OAuth 1.0a no disponible)`
+        `🔐 Fallback a OAuth 2.0 para ${account.username} (OAuth 1.0a no disponible)`
       );
 
       // Si hay access token OAuth 2.0, usarlo directamente
