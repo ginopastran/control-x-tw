@@ -5,8 +5,8 @@ export async function GET(req: NextRequest) {
     // Crear URL de redirección al login
     const loginUrl = new URL("/login", req.url);
 
-    // Crear respuesta de redirección
-    const response = NextResponse.redirect(loginUrl, { status: 307 });
+    // Crear respuesta de redirección (303 es mejor para redirects después de POST)
+    const response = NextResponse.redirect(loginUrl, { status: 303 });
 
     // Eliminar múltiples variaciones de cookies de autenticación
     const cookieNames = ["auth_token", "authToken", "token", "session"];
@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
 
     // En caso de error, aún así redirigir y limpiar
     const loginUrl = new URL("/login", req.url);
-    const response = NextResponse.redirect(loginUrl, { status: 307 });
+    const response = NextResponse.redirect(loginUrl, { status: 303 });
 
     response.cookies.delete("auth_token");
     response.headers.set("Clear-Site-Data", '"cache", "cookies", "storage"');

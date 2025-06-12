@@ -3,6 +3,12 @@ export const API_CONFIG = {
   BASE_URL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001",
   ENDPOINTS: {
     ACCOUNTS: "/api/accounts",
+    AUTH: {
+      ME: "/api/auth/me",
+      LOGIN: "/api/auth/login",
+      LOGOUT: "/api/auth/logout",
+      REGISTER: "/api/auth/register",
+    },
     QUEUE: {
       ADD: "/api/queue/add",
       STATUS: "/api/queue/status",

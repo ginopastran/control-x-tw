@@ -37,8 +37,11 @@ export default function LoginForm() {
         throw new Error(data.error || "Error al iniciar sesión");
       }
 
-      // Redireccionar al panel de administración
-      router.push("/admin");
+      // Redireccionar al dashboard o a la página solicitada
+      const urlParams = new URLSearchParams(window.location.search);
+      const from = urlParams.get("from") || "/dashboard";
+
+      router.push(from);
       router.refresh();
     } catch (err: any) {
       setError(err.message);
@@ -50,7 +53,7 @@ export default function LoginForm() {
   return (
     <div className="relative">
       {/* Formulario con efecto glassmorphism */}
-      <div className="w-full p-8 bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl shadow-2xl">
+      <div className="w-full p-8 bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl shadow-2xl relative z-10">
         <h2 className="text-2xl font-bold text-center text-white mb-8">
           Iniciar Sesión
         </h2>
@@ -76,55 +79,49 @@ export default function LoginForm() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Campo Email */}
-          <div className="group">
+          <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-gray-300 mb-2 transition-colors group-focus-within:text-blue-400"
+              className="block text-sm font-medium text-gray-300 mb-2"
             >
               Correo Electrónico
             </label>
-            <div className="relative">
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 
-                         focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 
-                         transition-all duration-200 backdrop-blur-sm
-                         hover:bg-white/10"
-                placeholder="tu@email.com"
-              />
-              <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500/20 to-purple-500/20 opacity-0 group-focus-within:opacity-100 transition-opacity duration-200 pointer-events-none"></div>
-            </div>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 
+                       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                       transition-all duration-200 backdrop-blur-sm
+                       hover:bg-white/15"
+              placeholder="tu@email.com"
+            />
           </div>
 
           {/* Campo Contraseña */}
-          <div className="group">
+          <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-gray-300 mb-2 transition-colors group-focus-within:text-blue-400"
+              className="block text-sm font-medium text-gray-300 mb-2"
             >
               Contraseña
             </label>
-            <div className="relative">
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 
-                         focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 
-                         transition-all duration-200 backdrop-blur-sm
-                         hover:bg-white/10"
-                placeholder="••••••••"
-              />
-              <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500/20 to-purple-500/20 opacity-0 group-focus-within:opacity-100 transition-opacity duration-200 pointer-events-none"></div>
-            </div>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 
+                       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                       transition-all duration-200 backdrop-blur-sm
+                       hover:bg-white/15"
+              placeholder="••••••••"
+            />
           </div>
 
           {/* Botón de envío */}
@@ -179,7 +176,7 @@ export default function LoginForm() {
       </div>
 
       {/* Efectos de resplandor */}
-      <div className="absolute -inset-1 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-2xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-200"></div>
+      <div className="absolute -inset-1 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-2xl blur-lg opacity-30 -z-10"></div>
     </div>
   );
 }

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Providers } from "./providers";
 import ConditionalNavbar from "./components/ConditionalNavbar";
+import BackgroundGradient from "@/components/ui/BackgroundGradient";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,10 +19,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es" className="dark">
-      <body className={`${inter.className} min-h-screen `}>
+      <body className={`${inter.className}`}>
         <Providers>
-          <ConditionalNavbar />
-          <main className="min-h-screen">{children}</main>
+          <BackgroundGradient>
+            <ConditionalNavbar />
+            <main className="min-h-screen">{children}</main>
+          </BackgroundGradient>
         </Providers>
       </body>
     </html>
