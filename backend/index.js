@@ -3,9 +3,11 @@ const express = require("express");
 const mongoose = require("mongoose");
 const axios = require("axios");
 const { URLSearchParams } = require("url");
-const cors = require("cors");
 const { TwitterApi } = require("twitter-api-v2");
 const cron = require("node-cron");
+
+// Importar configuración CORS
+const { corsMiddleware, logCorsConfig } = require("./src/config/cors");
 
 // Importar modelo y utilidades (serán creados a continuación)
 const XAccount = require("./models/XAccount"); // Asegúrate de crear models/XAccount.js
@@ -38,7 +40,7 @@ const addToHistory = (actionInfo) => {
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(corsMiddleware);
 
 const PORT = process.env.PORT || 3001;
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -51,7 +53,11 @@ if (!MONGODB_URI) {
 // Conexión a MongoDB
 mongoose
   .connect(MONGODB_URI)
-  .then(() => console.log("MongoDB conectado exitosamente"))
+  .then(() => {
+    console.log("MongoDB conectado exitosamente");
+    // Mostrar configuración CORS
+    logCorsConfig();
+  })
   .catch((err) => console.error("Error al conectar a MongoDB:", err));
 
 // TODO: Migrar la función getValidToken si es necesaria (usada para credenciales compartidas)

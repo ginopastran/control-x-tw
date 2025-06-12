@@ -26,6 +26,7 @@ import {
 import { CalendarDate, Time } from "@internationalized/date";
 import { fromZonedTime, toZonedTime, formatInTimeZone } from "date-fns-tz";
 import AccountSelector from "@/components/AccountSelector";
+import { API_CONFIG, buildApiUrl } from "@/config/api";
 
 interface Account {
   _id: string;
@@ -81,7 +82,7 @@ export default function SchedulePage() {
 
   const fetchAccounts = async () => {
     try {
-      const response = await fetch("http://localhost:3001/api/accounts");
+      const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.ACCOUNTS));
       if (!response.ok) throw new Error("Error al cargar cuentas");
       const data = await response.json();
       setAccounts(data);
@@ -96,7 +97,9 @@ export default function SchedulePage() {
 
   const fetchScheduledActions = async () => {
     try {
-      const response = await fetch("http://localhost:3001/api/queue/status");
+      const response = await fetch(
+        buildApiUrl(API_CONFIG.ENDPOINTS.QUEUE.STATUS)
+      );
       if (!response.ok) throw new Error("Error al cargar acciones programadas");
       const data = await response.json();
       setScheduledActions(data.scheduled || []);
@@ -253,22 +256,25 @@ export default function SchedulePage() {
         scheduledDateTime.toISOString()
       );
 
-      const response = await fetch("http://localhost:3001/api/queue/add", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          action: actionType,
-          accountIds: selectedAccounts,
-          text: text.trim() || undefined,
-          tweetId: extractTweetId(tweetId) || undefined,
-          targetUserId: extractAndValidateUserId(targetUserId) || undefined,
-          baseDelay: baseDelay * 1000,
-          randomDelay: randomDelay * 1000,
-          scheduledTime: scheduledDateTime.toISOString(),
-        }),
-      });
+      const response = await fetch(
+        buildApiUrl(API_CONFIG.ENDPOINTS.QUEUE.ADD),
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            action: actionType,
+            accountIds: selectedAccounts,
+            text: text.trim() || undefined,
+            tweetId: extractTweetId(tweetId) || undefined,
+            targetUserId: extractAndValidateUserId(targetUserId) || undefined,
+            baseDelay: baseDelay * 1000,
+            randomDelay: randomDelay * 1000,
+            scheduledTime: scheduledDateTime.toISOString(),
+          }),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -318,7 +324,7 @@ export default function SchedulePage() {
   const cancelScheduledAction = async (actionId: string) => {
     try {
       const response = await fetch(
-        `http://localhost:3001/api/queue/cancel/${actionId}`,
+        buildApiUrl(API_CONFIG.ENDPOINTS.QUEUE.CANCEL(actionId)),
         {
           method: "DELETE",
         }

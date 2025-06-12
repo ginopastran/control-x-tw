@@ -42,6 +42,7 @@ import {
   Tooltip,
 } from "@heroui/react";
 import AccountSelector from "@/components/AccountSelector";
+import { API_CONFIG, buildApiUrl } from "@/config/api";
 
 interface Account {
   _id: string;
@@ -196,7 +197,7 @@ export default function TweetsPage() {
 
   const fetchAccounts = async () => {
     try {
-      const response = await fetch("/api/accounts");
+      const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.ACCOUNTS));
       if (!response.ok) throw new Error("Error al cargar cuentas");
       const data = await response.json();
       setAccounts(data);
@@ -362,7 +363,7 @@ export default function TweetsPage() {
 
       // Enviar a la cola
       const response = await retryWithBackoff(async () => {
-        const res = await fetch("http://localhost:3001/api/queue/add", {
+        const res = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.QUEUE.ADD), {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -589,13 +590,16 @@ export default function TweetsPage() {
           }
 
           // Enviar al sistema de colas del backend
-          const response = await fetch("http://localhost:3001/api/tweets", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(requestBody),
-          });
+          const response = await fetch(
+            buildApiUrl(API_CONFIG.ENDPOINTS.TWEETS),
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(requestBody),
+            }
+          );
 
           if (!response.ok) {
             const errorData = await response.json();

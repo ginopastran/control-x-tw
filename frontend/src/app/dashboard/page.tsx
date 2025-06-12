@@ -22,6 +22,7 @@ import {
   Tab,
   Pagination,
 } from "@heroui/react";
+import { API_CONFIG, buildApiUrl } from "@/config/api";
 
 interface AccountLimits {
   _id: string;
@@ -107,7 +108,9 @@ export default function Dashboard() {
 
   const fetchAccountLimits = async () => {
     try {
-      const response = await fetch("http://localhost:3001/api/account-limits");
+      const response = await fetch(
+        buildApiUrl(API_CONFIG.ENDPOINTS.ACCOUNT_LIMITS)
+      );
       if (!response.ok) throw new Error("Error al cargar límites");
       const data = await response.json();
       setAccountLimits(data);
@@ -119,7 +122,10 @@ export default function Dashboard() {
   const fetchQueueStatus = async () => {
     try {
       const response = await fetch(
-        `http://localhost:3001/api/queue/status?historyPage=${historyPage}&historyLimit=${historyPerPage}`
+        buildApiUrl(API_CONFIG.ENDPOINTS.QUEUE.STATUS, {
+          historyPage,
+          historyLimit: historyPerPage,
+        })
       );
       if (!response.ok) throw new Error("Error al cargar estado de cola");
       const data = await response.json();
@@ -133,7 +139,7 @@ export default function Dashboard() {
   const fetchRealtimeMetrics = async () => {
     try {
       const response = await fetch(
-        "http://localhost:3001/api/metrics/realtime"
+        buildApiUrl(API_CONFIG.ENDPOINTS.METRICS.REALTIME)
       );
       if (!response.ok) throw new Error("Error al cargar métricas");
       const data = await response.json();
@@ -238,7 +244,7 @@ export default function Dashboard() {
   const cancelAction = async (actionId: string) => {
     try {
       const response = await fetch(
-        `http://localhost:3001/api/queue/${actionId}`,
+        buildApiUrl(API_CONFIG.ENDPOINTS.QUEUE.DELETE(actionId)),
         {
           method: "DELETE",
         }
