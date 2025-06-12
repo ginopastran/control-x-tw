@@ -27,7 +27,8 @@ const corsOptions = {
   origin: function (origin, callback) {
     const allowedOrigins = getAllowedOrigins();
 
-    // Permitir requests sin origin (como Postman, mobile apps, etc.)
+    // Permitir requests sin origin (como Postman, mobile apps, cron jobs, etc.)
+    // Esto es importante para los servicios de keep-alive
     if (!origin) return callback(null, true);
 
     // Verificar si el origin está en la lista permitida

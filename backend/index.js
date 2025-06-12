@@ -862,8 +862,22 @@ app.delete("/api/queue/cancel/:actionId", (req, res) => {
   }
 });
 
+// 🚀 Keep-Alive endpoint para evitar que el backend se duerma
+app.get("/api/keepalive", (req, res) => {
+  const timestamp = new Date().toISOString();
+  const uptime = process.uptime();
+
+  res.status(200).json({
+    status: "alive",
+    timestamp,
+    uptime,
+    message: "Backend activo y funcionando",
+  });
+});
+
+// Iniciar servidor
 app.listen(PORT, () => {
-  console.log(`Servidor backend escuchando en http://localhost:${PORT}`);
+  console.log(`🚀 Servidor ejecutándose en puerto ${PORT}`);
 });
 
 // Función para extraer y validar tweet ID (migrada de route.ts)

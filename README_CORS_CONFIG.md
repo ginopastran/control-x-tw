@@ -15,9 +15,15 @@ He actualizado tu aplicación para usar variables de entorno en lugar de URLs ha
    - Fallback a `http://localhost:3001` en desarrollo
 
 2. **Archivos actualizados**:
+
    - `src/app/schedule/page.tsx` - Usa la nueva configuración
    - `src/app/dashboard/page.tsx` - Usa la nueva configuración
    - `src/app/tweets/page.tsx` - Usa la nueva configuración
+
+3. **Endpoint Keep-Alive** (`/api/keepalive`):
+   - Endpoint para mantener activo el backend
+   - Evita que el servidor se duerma en Render
+   - Respuesta ultra-rápida con información del servidor
 
 ### Backend (`backend/`)
 
@@ -31,6 +37,10 @@ He actualizado tu aplicación para usar variables de entorno en lugar de URLs ha
 2. **Archivo principal actualizado** (`index.js`):
    - Importa y usa la nueva configuración CORS
    - Muestra logs de configuración al iniciar
+   - **Endpoint Keep-Alive** (`GET /api/keepalive`):
+     - Respuesta JSON con estado del servidor
+     - Información de uptime y timestamp
+     - Diseñado para cron jobs externos
 
 ## 🚀 Configuración para Desarrollo
 
