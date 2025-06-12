@@ -20,34 +20,34 @@ export default function ConditionalNavbar() {
     const fetchUser = async () => {
       try {
         const response = await fetch("/api/auth/me");
-        const data = await response.json();
-        setUser(data.user);
+        if (response.ok) {
+          const data = await response.json();
+          setUser(data.user);
+        } else {
+          setUser(null);
+        }
       } catch (error) {
         console.error("Error al obtener el usuario:", error);
+        setUser(null);
       } finally {
         setLoading(false);
       }
     };
 
     fetchUser();
-  }, []);
+  }, [pathname]); // Refetch cuando cambie la ruta
 
-  // No mostrar navbar en páginas de login, register o página de inicio
-  const hiddenPaths = ["/login", "/register", "/"];
+  // Solo ocultar navbar en páginas de login y register
+  const hiddenPaths = ["/login", "/register"];
 
-  // Si está cargando, no renderizar nada
-  if (loading) {
-    return null;
-  }
-
-  // Si no hay usuario o está en una página oculta, no mostrar navbar
-  if (!user || !pathname || hiddenPaths.includes(pathname)) {
+  // Si está en una página oculta, no mostrar navbar
+  if (pathname && hiddenPaths.includes(pathname)) {
     return null;
   }
 
   return (
     <div className="pt-20">
-      <NavbarComponent />
+      <NavbarComponent user={user} loading={loading} />
     </div>
   );
 }

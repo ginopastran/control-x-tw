@@ -30,10 +30,13 @@ interface NavLink {
   allowedRoles?: string[];
 }
 
-export default function NavbarComponent() {
+interface NavbarProps {
+  user: User | null;
+  loading: boolean;
+}
+
+export default function NavbarComponent({ user, loading }: NavbarProps) {
   const pathname = usePathname();
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const isActive = (path: string) => {
@@ -53,8 +56,8 @@ export default function NavbarComponent() {
 
   const navLinks: NavLink[] = [
     {
-      path: "/admin",
-      label: "Inicio",
+      path: "/dashboard",
+      label: "Dashboard",
       icon: (
         <svg
           className="w-5 h-5 mr-1"
@@ -66,7 +69,7 @@ export default function NavbarComponent() {
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth={2}
-            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
           />
         </svg>
       ),
@@ -90,7 +93,7 @@ export default function NavbarComponent() {
           />
         </svg>
       ),
-      allowedRoles: ["SUPERADMIN"],
+      allowedRoles: ["ADMIN", "SUPERADMIN"],
     },
     {
       path: "/tweets",
@@ -113,27 +116,6 @@ export default function NavbarComponent() {
       allowedRoles: ["ADMIN", "SUPERADMIN"],
     },
     {
-      path: "/dashboard",
-      label: "Dashboard",
-      icon: (
-        <svg
-          className="w-5 h-5 mr-1"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-          />
-        </svg>
-      ),
-      allowedRoles: ["ADMIN", "SUPERADMIN"],
-    },
-
-    {
       path: "/schedule",
       label: "Programador",
       icon: (
@@ -151,7 +133,7 @@ export default function NavbarComponent() {
           />
         </svg>
       ),
-      allowedRoles: ["SUPERADMIN"],
+      allowedRoles: ["ADMIN", "SUPERADMIN"],
     },
   ];
 
@@ -159,22 +141,6 @@ export default function NavbarComponent() {
     if (!link.allowedRoles || !user?.role) return false;
     return link.allowedRoles.includes(user.role);
   });
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const response = await fetch("/api/auth/me");
-        const data = await response.json();
-        setUser(data.user);
-      } catch (error) {
-        console.error("Error al obtener el usuario:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUser();
-  }, []);
 
   return (
     <>
@@ -212,7 +178,7 @@ export default function NavbarComponent() {
             className="sm:hidden"
           />
           <NavbarBrand>
-            <Link href="/admin" className="flex items-center">
+            <Link href="/dashboard" className="flex items-center">
               <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-green-600">
                 Control-X
               </span>
@@ -221,7 +187,20 @@ export default function NavbarComponent() {
         </NavbarContent>
 
         <NavbarContent className="hidden sm:flex gap-4" justify="center">
-          {user && (
+          {loading ? (
+            // Skeleton loading para los links
+            <>
+              {[1, 2, 3].map((i) => (
+                <NavbarItem key={i}>
+                  <div className="flex items-center px-3 py-2">
+                    <div className="w-5 h-5 mr-1 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></div>
+                    <div className="w-16 h-4 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></div>
+                  </div>
+                </NavbarItem>
+              ))}
+            </>
+          ) : user ? (
+            // Links normales cuando hay usuario
             <>
               {filteredNavLinks.map((link) => (
                 <NavbarItem key={link.path} isActive={isActive(link.path)}>
@@ -237,15 +216,43 @@ export default function NavbarComponent() {
                 </NavbarItem>
               ))}
             </>
+          ) : (
+            // Mensaje cuando no hay usuario
+            <NavbarItem>
+              <div className="text-gray-500 dark:text-gray-400 text-sm">
+                Inicia sesión para ver el menú
+              </div>
+            </NavbarItem>
           )}
         </NavbarContent>
 
         <NavbarContent justify="end">
-          {!loading && <AuthStatus user={user} />}
+          {loading ? (
+            // Skeleton para AuthStatus
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-gray-300 dark:bg-gray-600 rounded-full animate-pulse"></div>
+              <div className="w-16 h-4 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></div>
+            </div>
+          ) : (
+            <AuthStatus user={user} />
+          )}
         </NavbarContent>
 
         <NavbarMenu>
-          {user && (
+          {loading ? (
+            // Skeleton loading para menú móvil
+            <>
+              {[1, 2, 3].map((i) => (
+                <NavbarMenuItem key={i}>
+                  <div className="flex items-center py-2 w-full">
+                    <div className="w-5 h-5 mr-1 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></div>
+                    <div className="w-20 h-4 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></div>
+                  </div>
+                </NavbarMenuItem>
+              ))}
+            </>
+          ) : user ? (
+            // Links normales cuando hay usuario
             <>
               {filteredNavLinks.map((link) => (
                 <NavbarMenuItem key={link.path}>
@@ -259,6 +266,13 @@ export default function NavbarComponent() {
                 </NavbarMenuItem>
               ))}
             </>
+          ) : (
+            // Mensaje cuando no hay usuario
+            <NavbarMenuItem>
+              <div className="text-gray-500 dark:text-gray-400 text-sm py-2">
+                Inicia sesión para ver el menú
+              </div>
+            </NavbarMenuItem>
           )}
         </NavbarMenu>
       </Navbar>
