@@ -867,6 +867,7 @@ app.get("/api/keepalive", (req, res) => {
   const timestamp = new Date().toISOString();
   const uptime = process.uptime();
 
+  console.log("🔄 Keep-Alive endpoint llamado");
   res.status(200).json({
     status: "alive",
     timestamp,
