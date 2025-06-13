@@ -1,0 +1,25 @@
+{
+  "name": "csv-account-uploader",
+  "version": "1.0.0",
+  "description": "Script para cargar cuentas de Twitter desde CSV al backend",
+  "main": "upload-accounts-from-csv.js",
+  "scripts": {
+    "start": "node upload-accounts-from-csv.js",
+    "upload": "node upload-accounts-from-csv.js"
+  },
+  "dependencies": {
+    "axios": "^1.9.0",
+    "csv-parse": "^5.5.2",
+    "form-data": "^4.0.3",
+    "mongoose": "^8.0.3"
+  },
+  "keywords": [
+    "csv",
+    "twitter",
+    "accounts",
+    "upload",
+    "mongodb"
+  ],
+  "author": "System",
+  "license": "MIT"
+}

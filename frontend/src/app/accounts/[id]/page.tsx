@@ -264,9 +264,6 @@ export default function EditAccountPage({
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Breadcrumbs */}
       <Breadcrumbs className="mb-6">
-        <BreadcrumbItem onPress={() => router.push("/admin")}>
-          Inicio
-        </BreadcrumbItem>
         <BreadcrumbItem onPress={() => router.push("/accounts")}>
           Cuentas
         </BreadcrumbItem>

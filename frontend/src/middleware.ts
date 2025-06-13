@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 // Rutas que requieren autenticación de superadmin
-const SUPERADMIN_ROUTES = ["/admin/users"];
+const SUPERADMIN_ROUTES = ["/admin/users", "/admin/emails"];
 
 // Rutas públicas (no requieren autenticación)
 const PUBLIC_ROUTES = [

@@ -5,6 +5,8 @@ const axios = require("axios");
 const { URLSearchParams } = require("url");
 const { TwitterApi } = require("twitter-api-v2");
 const cron = require("node-cron");
+const multer = require("multer");
+const csv = require("csv-parse/sync");
 
 // Importar configuración CORS
 const { corsMiddleware, logCorsConfig } = require("./src/config/cors");
@@ -71,10 +73,338 @@ const getValidToken = async (accountId) => {
   );
 };
 
+// Configurar multer para subida de archivos
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB máximo
+  },
+  fileFilter: (req, file, cb) => {
+    if (
+      file.mimetype === "text/csv" ||
+      file.originalname.toLowerCase().endsWith(".csv")
+    ) {
+      cb(null, true);
+    } else {
+      cb(new Error("Solo se permiten archivos CSV"), false);
+    }
+  },
+});
+
+// Función para procesar CSV y mapear campos
+const processCSVData = (csvData) => {
+  const logs = [];
+  const successfulAccounts = [];
+  const errorAccounts = [];
+
+  logs.push({
+    timestamp: new Date().toISOString(),
+    level: "INFO",
+    message: `Iniciando procesamiento de ${csvData.length} registros del CSV`,
+  });
+
+  csvData.forEach((row, index) => {
+    try {
+      const lineNumber = index + 2; // +2 porque index empieza en 0 y hay header
+
+      // Mapeo de campos del CSV a nuestro modelo
+      const accountData = {
+        username: cleanUsername(row["Email"] || ""),
+        labels: [],
+
+        // Credenciales OAuth 1.0a
+        ownApiKey: row["API Key"] || "",
+        ownApiSecret: row["API Key Secret"] || "",
+        ownBearerToken: row["Bearer Token"] || "",
+        ownAccessToken: row["Access Token"] || "",
+        ownAccessTokenSecret: row["Access Token Secret"] || "",
+
+        // Credenciales OAuth 2.0
+        ownClientId: row["Client ID "] || row["Client ID"] || "",
+        ownClientSecret: row["client secrect"] || row["client secret"] || "",
+
+        // Configuración basada en datos disponibles
+        useOwnCredentials: true,
+        preferOAuth2: false, // Por defecto OAuth 1.0a
+        isActive: true,
+      };
+
+      // Validar datos mínimos
+      if (!accountData.username) {
+        throw new Error("Username/Email es requerido");
+      }
+
+      // Verificar si tiene credenciales OAuth 1.0a completas
+      const hasOAuth1 =
+        accountData.ownApiKey &&
+        accountData.ownApiSecret &&
+        accountData.ownAccessToken &&
+        accountData.ownAccessTokenSecret;
+
+      // Verificar si tiene credenciales OAuth 2.0 completas
+      const hasOAuth2 = accountData.ownClientId && accountData.ownClientSecret;
+
+      if (!hasOAuth1 && !hasOAuth2) {
+        throw new Error(
+          "Se requieren credenciales OAuth 1.0a completas o OAuth 2.0"
+        );
+      }
+
+      // Crear etiquetas basadas en metadatos
+      const metadataFields = [
+        "Edad",
+        "Clase Social",
+        "Género",
+        "Situación",
+        "Profesión",
+        "Ideología",
+      ];
+      metadataFields.forEach((field) => {
+        if (row[field] && row[field].trim()) {
+          accountData.labels.push(`${field}: ${row[field].trim()}`);
+        }
+      });
+
+      // Si tiene Bio Tw, agregar como etiqueta
+      if (row["Bio Tw"] && row["Bio Tw"].trim()) {
+        accountData.labels.push(
+          `Bio: ${row["Bio Tw"].trim().substring(0, 50)}`
+        );
+      }
+
+      // Determinar preferencia OAuth basada en datos disponibles
+      if (hasOAuth2 && !hasOAuth1) {
+        accountData.preferOAuth2 = true;
+      }
+
+      successfulAccounts.push({
+        ...accountData,
+        lineNumber,
+        hasOAuth1,
+        hasOAuth2,
+      });
+
+      logs.push({
+        timestamp: new Date().toISOString(),
+        level: "SUCCESS",
+        message: `Línea ${lineNumber}: @${accountData.username} - OAuth1: ${
+          hasOAuth1 ? "✓" : "✗"
+        } OAuth2: ${hasOAuth2 ? "✓" : "✗"}`,
+      });
+    } catch (error) {
+      const lineNumber = index + 2;
+      errorAccounts.push({
+        lineNumber,
+        username: row["Email"] || "N/A",
+        error: error.message,
+        data: row,
+      });
+
+      logs.push({
+        timestamp: new Date().toISOString(),
+        level: "ERROR",
+        message: `Línea ${lineNumber}: Error - ${error.message}`,
+      });
+    }
+  });
+
+  return { logs, successfulAccounts, errorAccounts };
+};
+
+// Función para limpiar username
+const cleanUsername = (email) => {
+  if (!email) return "";
+
+  // Si es un email, extraer la parte antes del @
+  if (email.includes("@")) {
+    return email.split("@")[0];
+  }
+
+  // Si ya es un username, limpiar caracteres especiales
+  return email.replace(/[^a-zA-Z0-9_]/g, "");
+};
+
 // Endpoint de ejemplo
 app.get("/", (req, res) => {
   res.send("Backend Express funcionando!");
 });
+
+// Endpoint para cargar cuentas masivamente desde CSV
+app.post(
+  "/api/accounts/upload-csv",
+  upload.single("csvFile"),
+  async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          error: "No se proporcionó archivo CSV",
+        });
+      }
+
+      const logs = [
+        {
+          timestamp: new Date().toISOString(),
+          level: "INFO",
+          message: `Archivo CSV recibido: ${req.file.originalname} (${(
+            req.file.size / 1024
+          ).toFixed(2)} KB)`,
+        },
+      ];
+
+      // Parsear CSV
+      let csvData;
+      try {
+        const csvContent = req.file.buffer.toString("utf-8");
+        csvData = csv.parse(csvContent, {
+          columns: true,
+          skip_empty_lines: true,
+          delimiter: ",",
+          quote: '"',
+          escape: '"',
+        });
+
+        logs.push({
+          timestamp: new Date().toISOString(),
+          level: "SUCCESS",
+          message: `CSV parseado correctamente. ${csvData.length} registros encontrados`,
+        });
+      } catch (parseError) {
+        logs.push({
+          timestamp: new Date().toISOString(),
+          level: "ERROR",
+          message: `Error parseando CSV: ${parseError.message}`,
+        });
+
+        return res.status(400).json({
+          error: "Error parseando archivo CSV",
+          details: parseError.message,
+          logs,
+        });
+      }
+
+      // Procesar datos del CSV
+      const {
+        logs: processLogs,
+        successfulAccounts,
+        errorAccounts,
+      } = processCSVData(csvData);
+      logs.push(...processLogs);
+
+      // Intentar guardar cuentas en la base de datos
+      const savedAccounts = [];
+      const dbErrors = [];
+
+      for (const accountData of successfulAccounts) {
+        try {
+          // Verificar si ya existe una cuenta con este username
+          const existingAccount = await XAccount.findOne({
+            username: accountData.username,
+          });
+
+          if (existingAccount) {
+            // Actualizar cuenta existente
+            Object.assign(existingAccount, accountData);
+            const updatedAccount = await existingAccount.save();
+
+            savedAccounts.push({
+              ...updatedAccount.toObject(),
+              action: "updated",
+              lineNumber: accountData.lineNumber,
+            });
+
+            logs.push({
+              timestamp: new Date().toISOString(),
+              level: "SUCCESS",
+              message: `Línea ${accountData.lineNumber}: @${accountData.username} actualizada en la base de datos`,
+            });
+          } else {
+            // Crear nueva cuenta
+            const newAccount = new XAccount(accountData);
+            const savedAccount = await newAccount.save();
+
+            savedAccounts.push({
+              ...savedAccount.toObject(),
+              action: "created",
+              lineNumber: accountData.lineNumber,
+            });
+
+            logs.push({
+              timestamp: new Date().toISOString(),
+              level: "SUCCESS",
+              message: `Línea ${accountData.lineNumber}: @${accountData.username} creada en la base de datos`,
+            });
+          }
+        } catch (dbError) {
+          dbErrors.push({
+            lineNumber: accountData.lineNumber,
+            username: accountData.username,
+            error: dbError.message,
+          });
+
+          logs.push({
+            timestamp: new Date().toISOString(),
+            level: "ERROR",
+            message: `Línea ${accountData.lineNumber}: Error BD para @${accountData.username} - ${dbError.message}`,
+          });
+        }
+      }
+
+      // Resumen final
+      const summary = {
+        totalRecords: csvData.length,
+        processedSuccessfully: successfulAccounts.length,
+        csvErrors: errorAccounts.length,
+        savedAccounts: savedAccounts.length,
+        dbErrors: dbErrors.length,
+        createdAccounts: savedAccounts.filter((a) => a.action === "created")
+          .length,
+        updatedAccounts: savedAccounts.filter((a) => a.action === "updated")
+          .length,
+      };
+
+      logs.push({
+        timestamp: new Date().toISOString(),
+        level: "INFO",
+        message: `Procesamiento completado. Creadas: ${
+          summary.createdAccounts
+        }, Actualizadas: ${summary.updatedAccounts}, Errores: ${
+          summary.csvErrors + summary.dbErrors
+        }`,
+      });
+
+      res.json({
+        success: true,
+        summary,
+        savedAccounts: savedAccounts.map((acc) => ({
+          username: acc.username,
+          action: acc.action,
+          lineNumber: acc.lineNumber,
+          hasOAuth1: acc.hasOAuth1,
+          hasOAuth2: acc.hasOAuth2,
+          labels: acc.labels,
+        })),
+        errors: [...errorAccounts, ...dbErrors],
+        logs,
+      });
+    } catch (error) {
+      console.error("Error en upload-csv:", error);
+
+      const errorLogs = [
+        {
+          timestamp: new Date().toISOString(),
+          level: "ERROR",
+          message: `Error interno del servidor: ${error.message}`,
+        },
+      ];
+
+      res.status(500).json({
+        error: "Error interno del servidor",
+        details: error.message,
+        logs: errorLogs,
+      });
+    }
+  }
+);
 
 // Endpoint para obtener estado de la cola
 app.get("/api/queue/status", (req, res) => {
