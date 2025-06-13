@@ -71,6 +71,11 @@ export default function EditAccountPage({
   const [labels, setLabels] = useState<string[]>([]);
   const [newLabel, setNewLabel] = useState("");
   const [developerTag, setDeveloperTag] = useState("");
+  const [username, setUsername] = useState("");
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(
+    null
+  );
+  const [checkingUsername, setCheckingUsername] = useState(false);
   const [saving, setSaving] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const router = useRouter();
@@ -86,6 +91,7 @@ export default function EditAccountPage({
         setAccount(data.account);
         setLabels(data.account.labels || []);
         setDeveloperTag(data.account.developerTag || "");
+        setUsername(data.account.username || "");
       } catch (err) {
         setError("Error al cargar la cuenta. Intente nuevamente.");
         console.error(err);
@@ -96,6 +102,46 @@ export default function EditAccountPage({
 
     fetchAccount();
   }, [id]);
+
+  // Verificar disponibilidad del username
+  useEffect(() => {
+    const checkUsernameAvailability = async () => {
+      if (!username || username === account?.username) {
+        setUsernameAvailable(null);
+        return;
+      }
+
+      // Validaciones básicas
+      if (
+        username.length > 15 ||
+        !/^[a-zA-Z0-9_]+$/.test(username) ||
+        username.startsWith("_") ||
+        username.endsWith("_")
+      ) {
+        setUsernameAvailable(false);
+        return;
+      }
+
+      setCheckingUsername(true);
+      try {
+        const response = await fetch(
+          `/api/accounts/check-username?username=${encodeURIComponent(
+            username
+          )}&excludeId=${id}`
+        );
+        const data = await response.json();
+        setUsernameAvailable(data.available);
+      } catch (error) {
+        console.error("Error checking username:", error);
+        setUsernameAvailable(false);
+      } finally {
+        setCheckingUsername(false);
+      }
+    };
+
+    const timeoutId = setTimeout(checkUsernameAvailability, 500);
+    return () => clearTimeout(timeoutId);
+  }, [username, account?.username, id]);
 
   const handleAddLabel = () => {
     if (newLabel.trim() && !labels.includes(newLabel.trim())) {
@@ -121,6 +167,7 @@ export default function EditAccountPage({
         body: JSON.stringify({
           labels,
           developerTag,
+          username,
         }),
       });
 
@@ -267,7 +314,7 @@ export default function EditAccountPage({
         <BreadcrumbItem onPress={() => router.push("/accounts")}>
           Cuentas
         </BreadcrumbItem>
-        <BreadcrumbItem>@{account.username}</BreadcrumbItem>
+        <BreadcrumbItem>@{username || account.username}</BreadcrumbItem>
       </Breadcrumbs>
 
       {error && (
@@ -301,7 +348,9 @@ export default function EditAccountPage({
               className="text-large"
             />
             <div>
-              <h1 className="text-2xl font-bold">@{account.username}</h1>
+              <h1 className="text-2xl font-bold">
+                @{username || account.username}
+              </h1>
               <p className="text-default-500">
                 Editar información de la cuenta
               </p>
@@ -631,6 +680,96 @@ export default function EditAccountPage({
           <h2 className="text-xl font-semibold">Configuración de la Cuenta</h2>
         </CardHeader>
         <CardBody className="space-y-6">
+          {/* Campo de username */}
+          <div>
+            <Input
+              label="Nombre de Usuario (Tag @)"
+              placeholder="username"
+              value={username}
+              onValueChange={setUsername}
+              description="El nombre de usuario de X/Twitter (sin el símbolo @)"
+              startContent={
+                <div className="flex items-center">
+                  <span className="text-default-400 text-sm font-medium">
+                    @
+                  </span>
+                </div>
+              }
+              endContent={
+                username &&
+                username !== account?.username && (
+                  <div className="flex items-center">
+                    {checkingUsername ? (
+                      <Spinner size="sm" />
+                    ) : usernameAvailable === true ? (
+                      <Tooltip content="Nombre de usuario disponible">
+                        <svg
+                          className="w-5 h-5 text-success"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      </Tooltip>
+                    ) : usernameAvailable === false ? (
+                      <Tooltip content="Nombre de usuario no disponible">
+                        <svg
+                          className="w-5 h-5 text-danger"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                      </Tooltip>
+                    ) : null}
+                  </div>
+                )
+              }
+              validate={(value) => {
+                if (!value) return "El nombre de usuario es obligatorio";
+                if (value.length < 1) return "Debe tener al menos 1 carácter";
+                if (value.length > 15)
+                  return "No puede tener más de 15 caracteres";
+                if (!/^[a-zA-Z0-9_]+$/.test(value))
+                  return "Solo se permiten letras, números y guiones bajos";
+                if (value.startsWith("_") || value.endsWith("_"))
+                  return "No puede empezar o terminar con guión bajo";
+                return true;
+              }}
+              errorMessage={
+                username && !/^[a-zA-Z0-9_]+$/.test(username)
+                  ? "Solo se permiten letras, números y guiones bajos"
+                  : username &&
+                    (username.startsWith("_") || username.endsWith("_"))
+                  ? "No puede empezar o terminar con guión bajo"
+                  : username && username.length > 15
+                  ? "No puede tener más de 15 caracteres"
+                  : ""
+              }
+              isInvalid={
+                !username ||
+                username.length > 15 ||
+                !/^[a-zA-Z0-9_]+$/.test(username) ||
+                username.startsWith("_") ||
+                username.endsWith("_")
+              }
+            />
+          </div>
+
+          <Divider />
+
           {/* Campo de desarrollador */}
           <div>
             <Input
@@ -790,6 +929,15 @@ export default function EditAccountPage({
           color="primary"
           onPress={handleSave}
           isLoading={saving}
+          isDisabled={
+            saving ||
+            !username ||
+            username.length > 15 ||
+            !/^[a-zA-Z0-9_]+$/.test(username) ||
+            username.startsWith("_") ||
+            username.endsWith("_") ||
+            (username !== account?.username && usernameAvailable !== true)
+          }
           startContent={
             !saving && (
               <svg
@@ -830,7 +978,8 @@ export default function EditAccountPage({
           <ModalBody>
             <p>
               ¿Estás seguro que deseas eliminar la cuenta{" "}
-              <span className="font-bold">@{account.username}</span>?
+              <span className="font-bold">@{username || account.username}</span>
+              ?
             </p>
             <p className="text-small text-default-500">
               Esta acción no se puede deshacer y se eliminarán todos los datos

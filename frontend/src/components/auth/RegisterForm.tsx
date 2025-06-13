@@ -142,8 +142,8 @@ export default function RegisterForm() {
               onChange={handleChange}
               required
               className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 
-                       focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 
-                       transition-all duration-200 backdrop-blur-sm
+                         focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 
+                         transition-all duration-200 backdrop-blur-sm
                        hover:bg-white/10 relative z-20"
               placeholder="Tu nombre completo"
             />
@@ -166,8 +166,8 @@ export default function RegisterForm() {
               required
               placeholder="Debe estar autorizado por el administrador"
               className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 
-                       focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 
-                       transition-all duration-200 backdrop-blur-sm
+                         focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 
+                         transition-all duration-200 backdrop-blur-sm
                        hover:bg-white/10 relative z-20"
             />
             <p className="text-xs text-gray-400 mt-1">
@@ -192,8 +192,8 @@ export default function RegisterForm() {
               required
               placeholder="Mínimo 6 caracteres"
               className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 
-                       focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 
-                       transition-all duration-200 backdrop-blur-sm
+                         focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 
+                         transition-all duration-200 backdrop-blur-sm
                        hover:bg-white/10 relative z-20"
             />
           </div>
@@ -214,8 +214,8 @@ export default function RegisterForm() {
               onChange={handleChange}
               required
               className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 
-                       focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 
-                       transition-all duration-200 backdrop-blur-sm
+                         focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 
+                         transition-all duration-200 backdrop-blur-sm
                        hover:bg-white/10 relative z-20"
               placeholder="Confirma tu contraseña"
             />

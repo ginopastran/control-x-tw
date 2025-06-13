@@ -930,6 +930,272 @@ app.get("/api/accounts", async (req, res) => {
   }
 });
 
+// Endpoint para actualizar username de una cuenta
+app.put("/api/accounts/:accountId/username", async (req, res) => {
+  try {
+    const { accountId } = req.params;
+    const { username } = req.body;
+
+    if (!username || !username.trim()) {
+      return res.status(400).json({ error: "Username es requerido" });
+    }
+
+    // Limpiar el @ del inicio del username
+    const cleanedUsername = username.replace(/^@+/, "").trim();
+
+    // Verificar que el username no esté ya en uso por otra cuenta
+    const existingAccount = await Account.findOne({
+      username: cleanedUsername,
+      _id: { $ne: accountId },
+    });
+
+    if (existingAccount) {
+      return res.status(409).json({
+        error: `El username ${cleanedUsername} ya está en uso por otra cuenta`,
+      });
+    }
+
+    // Actualizar la cuenta
+    const updatedAccount = await Account.findByIdAndUpdate(
+      accountId,
+      {
+        username: cleanedUsername,
+        lastActivity: new Date(),
+      },
+      { new: true, select: "username _id lastActivity" }
+    );
+
+    if (!updatedAccount) {
+      return res.status(404).json({ error: "Cuenta no encontrada" });
+    }
+
+    res.json({
+      success: true,
+      message: "Username actualizado exitosamente",
+      account: updatedAccount,
+    });
+  } catch (error) {
+    console.error("Error actualizando username:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+});
+
+// Endpoint para actualizar múltiples usernames usando IDs específicos
+app.post("/api/accounts/bulk-update-usernames-by-id", async (req, res) => {
+  try {
+    const { updates } = req.body; // Array de { accountId, email, twitterTag, currentUsername }
+
+    if (!Array.isArray(updates)) {
+      return res
+        .status(400)
+        .json({ error: "Se requiere un array de actualizaciones" });
+    }
+
+    const results = {
+      total: updates.length,
+      updated: 0,
+      errors: 0,
+      details: [],
+    };
+
+    for (const update of updates) {
+      const { accountId, email, twitterTag, currentUsername } = update;
+
+      try {
+        // Verificar si ya tiene el username correcto
+        if (currentUsername === twitterTag) {
+          results.details.push({
+            email,
+            status: "unchanged",
+            message: "Username ya era correcto",
+            username: twitterTag,
+          });
+          continue;
+        }
+
+        // Actualizar por ID directamente
+        const result = await Account.updateOne(
+          { _id: accountId },
+          {
+            username: twitterTag,
+            lastActivity: new Date(),
+          }
+        );
+
+        if (result.modifiedCount > 0) {
+          results.updated++;
+          results.details.push({
+            email,
+            status: "updated",
+            message: "Username actualizado exitosamente",
+            oldUsername: currentUsername,
+            newUsername: twitterTag,
+          });
+        } else {
+          results.details.push({
+            email,
+            status: "error",
+            message: "No se pudo actualizar la cuenta",
+          });
+          results.errors++;
+        }
+      } catch (error) {
+        results.errors++;
+        results.details.push({
+          email,
+          status: "error",
+          message: error.message,
+        });
+      }
+    }
+
+    res.json({
+      success: true,
+      message: `Proceso completado: ${results.updated} actualizados, ${results.errors} errores`,
+      results,
+    });
+  } catch (error) {
+    console.error("Error en actualización masiva por ID:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+});
+
+// Endpoint para actualizar múltiples usernames desde CSV (método anterior)
+app.post("/api/accounts/bulk-update-usernames", async (req, res) => {
+  try {
+    const { updates } = req.body; // Array de { email, twitterTag }
+
+    if (!Array.isArray(updates)) {
+      return res
+        .status(400)
+        .json({ error: "Se requiere un array de actualizaciones" });
+    }
+
+    const results = {
+      total: updates.length,
+      updated: 0,
+      notFound: 0,
+      errors: 0,
+      details: [],
+    };
+
+    for (const update of updates) {
+      const { email, twitterTag } = update;
+
+      if (!email || !twitterTag) {
+        results.errors++;
+        results.details.push({
+          email: email || "N/A",
+          status: "error",
+          message: "Email o twitterTag faltante",
+        });
+        continue;
+      }
+
+      try {
+        // Limpiar el @ del inicio del twitterTag
+        const cleanedTag = twitterTag.replace(/^@+/, "");
+
+        // Buscar la cuenta por diferentes criterios más robustos
+        const usernameFromEmail = email.replace("@gmail.com", "");
+        const emailPrefix = email.split("@")[0];
+
+        const account = await Account.findOne({
+          $or: [
+            // Buscar por username actual
+            { username: cleanedTag },
+            { username: usernameFromEmail },
+            { username: email },
+            // Buscar por variaciones del email
+            { username: { $regex: new RegExp(`^${emailPrefix}`, "i") } },
+            { username: { $regex: new RegExp(`^@?${cleanedTag}$`, "i") } },
+            // Buscar en labels que puedan contener el email
+            { labels: { $regex: new RegExp(email, "i") } },
+          ],
+        });
+
+        if (!account) {
+          results.notFound++;
+          results.details.push({
+            email,
+            status: "notFound",
+            message: "Cuenta no encontrada",
+          });
+          continue;
+        }
+
+        // Verificar si ya tiene el username correcto
+        if (account.username === cleanedTag) {
+          results.details.push({
+            email,
+            status: "unchanged",
+            message: "Username ya era correcto",
+            username: cleanedTag,
+          });
+          continue;
+        }
+
+        // Actualizar el username
+        await Account.updateOne(
+          { _id: account._id },
+          {
+            username: cleanedTag,
+            lastActivity: new Date(),
+          }
+        );
+
+        results.updated++;
+        results.details.push({
+          email,
+          status: "updated",
+          message: "Username actualizado exitosamente",
+          oldUsername: account.username,
+          newUsername: cleanedTag,
+        });
+      } catch (error) {
+        results.errors++;
+        results.details.push({
+          email,
+          status: "error",
+          message: error.message,
+        });
+      }
+    }
+
+    res.json({
+      success: true,
+      message: `Proceso completado: ${results.updated} actualizados, ${results.notFound} no encontrados, ${results.errors} errores`,
+      results,
+    });
+  } catch (error) {
+    console.error("Error en actualización masiva de usernames:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+});
+
+// Endpoint para eliminar todas las cuentas (SOLO PARA DESARROLLO)
+app.delete("/api/accounts/clear-all", async (req, res) => {
+  try {
+    // ADVERTENCIA: Solo usar en desarrollo
+    if (process.env.NODE_ENV === "production") {
+      return res
+        .status(403)
+        .json({ error: "Operación no permitida en producción" });
+    }
+
+    const result = await Account.deleteMany({});
+
+    res.json({
+      success: true,
+      message: `Se eliminaron ${result.deletedCount} cuentas`,
+      deletedCount: result.deletedCount,
+    });
+  } catch (error) {
+    console.error("Error al limpiar cuentas:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+});
+
 // Endpoint para obtener límites de cuentas (para el dashboard)
 app.get("/api/account-limits", async (req, res) => {
   try {

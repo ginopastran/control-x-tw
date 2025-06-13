@@ -117,11 +117,33 @@ export async function PATCH(
     const data = await req.json();
 
     // Solo permitir actualizar ciertos campos
-    const allowedFields = ["labels", "developerTag"];
+    const allowedFields = ["labels", "developerTag", "username"];
     const updateData: Record<string, any> = {};
 
     Object.keys(data).forEach((key) => {
       if (allowedFields.includes(key)) {
+        // Validación especial para username
+        if (key === "username") {
+          const username = data[key];
+          if (!username || typeof username !== "string") {
+            throw new Error("El nombre de usuario es obligatorio");
+          }
+          if (username.length > 15) {
+            throw new Error(
+              "El nombre de usuario no puede tener más de 15 caracteres"
+            );
+          }
+          if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+            throw new Error(
+              "El nombre de usuario solo puede contener letras, números y guiones bajos"
+            );
+          }
+          if (username.startsWith("_") || username.endsWith("_")) {
+            throw new Error(
+              "El nombre de usuario no puede empezar o terminar con guión bajo"
+            );
+          }
+        }
         updateData[key] = data[key];
       }
     });
@@ -134,6 +156,23 @@ export async function PATCH(
     }
 
     await connectDB();
+
+    // Si se está actualizando el username, verificar que no esté en uso
+    if (updateData.username) {
+      const existingAccount = await XAccount.findOne({
+        username: updateData.username,
+        _id: { $ne: id }, // Excluir la cuenta actual
+      });
+
+      if (existingAccount) {
+        return NextResponse.json(
+          {
+            error: `El nombre de usuario @${updateData.username} ya está en uso por otra cuenta`,
+          },
+          { status: 400 }
+        );
+      }
+    }
 
     const updatedAccount = await XAccount.findByIdAndUpdate(
       id,
