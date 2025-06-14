@@ -4,33 +4,68 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   Table,
-  TableHeader,
-  TableColumn,
   TableBody,
-  TableRow,
   TableCell,
-  Button,
-  Chip,
-  Spinner,
-  Card,
-  CardBody,
-  CardHeader,
-  Avatar,
-  Divider,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  useDisclosure,
-  Badge,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Progress } from "@/components/ui/progress";
+import {
   Tooltip,
-  Input,
-  Checkbox,
-  CheckboxGroup,
-  ScrollShadow,
-  Progress,
-} from "@heroui/react";
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  Loader2,
+  Search,
+  Filter,
+  Settings,
+  Activity,
+  Shield,
+  Clock,
+  Eye,
+  Edit,
+  Trash2,
+  Plus,
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
+  Zap,
+  Users,
+  BarChart3,
+  RefreshCw,
+  Download,
+  Upload,
+} from "lucide-react";
 
 interface XAccount {
   _id: string;
@@ -115,28 +150,19 @@ export default function AccountsPage() {
   const [testResults, setTestResults] = useState<TestResponse | null>(null);
   const [testingAccounts, setTestingAccounts] = useState(false);
   const [testProgress, setTestProgress] = useState(0);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isAddAccountModalOpen, setIsAddAccountModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [isVisible, setIsVisible] = useState(false);
 
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const {
-    isOpen: isConnectionTypeOpen,
-    onOpen: onConnectionTypeOpen,
-    onClose: onConnectionTypeClose,
-  } = useDisclosure();
-  const {
-    isOpen: isLabelsModalOpen,
-    onOpen: onLabelsModalOpen,
-    onClose: onLabelsModalClose,
-  } = useDisclosure();
-  const {
-    isOpen: isTestModalOpen,
-    onOpen: onTestModalOpen,
-    onClose: onTestModalClose,
-  } = useDisclosure();
   const router = useRouter();
 
   useEffect(() => {
     fetchAccountsData();
     fetchUserRole();
+    // Animación de entrada
+    setTimeout(() => setIsVisible(true), 100);
   }, []);
 
   useEffect(() => {
@@ -179,20 +205,6 @@ export default function AccountsPage() {
     }
   };
 
-  const handleAddAccount = () => {
-    onConnectionTypeOpen();
-  };
-
-  const handleOAuthConnection = () => {
-    onConnectionTypeClose();
-    router.push("/api/auth/x/login");
-  };
-
-  const handleApiKeysConnection = () => {
-    onConnectionTypeClose();
-    router.push("/accounts/new/api-keys");
-  };
-
   const handleDeleteAccount = async (id: string) => {
     if (confirm("¿Estás seguro que deseas eliminar esta cuenta?")) {
       try {
@@ -212,77 +224,18 @@ export default function AccountsPage() {
     }
   };
 
-  const handleInvalidateToken = async (accountId: string) => {
-    try {
-      const response = await fetch(`/api/accounts/${accountId}/invalidate`, {
-        method: "POST",
-      });
-
-      if (!response.ok) {
-        throw new Error("Error al invalidar el token");
-      }
-
-      await fetchAccountsData();
-      onClose();
-    } catch (err) {
-      setError("Error al invalidar el token. Intente nuevamente.");
-      console.error(err);
-    }
-  };
-
-  const handleBulkDeleteLabels = async () => {
-    if (labelsToDelete.length === 0) {
-      setError("Selecciona al menos una etiqueta para eliminar");
-      return;
-    }
-
-    if (
-      !confirm(
-        `¿Estás seguro que deseas eliminar las etiquetas: ${labelsToDelete.join(
-          ", "
-        )}?`
-      )
-    ) {
-      return;
-    }
-
-    try {
-      setDeletingLabels(true);
-      const response = await fetch("/api/accounts/bulk-delete-labels", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ labels: labelsToDelete }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Error al eliminar las etiquetas");
-      }
-
-      await fetchAccountsData();
-      setLabelsToDelete([]);
-      onLabelsModalClose();
-    } catch (err) {
-      setError("Error al eliminar las etiquetas. Intente nuevamente.");
-      console.error(err);
-    } finally {
-      setDeletingLabels(false);
-    }
-  };
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case "VALID":
-        return "success";
-      case "NEEDS_REFRESH":
-        return "warning";
-      case "EXPIRED":
-        return "danger";
-      case "INVALID":
-        return "danger";
-      default:
         return "default";
+      case "NEEDS_REFRESH":
+        return "secondary";
+      case "EXPIRED":
+        return "destructive";
+      case "INVALID":
+        return "destructive";
+      default:
+        return "outline";
     }
   };
 
@@ -301,88 +254,56 @@ export default function AccountsPage() {
     }
   };
 
-  const checkRateLimits = async (accountId: string) => {
-    try {
-      setLoadingRateLimits(true);
-      const response = await fetch(
-        `/api/debug/rate-limits?accountId=${accountId}`
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "VALID":
+        return <CheckCircle2 className="h-4 w-4 text-green-500" />;
+      case "NEEDS_REFRESH":
+        return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
+      case "EXPIRED":
+        return <XCircle className="h-4 w-4 text-red-500" />;
+      case "INVALID":
+        return <XCircle className="h-4 w-4 text-red-500" />;
+      default:
+        return <AlertTriangle className="h-4 w-4 text-gray-500" />;
+    }
+  };
+
+  // Filtros
+  const filteredAccounts =
+    debugData?.accounts.filter((account) => {
+      const matchesSearch =
+        account.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        account.developerTag.toLowerCase().includes(searchTerm.toLowerCase());
+
+      if (filterStatus === "all") return matchesSearch;
+
+      const status = account.tokenInfo?.status || "unknown";
+      return (
+        matchesSearch && status.toLowerCase() === filterStatus.toLowerCase()
       );
-      if (!response.ok) {
-        throw new Error("Error al verificar rate limits");
-      }
-      const data = await response.json();
-      setRateLimitData(data);
-    } catch (err) {
-      setError("Error al verificar rate limits. Intente nuevamente.");
-      console.error(err);
-    } finally {
-      setLoadingRateLimits(false);
-    }
-  };
-
-  const handleConfigureApiKeys = (account: XAccount) => {
-    router.push(`/accounts/${account._id}/api-keys`);
-  };
-
-  const handleReconnectAccount = (accountId: string) => {
-    router.push(`/api/auth/x/login?accountId=${accountId}`);
-  };
-
-  const handleTestAccounts = async (accountIds?: string[]) => {
-    try {
-      setTestingAccounts(true);
-      setTestProgress(0);
-
-      const response = await fetch("/api/accounts/test", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ accountIds }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Error al testear las cuentas");
-      }
-
-      const data = await response.json();
-      setTestResults(data);
-      setTestProgress(100);
-    } catch (err) {
-      setError("Error al testear las cuentas. Intente nuevamente.");
-      console.error(err);
-    } finally {
-      setTestingAccounts(false);
-    }
-  };
+    }) || [];
 
   // Verificar si el usuario es ADMIN (no SUPERADMIN) y ocultar la página
   if (userRole === "ADMIN") {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <Card className="max-w-md">
-          <CardBody className="text-center py-12">
-            <svg
-              className="mx-auto h-12 w-12 text-warning mb-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-              />
-            </svg>
+        <Card className="max-w-md shadow-2xl border-0 bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20">
+          <CardContent className="text-center py-12">
+            <div className="bg-yellow-100 dark:bg-yellow-900 p-4 rounded-full mx-auto mb-6 w-fit">
+              <Shield className="h-12 w-12 text-yellow-600 dark:text-yellow-400" />
+            </div>
             <h3 className="text-lg font-medium mb-2">Acceso Restringido</h3>
-            <p className="text-default-500 mb-6">
+            <p className="text-muted-foreground mb-6">
               Esta página solo está disponible para usuarios SUPERADMIN.
             </p>
-            <Button color="primary" onPress={() => router.push("/dashboard")}>
+            <Button
+              onClick={() => router.push("/dashboard")}
+              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all duration-200 hover:scale-105"
+            >
               Ir al Dashboard
             </Button>
-          </CardBody>
+          </CardContent>
         </Card>
       </div>
     );
@@ -391,1057 +312,744 @@ export default function AccountsPage() {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <Spinner size="lg" label="Cargando cuentas..." />
+        <div className="flex flex-col items-center justify-center gap-4">
+          <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-4 rounded-full animate-pulse">
+            <Users className="h-8 w-8 text-white" />
+          </div>
+          <div className="flex items-center gap-2">
+            <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+            <span className="text-lg font-medium">Cargando cuentas...</span>
+          </div>
+          <div className="w-64 h-1 bg-gray-200 rounded-full overflow-hidden">
+            <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 animate-pulse" />
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 overflow-hidden">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-        <div>
-          <h1 className="text-3xl font-bold">Cuentas de X Conectadas</h1>
-          <p className="text-default-500 mt-2">
-            Gestiona tus cuentas conectadas y su estado de autenticación
-          </p>
-        </div>
-        <div className="flex flex-col sm:flex-row gap-2">
-          <Button
-            color="secondary"
-            variant="flat"
-            onPress={onLabelsModalOpen}
-            startContent={
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
-                />
-              </svg>
-            }
-          >
-            Gestionar Etiquetas
-          </Button>
-          {userRole === "SUPERADMIN" && (
-            <Button
-              color="warning"
-              variant="flat"
-              onPress={onTestModalOpen}
-              isLoading={testingAccounts}
-              startContent={
-                !testingAccounts && (
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                )
-              }
-            >
-              {testingAccounts ? "Testeando..." : "Testear Cuentas"}
-            </Button>
-          )}
-          <Button
-            color="primary"
-            size="lg"
-            onPress={handleAddAccount}
-            startContent={
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-            }
-          >
-            Conectar Nueva Cuenta
-          </Button>
-        </div>
-      </div>
-
-      {/* Estadísticas */}
-      {debugData && (
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
-          <Card>
-            <CardBody className="text-center">
-              <div className="text-2xl font-bold text-primary">
-                {debugData.stats.total}
-              </div>
-              <div className="text-small text-default-500">Total</div>
-            </CardBody>
-          </Card>
-          <Card>
-            <CardBody className="text-center">
-              <div className="text-2xl font-bold text-success">
-                {debugData.stats.valid}
-              </div>
-              <div className="text-small text-default-500">Válidas</div>
-            </CardBody>
-          </Card>
-          <Card>
-            <CardBody className="text-center">
-              <div className="text-2xl font-bold text-warning">
-                {debugData.stats.needsRefresh}
-              </div>
-              <div className="text-small text-default-500">Refresh</div>
-            </CardBody>
-          </Card>
-          <Card>
-            <CardBody className="text-center">
-              <div className="text-2xl font-bold text-danger">
-                {debugData.stats.expired}
-              </div>
-              <div className="text-small text-default-500">Expiradas</div>
-            </CardBody>
-          </Card>
-          <Card>
-            <CardBody className="text-center">
-              <div className="text-2xl font-bold text-danger">
-                {debugData.stats.invalid}
-              </div>
-              <div className="text-small text-default-500">Inválidas</div>
-            </CardBody>
-          </Card>
-          <Card>
-            <CardBody className="text-center">
-              <div className="text-2xl font-bold text-secondary">
-                {debugData.stats.needsReauth}
-              </div>
-              <div className="text-small text-default-500">Re-auth</div>
-            </CardBody>
-          </Card>
-        </div>
-      )}
-
-      {error && (
-        <Card className="mb-6">
-          <CardBody>
-            <div className="flex items-center text-danger">
-              <svg
-                className="h-5 w-5 mr-3"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              {error}
-            </div>
-          </CardBody>
-        </Card>
-      )}
-
-      {/* Tabla de cuentas */}
-      {debugData && debugData.accounts.length === 0 ? (
-        <Card>
-          <CardBody className="text-center py-12">
-            <svg
-              className="mx-auto h-12 w-12 text-default-300 mb-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-              />
-            </svg>
-            <h3 className="text-lg font-medium mb-2">
-              No hay cuentas conectadas
-            </h3>
-            <p className="text-default-500 mb-6">
-              Comienza conectando tu primera cuenta de X.
-            </p>
-            <Button color="primary" onPress={handleAddAccount}>
-              Conectar Nueva Cuenta
-            </Button>
-          </CardBody>
-        </Card>
-      ) : (
-        <div className="overflow-x-auto">
-          <Table
-            aria-label="Cuentas de X conectadas"
-            className="min-w-full"
-            classNames={{
-              wrapper: "shadow-lg",
-              table: "min-w-[1200px]",
-            }}
-          >
-            <TableHeader>
-              <TableColumn className="w-[200px]">CUENTA</TableColumn>
-              <TableColumn className="w-[120px]">DESARROLLADOR</TableColumn>
-              <TableColumn className="w-[120px]">ESTADO TOKEN</TableColumn>
-              <TableColumn className="w-[150px]">EXPIRACIÓN</TableColumn>
-              <TableColumn className="w-[300px]">ETIQUETAS</TableColumn>
-              <TableColumn className="w-[200px]">ACCIONES</TableColumn>
-            </TableHeader>
-            <TableBody>
-              {(debugData?.accounts || []).map((account) => (
-                <TableRow key={account._id}>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <Avatar
-                        name={account.username[0].toUpperCase()}
-                        size="sm"
-                        className="flex-shrink-0"
-                      />
-                      <div className="min-w-0 flex-1">
-                        <div className="font-medium truncate">
-                          @{account.username}
-                        </div>
-                        <div className="text-small text-default-500 truncate">
-                          {account.userId}
-                        </div>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="text-small truncate">
-                      {account.developerTag}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-col gap-1">
-                      {account.tokenInfo ? (
-                        <>
-                          <Chip
-                            color={getStatusColor(account.tokenInfo.status)}
-                            size="sm"
-                            variant="flat"
-                          >
-                            {getStatusText(account.tokenInfo.status)}
-                          </Chip>
-                          {account.needsReauth && (
-                            <Chip color="danger" size="sm" variant="bordered">
-                              Necesita Re-auth
-                            </Chip>
-                          )}
-                        </>
-                      ) : (
-                        <Chip color="default" size="sm">
-                          Sin info
-                        </Chip>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    {account.tokenInfo ? (
-                      <div className="text-small">
-                        {account.tokenInfo.hoursToExpiry !== null ? (
-                          <div>
-                            <div
-                              className={`font-medium ${
-                                account.tokenInfo.hoursToExpiry < 1
-                                  ? "text-danger"
-                                  : account.tokenInfo.hoursToExpiry < 24
-                                  ? "text-warning"
-                                  : "text-success"
-                              }`}
-                            >
-                              {account.tokenInfo.hoursToExpiry > 0
-                                ? `${account.tokenInfo.hoursToExpiry}h restantes`
-                                : "Expirado"}
-                            </div>
-                            <div className="text-tiny text-default-400 truncate">
-                              {new Date(
-                                account.tokenInfo.expiresAt
-                              ).toLocaleDateString()}
-                            </div>
-                          </div>
-                        ) : (
-                          <span className="text-default-400">Sin fecha</span>
-                        )}
-                      </div>
-                    ) : (
-                      <span className="text-default-400">N/A</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <div className="max-w-[300px]">
-                      {(account.labels || []).length > 0 ? (
-                        <ScrollShadow
-                          className="max-h-[80px] overflow-y-auto"
-                          hideScrollBar
-                        >
-                          <div className="flex flex-wrap gap-1">
-                            {account.labels.slice(0, 6).map((label, index) => (
-                              <Chip
-                                key={index}
-                                size="sm"
-                                variant="flat"
-                                color="primary"
-                                className="text-xs"
-                              >
-                                {label}
-                              </Chip>
-                            ))}
-                            {account.labels.length > 6 && (
-                              <Chip
-                                size="sm"
-                                variant="bordered"
-                                className="text-xs"
-                              >
-                                +{account.labels.length - 6} más
-                              </Chip>
-                            )}
-                          </div>
-                        </ScrollShadow>
-                      ) : (
-                        <span className="text-default-400 text-small">
-                          Sin etiquetas
-                        </span>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1 flex-wrap">
-                      <Tooltip content="Ver detalles">
-                        <Button
-                          isIconOnly
-                          size="sm"
-                          variant="flat"
-                          onPress={() => {
-                            setSelectedAccount(account);
-                            onOpen();
-                          }}
-                        >
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                            />
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                            />
-                          </svg>
-                        </Button>
-                      </Tooltip>
-                      <Tooltip
-                        content={
-                          account.useOwnCredentials
-                            ? "Configurar API Keys propias"
-                            : "Usar API Keys propias"
-                        }
-                      >
-                        <Button
-                          isIconOnly
-                          size="sm"
-                          variant="flat"
-                          color={
-                            account.useOwnCredentials &&
-                            account.credentialsVerified
-                              ? "success"
-                              : "warning"
-                          }
-                          onPress={() => handleConfigureApiKeys(account)}
-                        >
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M15 7a2 2 0 012 2m2 0v6a2 2 0 01-2 2H5a2 2 0 01-2-2V9a2 2 0 012-2h4m4 0V5a2 2 0 00-2-2H9a2 2 0 00-2 2v2m4 0h2m-6 4v2a2 2 0 002 2h2a2 2 0 002-2v-2m-6 0h6"
-                            />
-                          </svg>
-                        </Button>
-                      </Tooltip>
-                      <Tooltip content="Verificar Rate Limits">
-                        <Button
-                          isIconOnly
-                          size="sm"
-                          variant="flat"
-                          color="secondary"
-                          isLoading={loadingRateLimits}
-                          onPress={() => checkRateLimits(account._id)}
-                        >
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                            />
-                          </svg>
-                        </Button>
-                      </Tooltip>
-                      <Tooltip content="Editar cuenta">
-                        <Button
-                          isIconOnly
-                          size="sm"
-                          variant="flat"
-                          color="primary"
-                          onPress={() =>
-                            router.push(`/accounts/${account._id}`)
-                          }
-                        >
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                            />
-                          </svg>
-                        </Button>
-                      </Tooltip>
-                      <Tooltip content="Eliminar cuenta">
-                        <Button
-                          isIconOnly
-                          size="sm"
-                          variant="flat"
-                          color="danger"
-                          onPress={() => handleDeleteAccount(account._id)}
-                        >
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                            />
-                          </svg>
-                        </Button>
-                      </Tooltip>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      )}
-
-      {/* Modal de gestión de etiquetas */}
-      <Modal isOpen={isLabelsModalOpen} onClose={onLabelsModalClose} size="2xl">
-        <ModalContent>
-          <ModalHeader>
-            <div className="flex flex-col gap-1">
-              <h3 className="text-xl font-bold">Gestionar Etiquetas</h3>
-              <p className="text-small text-default-500 font-normal">
-                Selecciona las etiquetas que deseas eliminar de todas las
-                cuentas
-              </p>
-            </div>
-          </ModalHeader>
-          <ModalBody>
-            {availableLabels.length > 0 ? (
-              <div className="space-y-4">
-                <div className="text-small text-default-600">
-                  Etiquetas disponibles ({availableLabels.length}):
-                </div>
-                <ScrollShadow className="max-h-[400px]">
-                  <CheckboxGroup
-                    value={labelsToDelete}
-                    onValueChange={setLabelsToDelete}
-                    orientation="vertical"
-                    className="gap-2"
-                  >
-                    {availableLabels.map((label) => {
-                      // Contar cuántas cuentas tienen esta etiqueta
-                      const accountCount =
-                        debugData?.accounts.filter((account) =>
-                          account.labels.includes(label)
-                        ).length || 0;
-
-                      return (
-                        <Checkbox key={label} value={label}>
-                          <div className="flex items-center justify-between w-full">
-                            <span>{label}</span>
-                            <Chip size="sm" variant="flat" color="default">
-                              {accountCount} cuenta
-                              {accountCount !== 1 ? "s" : ""}
-                            </Chip>
-                          </div>
-                        </Checkbox>
-                      );
-                    })}
-                  </CheckboxGroup>
-                </ScrollShadow>
-                {labelsToDelete.length > 0 && (
-                  <div className="p-3 bg-warning-50 rounded-lg border border-warning-200">
-                    <div className="text-small text-warning-800">
-                      <strong>Advertencia:</strong> Se eliminarán{" "}
-                      {labelsToDelete.length} etiqueta
-                      {labelsToDelete.length !== 1 ? "s" : ""} de todas las
-                      cuentas que las contengan.
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <svg
-                  className="mx-auto h-12 w-12 text-default-300 mb-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
-                  />
-                </svg>
-                <p className="text-default-500">No hay etiquetas disponibles</p>
-              </div>
-            )}
-          </ModalBody>
-          <ModalFooter>
-            <Button variant="light" onPress={onLabelsModalClose}>
-              Cancelar
-            </Button>
-            {labelsToDelete.length > 0 && (
-              <Button
-                color="danger"
-                onPress={handleBulkDeleteLabels}
-                isLoading={deletingLabels}
-              >
-                Eliminar {labelsToDelete.length} etiqueta
-                {labelsToDelete.length !== 1 ? "s" : ""}
-              </Button>
-            )}
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-
-      {/* Modal de detalles */}
-      <Modal isOpen={isOpen} onClose={onClose} size="2xl">
-        <ModalContent>
-          <ModalHeader>
-            Detalles de la cuenta @{selectedAccount?.username}
-          </ModalHeader>
-          <ModalBody>
-            {selectedAccount && (
-              <div className="space-y-4">
-                <div>
-                  <h4 className="font-medium mb-2">Información básica</h4>
-                  <div className="grid grid-cols-2 gap-4 text-small">
-                    <div>
-                      <span className="text-default-500">Usuario:</span>
-                      <span className="ml-2">@{selectedAccount.username}</span>
-                    </div>
-                    <div>
-                      <span className="text-default-500">ID:</span>
-                      <span className="ml-2">{selectedAccount.userId}</span>
-                    </div>
-                    <div>
-                      <span className="text-default-500">Desarrollador:</span>
-                      <span className="ml-2">
-                        {selectedAccount.developerTag}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-default-500">Conectado:</span>
-                      <span className="ml-2">
-                        {new Date(
-                          selectedAccount.createdAt
-                        ).toLocaleDateString()}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <Divider />
-
-                <div>
-                  <h4 className="font-medium mb-2">Estado de tokens</h4>
-                  <div className="space-y-2 text-small">
-                    <div className="flex justify-between">
-                      <span>Access Token:</span>
-                      <Chip
-                        size="sm"
-                        color={
-                          selectedAccount.hasAccessToken ? "success" : "danger"
-                        }
-                      >
-                        {selectedAccount.hasAccessToken
-                          ? "Presente"
-                          : "Ausente"}
-                      </Chip>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Refresh Token:</span>
-                      <Chip
-                        size="sm"
-                        color={
-                          selectedAccount.hasRefreshToken ? "success" : "danger"
-                        }
-                      >
-                        {selectedAccount.hasRefreshToken
-                          ? "Presente"
-                          : "Ausente"}
-                      </Chip>
-                    </div>
-                    {selectedAccount.tokenInfo && (
-                      <>
-                        <div className="flex justify-between">
-                          <span>Estado:</span>
-                          <Chip
-                            size="sm"
-                            color={getStatusColor(
-                              selectedAccount.tokenInfo.status
-                            )}
-                          >
-                            {getStatusText(selectedAccount.tokenInfo.status)}
-                          </Chip>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Último refresh:</span>
-                          <span>
-                            {new Date(
-                              selectedAccount.tokenInfo.lastRefresh
-                            ).toLocaleString()}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Expira:</span>
-                          <span>
-                            {new Date(
-                              selectedAccount.tokenInfo.expiresAt
-                            ).toLocaleString()}
-                          </span>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                {selectedAccount.needsReauth && (
-                  <>
-                    <Divider />
-                    <Card className="bg-danger-50 border-danger-200">
-                      <CardBody>
-                        <div className="flex items-start gap-3">
-                          <svg
-                            className="w-5 h-5 text-danger mt-0.5"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                          <div>
-                            <div className="font-medium text-danger">
-                              Re-autenticación requerida
-                            </div>
-                            <div className="text-small text-danger-600 mt-1">
-                              Esta cuenta necesita ser reconectada para
-                              funcionar correctamente.
-                            </div>
-                          </div>
-                        </div>
-                      </CardBody>
-                    </Card>
-                  </>
-                )}
-              </div>
-            )}
-          </ModalBody>
-          <ModalFooter>
-            <Button variant="light" onPress={onClose}>
-              Cerrar
-            </Button>
-            {selectedAccount?.needsReauth ? (
-              <Button
-                color="primary"
-                onPress={() =>
-                  selectedAccount && handleReconnectAccount(selectedAccount._id)
-                }
-              >
-                Reconectar cuenta
-              </Button>
-            ) : selectedAccount?.tokenInfo &&
-              !selectedAccount.tokenInfo.isValid ? (
-              <Button
-                color="warning"
-                onPress={() =>
-                  selectedAccount && handleInvalidateToken(selectedAccount._id)
-                }
-              >
-                Invalidar token
-              </Button>
-            ) : null}
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-
-      {/* Modal de testing de cuentas */}
-      <Modal isOpen={isTestModalOpen} onClose={onTestModalClose} size="4xl">
-        <ModalContent>
-          <ModalHeader>
-            <div className="flex flex-col gap-1">
-              <h3 className="text-xl font-bold">Testear Cuentas de X</h3>
-              <p className="text-small text-default-500 font-normal">
-                Verifica el estado y funcionamiento de las cuentas conectadas
-              </p>
-            </div>
-          </ModalHeader>
-          <ModalBody>
-            <div className="space-y-6">
-              {/* Botones de acción */}
-              <div className="flex gap-3">
-                <Button
-                  color="primary"
-                  onPress={() => handleTestAccounts()}
-                  isLoading={testingAccounts}
-                  startContent={
-                    !testingAccounts && (
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                    )
-                  }
-                >
-                  {testingAccounts ? "Testeando..." : "Testear Todas"}
-                </Button>
-                {testResults && (
-                  <Button
-                    color="secondary"
-                    variant="flat"
-                    onPress={() => setTestResults(null)}
-                  >
-                    Limpiar Resultados
-                  </Button>
-                )}
-              </div>
-
-              {/* Progreso */}
-              {testingAccounts && (
-                <div className="space-y-2">
-                  <div className="flex justify-between text-small">
-                    <span>Testeando cuentas...</span>
-                    <span>{testProgress}%</span>
-                  </div>
-                  <Progress value={testProgress} color="primary" />
-                </div>
-              )}
-
-              {/* Resultados */}
-              {testResults && (
-                <div className="space-y-4">
-                  {/* Resumen */}
-                  <Card>
-                    <CardBody>
-                      <div className="grid grid-cols-4 gap-4 text-center">
-                        <div>
-                          <div className="text-2xl font-bold text-primary">
-                            {testResults.summary.total}
-                          </div>
-                          <div className="text-small text-default-500">
-                            Total
-                          </div>
-                        </div>
-                        <div>
-                          <div className="text-2xl font-bold text-success">
-                            {testResults.summary.success}
-                          </div>
-                          <div className="text-small text-default-500">
-                            Exitosas
-                          </div>
-                        </div>
-                        <div>
-                          <div className="text-2xl font-bold text-warning">
-                            {testResults.summary.warnings}
-                          </div>
-                          <div className="text-small text-default-500">
-                            Advertencias
-                          </div>
-                        </div>
-                        <div>
-                          <div className="text-2xl font-bold text-danger">
-                            {testResults.summary.errors}
-                          </div>
-                          <div className="text-small text-default-500">
-                            Errores
-                          </div>
-                        </div>
-                      </div>
-                    </CardBody>
-                  </Card>
-
-                  {/* Lista de resultados */}
-                  <div className="space-y-2 max-h-96 overflow-y-auto">
-                    {testResults.results.map((result) => (
-                      <Card
-                        key={result.accountId}
-                        className={`border-l-4 ${
-                          result.status === "success"
-                            ? "border-l-success"
-                            : result.status === "warning"
-                            ? "border-l-warning"
-                            : "border-l-danger"
-                        }`}
-                      >
-                        <CardBody className="py-3">
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="font-medium">
-                                  @{result.username}
-                                </span>
-                                <Chip
-                                  size="sm"
-                                  color={
-                                    result.status === "success"
-                                      ? "success"
-                                      : result.status === "warning"
-                                      ? "warning"
-                                      : "danger"
-                                  }
-                                  variant="flat"
-                                >
-                                  {result.status === "success"
-                                    ? "OK"
-                                    : result.status === "warning"
-                                    ? "Advertencia"
-                                    : "Error"}
-                                </Chip>
-                              </div>
-                              <p className="text-small text-default-600 mb-2">
-                                {result.message}
-                              </p>
-                              <div className="flex gap-4 text-tiny">
-                                <span
-                                  className={
-                                    result.details.hasTokens
-                                      ? "text-success"
-                                      : "text-danger"
-                                  }
-                                >
-                                  Tokens: {result.details.hasTokens ? "✓" : "✗"}
-                                </span>
-                                <span
-                                  className={
-                                    result.details.tokenValid
-                                      ? "text-success"
-                                      : "text-danger"
-                                  }
-                                >
-                                  Válido:{" "}
-                                  {result.details.tokenValid ? "✓" : "✗"}
-                                </span>
-                                <span
-                                  className={
-                                    result.details.apiAccess
-                                      ? "text-success"
-                                      : "text-danger"
-                                  }
-                                >
-                                  API: {result.details.apiAccess ? "✓" : "✗"}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </CardBody>
-                      </Card>
-                    ))}
-                  </div>
-
-                  <div className="text-tiny text-default-400 text-center">
-                    Testeado el{" "}
-                    {new Date(testResults.testedAt).toLocaleString()}
-                  </div>
-                </div>
-              )}
-            </div>
-          </ModalBody>
-          <ModalFooter>
-            <Button variant="light" onPress={onTestModalClose}>
-              Cerrar
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-
-      {/* Modal de selección de tipo de conexión */}
-      <Modal
-        isOpen={isConnectionTypeOpen}
-        onClose={onConnectionTypeClose}
-        size="lg"
-        placement="center"
+    <TooltipProvider>
+      <div
+        className={`max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 transition-all duration-1000 ${
+          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+        }`}
       >
-        <ModalContent>
-          <ModalHeader className="flex flex-col gap-1">
-            <h3 className="text-xl font-bold">Conectar Nueva Cuenta</h3>
-            <p className="text-small text-default-500 font-normal">
-              Elige cómo quieres agregar tu cuenta de X
-            </p>
-          </ModalHeader>
-          <ModalBody className="gap-6">
-            <div className="grid gap-4">
-              {/* Opción OAuth */}
-              <Card
-                isPressable
-                onPress={handleOAuthConnection}
-                className="border-2 border-transparent hover:border-primary transition-colors"
-              >
-                <CardBody className="p-6">
-                  <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0">
-                      <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
-                        <svg
-                          className="w-6 h-6 text-primary"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                    <div className="flex-grow">
-                      <h4 className="text-lg font-semibold mb-2">
-                        OAuth 2.0 (Recomendado)
-                      </h4>
-                      <p className="text-default-600 text-sm mb-3">
-                        Conecta tu cuenta de forma segura usando el flujo
-                        oficial de X. No necesitas credenciales de
-                        desarrollador.
-                      </p>
-                      <div className="flex items-center gap-2">
-                        <Chip size="sm" color="success" variant="flat">
-                          Fácil
-                        </Chip>
-                        <Chip size="sm" color="primary" variant="flat">
-                          Seguro
-                        </Chip>
-                      </div>
-                    </div>
-                  </div>
-                </CardBody>
-              </Card>
-
-              {/* Opción API Keys */}
-              <Card
-                isPressable
-                onPress={handleApiKeysConnection}
-                className="border-2 border-transparent hover:border-secondary transition-colors"
-              >
-                <CardBody className="p-6">
-                  <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0">
-                      <div className="w-12 h-12 bg-secondary-100 rounded-lg flex items-center justify-center">
-                        <svg
-                          className="w-6 h-6 text-secondary"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                    <div className="flex-grow">
-                      <h4 className="text-lg font-semibold mb-2">
-                        Claves de Desarrollador
-                      </h4>
-                      <p className="text-default-600 text-sm mb-3">
-                        Usa tus propias credenciales de la app de desarrollador
-                        de X. Ideal para tener rate limits independientes (17
-                        tweets/día).
-                      </p>
-                      <div className="flex items-center gap-2">
-                        <Chip size="sm" color="secondary" variant="flat">
-                          Rate Limits Propios
-                        </Chip>
-                        <Chip size="sm" color="warning" variant="flat">
-                          Requiere Dev Account
-                        </Chip>
-                      </div>
-                    </div>
-                  </div>
-                </CardBody>
-              </Card>
+        {/* Header mejorado */}
+        <div className="mb-12">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center gap-3 mb-6">
+              <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-3 rounded-full animate-pulse">
+                <Users className="h-8 w-8 text-white" />
+              </div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                Cuentas de X Conectadas
+              </h1>
             </div>
-          </ModalBody>
-          <ModalFooter>
-            <Button variant="light" onPress={onConnectionTypeClose}>
-              Cancelar
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    </div>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              Gestiona tus cuentas conectadas y su estado de autenticación
+            </p>
+          </div>
+
+          {/* Controles superiores */}
+          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between mb-8">
+            <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar cuentas..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 w-full sm:w-80 border-2 focus:border-blue-500 transition-all duration-200"
+                />
+              </div>
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="px-4 py-2 border-2 border-gray-200 rounded-md focus:border-blue-500 focus:outline-none transition-all duration-200 bg-white dark:bg-slate-800"
+              >
+                <option value="all">Todos los estados</option>
+                <option value="valid">Válidos</option>
+                <option value="needs_refresh">Necesita Refresh</option>
+                <option value="expired">Expirados</option>
+                <option value="invalid">Inválidos</option>
+              </select>
+            </div>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={fetchAccountsData}
+                className="hover:scale-105 transition-transform duration-200"
+              >
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Actualizar
+              </Button>
+              <Button
+                onClick={() => setIsAddAccountModalOpen(true)}
+                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all duration-200 hover:scale-105"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Conectar Cuenta
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Estadísticas mejoradas */}
+        {debugData && (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+            {[
+              {
+                label: "Total",
+                value: debugData.stats.total,
+                color: "blue",
+                icon: Users,
+              },
+              {
+                label: "Válidas",
+                value: debugData.stats.valid,
+                color: "green",
+                icon: CheckCircle2,
+              },
+              {
+                label: "Refresh",
+                value: debugData.stats.needsRefresh,
+                color: "yellow",
+                icon: RefreshCw,
+              },
+              {
+                label: "Expiradas",
+                value: debugData.stats.expired,
+                color: "red",
+                icon: XCircle,
+              },
+              {
+                label: "Inválidas",
+                value: debugData.stats.invalid,
+                color: "red",
+                icon: AlertTriangle,
+              },
+              {
+                label: "Re-auth",
+                value: debugData.stats.needsReauth,
+                color: "purple",
+                icon: Shield,
+              },
+            ].map((stat, index) => (
+              <Card
+                key={index}
+                className="shadow-xl border-0 bg-gradient-to-br from-white to-gray-50 dark:from-slate-800 dark:to-slate-900 transition-all duration-500 hover:shadow-2xl hover:scale-105 stat-card"
+                style={{
+                  animationDelay: `${index * 100}ms`,
+                }}
+              >
+                <CardContent className="text-center py-6">
+                  <div
+                    className={`inline-flex items-center justify-center w-12 h-12 rounded-full mb-3 bg-${stat.color}-100 dark:bg-${stat.color}-900/20`}
+                  >
+                    <stat.icon
+                      className={`h-6 w-6 text-${stat.color}-600 dark:text-${stat.color}-400`}
+                    />
+                  </div>
+                  <div
+                    className={`text-3xl font-bold text-${stat.color}-600 dark:text-${stat.color}-400 mb-1`}
+                  >
+                    {stat.value}
+                  </div>
+                  <div className="text-sm text-muted-foreground font-medium">
+                    {stat.label}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+
+        {error && (
+          <Card className="mb-6 border-0 bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 animate-slide-up">
+            <CardContent className="py-4">
+              <div className="flex items-center text-red-600 dark:text-red-400">
+                <AlertTriangle className="h-5 w-5 mr-3" />
+                {error}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Tabla mejorada */}
+        {debugData && debugData.accounts.length === 0 ? (
+          <Card className="shadow-2xl border-0 bg-gradient-to-br from-slate-50 to-white dark:from-slate-900 dark:to-slate-800">
+            <CardContent className="text-center py-20">
+              <div className="bg-blue-100 dark:bg-blue-900 p-6 rounded-full mx-auto mb-6 w-fit">
+                <Users className="h-16 w-16 text-blue-600 dark:text-blue-400" />
+              </div>
+              <h3 className="text-2xl font-medium mb-4">
+                No hay cuentas conectadas
+              </h3>
+              <p className="text-muted-foreground mb-8 max-w-md mx-auto">
+                Comienza conectando tu primera cuenta de X para gestionar tus
+                acciones.
+              </p>
+              <Button
+                onClick={() => setIsAddAccountModalOpen(true)}
+                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all duration-200 hover:scale-105"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Conectar Primera Cuenta
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="shadow-2xl border-0 bg-gradient-to-br from-white to-gray-50 dark:from-slate-900 dark:to-slate-800 overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-b">
+              <div className="flex items-center gap-3">
+                <div className="bg-blue-100 dark:bg-blue-900 p-2 rounded-lg">
+                  <BarChart3 className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl">Cuentas Conectadas</CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    {filteredAccounts.length} de{" "}
+                    {debugData?.accounts.length || 0} cuentas mostradas
+                  </p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-b bg-muted/30">
+                      <TableHead className="font-semibold">CUENTA</TableHead>
+                      <TableHead className="font-semibold">
+                        DESARROLLADOR
+                      </TableHead>
+                      <TableHead className="font-semibold">
+                        ESTADO TOKEN
+                      </TableHead>
+                      <TableHead className="font-semibold">
+                        EXPIRACIÓN
+                      </TableHead>
+                      <TableHead className="font-semibold">ETIQUETAS</TableHead>
+                      <TableHead className="font-semibold text-center">
+                        ACCIONES
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredAccounts.map((account, index) => (
+                      <TableRow
+                        key={account._id}
+                        className={`hover:bg-muted/50 transition-all duration-300 border-b account-row ${
+                          account.tokenInfo?.status.toLowerCase() || "unknown"
+                        }`}
+                        style={{
+                          animationDelay: `${index * 50}ms`,
+                        }}
+                      >
+                        <TableCell className="py-4">
+                          <div className="flex items-center gap-4">
+                            <div className="relative">
+                              <Avatar className="w-12 h-12 border-2 border-white shadow-lg">
+                                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold text-lg">
+                                  {account.username[0].toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white">
+                                {getStatusIcon(
+                                  account.tokenInfo?.status || "unknown"
+                                )}
+                              </div>
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="font-semibold text-lg truncate">
+                                @{account.username}
+                              </div>
+                              <div className="text-sm text-muted-foreground truncate font-mono">
+                                {account.userId}
+                              </div>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+                            <span className="text-sm font-medium truncate max-w-32">
+                              {account.developerTag}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-col gap-2">
+                            {account.tokenInfo ? (
+                              <div className="flex items-center gap-2">
+                                {getStatusIcon(account.tokenInfo.status)}
+                                <Badge
+                                  variant={getStatusColor(
+                                    account.tokenInfo.status
+                                  )}
+                                  className="transition-all duration-200 hover:scale-105"
+                                >
+                                  {getStatusText(account.tokenInfo.status)}
+                                </Badge>
+                              </div>
+                            ) : (
+                              <Badge variant="outline" className="w-fit">
+                                <AlertTriangle className="h-3 w-3 mr-1" />
+                                Sin info
+                              </Badge>
+                            )}
+                            {account.needsReauth && (
+                              <Badge
+                                variant="destructive"
+                                className="w-fit animate-pulse"
+                              >
+                                <Shield className="h-3 w-3 mr-1" />
+                                Re-auth
+                              </Badge>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {account.tokenInfo ? (
+                            <div className="space-y-1">
+                              {account.tokenInfo.hoursToExpiry !== null ? (
+                                <div className="flex items-center gap-2">
+                                  <Clock className="h-4 w-4 text-muted-foreground" />
+                                  <div>
+                                    <div
+                                      className={`font-semibold text-sm ${
+                                        account.tokenInfo.hoursToExpiry < 1
+                                          ? "text-red-600"
+                                          : account.tokenInfo.hoursToExpiry < 24
+                                          ? "text-yellow-600"
+                                          : "text-green-600"
+                                      }`}
+                                    >
+                                      {account.tokenInfo.hoursToExpiry > 0
+                                        ? `${account.tokenInfo.hoursToExpiry}h`
+                                        : "Expirado"}
+                                    </div>
+                                    <div className="text-xs text-muted-foreground">
+                                      {new Date(
+                                        account.tokenInfo.expiresAt
+                                      ).toLocaleDateString("es-ES")}
+                                    </div>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="flex items-center gap-2 text-muted-foreground">
+                                  <AlertTriangle className="h-4 w-4" />
+                                  <span className="text-sm">Sin fecha</span>
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                              <XCircle className="h-4 w-4" />
+                              <span className="text-sm">N/A</span>
+                            </div>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <div className="max-w-64">
+                            {(account.labels || []).length > 0 ? (
+                              <ScrollArea className="max-h-20">
+                                <div className="flex flex-wrap gap-1">
+                                  {account.labels
+                                    .slice(0, 3)
+                                    .map((label, labelIndex) => (
+                                      <Badge
+                                        key={labelIndex}
+                                        variant="secondary"
+                                        className="text-xs transition-all duration-200 hover:scale-105"
+                                      >
+                                        {label}
+                                      </Badge>
+                                    ))}
+                                  {account.labels.length > 3 && (
+                                    <Badge
+                                      variant="outline"
+                                      className="text-xs"
+                                    >
+                                      +{account.labels.length - 3}
+                                    </Badge>
+                                  )}
+                                </div>
+                              </ScrollArea>
+                            ) : (
+                              <span className="text-sm text-muted-foreground italic">
+                                Sin etiquetas
+                              </span>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center justify-center gap-1">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    setSelectedAccount(account);
+                                    setIsDetailModalOpen(true);
+                                  }}
+                                  className="hover:bg-blue-100 dark:hover:bg-blue-900 hover:scale-110 transition-all duration-200"
+                                >
+                                  <Eye className="w-4 h-4 text-blue-600" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Ver detalles</TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() =>
+                                    router.push(`/accounts/${account._id}`)
+                                  }
+                                  className="hover:bg-green-100 dark:hover:bg-green-900 hover:scale-110 transition-all duration-200"
+                                >
+                                  <Edit className="w-4 h-4 text-green-600" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Editar cuenta</TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() =>
+                                    handleDeleteAccount(account._id)
+                                  }
+                                  className="hover:bg-red-100 dark:hover:bg-red-900 hover:scale-110 transition-all duration-200"
+                                >
+                                  <Trash2 className="w-4 h-4 text-red-600" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Eliminar cuenta</TooltipContent>
+                            </Tooltip>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Modal de detalles mejorado */}
+        <Dialog open={isDetailModalOpen} onOpenChange={setIsDetailModalOpen}>
+          <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <div className="flex items-center gap-3">
+                <Avatar className="w-12 h-12">
+                  <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
+                    {selectedAccount?.username[0].toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <DialogTitle className="text-xl">
+                    Detalles de @{selectedAccount?.username}
+                  </DialogTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Información completa de la cuenta
+                  </p>
+                </div>
+              </div>
+            </DialogHeader>
+            {selectedAccount && (
+              <div className="space-y-6">
+                {/* Información básica */}
+                <Card className="border-0 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Activity className="h-5 w-5 text-blue-600" />
+                      Información Básica
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div className="space-y-2">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">
+                            Usuario:
+                          </span>
+                          <span className="font-medium">
+                            @{selectedAccount.username}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">ID:</span>
+                          <span className="font-mono text-xs">
+                            {selectedAccount.userId}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">
+                            Desarrollador:
+                          </span>
+                          <span className="font-medium">
+                            {selectedAccount.developerTag}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">
+                            Conectado:
+                          </span>
+                          <span className="font-medium">
+                            {new Date(
+                              selectedAccount.createdAt
+                            ).toLocaleDateString("es-ES")}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Estado de tokens */}
+                <Card className="border-0 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Shield className="h-5 w-5 text-green-600" />
+                      Estado de Tokens
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <div
+                            className={`w-2 h-2 rounded-full ${
+                              selectedAccount.hasAccessToken
+                                ? "bg-green-500"
+                                : "bg-red-500"
+                            }`}
+                          />
+                          <span className="font-medium">Access Token</span>
+                        </div>
+                        <Badge
+                          variant={
+                            selectedAccount.hasAccessToken
+                              ? "default"
+                              : "destructive"
+                          }
+                        >
+                          {selectedAccount.hasAccessToken
+                            ? "Presente"
+                            : "Ausente"}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <div
+                            className={`w-2 h-2 rounded-full ${
+                              selectedAccount.hasRefreshToken
+                                ? "bg-green-500"
+                                : "bg-red-500"
+                            }`}
+                          />
+                          <span className="font-medium">Refresh Token</span>
+                        </div>
+                        <Badge
+                          variant={
+                            selectedAccount.hasRefreshToken
+                              ? "default"
+                              : "destructive"
+                          }
+                        >
+                          {selectedAccount.hasRefreshToken
+                            ? "Presente"
+                            : "Ausente"}
+                        </Badge>
+                      </div>
+                      {selectedAccount.tokenInfo && (
+                        <>
+                          <div className="flex items-center justify-between p-3 bg-white dark:bg-slate-800 rounded-lg">
+                            <div className="flex items-center gap-2">
+                              {getStatusIcon(selectedAccount.tokenInfo.status)}
+                              <span className="font-medium">Estado</span>
+                            </div>
+                            <Badge
+                              variant={getStatusColor(
+                                selectedAccount.tokenInfo.status
+                              )}
+                            >
+                              {getStatusText(selectedAccount.tokenInfo.status)}
+                            </Badge>
+                          </div>
+                          <div className="grid grid-cols-2 gap-3 text-sm">
+                            <div className="p-3 bg-white dark:bg-slate-800 rounded-lg">
+                              <div className="text-muted-foreground mb-1">
+                                Último refresh
+                              </div>
+                              <div className="font-medium">
+                                {new Date(
+                                  selectedAccount.tokenInfo.lastRefresh
+                                ).toLocaleString("es-ES")}
+                              </div>
+                            </div>
+                            <div className="p-3 bg-white dark:bg-slate-800 rounded-lg">
+                              <div className="text-muted-foreground mb-1">
+                                Expira
+                              </div>
+                              <div className="font-medium">
+                                {new Date(
+                                  selectedAccount.tokenInfo.expiresAt
+                                ).toLocaleString("es-ES")}
+                              </div>
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Etiquetas */}
+                {selectedAccount.labels &&
+                  selectedAccount.labels.length > 0 && (
+                    <Card className="border-0 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <Settings className="h-5 w-5 text-purple-600" />
+                          Etiquetas
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedAccount.labels.map((label, index) => (
+                            <Badge
+                              key={index}
+                              variant="secondary"
+                              className="transition-all duration-200 hover:scale-105"
+                            >
+                              {label}
+                            </Badge>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+              </div>
+            )}
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setIsDetailModalOpen(false)}
+                className="hover:scale-105 transition-transform duration-200"
+              >
+                Cerrar
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Modal de agregar cuenta mejorado */}
+        <Dialog
+          open={isAddAccountModalOpen}
+          onOpenChange={setIsAddAccountModalOpen}
+        >
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="bg-blue-100 dark:bg-blue-900 p-3 rounded-full">
+                  <Plus className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <DialogTitle className="text-xl">
+                    Conectar Nueva Cuenta
+                  </DialogTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Elige el método de conexión preferido
+                  </p>
+                </div>
+              </div>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="grid gap-4">
+                <Card
+                  className="cursor-pointer border-2 border-transparent hover:border-blue-500 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20"
+                  onClick={() => {
+                    setIsAddAccountModalOpen(false);
+                    router.push("/api/auth/x/login");
+                  }}
+                >
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-4">
+                      <div className="bg-blue-100 dark:bg-blue-900 p-3 rounded-full">
+                        <Zap className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="text-lg font-semibold mb-2 text-blue-900 dark:text-blue-100">
+                          OAuth 2.0 (Recomendado)
+                        </h4>
+                        <p className="text-muted-foreground text-sm">
+                          Conecta tu cuenta de forma segura usando el flujo
+                          oficial de X.
+                        </p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <CheckCircle2 className="h-4 w-4 text-green-500" />
+                          <span className="text-xs text-green-600">
+                            Más seguro y confiable
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card
+                  className="cursor-pointer border-2 border-transparent hover:border-purple-500 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20"
+                  onClick={() => {
+                    setIsAddAccountModalOpen(false);
+                    router.push("/accounts/new/api-keys");
+                  }}
+                >
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-4">
+                      <div className="bg-purple-100 dark:bg-purple-900 p-3 rounded-full">
+                        <Settings className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="text-lg font-semibold mb-2 text-purple-900 dark:text-purple-100">
+                          Claves de Desarrollador
+                        </h4>
+                        <p className="text-muted-foreground text-sm">
+                          Usa tus propias credenciales de la app de
+                          desarrollador de X.
+                        </p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                          <span className="text-xs text-yellow-600">
+                            Requiere configuración manual
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setIsAddAccountModalOpen(false)}
+                className="hover:scale-105 transition-transform duration-200"
+              >
+                Cancelar
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </TooltipProvider>
   );
 }

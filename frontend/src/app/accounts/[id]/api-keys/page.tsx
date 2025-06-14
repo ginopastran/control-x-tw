@@ -2,19 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
-import {
-  Card,
-  CardBody,
-  CardHeader,
-  Button,
-  Input,
-  Spinner,
-  Link,
-  Divider,
-  Alert,
-  Chip,
-  Checkbox,
-} from "@heroui/react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Loader2, AlertTriangle, Check, X } from "lucide-react";
 
 interface Account {
   _id: string;
@@ -386,7 +381,10 @@ export default function ApiKeysPage() {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <Spinner size="lg" label="Cargando cuenta..." />
+        <div className="flex items-center gap-3">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          <span className="text-lg font-medium">Cargando cuenta...</span>
+        </div>
       </div>
     );
   }

@@ -1,12 +1,18 @@
 "use client";
 
-import { HeroUIProvider, ToastProvider } from "@heroui/react";
+import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "next-themes";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <HeroUIProvider>
-      <ToastProvider />
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="dark"
+      enableSystem
+      disableTransitionOnChange
+    >
       {children}
-    </HeroUIProvider>
+      <Toaster />
+    </ThemeProvider>
   );
 }

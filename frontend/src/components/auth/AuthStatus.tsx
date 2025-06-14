@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Button } from "@heroui/react";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 
 interface AuthStatusProps {
   user: {
@@ -44,23 +46,11 @@ export default function AuthStatus({ user }: AuthStatusProps) {
   if (!user) {
     return (
       <div className="flex items-center gap-2">
-        <Button
-          as={Link}
-          href="/login"
-          color="primary"
-          variant="flat"
-          size="sm"
-        >
-          Iniciar Sesión
+        <Button asChild size="sm">
+          <Link href="/login">Iniciar Sesión</Link>
         </Button>
-        <Button
-          as={Link}
-          href="/register"
-          color="primary"
-          variant="light"
-          size="sm"
-        >
-          Registrarse
+        <Button asChild variant="outline" size="sm">
+          <Link href="/register">Registrarse</Link>
         </Button>
       </div>
     );
@@ -69,27 +59,24 @@ export default function AuthStatus({ user }: AuthStatusProps) {
   return (
     <div className="flex items-center gap-4">
       <div className="flex items-center gap-2">
-        <div className="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-bold">
-          {user.name.substring(0, 2).toUpperCase()}
-        </div>
+        <Avatar className="h-8 w-8">
+          <AvatarFallback className="bg-primary text-primary-foreground text-sm font-bold">
+            {user.name.substring(0, 2).toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
         <div className="hidden md:block">
-          <span
-            className={`ml-1 px-2 py-0.5 text-xs rounded-full ${
-              user.role === "SUPERADMIN"
-                ? "bg-red-100 text-red-800"
-                : "bg-blue-100 text-blue-800"
-            }`}
+          <Badge
+            variant={user.role === "SUPERADMIN" ? "destructive" : "default"}
           >
             {user.role}
-          </span>
+          </Badge>
         </div>
       </div>
       <Button
-        color="danger"
-        variant="light"
+        variant="outline"
         size="sm"
         onClick={handleLogout}
-        isDisabled={isLoggingOut}
+        disabled={isLoggingOut}
       >
         {isLoggingOut ? "..." : "Cerrar Sesión"}
       </Button>

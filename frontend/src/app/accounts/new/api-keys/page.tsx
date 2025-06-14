@@ -2,22 +2,17 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Card,
-  CardBody,
-  CardHeader,
-  Button,
-  Input,
-  Spinner,
-  Link,
-  Divider,
-  Alert,
-  Chip,
-  Switch,
-  Tabs,
-  Tab,
-  Checkbox,
-} from "@heroui/react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Separator } from "@/components/ui/separator";
+import { Loader2, AlertTriangle, Info } from "lucide-react";
+import { toast } from "sonner";
 
 export default function NewAccountApiKeysPage() {
   const router = useRouter();
@@ -25,23 +20,19 @@ export default function NewAccountApiKeysPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [activeTab, setActiveTab] = useState("oauth2");
 
   // Form data
   const [formData, setFormData] = useState({
-    // OAuth 1.0a credentials
     apiKey: "",
     apiSecret: "",
     bearerToken: "",
     accessToken: "",
     accessTokenSecret: "",
-    // OAuth 2.0 credentials
     clientId: "",
     clientSecret: "",
     oauth2AccessToken: "",
     oauth2RefreshToken: "",
     scopes: ["tweet.read", "tweet.write", "users.read", "offline.access"],
-    // General info
     appName: "",
     developerEmail: "",
     username: "",
@@ -51,19 +42,20 @@ export default function NewAccountApiKeysPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validación basada en el tipo de credenciales
+    // Validación básica
+    if (!formData.username.trim()) {
+      setError("El username es requerido");
+      return;
+    }
+
     if (formData.preferOAuth2) {
-      if (!formData.clientId || !formData.clientSecret || !formData.username) {
-        setError(
-          "Client ID, Client Secret y Username son requeridos para OAuth 2.0"
-        );
+      if (!formData.clientId || !formData.clientSecret) {
+        setError("Client ID y Client Secret son requeridos para OAuth 2.0");
         return;
       }
     } else {
-      if (!formData.apiKey || !formData.apiSecret || !formData.username) {
-        setError(
-          "API Key, API Secret y Username son requeridos para OAuth 1.0a"
-        );
+      if (!formData.apiKey || !formData.apiSecret) {
+        setError("API Key y API Secret son requeridos para OAuth 1.0a");
         return;
       }
     }
@@ -73,7 +65,7 @@ export default function NewAccountApiKeysPage() {
       setError("");
       setSuccess("");
 
-      // Primero crear la cuenta básica
+      // Crear la cuenta básica
       const createResponse = await fetch("/api/accounts", {
         method: "POST",
         headers: {
@@ -93,7 +85,7 @@ export default function NewAccountApiKeysPage() {
 
       const { account } = await createResponse.json();
 
-      // Luego agregar las credenciales
+      // Agregar las credenciales
       const credentialsResponse = await fetch(
         `/api/accounts/${account._id}/credentials`,
         {
@@ -102,19 +94,16 @@ export default function NewAccountApiKeysPage() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            // OAuth 1.0a
             apiKey: formData.apiKey,
             apiSecret: formData.apiSecret,
             bearerToken: formData.bearerToken,
             accessToken: formData.accessToken,
             accessTokenSecret: formData.accessTokenSecret,
-            // OAuth 2.0
             clientId: formData.clientId,
             clientSecret: formData.clientSecret,
             oauth2AccessToken: formData.oauth2AccessToken,
             oauth2RefreshToken: formData.oauth2RefreshToken,
             scopes: formData.scopes,
-            // General
             appName: formData.appName,
             developerEmail: formData.developerEmail,
             preferOAuth2: formData.preferOAuth2,
@@ -131,13 +120,14 @@ export default function NewAccountApiKeysPage() {
       setSuccess(
         `✅ Cuenta @${formData.username} creada exitosamente con ${authType}.`
       );
+      toast.success("Cuenta creada exitosamente");
 
-      // Redirigir después de 2 segundos
       setTimeout(() => {
         router.push("/accounts");
       }, 2000);
     } catch (err: any) {
       setError(err.message);
+      toast.error(err.message);
     } finally {
       setSaving(false);
     }
@@ -148,7 +138,7 @@ export default function NewAccountApiKeysPage() {
     value: string | boolean | string[]
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    setError(""); // Limpiar errores cuando el usuario edita
+    setError("");
   };
 
   const handleScopeChange = (scope: string, checked: boolean) => {
@@ -191,82 +181,23 @@ export default function NewAccountApiKeysPage() {
       label: "Acceso offline",
       description: "Renovar tokens automáticamente",
     },
-    {
-      value: "space.read",
-      label: "Leer espacios",
-      description: "Acceder a información de Spaces",
-    },
-    {
-      value: "mute.read",
-      label: "Leer silenciados",
-      description: "Ver usuarios silenciados",
-    },
-    {
-      value: "mute.write",
-      label: "Gestionar silenciados",
-      description: "Silenciar y dessilenciar usuarios",
-    },
-    {
-      value: "like.read",
-      label: "Leer likes",
-      description: "Ver tweets con like",
-    },
-    {
-      value: "like.write",
-      label: "Gestionar likes",
-      description: "Dar y quitar likes",
-    },
   ];
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      {/* Header */}
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
-        <div className="flex items-center gap-4 mb-4">
-          <Button
-            variant="light"
-            onPress={() => router.push("/accounts")}
-            startContent={
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-            }
-          >
-            Volver
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold">Agregar Cuenta con API Keys</h1>
-            <p className="text-default-500">
-              Conecta una cuenta usando tus propias credenciales de
-              desarrollador
-            </p>
-          </div>
-        </div>
+        <h1 className="text-3xl font-bold">Agregar Cuenta con API Keys</h1>
+        <p className="text-muted-foreground mt-2">
+          Conecta una cuenta de X/Twitter usando tus propias credenciales de API
+        </p>
+      </div>
 
+      <div className="space-y-6">
+        {/* Info Card */}
         <Card className="bg-blue-50 border-blue-200">
-          <CardBody>
+          <CardContent className="p-4">
             <div className="flex items-start gap-3">
-              <svg
-                className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                  clipRule="evenodd"
-                />
-              </svg>
+              <Info className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
               <div>
                 <div className="font-medium text-blue-800">
                   Ahora compatible con OAuth 2.0
@@ -277,348 +208,334 @@ export default function NewAccountApiKeysPage() {
                 </div>
               </div>
             </div>
-          </CardBody>
-        </Card>
-      </div>
-
-      {/* Alerts */}
-      {error && (
-        <Alert color="danger" className="mb-6">
-          {error}
-        </Alert>
-      )}
-
-      {success && (
-        <Alert color="success" className="mb-6">
-          {success}
-        </Alert>
-      )}
-
-      {/* Formulario */}
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Información básica */}
-        <Card>
-          <CardHeader>
-            <h2 className="text-xl font-semibold">Información de la Cuenta</h2>
-          </CardHeader>
-          <CardBody className="space-y-4">
-            <Input
-              label="Username de X"
-              placeholder="ejemplo_usuario"
-              value={formData.username}
-              onValueChange={(value) => handleInputChange("username", value)}
-              required
-              description="El username de la cuenta que quieres conectar (sin @)"
-              startContent="@"
-            />
-            <Input
-              label="Nombre de la App"
-              placeholder="Mi App de Twitter"
-              value={formData.appName}
-              onValueChange={(value) => handleInputChange("appName", value)}
-              description="Nombre descriptivo de tu aplicación"
-            />
-            <Input
-              label="Email de Desarrollador"
-              placeholder="dev@example.com"
-              type="email"
-              value={formData.developerEmail}
-              onValueChange={(value) =>
-                handleInputChange("developerEmail", value)
-              }
-              description="Email asociado a tu cuenta de desarrollador"
-            />
-          </CardBody>
+          </CardContent>
         </Card>
 
-        {/* Selector de tipo de autenticación */}
-        <Card>
-          <CardHeader>
-            <div>
-              <h2 className="text-xl font-semibold">Tipo de Autenticación</h2>
-              <p className="text-sm text-default-500 mt-1">
+        {/* Alerts */}
+        {error && (
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
+        {success && (
+          <Alert>
+            <AlertDescription>{success}</AlertDescription>
+          </Alert>
+        )}
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Información básica */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Información de la Cuenta</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="username">Username de X</Label>
+                <div className="relative">
+                  <span className="absolute left-3 top-2.5 text-muted-foreground">
+                    @
+                  </span>
+                  <Input
+                    id="username"
+                    placeholder="ejemplo_usuario"
+                    value={formData.username}
+                    onChange={(e) =>
+                      handleInputChange("username", e.target.value)
+                    }
+                    className="pl-8"
+                    required
+                  />
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  El username de la cuenta que quieres conectar (sin @)
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="appName">Nombre de la App</Label>
+                <Input
+                  id="appName"
+                  placeholder="Mi App de Twitter"
+                  value={formData.appName}
+                  onChange={(e) => handleInputChange("appName", e.target.value)}
+                />
+                <p className="text-sm text-muted-foreground">
+                  Nombre descriptivo de tu aplicación
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="developerEmail">Email de Desarrollador</Label>
+                <Input
+                  id="developerEmail"
+                  type="email"
+                  placeholder="dev@example.com"
+                  value={formData.developerEmail}
+                  onChange={(e) =>
+                    handleInputChange("developerEmail", e.target.value)
+                  }
+                />
+                <p className="text-sm text-muted-foreground">
+                  Email asociado a tu cuenta de desarrollador
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Tipo de autenticación */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Tipo de Autenticación</CardTitle>
+              <p className="text-sm text-muted-foreground">
                 Elige el método de autenticación que prefieres usar
               </p>
-            </div>
-          </CardHeader>
-          <CardBody>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <span className="text-sm font-medium">OAuth 1.0a</span>
-                <Switch
-                  isSelected={formData.preferOAuth2}
-                  onValueChange={(checked) =>
-                    handleInputChange("preferOAuth2", checked)
-                  }
-                  color="primary"
-                />
-                <span className="text-sm font-medium">OAuth 2.0</span>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <span className="text-sm font-medium">OAuth 1.0a</span>
+                  <Switch
+                    checked={formData.preferOAuth2}
+                    onCheckedChange={(checked) =>
+                      handleInputChange("preferOAuth2", checked)
+                    }
+                  />
+                  <span className="text-sm font-medium">OAuth 2.0</span>
+                </div>
+                <Badge
+                  variant={formData.preferOAuth2 ? "default" : "secondary"}
+                >
+                  {formData.preferOAuth2 ? "Recomendado" : "Legacy"}
+                </Badge>
               </div>
-              <Chip
-                color={formData.preferOAuth2 ? "success" : "warning"}
-                variant="flat"
-                size="sm"
-              >
-                {formData.preferOAuth2 ? "Recomendado" : "Legacy"}
-              </Chip>
-            </div>
-            <div className="mt-3 text-sm text-default-600">
-              {formData.preferOAuth2
-                ? "OAuth 2.0 es más moderno, seguro y fácil de implementar. Soporta scopes granulares y refresh tokens."
-                : "OAuth 1.0a es el método tradicional. Requiere más configuración pero es compatible con todas las funciones."}
-            </div>
-          </CardBody>
-        </Card>
+              <div className="mt-3 text-sm text-muted-foreground">
+                {formData.preferOAuth2
+                  ? "OAuth 2.0 es más moderno, seguro y fácil de implementar. Soporta scopes granulares y refresh tokens."
+                  : "OAuth 1.0a es el método tradicional. Requiere más configuración pero es compatible con todas las funciones."}
+              </div>
+            </CardContent>
+          </Card>
 
-        {/* Credenciales */}
-        <Card>
-          <CardHeader>
-            <div>
-              <h2 className="text-xl font-semibold">
+          {/* Credenciales */}
+          <Card>
+            <CardHeader>
+              <CardTitle>
                 Credenciales{" "}
                 {formData.preferOAuth2 ? "OAuth 2.0" : "OAuth 1.0a"}
-              </h2>
-              <p className="text-sm text-default-500 mt-1">
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
                 Obtén estas credenciales desde tu app de desarrollador de X
               </p>
-            </div>
-          </CardHeader>
-          <CardBody className="space-y-4">
-            {formData.preferOAuth2 ? (
-              // OAuth 2.0 Fields
-              <>
-                <Input
-                  label="Client ID"
-                  placeholder="Tu Client ID de OAuth 2.0"
-                  value={formData.clientId}
-                  onValueChange={(value) =>
-                    handleInputChange("clientId", value)
-                  }
-                  required
-                  description="Client ID de tu aplicación OAuth 2.0"
-                />
-                <Input
-                  label="Client Secret"
-                  placeholder="Tu Client Secret de OAuth 2.0"
-                  type="password"
-                  value={formData.clientSecret}
-                  onValueChange={(value) =>
-                    handleInputChange("clientSecret", value)
-                  }
-                  required
-                  description="Client Secret de tu aplicación OAuth 2.0"
-                />
-                <Input
-                  label="Access Token (Opcional)"
-                  placeholder="Token de acceso OAuth 2.0"
-                  value={formData.oauth2AccessToken}
-                  onValueChange={(value) =>
-                    handleInputChange("oauth2AccessToken", value)
-                  }
-                  description="Si ya tienes un token de acceso, puedes incluirlo aquí"
-                />
-                <Input
-                  label="Refresh Token (Opcional)"
-                  placeholder="Token de renovación OAuth 2.0"
-                  value={formData.oauth2RefreshToken}
-                  onValueChange={(value) =>
-                    handleInputChange("oauth2RefreshToken", value)
-                  }
-                  description="Token para renovar automáticamente el access token"
-                />
-
-                {/* Scopes */}
-                <div className="space-y-3">
-                  <div>
-                    <h3 className="text-sm font-medium mb-2">
-                      Scopes Requeridos
-                    </h3>
-                    <p className="text-xs text-default-500 mb-3">
-                      Selecciona los permisos que necesita tu aplicación
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {formData.preferOAuth2 ? (
+                // OAuth 2.0 Fields
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="clientId">Client ID</Label>
+                    <Input
+                      id="clientId"
+                      placeholder="Tu Client ID de OAuth 2.0"
+                      value={formData.clientId}
+                      onChange={(e) =>
+                        handleInputChange("clientId", e.target.value)
+                      }
+                      required
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      Client ID de tu aplicación OAuth 2.0
                     </p>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {availableScopes.map((scope) => (
-                      <div key={scope.value} className="border rounded-lg p-3">
-                        <div className="flex items-start gap-3">
-                          <Checkbox
-                            isSelected={formData.scopes.includes(scope.value)}
-                            onValueChange={(checked) =>
-                              handleScopeChange(scope.value, checked)
-                            }
-                            color="primary"
-                            size="sm"
-                          />
-                          <div className="flex-1 min-w-0">
-                            <div className="text-sm font-medium">
-                              {scope.label}
-                            </div>
-                            <div className="text-xs text-default-500 mt-1">
-                              {scope.description}
-                            </div>
-                            <div className="text-xs text-default-400 mt-1 font-mono">
-                              {scope.value}
+
+                  <div className="space-y-2">
+                    <Label htmlFor="clientSecret">Client Secret</Label>
+                    <Input
+                      id="clientSecret"
+                      type="password"
+                      placeholder="Tu Client Secret de OAuth 2.0"
+                      value={formData.clientSecret}
+                      onChange={(e) =>
+                        handleInputChange("clientSecret", e.target.value)
+                      }
+                      required
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      Client Secret de tu aplicación OAuth 2.0
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="oauth2AccessToken">
+                      Access Token (Opcional)
+                    </Label>
+                    <Input
+                      id="oauth2AccessToken"
+                      placeholder="Token de acceso OAuth 2.0"
+                      value={formData.oauth2AccessToken}
+                      onChange={(e) =>
+                        handleInputChange("oauth2AccessToken", e.target.value)
+                      }
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      Si ya tienes un token de acceso, puedes incluirlo aquí
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="oauth2RefreshToken">
+                      Refresh Token (Opcional)
+                    </Label>
+                    <Input
+                      id="oauth2RefreshToken"
+                      placeholder="Token de renovación OAuth 2.0"
+                      value={formData.oauth2RefreshToken}
+                      onChange={(e) =>
+                        handleInputChange("oauth2RefreshToken", e.target.value)
+                      }
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      Token para renovar automáticamente el access token
+                    </p>
+                  </div>
+
+                  {/* Scopes */}
+                  <div className="space-y-3">
+                    <div>
+                      <Label className="text-sm font-medium">
+                        Scopes Requeridos
+                      </Label>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Selecciona los permisos que necesita tu aplicación
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {availableScopes.map((scope) => (
+                        <div
+                          key={scope.value}
+                          className="border rounded-lg p-3"
+                        >
+                          <div className="flex items-start gap-3">
+                            <Checkbox
+                              id={scope.value}
+                              checked={formData.scopes.includes(scope.value)}
+                              onCheckedChange={(checked) =>
+                                handleScopeChange(
+                                  scope.value,
+                                  checked as boolean
+                                )
+                              }
+                            />
+                            <div className="flex-1 min-w-0">
+                              <label
+                                htmlFor={scope.value}
+                                className="text-sm font-medium cursor-pointer"
+                              >
+                                {scope.label}
+                              </label>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {scope.description}
+                              </p>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </>
-            ) : (
-              // OAuth 1.0a Fields
-              <>
-                <Input
-                  label="API Key (Consumer Key)"
-                  placeholder="Tu API Key"
-                  value={formData.apiKey}
-                  onValueChange={(value) => handleInputChange("apiKey", value)}
-                  required
-                  description="API Key de tu aplicación de Twitter"
-                />
-                <Input
-                  label="API Secret (Consumer Secret)"
-                  placeholder="Tu API Secret"
-                  type="password"
-                  value={formData.apiSecret}
-                  onValueChange={(value) =>
-                    handleInputChange("apiSecret", value)
-                  }
-                  required
-                  description="API Secret de tu aplicación de Twitter"
-                />
-                <Input
-                  label="Bearer Token (Opcional)"
-                  placeholder="Tu Bearer Token"
-                  value={formData.bearerToken}
-                  onValueChange={(value) =>
-                    handleInputChange("bearerToken", value)
-                  }
-                  description="Bearer Token para acceso de solo lectura (opcional)"
-                />
-                <Divider />
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-sm font-medium mb-2">
-                      Tokens de Usuario (Opcional)
-                    </h3>
-                    <p className="text-xs text-default-500 mb-3">
-                      Si ya tienes tokens de usuario específicos, puedes
-                      incluirlos aquí
-                    </p>
+                </>
+              ) : (
+                // OAuth 1.0a Fields
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="apiKey">API Key</Label>
+                    <Input
+                      id="apiKey"
+                      placeholder="Tu API Key"
+                      value={formData.apiKey}
+                      onChange={(e) =>
+                        handleInputChange("apiKey", e.target.value)
+                      }
+                      required
+                    />
                   </div>
-                  <Input
-                    label="Access Token"
-                    placeholder="Tu Access Token de usuario"
-                    value={formData.accessToken}
-                    onValueChange={(value) =>
-                      handleInputChange("accessToken", value)
-                    }
-                    description="Access Token específico del usuario"
-                  />
-                  <Input
-                    label="Access Token Secret"
-                    placeholder="Tu Access Token Secret"
-                    type="password"
-                    value={formData.accessTokenSecret}
-                    onValueChange={(value) =>
-                      handleInputChange("accessTokenSecret", value)
-                    }
-                    description="Access Token Secret del usuario"
-                  />
-                </div>
-              </>
-            )}
-          </CardBody>
-        </Card>
 
-        {/* Instrucciones */}
-        <Card>
-          <CardHeader>
-            <h2 className="text-xl font-semibold">
-              ¿Cómo obtener las credenciales?
-            </h2>
-          </CardHeader>
-          <CardBody>
-            <div className="space-y-4 text-sm">
-              <div>
-                <h4 className="font-medium mb-2">1. Cuenta de Desarrollador</h4>
-                <p className="text-default-600 mb-2">
-                  Necesitas una cuenta de desarrollador aprobada en X:
-                </p>
-                <Link
-                  href="https://developer.twitter.com"
-                  target="_blank"
-                  size="sm"
-                  showAnchorIcon
-                >
-                  Aplicar para cuenta de desarrollador
-                </Link>
-              </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="apiSecret">API Secret</Label>
+                    <Input
+                      id="apiSecret"
+                      type="password"
+                      placeholder="Tu API Secret"
+                      value={formData.apiSecret}
+                      onChange={(e) =>
+                        handleInputChange("apiSecret", e.target.value)
+                      }
+                      required
+                    />
+                  </div>
 
-              <Divider />
+                  <div className="space-y-2">
+                    <Label htmlFor="bearerToken">Bearer Token (Opcional)</Label>
+                    <Input
+                      id="bearerToken"
+                      placeholder="Tu Bearer Token"
+                      value={formData.bearerToken}
+                      onChange={(e) =>
+                        handleInputChange("bearerToken", e.target.value)
+                      }
+                    />
+                  </div>
 
-              <div>
-                <h4 className="font-medium mb-2">2. Crear una App</h4>
-                <p className="text-default-600 mb-2">
-                  En el portal de desarrollador, crea una nueva app:
-                </p>
-                <Link
-                  href="https://developer.twitter.com/en/portal/dashboard"
-                  target="_blank"
-                  size="sm"
-                  showAnchorIcon
-                >
-                  Portal de Desarrollador de X
-                </Link>
-              </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="accessToken">Access Token (Opcional)</Label>
+                    <Input
+                      id="accessToken"
+                      placeholder="Tu Access Token"
+                      value={formData.accessToken}
+                      onChange={(e) =>
+                        handleInputChange("accessToken", e.target.value)
+                      }
+                    />
+                  </div>
 
-              <Divider />
+                  <div className="space-y-2">
+                    <Label htmlFor="accessTokenSecret">
+                      Access Token Secret (Opcional)
+                    </Label>
+                    <Input
+                      id="accessTokenSecret"
+                      type="password"
+                      placeholder="Tu Access Token Secret"
+                      value={formData.accessTokenSecret}
+                      onChange={(e) =>
+                        handleInputChange("accessTokenSecret", e.target.value)
+                      }
+                    />
+                  </div>
+                </>
+              )}
+            </CardContent>
+          </Card>
 
-              <div>
-                <h4 className="font-medium mb-2">3. Configurar Permisos</h4>
-                <p className="text-default-600">
-                  Asegúrate de que tu app tenga permisos de lectura y escritura
-                  para poder publicar tweets.
-                </p>
-              </div>
-
-              <Divider />
-
-              <div>
-                <h4 className="font-medium mb-2">4. Obtener Credenciales</h4>
-                <ul className="text-default-600 space-y-1 list-disc list-inside">
-                  <li>API Key y API Secret: En la sección "Keys and tokens"</li>
-                  <li>Bearer Token: En la misma sección</li>
-                  <li>Access Tokens: Generar en "Access Token and Secret"</li>
-                </ul>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
-
-        {/* Botones */}
-        <div className="flex justify-end gap-4">
-          <Button
-            variant="light"
-            onPress={() => router.push("/accounts")}
-            isDisabled={saving}
-          >
-            Cancelar
-          </Button>
-          <Button
-            type="submit"
-            color="primary"
-            isLoading={saving}
-            disabled={
-              !formData.username || !formData.apiKey || !formData.apiSecret
-            }
-          >
-            {saving ? "Creando cuenta..." : "Crear Cuenta"}
-          </Button>
-        </div>
-      </form>
+          {/* Submit Button */}
+          <div className="flex justify-end gap-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => router.push("/accounts")}
+              disabled={saving}
+            >
+              Cancelar
+            </Button>
+            <Button type="submit" disabled={saving}>
+              {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {saving ? "Guardando..." : "Crear Cuenta"}
+            </Button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

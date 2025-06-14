@@ -2,28 +2,34 @@
 
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
 import {
-  Card,
-  CardBody,
-  CardHeader,
-  Button,
-  Input,
-  Chip,
-  Spinner,
-  Avatar,
-  Divider,
-  Link,
-  Breadcrumbs,
+  Breadcrumb,
   BreadcrumbItem,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  useDisclosure,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
   Tooltip,
-  Badge,
-} from "@heroui/react";
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Loader2, Check, X, AlertTriangle } from "lucide-react";
 
 interface XAccount {
   _id: string;
@@ -77,7 +83,7 @@ export default function EditAccountPage({
   );
   const [checkingUsername, setCheckingUsername] = useState(false);
   const [saving, setSaving] = useState(false);
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -202,104 +208,53 @@ export default function EditAccountPage({
   };
 
   const getCredentialStatus = () => {
-    if (!account) return { type: "none", count: 0, status: "Sin configurar" };
+    if (!account) return { hasCredentials: false, isComplete: false };
 
-    if (account.useOwnCredentials) {
-      if (account.preferOAuth2) {
-        const oauth2Count = [
-          account.hasOwnClientId,
-          account.hasOwnClientSecret,
-          account.hasOwnOAuth2AccessToken,
-          account.hasOwnOAuth2RefreshToken,
-        ].filter(Boolean).length;
+    const hasOAuth1Credentials =
+      account.hasOwnApiKey &&
+      account.hasOwnApiSecret &&
+      account.hasOwnBearerToken &&
+      account.hasOwnAccessToken &&
+      account.hasOwnAccessTokenSecret;
 
-        return {
-          type: "oauth2",
-          count: oauth2Count,
-          status:
-            oauth2Count > 0
-              ? `OAuth 2.0 (${oauth2Count} credenciales)`
-              : "OAuth 2.0 - Sin configurar",
-        };
-      } else {
-        const oauth1Count = [
-          account.hasOwnApiKey,
-          account.hasOwnApiSecret,
-          account.hasOwnBearerToken,
-          account.hasOwnAccessToken,
-          account.hasOwnAccessTokenSecret,
-        ].filter(Boolean).length;
+    const hasOAuth2Credentials =
+      account.hasOwnClientId &&
+      account.hasOwnClientSecret &&
+      account.hasOwnOAuth2AccessToken;
 
-        return {
-          type: "oauth1",
-          count: oauth1Count,
-          status:
-            oauth1Count > 0
-              ? `OAuth 1.0a (${oauth1Count} credenciales)`
-              : "OAuth 1.0a - Sin configurar",
-        };
-      }
-    }
+    const hasCredentials = hasOAuth1Credentials || hasOAuth2Credentials;
+    const isComplete = account.credentialsVerified;
 
     return {
-      type: "shared",
-      count: 0,
-      status: "Credenciales compartidas",
+      hasCredentials,
+      isComplete,
+      hasOAuth1Credentials,
+      hasOAuth2Credentials,
     };
   };
 
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <Spinner size="lg" label="Cargando cuenta..." />
+        <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
   }
 
   if (!account) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-8">
-        <Card>
-          <CardBody className="text-center py-12">
-            <svg
-              className="mx-auto h-12 w-12 text-default-300 mb-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-              />
-            </svg>
+      <div className="flex justify-center items-center min-h-screen">
+        <Card className="max-w-md">
+          <CardContent className="text-center py-12">
+            <AlertTriangle className="mx-auto h-12 w-12 text-red-500 mb-4" />
             <h3 className="text-lg font-medium mb-2">Cuenta no encontrada</h3>
-            <p className="text-default-500 mb-6">
-              La cuenta que buscas no existe o fue eliminada.
+            <p className="text-muted-foreground mb-6">
+              La cuenta que busca no existe o ha sido eliminada.
             </p>
-            <Button
-              color="primary"
-              onPress={() => router.push("/accounts")}
-              startContent={
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                  />
-                </svg>
-              }
-            >
+            <Button onClick={() => router.push("/accounts")}>
               Volver a Cuentas
             </Button>
-          </CardBody>
+          </CardContent>
         </Card>
       </div>
     );
@@ -308,694 +263,290 @@ export default function EditAccountPage({
   const credentialStatus = getCredentialStatus();
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Breadcrumbs */}
-      <Breadcrumbs className="mb-6">
-        <BreadcrumbItem onPress={() => router.push("/accounts")}>
-          Cuentas
-        </BreadcrumbItem>
-        <BreadcrumbItem>@{username || account.username}</BreadcrumbItem>
-      </Breadcrumbs>
+    <TooltipProvider>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Breadcrumbs */}
+        <Breadcrumb className="mb-6">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/accounts">Cuentas</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Editar Cuenta</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
 
-      {error && (
-        <Card className="mb-6">
-          <CardBody>
-            <div className="flex items-center text-danger">
-              <svg
-                className="h-5 w-5 mr-3"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              {error}
-            </div>
-          </CardBody>
-        </Card>
-      )}
+        {error && (
+          <Card className="mb-6 border-red-200 bg-red-50">
+            <CardContent className="pt-6">
+              <div className="flex items-center text-red-700">
+                <AlertTriangle className="h-5 w-5 mr-2" />
+                {error}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
-      {/* Header de la cuenta */}
-      <Card className="mb-6">
-        <CardHeader className="flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <Avatar
-              name={account.username[0].toUpperCase()}
-              size="lg"
-              className="text-large"
-            />
-            <div>
-              <h1 className="text-2xl font-bold">
-                @{username || account.username}
-              </h1>
-              <p className="text-default-500">
-                Editar información de la cuenta
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Tooltip content="Ver tweets programados">
-              <Button
-                variant="flat"
-                color="secondary"
-                startContent={
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+        <div className="grid gap-6">
+          {/* Información básica */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <Avatar className="h-16 w-16">
+                    <AvatarImage
+                      src={`https://unavatar.io/twitter/${account.username}`}
                     />
-                  </svg>
-                }
-                onPress={() => router.push(`/tweets?accountId=${id}`)}
-              >
-                Tweets
-              </Button>
-            </Tooltip>
-            <Button
-              variant="flat"
-              startContent={
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                  />
-                </svg>
-              }
-              onPress={() => router.push("/accounts")}
-            >
-              Volver
-            </Button>
-          </div>
-        </CardHeader>
-      </Card>
-
-      {/* Información de la cuenta */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        <Card>
-          <CardBody>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary">
-                {account.userId}
+                    <AvatarFallback>
+                      {account.username?.charAt(0)?.toUpperCase() || "?"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <CardTitle className="text-2xl">
+                      @{account.username}
+                    </CardTitle>
+                    <p className="text-muted-foreground">
+                      ID: {account.userId}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex space-x-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => router.push(`/accounts/${id}/api-keys`)}
+                  >
+                    Configurar API Keys
+                  </Button>
+                  <Dialog
+                    open={isDeleteModalOpen}
+                    onOpenChange={setIsDeleteModalOpen}
+                  >
+                    <DialogTrigger asChild>
+                      <Button variant="destructive">Eliminar</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>¿Eliminar cuenta?</DialogTitle>
+                      </DialogHeader>
+                      <div className="py-4">
+                        <p>
+                          ¿Estás seguro que deseas eliminar la cuenta{" "}
+                          <strong>@{account.username}</strong>? Esta acción no
+                          se puede deshacer.
+                        </p>
+                      </div>
+                      <div className="flex justify-end space-x-2">
+                        <Button
+                          variant="outline"
+                          onClick={() => setIsDeleteModalOpen(false)}
+                        >
+                          Cancelar
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          onClick={handleDeleteAccount}
+                        >
+                          Eliminar
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
               </div>
-              <div className="text-small text-default-500">ID de Usuario</div>
-            </div>
-          </CardBody>
-        </Card>
-        <Card>
-          <CardBody>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-success">
-                {labels.length}
-              </div>
-              <div className="text-small text-default-500">Etiquetas</div>
-            </div>
-          </CardBody>
-        </Card>
-        <Card>
-          <CardBody>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-secondary">
-                {new Date(account.createdAt).toLocaleDateString()}
-              </div>
-              <div className="text-small text-default-500">Conectado</div>
-            </div>
-          </CardBody>
-        </Card>
-      </div>
-
-      {/* Estado de credenciales */}
-      <Card className="mb-6">
-        <CardHeader>
-          <div className="flex items-center justify-between w-full">
-            <h2 className="text-xl font-semibold">🔐 Credenciales de API</h2>
-            <Button
-              color="primary"
-              variant="flat"
-              onPress={() => router.push(`/accounts/${id}/api-keys`)}
-              startContent={
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                  />
-                </svg>
-              }
-            >
-              Configurar Credenciales
-            </Button>
-          </div>
-        </CardHeader>
-        <CardBody>
-          <div className="space-y-4">
-            {/* Estado general */}
-            <div className="flex items-center justify-between">
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Estado de credenciales */}
               <div>
-                <h3 className="font-medium">Tipo de Autenticación</h3>
-                <p className="text-small text-default-500">
-                  {credentialStatus.status}
-                </p>
+                <h3 className="text-lg font-medium mb-3">
+                  Estado de Credenciales
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <span>Usa credenciales propias</span>
+                    {account.useOwnCredentials ? (
+                      <Check className="h-5 w-5 text-green-600" />
+                    ) : (
+                      <X className="h-5 w-5 text-red-600" />
+                    )}
+                  </div>
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <span>Credenciales verificadas</span>
+                    {credentialStatus.isComplete ? (
+                      <Check className="h-5 w-5 text-green-600" />
+                    ) : (
+                      <X className="h-5 w-5 text-red-600" />
+                    )}
+                  </div>
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <span>Prefiere OAuth 2.0</span>
+                    {account.preferOAuth2 ? (
+                      <Check className="h-5 w-5 text-green-600" />
+                    ) : (
+                      <X className="h-5 w-5 text-red-600" />
+                    )}
+                  </div>
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <span>Tiene tokens de acceso</span>
+                    {account.hasAccessToken ? (
+                      <Check className="h-5 w-5 text-green-600" />
+                    ) : (
+                      <X className="h-5 w-5 text-red-600" />
+                    )}
+                  </div>
+                </div>
               </div>
-              <Chip
-                color={
-                  credentialStatus.type === "oauth2"
-                    ? "success"
-                    : credentialStatus.type === "oauth1"
-                    ? "warning"
-                    : "default"
-                }
-                variant="flat"
-              >
-                {credentialStatus.type === "oauth2"
-                  ? "OAuth 2.0"
-                  : credentialStatus.type === "oauth1"
-                  ? "OAuth 1.0a"
-                  : "Compartidas"}
-              </Chip>
-            </div>
 
-            {account.useOwnCredentials && (
-              <>
-                <Divider />
+              <Separator />
 
-                {/* Información de la app */}
-                {account.userAppName && (
+              {/* Campos editables */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">
+                    Nombre de usuario
+                  </label>
+                  <div className="relative">
+                    <Input
+                      type="text"
+                      placeholder="Ej: miusuario"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      className={
+                        usernameAvailable === false
+                          ? "border-red-500"
+                          : usernameAvailable === true
+                          ? "border-green-500"
+                          : ""
+                      }
+                    />
+                    {checkingUsername && (
+                      <Loader2 className="absolute right-3 top-2.5 h-4 w-4 animate-spin" />
+                    )}
+                  </div>
+                  {usernameAvailable === false && (
+                    <p className="text-sm text-red-600">
+                      Username no disponible o inválido
+                    </p>
+                  )}
+                  {usernameAvailable === true && (
+                    <p className="text-sm text-green-600">
+                      Username disponible
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">
+                    Tag de desarrollador
+                  </label>
+                  <Input
+                    type="text"
+                    placeholder="Ej: dev, test, prod"
+                    value={developerTag}
+                    onChange={(e) => setDeveloperTag(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Etiquetas */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium">Etiquetas</h3>
+                <div className="flex flex-wrap gap-2">
+                  {labels.map((label, index) => (
+                    <Badge key={index} variant="secondary" className="gap-1">
+                      {label}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-4 w-4 p-0"
+                        onClick={() => handleRemoveLabel(label)}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </Badge>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Nueva etiqueta"
+                    value={newLabel}
+                    onChange={(e) => setNewLabel(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === "Enter") {
+                        handleAddLabel();
+                      }
+                    }}
+                  />
+                  <Button onClick={handleAddLabel}>Agregar</Button>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Información adicional */}
+              {account.userAppName && (
+                <div>
+                  <h3 className="text-lg font-medium mb-3">
+                    Información de la App
+                  </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <h4 className="text-sm font-medium text-default-700">
+                      <p className="text-sm font-medium text-muted-foreground">
                         Nombre de la App
-                      </h4>
-                      <p className="text-sm text-default-500">
-                        {account.userAppName}
                       </p>
+                      <p>{account.userAppName}</p>
                     </div>
                     {account.userDeveloperEmail && (
                       <div>
-                        <h4 className="text-sm font-medium text-default-700">
-                          Email de Desarrollador
-                        </h4>
-                        <p className="text-sm text-default-500">
-                          {account.userDeveloperEmail}
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Email del Desarrollador
+                        </p>
+                        <p>{account.userDeveloperEmail}</p>
+                      </div>
+                    )}
+                    {account.appCreatedAt && (
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          App creada el
+                        </p>
+                        <p>
+                          {new Date(account.appCreatedAt).toLocaleDateString()}
                         </p>
                       </div>
                     )}
                   </div>
-                )}
+                </div>
+              )}
 
-                <Divider />
-
-                {/* Detalle de credenciales */}
-                <div>
-                  <h4 className="text-sm font-medium text-default-700 mb-3">
-                    Estado de Credenciales
-                  </h4>
-
-                  {account.preferOAuth2 ? (
-                    // OAuth 2.0 credentials
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      <div className="flex items-center gap-2">
-                        <div
-                          className={`w-2 h-2 rounded-full ${
-                            account.hasOwnClientId
-                              ? "bg-success"
-                              : "bg-default-300"
-                          }`}
-                        />
-                        <span className="text-xs">Client ID</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div
-                          className={`w-2 h-2 rounded-full ${
-                            account.hasOwnClientSecret
-                              ? "bg-success"
-                              : "bg-default-300"
-                          }`}
-                        />
-                        <span className="text-xs">Client Secret</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div
-                          className={`w-2 h-2 rounded-full ${
-                            account.hasOwnOAuth2AccessToken
-                              ? "bg-success"
-                              : "bg-default-300"
-                          }`}
-                        />
-                        <span className="text-xs">Access Token</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div
-                          className={`w-2 h-2 rounded-full ${
-                            account.hasOwnOAuth2RefreshToken
-                              ? "bg-success"
-                              : "bg-default-300"
-                          }`}
-                        />
-                        <span className="text-xs">Refresh Token</span>
-                      </div>
-                    </div>
+              {/* Botones de acción */}
+              <div className="flex justify-end space-x-2 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => router.push("/accounts")}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={handleSave}
+                  disabled={saving || usernameAvailable === false}
+                >
+                  {saving ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Guardando...
+                    </>
                   ) : (
-                    // OAuth 1.0a credentials
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                      <div className="flex items-center gap-2">
-                        <div
-                          className={`w-2 h-2 rounded-full ${
-                            account.hasOwnApiKey
-                              ? "bg-success"
-                              : "bg-default-300"
-                          }`}
-                        />
-                        <span className="text-xs">API Key</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div
-                          className={`w-2 h-2 rounded-full ${
-                            account.hasOwnApiSecret
-                              ? "bg-success"
-                              : "bg-default-300"
-                          }`}
-                        />
-                        <span className="text-xs">API Secret</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div
-                          className={`w-2 h-2 rounded-full ${
-                            account.hasOwnBearerToken
-                              ? "bg-success"
-                              : "bg-default-300"
-                          }`}
-                        />
-                        <span className="text-xs">Bearer Token</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div
-                          className={`w-2 h-2 rounded-full ${
-                            account.hasOwnAccessToken
-                              ? "bg-success"
-                              : "bg-default-300"
-                          }`}
-                        />
-                        <span className="text-xs">Access Token</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div
-                          className={`w-2 h-2 rounded-full ${
-                            account.hasOwnAccessTokenSecret
-                              ? "bg-success"
-                              : "bg-default-300"
-                          }`}
-                        />
-                        <span className="text-xs">Access Secret</span>
-                      </div>
-                    </div>
+                    "Guardar Cambios"
                   )}
-
-                  {/* OAuth 2.0 scopes */}
-                  {account.preferOAuth2 && account.oauth2Scopes.length > 0 && (
-                    <div className="mt-4">
-                      <h5 className="text-xs font-medium text-default-700 mb-2">
-                        Scopes OAuth 2.0
-                      </h5>
-                      <div className="flex flex-wrap gap-1">
-                        {account.oauth2Scopes.map((scope) => (
-                          <Chip
-                            key={scope}
-                            size="sm"
-                            variant="flat"
-                            color="primary"
-                          >
-                            {scope}
-                          </Chip>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Token expiration */}
-                  {account.oauth2TokenExpiresAt && (
-                    <div className="mt-4">
-                      <h5 className="text-xs font-medium text-default-700">
-                        Expiración del Token
-                      </h5>
-                      <p className="text-xs text-default-500">
-                        {new Date(
-                          account.oauth2TokenExpiresAt
-                        ).toLocaleString()}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
-          </div>
-        </CardBody>
-      </Card>
-
-      {/* Formulario de edición */}
-      <Card className="mb-6">
-        <CardHeader>
-          <h2 className="text-xl font-semibold">Configuración de la Cuenta</h2>
-        </CardHeader>
-        <CardBody className="space-y-6">
-          {/* Campo de username */}
-          <div>
-            <Input
-              label="Nombre de Usuario (Tag @)"
-              placeholder="username"
-              value={username}
-              onValueChange={setUsername}
-              description="El nombre de usuario de X/Twitter (sin el símbolo @)"
-              startContent={
-                <div className="flex items-center">
-                  <span className="text-default-400 text-sm font-medium">
-                    @
-                  </span>
-                </div>
-              }
-              endContent={
-                username &&
-                username !== account?.username && (
-                  <div className="flex items-center">
-                    {checkingUsername ? (
-                      <Spinner size="sm" />
-                    ) : usernameAvailable === true ? (
-                      <Tooltip content="Nombre de usuario disponible">
-                        <svg
-                          className="w-5 h-5 text-success"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
-                      </Tooltip>
-                    ) : usernameAvailable === false ? (
-                      <Tooltip content="Nombre de usuario no disponible">
-                        <svg
-                          className="w-5 h-5 text-danger"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M6 18L18 6M6 6l12 12"
-                          />
-                        </svg>
-                      </Tooltip>
-                    ) : null}
-                  </div>
-                )
-              }
-              validate={(value) => {
-                if (!value) return "El nombre de usuario es obligatorio";
-                if (value.length < 1) return "Debe tener al menos 1 carácter";
-                if (value.length > 15)
-                  return "No puede tener más de 15 caracteres";
-                if (!/^[a-zA-Z0-9_]+$/.test(value))
-                  return "Solo se permiten letras, números y guiones bajos";
-                if (value.startsWith("_") || value.endsWith("_"))
-                  return "No puede empezar o terminar con guión bajo";
-                return true;
-              }}
-              errorMessage={
-                username && !/^[a-zA-Z0-9_]+$/.test(username)
-                  ? "Solo se permiten letras, números y guiones bajos"
-                  : username &&
-                    (username.startsWith("_") || username.endsWith("_"))
-                  ? "No puede empezar o terminar con guión bajo"
-                  : username && username.length > 15
-                  ? "No puede tener más de 15 caracteres"
-                  : ""
-              }
-              isInvalid={
-                !username ||
-                username.length > 15 ||
-                !/^[a-zA-Z0-9_]+$/.test(username) ||
-                username.startsWith("_") ||
-                username.endsWith("_")
-              }
-            />
-          </div>
-
-          <Divider />
-
-          {/* Campo de desarrollador */}
-          <div>
-            <Input
-              label="Cuenta de Desarrollador"
-              placeholder="Etiqueta de cuenta desarrollador"
-              value={developerTag}
-              onValueChange={setDeveloperTag}
-              description="Identifica qué cuenta de desarrollador de Twitter se usa para esta cuenta"
-              startContent={
-                <svg
-                  className="w-4 h-4 text-default-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
-                  />
-                </svg>
-              }
-            />
-          </div>
-
-          <Divider />
-
-          {/* Gestión de etiquetas */}
-          <div>
-            <div className="mb-4">
-              <h3 className="text-lg font-medium mb-2">Etiquetas</h3>
-              <p className="text-small text-default-500">
-                Organiza tus cuentas con etiquetas personalizadas
-              </p>
-            </div>
-
-            {/* Etiquetas existentes */}
-            {labels.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-4">
-                {labels.map((label, index) => (
-                  <Chip
-                    key={index}
-                    size="md"
-                    variant="flat"
-                    color="primary"
-                    onClose={() => handleRemoveLabel(label)}
-                  >
-                    {label}
-                  </Chip>
-                ))}
+                </Button>
               </div>
-            )}
-
-            {/* Agregar nueva etiqueta */}
-            <div className="flex gap-2">
-              <Input
-                placeholder="Nueva etiqueta"
-                value={newLabel}
-                onValueChange={setNewLabel}
-                onKeyPress={(e) => e.key === "Enter" && handleAddLabel()}
-                className="flex-1"
-              />
-              <Button
-                color="primary"
-                onPress={handleAddLabel}
-                isDisabled={
-                  !newLabel.trim() || labels.includes(newLabel.trim())
-                }
-                startContent={
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 4v16m8-8H4"
-                    />
-                  </svg>
-                }
-              >
-                Añadir
-              </Button>
-            </div>
-          </div>
-        </CardBody>
-      </Card>
-
-      {/* Zona de peligro */}
-      <Card className="border-danger-200">
-        <CardHeader>
-          <h2 className="text-xl font-semibold text-danger">Zona de Peligro</h2>
-        </CardHeader>
-        <CardBody>
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="font-medium text-danger">Eliminar cuenta</h3>
-              <p className="text-small text-default-500">
-                Esta acción no se puede deshacer. Se eliminarán todos los datos
-                asociados.
-              </p>
-            </div>
-            <Button
-              color="danger"
-              variant="bordered"
-              onPress={onOpen}
-              startContent={
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                  />
-                </svg>
-              }
-            >
-              Eliminar Cuenta
-            </Button>
-          </div>
-        </CardBody>
-      </Card>
-
-      {/* Botones de acción */}
-      <div className="flex justify-end gap-3 mt-6">
-        <Button
-          variant="flat"
-          onPress={() => router.push("/accounts")}
-          startContent={
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          }
-        >
-          Cancelar
-        </Button>
-        <Button
-          color="primary"
-          onPress={handleSave}
-          isLoading={saving}
-          isDisabled={
-            saving ||
-            !username ||
-            username.length > 15 ||
-            !/^[a-zA-Z0-9_]+$/.test(username) ||
-            username.startsWith("_") ||
-            username.endsWith("_") ||
-            (username !== account?.username && usernameAvailable !== true)
-          }
-          startContent={
-            !saving && (
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-            )
-          }
-        >
-          {saving ? "Guardando..." : "Guardar Cambios"}
-        </Button>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-
-      {/* Modal de confirmación de eliminación */}
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalContent>
-          <ModalHeader>
-            <div className="flex items-center gap-2 text-danger">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fillRule="evenodd"
-                  d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              Confirmar eliminación
-            </div>
-          </ModalHeader>
-          <ModalBody>
-            <p>
-              ¿Estás seguro que deseas eliminar la cuenta{" "}
-              <span className="font-bold">@{username || account.username}</span>
-              ?
-            </p>
-            <p className="text-small text-default-500">
-              Esta acción no se puede deshacer y se eliminarán todos los datos
-              asociados incluyendo tweets programados y configuraciones.
-            </p>
-          </ModalBody>
-          <ModalFooter>
-            <Button variant="light" onPress={onClose}>
-              Cancelar
-            </Button>
-            <Button color="danger" onPress={handleDeleteAccount}>
-              Eliminar Cuenta
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    </div>
+    </TooltipProvider>
   );
 }

@@ -1,69 +1,74 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
-  Button,
-  Input,
-  Textarea,
-  Checkbox,
-  Card,
-  CardHeader,
-  CardBody,
-  CardFooter,
-  Chip,
-  Divider,
-  Progress,
-  addToast,
-  Switch,
   Select,
+  SelectContent,
   SelectItem,
-  Tabs,
-  Tab,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  useDisclosure,
-  Slider,
-  Badge,
-  Table,
-  TableHeader,
-  TableColumn,
-  TableBody,
-  TableRow,
-  TableCell,
-  Avatar,
-  Dropdown,
-  DropdownTrigger,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   DropdownMenu,
-  DropdownItem,
-  Tooltip,
-} from "@heroui/react";
-import AccountSelector from "@/components/AccountSelector";
-import { API_CONFIG, buildApiUrl } from "@/config/api";
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Loader2,
+  Send,
+  Heart,
+  Repeat,
+  UserPlus,
+  UserMinus,
+  Zap,
+  Activity,
+  Clock,
+  CheckCircle,
+  AlertCircle,
+  Users,
+  Search,
+  Filter,
+  X,
+  Plus,
+  Minus,
+  ChevronDown,
+  Check,
+  List,
+  Grid,
+  Settings,
+} from "lucide-react";
+import { toast } from "sonner";
 
 interface Account {
   _id: string;
   username: string;
   labels: string[];
-}
-
-interface TweetAction {
-  type: "tweet" | "reply" | "like" | "retweet" | "follow" | "unfollow";
-  text?: string;
-  tweetId?: string;
-  targetUserId?: string;
-}
-
-interface BatchTweet {
-  id: string;
-  text: string;
-  type: "tweet" | "reply";
-  replyToTweetUrl?: string;
-  assignedAccounts: string[];
-  status: "pending" | "completed" | "error";
 }
 
 interface ActionResult {
@@ -73,69 +78,41 @@ interface ActionResult {
   details?: string;
 }
 
-// Función de utilidad para esperar
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+interface BatchTweet {
+  id: string;
+  text: string;
+  assignedAccounts: string[];
+}
 
-// Función para realizar un intento con retraso exponencial
-const retryWithBackoff = async (
-  fn: () => Promise<any>,
-  maxRetries: number = 3,
-  baseDelay: number = 2000
-): Promise<any> => {
-  let retries = 0;
-  while (retries < maxRetries) {
-    try {
-      return await fn();
-    } catch (error: any) {
-      const isRetryableError =
-        error.message?.includes("Too Many Requests") ||
-        error.message?.includes("Rate limit") ||
-        error.message?.includes("Service Unavailable") ||
-        error.message?.includes("Internal Server Error") ||
-        error.message?.includes("Bad Gateway") ||
-        error.message?.includes("Gateway Timeout") ||
-        error.message?.includes("timeout") ||
-        error.status === 429 ||
-        error.status === 500 ||
-        error.status === 502 ||
-        error.status === 503 ||
-        error.status === 504;
-
-      if (isRetryableError) {
-        retries++;
-        if (retries === maxRetries) throw error;
-
-        const exponentialDelay = baseDelay * Math.pow(2, retries);
-        const jitter = Math.random() * 1000;
-        const waitTime = exponentialDelay + jitter;
-
-        console.log(
-          `Intento ${retries}/${maxRetries} falló. Esperando ${Math.round(
-            waitTime
-          )}ms antes de reintentar...`
-        );
-        await delay(waitTime);
-        continue;
-      }
-      throw error;
-    }
-  }
+// Filtros predefinidos basados en las etiquetas reales de las cuentas
+const LABEL_FILTERS = {
+  edad: ["14-18", "18-25", "25-65", "65+"],
+  ideologia: [
+    "anti todo pero afín",
+    "kakardo",
+    "lukardo",
+    "kukarko",
+    "peroncho tradicional",
+  ],
+  situacion: [
+    "estudia y trabaja",
+    "estudiante secundaria",
+    "solo estudia",
+    "solo trabaja",
+    "trabaja",
+    "jubilado",
+  ],
 };
 
 export default function TweetsPage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [selectedAccounts, setSelectedAccounts] = useState<string[]>([]);
-  const [availableLabels, setAvailableLabels] = useState<string[]>([]);
-  const [selectedLabels, setSelectedLabels] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [actionResults, setActionResults] = useState<ActionResult[]>([]);
   const [progress, setProgress] = useState<{ current: number; total: number }>({
     current: 0,
     total: 0,
   });
-
-  // Estados para el tab activo
-  const [activeTab, setActiveTab] = useState("tweet");
 
   // Estados para cada tipo de acción
   const [tweetText, setTweetText] = useState("");
@@ -146,67 +123,371 @@ export default function TweetsPage() {
   const [followUser, setFollowUser] = useState("");
   const [unfollowUser, setUnfollowUser] = useState("");
 
-  // Estados para delays y configuración
+  // Estados para delays
   const [baseDelay, setBaseDelay] = useState(30);
   const [randomDelay, setRandomDelay] = useState(60);
-  const [enableRandomDelay, setEnableRandomDelay] = useState(true);
 
-  // Nuevos estados para control avanzado de delays
-  const [delayMode, setDelayMode] = useState<"seconds" | "minutes">("seconds");
-  const [useLongDelays, setUseLongDelays] = useState(false);
+  // Estados de animación
+  const [isVisible, setIsVisible] = useState(false);
 
-  // Estados para Lotes
+  // Nuevos estados para filtros y búsqueda
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedFilters, setSelectedFilters] = useState<{
+    edad: string[];
+    ideologia: string[];
+    situacion: string[];
+  }>({
+    edad: [],
+    ideologia: [],
+    situacion: [],
+  });
+
+  // Estados para modo batch de tweets
+  const [batchMode, setBatchMode] = useState(false);
   const [batchTweets, setBatchTweets] = useState<BatchTweet[]>([]);
-  const [newTweetText, setNewTweetText] = useState("");
-  const [newTweetType, setNewTweetType] = useState<"tweet" | "reply">("tweet");
-  const [newReplyToTweetUrl, setNewReplyToTweetUrl] = useState("");
-  const [selectedTweetForAssignment, setSelectedTweetForAssignment] = useState<
-    string | null
-  >(null);
+  const [batchTweetText, setBatchTweetText] = useState("");
 
-  // Modal states
-  const {
-    isOpen: isPreviewOpen,
-    onOpen: onPreviewOpen,
-    onOpenChange: onPreviewOpenChange,
-  } = useDisclosure();
-
-  const {
-    isOpen: isAddTweetOpen,
-    onOpen: onAddTweetOpen,
-    onOpenChange: onAddTweetOpenChange,
-  } = useDisclosure();
-
-  const {
-    isOpen: isAssignAccountsOpen,
-    onOpen: onAssignAccountsOpen,
-    onOpenChange: onAssignAccountsOpenChange,
-  } = useDisclosure();
+  // Estados para vista
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   useEffect(() => {
     fetchAccounts();
+    // Animación de entrada
+    setTimeout(() => setIsVisible(true), 100);
   }, []);
-
-  useEffect(() => {
-    const labels = new Set<string>();
-    accounts.forEach((account) => {
-      account.labels?.forEach((label) => labels.add(label));
-    });
-    setAvailableLabels(Array.from(labels));
-  }, [accounts]);
 
   const fetchAccounts = async () => {
     try {
-      const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.ACCOUNTS));
+      const response = await fetch("/api/accounts");
       if (!response.ok) throw new Error("Error al cargar cuentas");
       const data = await response.json();
       setAccounts(data);
     } catch (err) {
-      addToast({
-        title: "Error",
-        description: "Error al cargar las cuentas",
-        color: "danger",
+      toast.error("Error al cargar las cuentas");
+    }
+  };
+
+  // Función para calcular similitud de strings (Levenshtein distance)
+  const calculateSimilarity = (str1: string, str2: string): number => {
+    if (str1.length === 0) return str2.length;
+    if (str2.length === 0) return str1.length;
+
+    const matrix = Array(str2.length + 1)
+      .fill(null)
+      .map(() => Array(str1.length + 1).fill(null));
+
+    for (let i = 0; i <= str1.length; i++) {
+      matrix[0][i] = i;
+    }
+
+    for (let j = 0; j <= str2.length; j++) {
+      matrix[j][0] = j;
+    }
+
+    for (let j = 1; j <= str2.length; j++) {
+      for (let i = 1; i <= str1.length; i++) {
+        if (str1[i - 1] === str2[j - 1]) {
+          matrix[j][i] = matrix[j - 1][i - 1];
+        } else {
+          matrix[j][i] = Math.min(
+            matrix[j - 1][i] + 1,
+            matrix[j][i - 1] + 1,
+            matrix[j - 1][i - 1] + 1
+          );
+        }
+      }
+    }
+
+    const maxLength = Math.max(str1.length, str2.length);
+    return (maxLength - matrix[str2.length][str1.length]) / maxLength;
+  };
+
+  // Función para verificar si dos strings son similares
+  const areStringsSimilar = (
+    str1: string,
+    str2: string,
+    threshold: number = 0.7
+  ): boolean => {
+    const similarity = calculateSimilarity(
+      str1.toLowerCase(),
+      str2.toLowerCase()
+    );
+    return similarity >= threshold;
+  };
+
+  const filteredAccounts = accounts.filter((account) => {
+    // Filtro por búsqueda
+    const matchesSearch =
+      searchQuery === "" ||
+      account.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      account.labels.some((label) =>
+        label.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+
+    // DEBUG: Log para entender las etiquetas
+    if (selectedFilters.ideologia.length > 0 && account.labels.length > 0) {
+      console.log(`🔍 DEBUG Account @${account.username}:`, {
+        labels: account.labels,
+        selectedFilters: selectedFilters.ideologia,
+        normalizedLabels: account.labels.map((l) => l.toLowerCase().trim()),
       });
+    }
+
+    // Filtro por etiquetas - formato real: "Ideología: lukardo", "Situación: Estudiante secundaria"
+    const matchesFilters = Object.entries(selectedFilters).every(
+      ([category, values]) => {
+        if (values.length === 0) return true;
+        // Para cada filtro seleccionado, debe haber al menos una coincidencia
+        return values.some((filterValue) =>
+          account.labels.some((label) => {
+            const normalizedLabel = label.toLowerCase().trim();
+            const normalizedFilter = filterValue.toLowerCase().trim();
+
+            // DEBUG: Log detallado de comparaciones
+            if (category === "ideologia" && values.length > 0) {
+              console.log(
+                `  🔍 Comparing "${normalizedLabel}" with filter "${normalizedFilter}"`
+              );
+            }
+
+            // Formato real: "ideología: lukardo" -> buscar por categoría y valor
+            const categoryMappings = {
+              edad: "edad:",
+              ideologia: "ideología:",
+              situacion: "situación:",
+            };
+
+            const categoryPrefix =
+              categoryMappings[category as keyof typeof categoryMappings];
+
+            if (categoryPrefix && normalizedLabel.startsWith(categoryPrefix)) {
+              const labelValue = normalizedLabel
+                .substring(categoryPrefix.length)
+                .trim();
+
+              // Coincidencia exacta
+              if (labelValue === normalizedFilter) {
+                if (category === "ideologia" && values.length > 0) {
+                  console.log(
+                    `    ✅ Exact match! "${labelValue}" === "${normalizedFilter}"`
+                  );
+                }
+                return true;
+              }
+
+              // Coincidencia parcial
+              if (
+                labelValue.includes(normalizedFilter) ||
+                normalizedFilter.includes(labelValue)
+              ) {
+                if (category === "ideologia" && values.length > 0) {
+                  console.log(
+                    `    ✅ Partial match! "${labelValue}" includes "${normalizedFilter}"`
+                  );
+                }
+                return true;
+              }
+
+              // Coincidencia por similitud (para casos como "kukardo" vs "kukarko")
+              const similarity = calculateSimilarity(
+                labelValue,
+                normalizedFilter
+              );
+              if (similarity >= 0.7) {
+                if (category === "ideologia" && values.length > 0) {
+                  console.log(
+                    `    ✅ Similarity match! "${labelValue}" vs "${normalizedFilter}" (${(
+                      similarity * 100
+                    ).toFixed(1)}%)`
+                  );
+                }
+                return true;
+              }
+
+              if (category === "ideologia" && values.length > 0) {
+                console.log(
+                  `    ❌ No match! "${labelValue}" vs "${normalizedFilter}" (${(
+                    similarity * 100
+                  ).toFixed(1)}%)`
+                );
+              }
+
+              return false;
+            }
+
+            // También buscar coincidencias directas (para compatibilidad)
+            const directMatch = normalizedLabel.includes(normalizedFilter);
+            const similarityMatch = areStringsSimilar(
+              normalizedLabel,
+              normalizedFilter
+            );
+
+            if (category === "ideologia" && values.length > 0) {
+              console.log(
+                `    🔍 Direct match: "${normalizedLabel}" includes "${normalizedFilter}" = ${directMatch}`
+              );
+              if (similarityMatch) {
+                console.log(
+                  `    ✅ Similarity direct match! "${normalizedLabel}" vs "${normalizedFilter}"`
+                );
+              }
+            }
+
+            return directMatch || similarityMatch;
+          })
+        );
+      }
+    );
+
+    const finalResult = matchesSearch && matchesFilters;
+
+    if (selectedFilters.ideologia.length > 0) {
+      console.log(`🎯 Account @${account.username} final result:`, {
+        matchesSearch,
+        matchesFilters,
+        finalResult,
+      });
+    }
+
+    return finalResult;
+  });
+
+  // Función para agregar tweets en lote
+  const handleBatchTweetAdd = () => {
+    if (!batchTweetText.trim()) return;
+
+    const lines = batchTweetText.split("\n").filter((line) => line.trim());
+    const newTweets: BatchTweet[] = lines.map((line, index) => ({
+      id: `batch-${Date.now()}-${index}`,
+      text: line.trim(),
+      assignedAccounts: [],
+    }));
+
+    setBatchTweets((prev) => [...prev, ...newTweets]);
+    setBatchTweetText("");
+    toast.success(`${newTweets.length} tweets agregados al lote`);
+  };
+
+  // Función para asignar cuentas a un tweet específico
+  const handleAssignAccountsToTweet = (
+    tweetId: string,
+    accountIds: string[]
+  ) => {
+    setBatchTweets((prev) =>
+      prev.map((tweet) =>
+        tweet.id === tweetId
+          ? { ...tweet, assignedAccounts: accountIds }
+          : tweet
+      )
+    );
+  };
+
+  // Función para ejecutar tweets en lote
+  const handleBatchTweetExecute = async () => {
+    const tweetsToExecute = batchTweets.filter(
+      (tweet) => tweet.assignedAccounts.length > 0
+    );
+
+    if (tweetsToExecute.length === 0) {
+      toast.error("Asigna al menos una cuenta a cada tweet");
+      return;
+    }
+
+    setLoading(true);
+    setActionResults([]);
+
+    let successCount = 0;
+    let errorCount = 0;
+    let totalActionsAdded = 0;
+
+    try {
+      for (const tweet of tweetsToExecute) {
+        try {
+          // Preparar datos de la acción para el sistema de cola
+          const actionData = {
+            action: "tweet",
+            accountIds: tweet.assignedAccounts,
+            text: tweet.text,
+            baseDelay: baseDelay * 1000, // Convertir a milliseconds
+            randomDelay: randomDelay * 1000, // Convertir a milliseconds
+          };
+
+          // Enviar al sistema de colas usando el endpoint correcto
+          const response = await fetch("http://localhost:3001/api/queue/add", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(actionData),
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `Error ${response.status}`);
+          }
+
+          const result = await response.json();
+          console.log(`✅ Lote tweet añadido a la cola:`, result);
+          successCount++;
+          totalActionsAdded +=
+            result.actions?.length || tweet.assignedAccounts.length;
+
+          setActionResults((prev) => [
+            ...prev,
+            {
+              account: "Sistema",
+              success: true,
+              message: `Lote "${tweet.text.substring(0, 50)}..." enviado a ${
+                tweet.assignedAccounts.length
+              } cuentas`,
+            },
+          ]);
+        } catch (error: any) {
+          console.error(`❌ Error enviando lote tweet:`, error.message);
+          errorCount++;
+
+          setActionResults((prev) => [
+            ...prev,
+            {
+              account: "Sistema",
+              success: false,
+              message: `Error en lote "${tweet.text.substring(0, 30)}...": ${
+                error.message
+              }`,
+            },
+          ]);
+        }
+
+        // Pequeño delay entre lotes para evitar saturar el sistema
+        if (tweetsToExecute.indexOf(tweet) < tweetsToExecute.length - 1) {
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
+      }
+
+      console.log(
+        `🎉 Proceso completado: ${successCount} lotes exitosos, ${errorCount} errores, ${totalActionsAdded} acciones totales`
+      );
+
+      if (successCount > 0) {
+        toast.success(
+          `${successCount} lotes enviados exitosamente al sistema de colas (${totalActionsAdded} acciones totales)`
+        );
+        // Limpiar tweets exitosos
+        setBatchTweets([]);
+      }
+
+      if (errorCount > 0) {
+        toast.error(
+          `${errorCount} lotes fallaron. Revisa los resultados para más detalles.`
+        );
+      }
+    } catch (error: any) {
+      console.error("Error general ejecutando lotes:", error);
+      toast.error(
+        "Error ejecutando los lotes. Revisa la consola para más detalles."
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -223,62 +504,9 @@ export default function TweetsPage() {
     }
   };
 
-  const extractAndValidateUserId = (input: string): string | null => {
-    if (!input?.trim()) return null;
-
-    if (/^\d+$/.test(input.trim())) {
-      return input.trim();
-    }
-
-    try {
-      const url = new URL(input);
-      if (
-        url.hostname.includes("twitter.com") ||
-        url.hostname.includes("x.com")
-      ) {
-        const pathParts = url.pathname.split("/").filter((part) => part);
-        if (pathParts.length > 0) {
-          const username = pathParts[0];
-          if (/^[a-zA-Z0-9_]{1,15}$/.test(username)) {
-            return username;
-          }
-        }
-      }
-    } catch {}
-
-    const cleanUsername = input.trim().replace(/^@/, "");
-    if (/^[a-zA-Z0-9_]{1,15}$/.test(cleanUsername)) {
-      return cleanUsername;
-    }
-
-    return null;
-  };
-
-  const calculateDelay = (index: number) => {
-    // Convertir a milisegundos basado en el modo seleccionado
-    const baseMs =
-      delayMode === "minutes" ? baseDelay * 60 * 1000 : baseDelay * 1000;
-
-    let totalDelay = baseMs;
-
-    if (enableRandomDelay) {
-      const randomMs =
-        delayMode === "minutes"
-          ? Math.random() * randomDelay * 60 * 1000
-          : Math.random() * randomDelay * 1000;
-      totalDelay += randomMs;
-    }
-
-    return totalDelay;
-  };
-
-  const handleAction = async (actionType: TweetAction["type"]) => {
+  const executeAction = async (actionType: string, data: any) => {
     if (selectedAccounts.length === 0) {
-      addToast({
-        title: "Error",
-        description: "Selecciona al menos una cuenta",
-        color: "danger",
-      });
+      toast.error("Selecciona al menos una cuenta");
       return;
     }
 
@@ -286,110 +514,44 @@ export default function TweetsPage() {
     setActionResults([]);
 
     try {
-      await executeAction(actionType);
-    } catch (error: any) {
-      addToast({
-        title: "Error",
-        description: error.message,
-        color: "danger",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const executeAction = async (actionType: TweetAction["type"]) => {
-    if (!isActionValid()) return;
-
-    setLoading(true);
-    setActionResults([]);
-
-    try {
-      const accountIds = selectedAccounts;
-
-      // Preparar datos de la acción
-      const actionData: any = {
+      // Preparar datos de la acción para el sistema de cola
+      const actionData = {
         action: actionType,
-        accountIds,
-        baseDelay:
-          delayMode === "minutes" ? baseDelay * 60000 : baseDelay * 1000,
-        randomDelay:
-          delayMode === "minutes" ? randomDelay * 60000 : randomDelay * 1000,
+        accountIds: selectedAccounts,
+        baseDelay: baseDelay * 1000, // Convertir a milliseconds
+        randomDelay: randomDelay * 1000, // Convertir a milliseconds
+        ...data,
       };
 
-      // Añadir datos específicos según el tipo de acción
-      if (actionType === "tweet") {
-        actionData.text = tweetText;
-      } else if (actionType === "reply") {
-        actionData.text = replyText;
-        if (replyTweetUrl) {
-          const tweetId = extractTweetId(replyTweetUrl);
-          if (!tweetId) {
-            throw new Error("URL de tweet inválida para respuesta");
-          }
-          actionData.tweetId = tweetId;
-        }
-      } else if (actionType === "like") {
-        if (!likeTweetUrl) {
-          throw new Error("URL de tweet requerida");
-        }
-        const tweetId = extractTweetId(likeTweetUrl);
-        if (!tweetId) {
-          throw new Error("URL de tweet inválida");
-        }
-        actionData.tweetId = tweetId;
-      } else if (actionType === "retweet") {
-        if (!retweetUrl) {
-          throw new Error("URL de tweet requerida");
-        }
-        const tweetId = extractTweetId(retweetUrl);
-        if (!tweetId) {
-          throw new Error("URL de tweet inválida");
-        }
-        actionData.tweetId = tweetId;
-      } else if (actionType === "follow") {
-        const userId = extractAndValidateUserId(followUser);
-        if (!userId) {
-          throw new Error("Usuario objetivo inválido");
-        }
-        actionData.targetUserId = userId;
-      } else if (actionType === "unfollow") {
-        const userId = extractAndValidateUserId(unfollowUser);
-        if (!userId) {
-          throw new Error("Usuario objetivo inválido");
-        }
-        actionData.targetUserId = userId;
-      }
-
-      // Enviar a la cola
-      const response = await retryWithBackoff(async () => {
-        const res = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.QUEUE.ADD), {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(actionData),
-        });
-
-        if (!res.ok) {
-          const errorData = await res.json();
-          throw new Error(
-            errorData.error || `Error ${res.status}: ${res.statusText}`
-          );
-        }
-
-        return res.json();
+      // Enviar al sistema de colas usando el endpoint correcto
+      const response = await fetch("http://localhost:3001/api/queue/add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(actionData),
       });
 
-      // Mostrar resultado exitoso
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `Error ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log(`✅ Acción ${actionType} añadida a la cola:`, result);
+
       setActionResults([
         {
           account: "Sistema",
           success: true,
-          message: response.message,
-          details: `${response.actions.length} acciones añadidas a la cola`,
+          message: result.message,
+          details: `${result.actions.length} acciones añadidas a la cola`,
         },
       ]);
+
+      toast.success(
+        `Acciones enviadas al sistema de colas: ${result.actions.length} acciones programadas`
+      );
 
       // Limpiar formulario
       setTweetText("");
@@ -409,1084 +571,1227 @@ export default function TweetsPage() {
           details: error.message,
         },
       ]);
+      toast.error("Error enviando las acciones al sistema de colas");
     } finally {
       setLoading(false);
     }
   };
 
-  const getEstimatedTime = () => {
-    const accountCount = selectedAccounts.length;
-
-    if (accountCount <= 1) return "Inmediato";
-
-    // Calcular delay promedio en segundos
-    const baseSeconds = delayMode === "minutes" ? baseDelay * 60 : baseDelay;
-    const randomSeconds = enableRandomDelay
-      ? delayMode === "minutes"
-        ? (randomDelay * 60) / 2
-        : randomDelay / 2
-      : 0;
-
-    const avgDelaySeconds = baseSeconds + randomSeconds;
-    const totalSeconds = (accountCount - 1) * avgDelaySeconds;
-
-    if (totalSeconds < 60) return `${Math.round(totalSeconds)}s`;
-
-    const minutes = Math.floor(totalSeconds / 60);
-    const remainingSeconds = Math.round(totalSeconds % 60);
-
-    if (minutes >= 60) {
-      const hours = Math.floor(minutes / 60);
-      const remainingMinutes = minutes % 60;
-      return `${hours}h ${remainingMinutes}m${
-        remainingSeconds ? ` ${remainingSeconds}s` : ""
-      }`;
+  const handleTweet = () => {
+    if (!tweetText.trim()) {
+      toast.error("El texto del tweet es obligatorio");
+      return;
     }
-
-    return `${minutes}m${remainingSeconds ? ` ${remainingSeconds}s` : ""}`;
+    executeAction("tweet", { text: tweetText });
   };
 
-  const isActionValid = () => {
-    switch (activeTab) {
-      case "tweet":
-        return tweetText.trim().length > 0;
-      case "reply":
-        return replyText.trim().length > 0 && replyTweetUrl.trim().length > 0;
-      case "like":
-        return likeTweetUrl.trim().length > 0;
-      case "retweet":
-        return retweetUrl.trim().length > 0;
-      case "follow":
-        return followUser.trim().length > 0;
-      case "unfollow":
-        return unfollowUser.trim().length > 0;
-      case "batch":
-        return (
-          batchTweets.filter((t) => t.assignedAccounts.length > 0).length > 0
-        );
-      default:
-        return false;
+  const handleReply = () => {
+    if (!replyText.trim()) {
+      toast.error("El texto de la respuesta es obligatorio");
+      return;
     }
-  };
-
-  // Funciones para manejar lotes
-  const addBatchTweet = () => {
-    if (!newTweetText.trim()) {
-      addToast({
-        title: "Error",
-        description: "El texto del tweet/respuesta no puede estar vacío",
-        color: "danger",
-      });
+    if (!replyTweetUrl.trim()) {
+      toast.error("La URL del tweet es obligatoria");
       return;
     }
 
-    if (newTweetType === "reply" && !newReplyToTweetUrl.trim()) {
-      addToast({
-        title: "Error",
-        description: "La URL del tweet a responder es requerida",
-        color: "danger",
-      });
+    const tweetId = extractTweetId(replyTweetUrl);
+    if (!tweetId) {
+      toast.error("URL de tweet inválida");
       return;
     }
 
-    const newTweet: BatchTweet = {
-      id: Date.now().toString(),
-      text: newTweetText.trim(),
-      type: newTweetType,
-      replyToTweetUrl:
-        newTweetType === "reply" ? newReplyToTweetUrl.trim() : undefined,
-      assignedAccounts: [],
-      status: "pending",
-    };
-
-    setBatchTweets([...batchTweets, newTweet]);
-    setNewTweetText("");
-    setNewReplyToTweetUrl("");
-    onAddTweetOpenChange();
-
-    addToast({
-      title: newTweetType === "tweet" ? "Tweet Agregado" : "Respuesta Agregada",
-      description: `${
-        newTweetType === "tweet" ? "Tweet" : "Respuesta"
-      } agregado al lote exitosamente`,
-      color: "success",
-    });
+    executeAction("reply", { text: replyText, tweetId });
   };
 
-  const removeBatchTweet = (tweetId: string) => {
-    setBatchTweets(batchTweets.filter((tweet) => tweet.id !== tweetId));
-    addToast({
-      title: "Tweet Eliminado",
-      description: "Tweet eliminado del lote",
-      color: "success",
-    });
-  };
-
-  const openAssignAccounts = (tweetId: string) => {
-    setSelectedTweetForAssignment(tweetId);
-    onAssignAccountsOpen();
-  };
-
-  const assignAccountsToTweet = (accountIds: string[]) => {
-    if (!selectedTweetForAssignment) return;
-
-    setBatchTweets(
-      batchTweets.map((tweet) =>
-        tweet.id === selectedTweetForAssignment
-          ? { ...tweet, assignedAccounts: accountIds }
-          : tweet
-      )
-    );
-
-    setSelectedTweetForAssignment(null);
-    onAssignAccountsOpenChange();
-
-    addToast({
-      title: "Cuentas Asignadas",
-      description: `Cuentas asignadas al tweet exitosamente`,
-      color: "success",
-    });
-  };
-
-  // Función para ejecutar todos los tweets del lote
-  const executeBatchTweets = async () => {
-    setLoading(true);
-    const tweetsToExecute = batchTweets.filter(
-      (t) => t.assignedAccounts.length > 0
-    );
-
-    if (tweetsToExecute.length === 0) {
-      alert("No hay tweets con cuentas asignadas para ejecutar");
-      setLoading(false);
+  const handleLike = () => {
+    if (!likeTweetUrl.trim()) {
+      toast.error("La URL del tweet es obligatoria");
       return;
     }
 
-    console.log(
-      `🚀 Enviando ${tweetsToExecute.length} acciones al sistema de colas...`
-    );
-
-    let successCount = 0;
-    let errorCount = 0;
-
-    for (const tweet of tweetsToExecute) {
-      // Marcar como en progreso
-      setBatchTweets((prev) =>
-        prev.map((t) =>
-          t.id === tweet.id ? { ...t, status: "pending" as const } : t
-        )
-      );
-
-      for (const accountId of tweet.assignedAccounts) {
-        try {
-          const requestBody: any = {
-            accountId,
-            action: tweet.type, // "tweet" o "reply"
-            text: tweet.text,
-          };
-
-          // Agregar tweetId si es una respuesta
-          if (tweet.type === "reply" && tweet.replyToTweetUrl) {
-            requestBody.tweetId = tweet.replyToTweetUrl;
-          }
-
-          // Enviar al sistema de colas del backend
-          const response = await fetch(
-            buildApiUrl(API_CONFIG.ENDPOINTS.TWEETS),
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(requestBody),
-            }
-          );
-
-          if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || `Error ${response.status}`);
-          }
-
-          const result = await response.json();
-          console.log(`✅ Acción ${tweet.type} añadida a la cola:`, result);
-          successCount++;
-        } catch (error: any) {
-          console.error(
-            `❌ Error enviando ${tweet.type} para @${getAccountName(
-              accountId
-            )}:`,
-            error.message
-          );
-          errorCount++;
-
-          // Marcar como error
-          setBatchTweets((prev) =>
-            prev.map((t) =>
-              t.id === tweet.id ? { ...t, status: "error" as const } : t
-            )
-          );
-        }
-      }
-
-      // Pequeño delay entre tweets para evitar saturar el sistema
-      if (tweetsToExecute.indexOf(tweet) < tweetsToExecute.length - 1) {
-        await new Promise((resolve) => setTimeout(resolve, 500));
-      }
+    const tweetId = extractTweetId(likeTweetUrl);
+    if (!tweetId) {
+      toast.error("URL de tweet inválida");
+      return;
     }
 
-    // Marcar tweets exitosos como completados
-    setBatchTweets((prev) =>
-      prev.map((t) =>
-        tweetsToExecute.find((tt) => tt.id === t.id) && t.status !== "error"
-          ? { ...t, status: "completed" as const }
-          : t
-      )
-    );
-
-    setLoading(false);
-
-    console.log(
-      `🎉 Proceso completado: ${successCount} éxitos, ${errorCount} errores`
-    );
-    alert(
-      `Lote enviado al sistema de colas:\n✅ ${successCount} acciones añadidas\n❌ ${errorCount} errores\n\nPuedes ver el progreso en el Dashboard.`
-    );
+    executeAction("like", { tweetId });
   };
 
-  const getAccountName = (accountId: string) => {
-    const account = accounts.find((acc) => acc._id === accountId);
-    return account ? account.username : accountId;
+  const handleRetweet = () => {
+    if (!retweetUrl.trim()) {
+      toast.error("La URL del tweet es obligatoria");
+      return;
+    }
+
+    const tweetId = extractTweetId(retweetUrl);
+    if (!tweetId) {
+      toast.error("URL de tweet inválida");
+      return;
+    }
+
+    executeAction("retweet", { tweetId });
   };
 
-  const getTotalAssignedAccounts = () => {
-    return batchTweets.reduce(
-      (total, tweet) => total + tweet.assignedAccounts.length,
-      0
-    );
+  const handleFollow = () => {
+    if (!followUser.trim()) {
+      toast.error("El usuario es obligatorio");
+      return;
+    }
+    executeAction("follow", { targetUserId: followUser });
+  };
+
+  const handleUnfollow = () => {
+    if (!unfollowUser.trim()) {
+      toast.error("El usuario es obligatorio");
+      return;
+    }
+    executeAction("unfollow", { targetUserId: unfollowUser });
+  };
+
+  const selectAllAccounts = () => {
+    setSelectedAccounts(filteredAccounts.map((acc) => acc._id));
+  };
+
+  const clearSelection = () => {
+    setSelectedAccounts([]);
+  };
+
+  const selectAllFiltered = () => {
+    setSelectedAccounts(filteredAccounts.map((acc) => acc._id));
+  };
+
+  // Función para agregar/remover filtros
+  const toggleFilter = (
+    category: keyof typeof selectedFilters,
+    value: string
+  ) => {
+    setSelectedFilters((prev) => ({
+      ...prev,
+      [category]: prev[category].includes(value)
+        ? prev[category].filter((v) => v !== value)
+        : [...prev[category], value],
+    }));
+  };
+
+  // Función para limpiar todos los filtros
+  const clearAllFilters = () => {
+    setSelectedFilters({
+      edad: [],
+      ideologia: [],
+      situacion: [],
+    });
+    setSearchQuery("");
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-6">
-      {/* Header */}
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex justify-between items-center w-full">
-            <div>
-              <h1 className="text-2xl font-bold">
-                🐦 Panel de Acciones de Twitter
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400">
-                Gestiona todas las acciones de Twitter desde un solo lugar
-              </p>
-            </div>
-            <Link href="/dashboard">
-              <Button variant="ghost" color="primary">
-                📊 Ver Dashboard
-              </Button>
-            </Link>
+    <div
+      className={`max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 transition-all duration-1000 ${
+        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+      }`}
+    >
+      {/* Hero Section */}
+      <div className="mb-12 text-center">
+        <div className="inline-flex items-center gap-3 mb-6 animate-pulse">
+          <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-3 rounded-full">
+            <Zap className="h-8 w-8 text-white" />
           </div>
-        </CardHeader>
-      </Card>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Panel de Acciones de Twitter
+          </h1>
+        </div>
+        <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          Gestiona todas las acciones de Twitter desde un solo lugar
+        </p>
+        <div className="flex items-center justify-center gap-6 mt-6">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Activity className="h-4 w-4 text-green-500 animate-pulse" />
+            <span>Tiempo real</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Users className="h-4 w-4 text-blue-500" />
+            <span>{accounts.length} cuentas disponibles</span>
+          </div>
+        </div>
+      </div>
 
-      {/* Tabs de acciones */}
-      <Card>
-        <CardBody>
-          <Tabs
-            selectedKey={activeTab}
-            onSelectionChange={(key) => setActiveTab(key as string)}
-            variant="bordered"
-            color="primary"
-            size="lg"
-          >
-            <Tab key="tweet" title="📝 Tweet">
-              <div className="space-y-4 mt-4">
-                <Textarea
-                  label="Texto del tweet"
-                  placeholder="¿Qué está pasando?"
-                  value={tweetText}
-                  onValueChange={setTweetText}
-                  maxRows={4}
-                  description="Publica un nuevo tweet en las cuentas seleccionadas"
-                />
-              </div>
-            </Tab>
-
-            <Tab key="reply" title="💬 Responder">
-              <div className="space-y-4 mt-4">
-                <Input
-                  label="URL del tweet a responder"
-                  placeholder="https://x.com/usuario/status/123456789"
-                  value={replyTweetUrl}
-                  onValueChange={setReplyTweetUrl}
-                  description="URL del tweet al que quieres responder"
-                />
-                <Textarea
-                  label="Texto de la respuesta"
-                  placeholder="Escribe tu respuesta aquí..."
-                  value={replyText}
-                  onValueChange={setReplyText}
-                  maxRows={4}
-                  description="El texto de respuesta que se enviará"
-                />
-              </div>
-            </Tab>
-
-            <Tab key="like" title="❤️ Me Gusta">
-              <div className="space-y-4 mt-4">
-                <Input
-                  label="URL del tweet"
-                  placeholder="https://x.com/usuario/status/123456789"
-                  value={likeTweetUrl}
-                  onValueChange={setLikeTweetUrl}
-                  description="URL del tweet al que quieres dar me gusta"
-                />
-                <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
-                  <p className="text-sm text-blue-800 dark:text-blue-200">
-                    💡 Las cuentas seleccionadas darán "me gusta" al tweet
-                    especificado
+      <div className="grid gap-8">
+        {/* Selección de cuentas con filtros mejorada */}
+        <Card className="shadow-xl border-0 bg-gradient-to-br from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 transition-all duration-500 hover:shadow-2xl">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="bg-blue-100 dark:bg-blue-900 p-2 rounded-lg">
+                  <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl">
+                    Seleccionar Cuentas para Acciones
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Filtra y elige las cuentas para ejecutar las acciones
                   </p>
                 </div>
               </div>
-            </Tab>
-
-            <Tab key="retweet" title="🔄 Retweet">
-              <div className="space-y-4 mt-4">
-                <Input
-                  label="URL del tweet"
-                  placeholder="https://x.com/usuario/status/123456789"
-                  value={retweetUrl}
-                  onValueChange={setRetweetUrl}
-                  description="URL del tweet que quieres retweetear"
-                />
-                <div className="p-4 bg-green-50 dark:bg-green-950 rounded-lg">
-                  <p className="text-sm text-green-800 dark:text-green-200">
-                    💡 Las cuentas seleccionadas harán retweet del tweet
-                    especificado
-                  </p>
-                </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    setViewMode(viewMode === "grid" ? "list" : "grid")
+                  }
+                  className="hover:scale-105 transition-transform"
+                >
+                  {viewMode === "grid" ? (
+                    <List className="h-4 w-4" />
+                  ) : (
+                    <Grid className="h-4 w-4" />
+                  )}
+                </Button>
+                <Badge variant="secondary">
+                  {filteredAccounts.length} de {accounts.length}
+                </Badge>
               </div>
-            </Tab>
+            </div>
 
-            <Tab key="follow" title="👤+ Seguir">
-              <div className="space-y-4 mt-4">
-                <Input
-                  label="Usuario a seguir"
-                  placeholder="@username o URL del perfil"
-                  value={followUser}
-                  onValueChange={setFollowUser}
-                  description="Usuario que las cuentas seleccionadas seguirán"
-                />
-                <div className="p-4 bg-purple-50 dark:bg-purple-950 rounded-lg">
-                  <p className="text-sm text-purple-800 dark:text-purple-200">
-                    💡 Puedes usar: @username, username, o URL completa del
-                    perfil
-                  </p>
-                </div>
-              </div>
-            </Tab>
+            {/* Barra de búsqueda */}
+            <div className="relative mb-4">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar por nombre o etiqueta..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 pr-4"
+              />
+              {searchQuery && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              )}
+            </div>
 
-            <Tab key="unfollow" title="👤- Dejar de Seguir">
-              <div className="space-y-4 mt-4">
-                <Input
-                  label="Usuario a dejar de seguir"
-                  placeholder="@username o URL del perfil"
-                  value={unfollowUser}
-                  onValueChange={setUnfollowUser}
-                  description="Usuario que las cuentas seleccionadas dejarán de seguir"
-                />
-                <div className="p-4 bg-orange-50 dark:bg-orange-950 rounded-lg">
-                  <p className="text-sm text-orange-800 dark:text-orange-200">
-                    💡 Puedes usar: @username, username, o URL completa del
-                    perfil
-                  </p>
-                </div>
-              </div>
-            </Tab>
-
-            <Tab key="batch" title="📦 Lotes">
-              <div className="space-y-6 mt-4">
-                {/* Header del tab de lotes */}
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h3 className="text-lg font-semibold">Gestión de Lotes</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Asigna tweets específicos a cuentas específicas
-                    </p>
-                  </div>
+            {/* Filtros por etiquetas */}
+            <div className="space-y-4 mb-6">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium flex items-center gap-2">
+                  <Filter className="h-4 w-4" />
+                  Filtrar por etiquetas
+                </Label>
+                {(Object.values(selectedFilters).flat().length > 0 ||
+                  searchQuery) && (
                   <Button
-                    color="primary"
-                    onPress={onAddTweetOpen}
-                    startContent={
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 4v16m8-8H4"
-                        />
-                      </svg>
-                    }
+                    variant="ghost"
+                    size="sm"
+                    onClick={clearAllFilters}
+                    className="text-xs"
                   >
-                    Añadir Tweet
+                    Limpiar filtros
                   </Button>
-                </div>
-
-                {/* Estadísticas del lote */}
-                <div className="grid grid-cols-4 gap-4">
-                  <Card>
-                    <CardBody className="text-center">
-                      <h4 className="text-2xl font-bold text-blue-600">
-                        {batchTweets.filter((t) => t.type === "tweet").length}
-                      </h4>
-                      <p className="text-sm text-gray-600">Tweets</p>
-                    </CardBody>
-                  </Card>
-                  <Card>
-                    <CardBody className="text-center">
-                      <h4 className="text-2xl font-bold text-purple-600">
-                        {batchTweets.filter((t) => t.type === "reply").length}
-                      </h4>
-                      <p className="text-sm text-gray-600">Respuestas</p>
-                    </CardBody>
-                  </Card>
-                  <Card>
-                    <CardBody className="text-center">
-                      <h4 className="text-2xl font-bold text-green-600">
-                        {getTotalAssignedAccounts()}
-                      </h4>
-                      <p className="text-sm text-gray-600">
-                        Asignaciones Total
-                      </p>
-                    </CardBody>
-                  </Card>
-                  <Card>
-                    <CardBody className="text-center">
-                      <h4 className="text-2xl font-bold text-orange-600">
-                        {
-                          batchTweets.filter(
-                            (t) => t.assignedAccounts.length > 0
-                          ).length
-                        }
-                      </h4>
-                      <p className="text-sm text-gray-600">Acciones Listas</p>
-                    </CardBody>
-                  </Card>
-                </div>
-
-                {/* Tabla de tweets */}
-                {batchTweets.length > 0 ? (
-                  <Table aria-label="Tabla de tweets en lote">
-                    <TableHeader>
-                      <TableColumn>TIPO</TableColumn>
-                      <TableColumn>CONTENIDO</TableColumn>
-                      <TableColumn>CUENTAS ASIGNADAS</TableColumn>
-                      <TableColumn>ESTADO</TableColumn>
-                      <TableColumn>ACCIONES</TableColumn>
-                    </TableHeader>
-                    <TableBody>
-                      {batchTweets.map((tweet) => (
-                        <TableRow key={tweet.id}>
-                          <TableCell>
-                            <Chip
-                              size="sm"
-                              color={
-                                tweet.type === "tweet" ? "primary" : "secondary"
-                              }
-                              variant="flat"
-                              startContent={
-                                tweet.type === "tweet" ? "📝" : "💬"
-                              }
-                            >
-                              {tweet.type === "tweet" ? "Tweet" : "Respuesta"}
-                            </Chip>
-                          </TableCell>
-                          <TableCell>
-                            <div className="max-w-xs space-y-1">
-                              <p className="text-sm truncate">{tweet.text}</p>
-                              {tweet.type === "reply" &&
-                                tweet.replyToTweetUrl && (
-                                  <p className="text-xs text-gray-500 truncate">
-                                    ↳ Responde a: {tweet.replyToTweetUrl}
-                                  </p>
-                                )}
-                              <Tooltip
-                                content={
-                                  <div className="max-w-sm">
-                                    <p className="font-semibold mb-2">
-                                      {tweet.type === "tweet"
-                                        ? "Tweet:"
-                                        : "Respuesta:"}
-                                    </p>
-                                    <p className="mb-2">{tweet.text}</p>
-                                    {tweet.type === "reply" &&
-                                      tweet.replyToTweetUrl && (
-                                        <p className="text-xs text-gray-400">
-                                          Responde a: {tweet.replyToTweetUrl}
-                                        </p>
-                                      )}
-                                  </div>
-                                }
-                              >
-                                <Button
-                                  variant="light"
-                                  size="sm"
-                                  className="p-0 h-auto text-xs text-blue-600"
-                                >
-                                  Ver completo
-                                </Button>
-                              </Tooltip>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex flex-wrap gap-1">
-                              {tweet.assignedAccounts.length > 0 ? (
-                                tweet.assignedAccounts
-                                  .slice(0, 3)
-                                  .map((accountId) => (
-                                    <Chip
-                                      key={accountId}
-                                      size="sm"
-                                      variant="flat"
-                                      color="primary"
-                                    >
-                                      @{getAccountName(accountId)}
-                                    </Chip>
-                                  ))
-                              ) : (
-                                <Chip size="sm" variant="flat" color="warning">
-                                  Sin asignar
-                                </Chip>
-                              )}
-                              {tweet.assignedAccounts.length > 3 && (
-                                <Chip size="sm" variant="flat" color="default">
-                                  +{tweet.assignedAccounts.length - 3}
-                                </Chip>
-                              )}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Chip
-                              size="sm"
-                              color={
-                                tweet.status === "completed"
-                                  ? "success"
-                                  : tweet.status === "error"
-                                  ? "danger"
-                                  : "default"
-                              }
-                              variant="flat"
-                            >
-                              {tweet.status === "pending" && "Pendiente"}
-                              {tweet.status === "completed" && "Completado"}
-                              {tweet.status === "error" && "Error"}
-                            </Chip>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex gap-2">
-                              <Button
-                                size="sm"
-                                variant="flat"
-                                color="primary"
-                                onPress={() => openAssignAccounts(tweet.id)}
-                                disabled={loading}
-                              >
-                                Asignar
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="flat"
-                                color="danger"
-                                onPress={() => removeBatchTweet(tweet.id)}
-                                disabled={loading}
-                              >
-                                Eliminar
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                ) : (
-                  <Card>
-                    <CardBody className="text-center py-12">
-                      <div className="text-6xl mb-4">📦</div>
-                      <h4 className="text-lg font-semibold mb-2">
-                        No hay tweets en el lote
-                      </h4>
-                      <p className="text-gray-600 mb-4">
-                        Comienza añadiendo tweets para crear tu lote
-                        personalizado
-                      </p>
-                      <Button color="primary" onPress={onAddTweetOpen}>
-                        Añadir Primer Tweet
-                      </Button>
-                    </CardBody>
-                  </Card>
-                )}
-
-                {/* Botón de ejecución de lote */}
-                {batchTweets.length > 0 && (
-                  <div className="text-center">
-                    <Button
-                      color="success"
-                      size="lg"
-                      onPress={executeBatchTweets}
-                      isLoading={loading}
-                      disabled={
-                        batchTweets.filter((t) => t.assignedAccounts.length > 0)
-                          .length === 0
-                      }
-                      className="px-8"
-                    >
-                      {loading
-                        ? "Ejecutando Lote..."
-                        : "🚀 Ejecutar Lote Completo"}
-                    </Button>
-                    <p className="text-sm text-gray-500 mt-2">
-                      Se ejecutarán {getTotalAssignedAccounts()} tweets en total
-                    </p>
-                  </div>
                 )}
               </div>
-            </Tab>
-          </Tabs>
-        </CardBody>
-      </Card>
 
-      {/* Mostrar configuración de delays solo si no estamos en el tab de lotes */}
-      {activeTab !== "batch" && (
-        <Card>
-          <CardHeader>
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold">⏱️ Control de Timing</h3>
-              <Switch
-                isSelected={delayMode === "minutes"}
-                onValueChange={(checked) =>
-                  setDelayMode(checked ? "minutes" : "seconds")
-                }
-                color="primary"
-                size="sm"
-              >
-                Modo: {delayMode === "minutes" ? "Minutos" : "Segundos"}
-              </Switch>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {Object.entries(LABEL_FILTERS).map(([category, options]) => (
+                  <div key={category} className="space-y-2">
+                    <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      {category}
+                    </Label>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-between text-sm"
+                        >
+                          {selectedFilters[
+                            category as keyof typeof selectedFilters
+                          ].length > 0
+                            ? `${
+                                selectedFilters[
+                                  category as keyof typeof selectedFilters
+                                ].length
+                              } seleccionado${
+                                selectedFilters[
+                                  category as keyof typeof selectedFilters
+                                ].length > 1
+                                  ? "s"
+                                  : ""
+                              }`
+                            : `Seleccionar ${category}`}
+                          <ChevronDown className="h-4 w-4 opacity-50" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-56">
+                        <DropdownMenuLabel>
+                          Filtros de {category}
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        {options.map((option) => (
+                          <DropdownMenuCheckboxItem
+                            key={option}
+                            checked={selectedFilters[
+                              category as keyof typeof selectedFilters
+                            ].includes(option)}
+                            onCheckedChange={() =>
+                              toggleFilter(
+                                category as keyof typeof selectedFilters,
+                                option
+                              )
+                            }
+                          >
+                            {option}
+                          </DropdownMenuCheckboxItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                ))}
+              </div>
+
+              {/* Filtros activos */}
+              {Object.values(selectedFilters).flat().length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {Object.entries(selectedFilters).map(([category, values]) =>
+                    values.map((value) => (
+                      <Badge
+                        key={`${category}-${value}`}
+                        variant="secondary"
+                        className="text-xs cursor-pointer hover:bg-red-100 hover:text-red-700 transition-colors"
+                        onClick={() =>
+                          toggleFilter(
+                            category as keyof typeof selectedFilters,
+                            value
+                          )
+                        }
+                      >
+                        {value}
+                        <X className="h-3 w-3 ml-1" />
+                      </Badge>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Acciones de selección */}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={selectAllFiltered}
+                  disabled={filteredAccounts.length === 0}
+                  className="hover:scale-105 transition-transform"
+                >
+                  Seleccionar filtradas ({filteredAccounts.length})
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={clearSelection}
+                  disabled={selectedAccounts.length === 0}
+                  className="hover:scale-105 transition-transform"
+                >
+                  Limpiar selección
+                </Button>
+              </div>
+              {selectedAccounts.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <span className="text-sm font-medium text-green-600">
+                    {selectedAccounts.length} cuenta
+                    {selectedAccounts.length > 1 ? "s" : ""} seleccionada
+                    {selectedAccounts.length > 1 ? "s" : ""}
+                  </span>
+                </div>
+              )}
             </div>
           </CardHeader>
-          <CardBody className="space-y-6">
-            <div>
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium">
-                  Delay base entre acciones
-                </span>
-                <span className="text-sm text-gray-600">
-                  {baseDelay}
-                  {delayMode === "minutes" ? "m" : "s"}
-                </span>
+
+          <CardContent>
+            {/* Lista de cuentas */}
+            {filteredAccounts.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <p>No se encontraron cuentas con los filtros aplicados</p>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearAllFilters}
+                  className="mt-2"
+                >
+                  Limpiar filtros
+                </Button>
               </div>
-              <Slider
-                value={baseDelay}
-                onChange={(value) =>
-                  setBaseDelay(Array.isArray(value) ? value[0] : value)
+            ) : (
+              <div
+                className={`
+                max-h-96 overflow-y-auto overflow-x-hidden custom-scrollbar
+                ${
+                  viewMode === "grid"
+                    ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3"
+                    : "space-y-2"
                 }
-                minValue={delayMode === "minutes" ? 1 : 5}
-                maxValue={delayMode === "minutes" ? 10 : 300}
-                step={delayMode === "minutes" ? 0.5 : 5}
-                color="primary"
-                className="w-full"
-              />
-              <div className="flex justify-between text-xs text-gray-500 mt-1">
-                <span>{delayMode === "minutes" ? "1m" : "5s"}</span>
-                <span>{delayMode === "minutes" ? "10m" : "300s"}</span>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <Switch
-                isSelected={enableRandomDelay}
-                onValueChange={setEnableRandomDelay}
-                color="secondary"
+              `}
               >
-                Añadir delay aleatorio
-              </Switch>
-            </div>
-
-            {enableRandomDelay && (
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium">
-                    Delay aleatorio adicional (0 a {randomDelay}
-                    {delayMode === "minutes" ? "m" : "s"})
-                  </span>
-                  <span className="text-sm text-gray-600">
-                    ±{randomDelay}
-                    {delayMode === "minutes" ? "m" : "s"}
-                  </span>
-                </div>
-                <Slider
-                  value={randomDelay}
-                  onChange={(value) =>
-                    setRandomDelay(Array.isArray(value) ? value[0] : value)
-                  }
-                  minValue={0}
-                  maxValue={delayMode === "minutes" ? 5 : 180}
-                  step={delayMode === "minutes" ? 0.25 : 5}
-                  color="secondary"
-                  className="w-full"
-                />
-                <div className="flex justify-between text-xs text-gray-500 mt-1">
-                  <span>0</span>
-                  <span>{delayMode === "minutes" ? "5m" : "180s"}</span>
-                </div>
+                {filteredAccounts.map((account, index) => (
+                  <label
+                    key={account._id}
+                    className={`
+                      flex items-center space-x-3 p-3 rounded-lg border-2 cursor-pointer 
+                      transition-all duration-300 hover:shadow-md group
+                      ${
+                        selectedAccounts.includes(account._id)
+                          ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
+                          : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
+                      }
+                      ${viewMode === "list" ? "w-full max-w-full" : ""}
+                    `}
+                    style={{
+                      animationDelay: `${index * 50}ms`,
+                    }}
+                  >
+                    <Checkbox
+                      checked={selectedAccounts.includes(account._id)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setSelectedAccounts([
+                            ...selectedAccounts,
+                            account._id,
+                          ]);
+                        } else {
+                          setSelectedAccounts(
+                            selectedAccounts.filter((id) => id !== account._id)
+                          );
+                        }
+                      }}
+                    />
+                    <div className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
+                      <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
+                        {account.username[0].toUpperCase()}
+                      </div>
+                      <div className="min-w-0 flex-1 overflow-hidden">
+                        <p className="text-sm font-medium truncate">
+                          @{account.username}
+                        </p>
+                        {viewMode === "list" && account.labels.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-1 max-w-full overflow-hidden">
+                            {account.labels.slice(0, 3).map((label, idx) => (
+                              <Badge
+                                key={idx}
+                                variant="outline"
+                                className="text-xs px-1 py-0 truncate max-w-24"
+                              >
+                                {label}
+                              </Badge>
+                            ))}
+                            {account.labels.length > 3 && (
+                              <Badge
+                                variant="outline"
+                                className="text-xs px-1 py-0 flex-shrink-0"
+                              >
+                                +{account.labels.length - 3}
+                              </Badge>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </label>
+                ))}
               </div>
             )}
 
-            {/* Presets rápidos */}
-            <div>
-              <p className="text-sm font-medium mb-3">
-                🚀 Configuraciones Predefinidas:
-              </p>
-              <div className="grid grid-cols-3 gap-2">
-                <Button
-                  size="sm"
-                  variant="flat"
-                  color="primary"
-                  onPress={() => {
-                    setDelayMode("seconds");
-                    setBaseDelay(10);
-                    setRandomDelay(20);
-                    setEnableRandomDelay(true);
-                  }}
-                >
-                  Rápido
-                </Button>
-                <Button
-                  size="sm"
-                  variant="flat"
-                  color="warning"
-                  onPress={() => {
-                    setDelayMode("seconds");
-                    setBaseDelay(60);
-                    setRandomDelay(60);
-                    setEnableRandomDelay(true);
-                  }}
-                >
-                  Medio
-                </Button>
-                <Button
-                  size="sm"
-                  variant="flat"
-                  color="success"
-                  onPress={() => {
-                    setDelayMode("minutes");
-                    setBaseDelay(2);
-                    setRandomDelay(3);
-                    setEnableRandomDelay(true);
-                  }}
-                >
-                  Seguro
-                </Button>
+            {/* Resumen de selección */}
+            {selectedAccounts.length > 0 && (
+              <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg border border-blue-200 dark:border-blue-800 animate-slide-up">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-5 w-5 text-blue-600" />
+                    <div>
+                      <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                        {selectedAccounts.length} cuenta
+                        {selectedAccounts.length > 1 ? "s" : ""} lista
+                        {selectedAccounts.length > 1 ? "s" : ""} para acciones
+                      </p>
+                      <p className="text-xs text-blue-600 dark:text-blue-400">
+                        Tiempo estimado:{" "}
+                        {selectedAccounts.length *
+                          (baseDelay + randomDelay / 2)}{" "}
+                        segundos
+                      </p>
+                    </div>
+                  </div>
+                  <Badge
+                    variant="default"
+                    className="bg-blue-600 text-white animate-pulse"
+                  >
+                    Listas para usar
+                  </Badge>
+                </div>
               </div>
-              <div className="text-xs text-gray-500 mt-2 text-center">
-                Rápido: 10-30s | Medio: 60-120s | Seguro: 2-5min
-              </div>
-            </div>
-
-            <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-blue-600">⏰</span>
-                <p className="text-sm text-blue-800 dark:text-blue-200 font-medium">
-                  Tiempo estimado total: <strong>{getEstimatedTime()}</strong>
-                </p>
-              </div>
-              <div className="text-xs text-blue-600 dark:text-blue-300">
-                💡 Delays más largos = menor riesgo de rate limits
-              </div>
-            </div>
-          </CardBody>
+            )}
+          </CardContent>
         </Card>
-      )}
 
-      {/* Mostrar selección de cuentas solo si no estamos en el tab de lotes */}
-      {activeTab !== "batch" && (
-        <AccountSelector
-          accounts={accounts}
-          selectedAccounts={selectedAccounts}
-          onSelectionChange={setSelectedAccounts}
-          title="👥 Seleccionar Cuentas para Acciones"
-          groupByLabels={true}
-          showStats={false}
-        />
-      )}
-
-      {/* Mostrar botón de acción solo si no estamos en el tab de lotes */}
-      {activeTab !== "batch" && (
-        <Card>
-          <CardBody>
-            <div className="flex flex-col items-center gap-4">
-              <Button
-                color="primary"
-                size="lg"
-                onClick={() => handleAction(activeTab as TweetAction["type"])}
-                isLoading={loading}
-                disabled={selectedAccounts.length === 0 || !isActionValid()}
-                className="px-8"
-              >
-                {loading
-                  ? "Ejecutando..."
-                  : `🚀 Ejecutar ${
-                      activeTab === "tweet"
-                        ? "Tweet"
-                        : activeTab === "reply"
-                        ? "Respuesta"
-                        : activeTab === "like"
-                        ? "Me Gusta"
-                        : activeTab === "retweet"
-                        ? "Retweet"
-                        : activeTab === "follow"
-                        ? "Seguir"
-                        : "Dejar de Seguir"
-                    }`}
-              </Button>
-
-              {(!isActionValid() || selectedAccounts.length === 0) && (
-                <p className="text-sm text-gray-500 text-center">
-                  {selectedAccounts.length === 0
-                    ? "Selecciona al menos una cuenta"
-                    : "Completa todos los campos requeridos"}
-                </p>
-              )}
-
-              <div className="text-center">
-                <p className="text-sm text-gray-600 mb-2">
-                  💡 Los delays inteligentes evitan límites de rate limit
-                </p>
-                <Button
-                  color="default"
-                  variant="flat"
-                  size="sm"
-                  onClick={() => {
-                    setTweetText("");
-                    setReplyText("");
-                    setReplyTweetUrl("");
-                    setLikeTweetUrl("");
-                    setRetweetUrl("");
-                    setFollowUser("");
-                    setUnfollowUser("");
-                    setActionResults([]);
-                  }}
-                  disabled={loading}
-                >
-                  🗑️ Limpiar Todo
-                </Button>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
-      )}
-
-      {/* Progreso */}
-      {loading && (
-        <Card>
-          <CardBody>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">
-                  ⚡ Procesando acciones...
-                </span>
-                <span className="text-sm text-gray-600">
-                  {progress.current} de {progress.total}
-                </span>
-              </div>
-              <Progress
-                value={(progress.current / progress.total) * 100}
-                color="primary"
-                className="w-full"
-              />
-            </div>
-          </CardBody>
-        </Card>
-      )}
-
-      {/* Resultados */}
-      {actionResults.length > 0 && (
-        <Card>
+        {/* Configuración de delays mejorada */}
+        <Card className="shadow-xl border-0 bg-gradient-to-br from-emerald-50 to-white dark:from-emerald-900/20 dark:to-slate-800 transition-all duration-500 hover:shadow-2xl">
           <CardHeader>
-            <h3 className="text-lg font-semibold">📊 Resultados</h3>
+            <div className="flex items-center gap-3">
+              <div className="bg-emerald-100 dark:bg-emerald-900 p-2 rounded-lg">
+                <Clock className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+              </div>
+              <div>
+                <CardTitle className="text-xl">Control de Timing</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Configura los delays entre acciones para mayor seguridad
+                </p>
+              </div>
+            </div>
           </CardHeader>
-          <CardBody>
-            <div className="space-y-2 max-h-60 overflow-y-auto">
-              {actionResults.map((result, index) => (
-                <div
-                  key={index}
-                  className={`p-3 rounded-lg ${
-                    result.success
-                      ? "bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800"
-                      : "bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800"
-                  }`}
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label className="font-medium">Delay Base</Label>
+                  <Badge variant="outline">{baseDelay}s</Badge>
+                </div>
+                <Input
+                  type="range"
+                  min="5"
+                  max="120"
+                  value={baseDelay}
+                  onChange={(e) => setBaseDelay(parseInt(e.target.value))}
+                  className="w-full accent-emerald-500"
+                />
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>5s</span>
+                  <span>Rápido</span>
+                  <span>Seguro</span>
+                  <span>120s</span>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label className="font-medium">Delay Aleatorio</Label>
+                  <Badge variant="outline">±{randomDelay}s</Badge>
+                </div>
+                <Input
+                  type="range"
+                  min="0"
+                  max="180"
+                  value={randomDelay}
+                  onChange={(e) => setRandomDelay(parseInt(e.target.value))}
+                  className="w-full accent-emerald-500"
+                />
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>0s</span>
+                  <span>Predictible</span>
+                  <span>Natural</span>
+                  <span>180s</span>
+                </div>
+              </div>
+            </div>
+            <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
+              <div className="flex items-center gap-2 mb-2">
+                <AlertCircle className="h-4 w-4 text-emerald-600" />
+                <span className="text-sm font-medium text-emerald-700 dark:text-emerald-300">
+                  Tiempo estimado por cuenta
+                </span>
+              </div>
+              <p className="text-xs text-emerald-600 dark:text-emerald-400">
+                {baseDelay} - {baseDelay + randomDelay} segundos entre acciones
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Acciones mejoradas */}
+        <Card className="shadow-xl border-0 bg-gradient-to-br from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 transition-all duration-500 hover:shadow-2xl">
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="bg-purple-100 dark:bg-purple-900 p-2 rounded-lg">
+                <Send className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+              </div>
+              <div>
+                <CardTitle className="text-xl">Acciones Disponibles</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Selecciona y ejecuta acciones en las cuentas elegidas
+                </p>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="tweet" className="space-y-6">
+              <TabsList className="grid w-full grid-cols-7 bg-muted/50 p-1 rounded-xl">
+                <TabsTrigger
+                  value="tweet"
+                  className="data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all duration-200 hover:scale-105"
                 >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">
-                        {result.success ? "✅" : "❌"} {result.account}
-                      </p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {result.message}
-                      </p>
-                      {result.details && (
-                        <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                          {result.details}
-                        </p>
-                      )}
+                  <Send className="h-4 w-4 mr-1" />
+                  Tweet
+                </TabsTrigger>
+                <TabsTrigger
+                  value="batch"
+                  className="data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all duration-200 hover:scale-105"
+                >
+                  <List className="h-4 w-4 mr-1" />
+                  Lote
+                </TabsTrigger>
+                <TabsTrigger
+                  value="reply"
+                  className="data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all duration-200 hover:scale-105"
+                >
+                  <Send className="h-4 w-4 mr-1" />
+                  Reply
+                </TabsTrigger>
+                <TabsTrigger
+                  value="like"
+                  className="data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all duration-200 hover:scale-105"
+                >
+                  <Heart className="h-4 w-4 mr-1" />
+                  Like
+                </TabsTrigger>
+                <TabsTrigger
+                  value="retweet"
+                  className="data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all duration-200 hover:scale-105"
+                >
+                  <Repeat className="h-4 w-4 mr-1" />
+                  RT
+                </TabsTrigger>
+                <TabsTrigger
+                  value="follow"
+                  className="data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all duration-200 hover:scale-105"
+                >
+                  <UserPlus className="h-4 w-4 mr-1" />
+                  Follow
+                </TabsTrigger>
+                <TabsTrigger
+                  value="unfollow"
+                  className="data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all duration-200 hover:scale-105"
+                >
+                  <UserMinus className="h-4 w-4 mr-1" />
+                  Unfollow
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="tweet" className="space-y-6 animate-fade-in">
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-xl border border-blue-200 dark:border-blue-800">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Send className="h-5 w-5 text-blue-600" />
+                      <Label className="text-lg font-semibold text-blue-900 dark:text-blue-100">
+                        Crear Tweet
+                      </Label>
+                    </div>
+                    <Textarea
+                      placeholder="¿Qué está pasando?"
+                      value={tweetText}
+                      onChange={(e) => setTweetText(e.target.value)}
+                      rows={4}
+                      className="resize-none border-2 focus:border-blue-500 transition-colors duration-200"
+                      maxLength={280}
+                    />
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div
+                          className={`text-sm font-medium ${
+                            tweetText.length > 250
+                              ? "text-red-500"
+                              : tweetText.length > 200
+                              ? "text-yellow-500"
+                              : "text-muted-foreground"
+                          }`}
+                        >
+                          {tweetText.length}/280
+                        </div>
+                        <div className="w-12 h-1 bg-gray-200 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full transition-all duration-300 ${
+                              tweetText.length > 250
+                                ? "bg-red-500"
+                                : tweetText.length > 200
+                                ? "bg-yellow-500"
+                                : "bg-blue-500"
+                            }`}
+                            style={{
+                              width: `${(tweetText.length / 280) * 100}%`,
+                            }}
+                          />
+                        </div>
+                      </div>
+                      <Button
+                        onClick={handleTweet}
+                        disabled={loading || !tweetText.trim()}
+                        className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {loading ? (
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        ) : (
+                          <Send className="h-4 w-4 mr-2" />
+                        )}
+                        Publicar Tweet
+                      </Button>
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          </CardBody>
-        </Card>
-      )}
+              </TabsContent>
 
-      {/* Modal para añadir tweet */}
-      <Modal
-        isOpen={isAddTweetOpen}
-        onOpenChange={onAddTweetOpenChange}
-        size="2xl"
-      >
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1">
-                <h3 className="text-lg font-semibold">
-                  Añadir Nueva Acción al Lote
-                </h3>
-                <p className="text-sm text-gray-600">
-                  Elige el tipo de acción y escribe el contenido
-                </p>
-              </ModalHeader>
-              <ModalBody>
-                <Tabs
-                  selectedKey={newTweetType}
-                  onSelectionChange={(key) =>
-                    setNewTweetType(key as "tweet" | "reply")
-                  }
-                  variant="bordered"
-                  color="primary"
-                >
-                  <Tab key="tweet" title="📝 Tweet">
-                    <div className="space-y-4 mt-4">
-                      <Textarea
-                        label="Texto del tweet"
-                        placeholder="¿Qué quieres que tweeteen las cuentas?"
-                        value={newTweetText}
-                        onValueChange={setNewTweetText}
-                        maxRows={6}
-                        maxLength={280}
-                        description={`${newTweetText.length}/280 caracteres`}
-                      />
+              <TabsContent value="batch" className="space-y-6 animate-fade-in">
+                <div className="bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 p-6 rounded-xl border border-purple-200 dark:border-purple-800">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <List className="h-5 w-5 text-purple-600" />
+                        <Label className="text-lg font-semibold text-purple-900 dark:text-purple-100">
+                          Tweets en Lote
+                        </Label>
+                      </div>
+                      <Badge variant="outline" className="text-purple-700">
+                        {batchTweets.length} tweets preparados
+                      </Badge>
                     </div>
-                  </Tab>
-                  <Tab key="reply" title="💬 Respuesta">
-                    <div className="space-y-4 mt-4">
+
+                    <div className="space-y-3">
+                      <Label className="text-sm font-medium">
+                        Agregar tweets (un tweet por línea)
+                      </Label>
+                      <Textarea
+                        placeholder={`Primer tweet aquí...
+Segundo tweet aquí...
+Tercer tweet aquí...
+
+Cada línea será un tweet separado`}
+                        value={batchTweetText}
+                        onChange={(e) => setBatchTweetText(e.target.value)}
+                        rows={6}
+                        className="resize-none border-2 focus:border-purple-500 transition-colors duration-200"
+                      />
+                      <div className="flex items-center justify-between">
+                        <div className="text-xs text-muted-foreground">
+                          {
+                            batchTweetText
+                              .split("\n")
+                              .filter((line) => line.trim()).length
+                          }{" "}
+                          tweets detectados
+                        </div>
+                        <Button
+                          onClick={handleBatchTweetAdd}
+                          disabled={!batchTweetText.trim()}
+                          size="sm"
+                          className="bg-purple-600 hover:bg-purple-700"
+                        >
+                          <Plus className="h-4 w-4 mr-1" />
+                          Agregar al Lote
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Lista de tweets en el lote */}
+                    {batchTweets.length > 0 && (
+                      <div className="mt-6 space-y-4">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-sm font-medium">
+                            Tweets en el lote
+                          </Label>
+                          <Button
+                            onClick={() => setBatchTweets([])}
+                            variant="ghost"
+                            size="sm"
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <X className="h-4 w-4 mr-1" />
+                            Limpiar lote
+                          </Button>
+                        </div>
+
+                        <div className="max-h-64 overflow-y-auto space-y-3 border rounded-lg p-3 bg-white dark:bg-slate-800">
+                          {batchTweets.map((tweet, index) => (
+                            <div
+                              key={tweet.id}
+                              className="border rounded-lg p-3 space-y-3"
+                            >
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <Badge
+                                      variant="outline"
+                                      className="text-xs"
+                                    >
+                                      Tweet #{index + 1}
+                                    </Badge>
+                                    <span className="text-xs text-muted-foreground">
+                                      {tweet.text.length}/280 caracteres
+                                    </span>
+                                  </div>
+                                  <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">
+                                    {tweet.text}
+                                  </p>
+                                </div>
+                                <Button
+                                  onClick={() =>
+                                    setBatchTweets((prev) =>
+                                      prev.filter((t) => t.id !== tweet.id)
+                                    )
+                                  }
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-red-600 hover:text-red-700 ml-2"
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
+
+                              {/* Selector de cuentas para este tweet */}
+                              <div className="space-y-2">
+                                <Label className="text-xs font-medium text-muted-foreground">
+                                  Asignar a cuentas:
+                                </Label>
+                                <div className="flex flex-wrap gap-2">
+                                  {selectedAccounts.length === 0 ? (
+                                    <span className="text-xs text-muted-foreground italic">
+                                      Selecciona cuentas arriba para asignar a
+                                      este tweet
+                                    </span>
+                                  ) : (
+                                    selectedAccounts.map((accountId) => {
+                                      const account = accounts.find(
+                                        (a) => a._id === accountId
+                                      );
+                                      const isAssigned =
+                                        tweet.assignedAccounts.includes(
+                                          accountId
+                                        );
+                                      return (
+                                        <Badge
+                                          key={accountId}
+                                          variant={
+                                            isAssigned ? "default" : "outline"
+                                          }
+                                          className={`cursor-pointer text-xs transition-all duration-200 ${
+                                            isAssigned
+                                              ? "bg-purple-600 text-white"
+                                              : "hover:bg-purple-100 dark:hover:bg-purple-900/20"
+                                          }`}
+                                          onClick={() => {
+                                            const updatedAccounts = isAssigned
+                                              ? tweet.assignedAccounts.filter(
+                                                  (id) => id !== accountId
+                                                )
+                                              : [
+                                                  ...tweet.assignedAccounts,
+                                                  accountId,
+                                                ];
+                                            handleAssignAccountsToTweet(
+                                              tweet.id,
+                                              updatedAccounts
+                                            );
+                                          }}
+                                        >
+                                          @{account?.username}
+                                          {isAssigned && (
+                                            <Check className="h-3 w-3 ml-1" />
+                                          )}
+                                        </Badge>
+                                      );
+                                    })
+                                  )}
+                                </div>
+                                <div className="flex justify-between items-center">
+                                  <span className="text-xs text-muted-foreground">
+                                    {tweet.assignedAccounts.length} cuenta(s)
+                                    asignada(s)
+                                  </span>
+                                  {selectedAccounts.length > 0 && (
+                                    <div className="flex gap-1">
+                                      <Button
+                                        onClick={() =>
+                                          handleAssignAccountsToTweet(
+                                            tweet.id,
+                                            selectedAccounts
+                                          )
+                                        }
+                                        size="sm"
+                                        variant="ghost"
+                                        className="text-xs h-6 px-2"
+                                      >
+                                        Todas
+                                      </Button>
+                                      <Button
+                                        onClick={() =>
+                                          handleAssignAccountsToTweet(
+                                            tweet.id,
+                                            []
+                                          )
+                                        }
+                                        size="sm"
+                                        variant="ghost"
+                                        className="text-xs h-6 px-2"
+                                      >
+                                        Ninguna
+                                      </Button>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Botón para ejecutar lote */}
+                        <div className="flex items-center justify-between pt-4 border-t">
+                          <div className="text-sm text-muted-foreground">
+                            <span className="font-medium">
+                              {
+                                batchTweets.filter(
+                                  (t) => t.assignedAccounts.length > 0
+                                ).length
+                              }
+                            </span>{" "}
+                            de {batchTweets.length} tweets listos para enviar
+                          </div>
+                          <Button
+                            onClick={handleBatchTweetExecute}
+                            disabled={
+                              loading ||
+                              batchTweets.filter(
+                                (t) => t.assignedAccounts.length > 0
+                              ).length === 0
+                            }
+                            className="bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 transition-all duration-200 hover:scale-105"
+                          >
+                            {loading ? (
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            ) : (
+                              <Send className="h-4 w-4 mr-2" />
+                            )}
+                            Ejecutar Lote
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+
+                    {batchTweets.length === 0 && (
+                      <div className="text-center py-8 text-muted-foreground border-2 border-dashed border-purple-200 dark:border-purple-800 rounded-lg">
+                        <List className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                        <p className="text-sm">No hay tweets en el lote</p>
+                        <p className="text-xs mt-1">
+                          Agrega algunos tweets arriba para comenzar
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="reply" className="space-y-6 animate-fade-in">
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 p-6 rounded-xl border border-green-200 dark:border-green-800">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Send className="h-5 w-5 text-green-600" />
+                      <Label className="text-lg font-semibold text-green-900 dark:text-green-100">
+                        Responder Tweet
+                      </Label>
+                    </div>
+                    <div className="space-y-3">
                       <Input
-                        label="URL del tweet a responder"
-                        placeholder="https://x.com/usuario/status/123456789"
-                        value={newReplyToTweetUrl}
-                        onValueChange={setNewReplyToTweetUrl}
-                        description="URL del tweet al que quieres responder"
+                        placeholder="https://twitter.com/usuario/status/123..."
+                        value={replyTweetUrl}
+                        onChange={(e) => setReplyTweetUrl(e.target.value)}
+                        className="border-2 focus:border-green-500 transition-colors duration-200"
                       />
                       <Textarea
-                        label="Texto de la respuesta"
-                        placeholder="Escribe la respuesta que quieres que envíen las cuentas..."
-                        value={newTweetText}
-                        onValueChange={setNewTweetText}
-                        maxRows={6}
+                        placeholder="Tu respuesta..."
+                        value={replyText}
+                        onChange={(e) => setReplyText(e.target.value)}
+                        rows={4}
+                        className="resize-none border-2 focus:border-green-500 transition-colors duration-200"
                         maxLength={280}
-                        description={`${newTweetText.length}/280 caracteres`}
                       />
                     </div>
-                  </Tab>
-                </Tabs>
-              </ModalBody>
-              <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
-                  Cancelar
-                </Button>
-                <Button
-                  color="primary"
-                  onPress={addBatchTweet}
-                  disabled={
-                    !newTweetText.trim() ||
-                    (newTweetType === "reply" && !newReplyToTweetUrl.trim())
-                  }
-                >
-                  Añadir {newTweetType === "tweet" ? "Tweet" : "Respuesta"}
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
-
-      {/* Modal para asignar cuentas */}
-      <Modal
-        isOpen={isAssignAccountsOpen}
-        onOpenChange={onAssignAccountsOpenChange}
-        size="3xl"
-      >
-        <ModalContent>
-          {(onClose) => {
-            const currentTweet = batchTweets.find(
-              (t) => t.id === selectedTweetForAssignment
-            );
-            const [tempSelectedAccounts, setTempSelectedAccounts] = useState<
-              string[]
-            >(currentTweet?.assignedAccounts || []);
-
-            return (
-              <>
-                <ModalHeader className="flex flex-col gap-1">
-                  <h3 className="text-lg font-semibold">
-                    Asignar Cuentas al Tweet
-                  </h3>
-                  {currentTweet && (
-                    <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                      <p className="text-sm">{currentTweet.text}</p>
+                    <div className="flex items-center justify-between">
+                      <div className="text-sm text-muted-foreground">
+                        {replyText.length}/280 caracteres
+                      </div>
+                      <Button
+                        onClick={handleReply}
+                        disabled={
+                          loading || !replyText.trim() || !replyTweetUrl.trim()
+                        }
+                        className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 transition-all duration-200 hover:scale-105"
+                      >
+                        {loading ? (
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        ) : (
+                          <Send className="h-4 w-4 mr-2" />
+                        )}
+                        Responder
+                      </Button>
                     </div>
-                  )}
-                </ModalHeader>
-                <ModalBody>
-                  <AccountSelector
-                    accounts={accounts}
-                    selectedAccounts={tempSelectedAccounts}
-                    onSelectionChange={setTempSelectedAccounts}
-                    title="Seleccionar Cuentas para este Tweet"
-                    groupByLabels={true}
-                    showStats={false}
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="like" className="space-y-6 animate-fade-in">
+                <div className="bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 p-6 rounded-xl border border-red-200 dark:border-red-800">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Heart className="h-5 w-5 text-red-600" />
+                      <Label className="text-lg font-semibold text-red-900 dark:text-red-100">
+                        Dar Like
+                      </Label>
+                    </div>
+                    <Input
+                      placeholder="https://twitter.com/usuario/status/123..."
+                      value={likeTweetUrl}
+                      onChange={(e) => setLikeTweetUrl(e.target.value)}
+                      className="border-2 focus:border-red-500 transition-colors duration-200"
+                    />
+                    <Button
+                      onClick={handleLike}
+                      disabled={loading || !likeTweetUrl.trim()}
+                      className="bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 transition-all duration-200 hover:scale-105 w-full"
+                    >
+                      {loading ? (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <Heart className="h-4 w-4 mr-2" />
+                      )}
+                      Dar Me Gusta
+                    </Button>
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent
+                value="retweet"
+                className="space-y-6 animate-fade-in"
+              >
+                <div className="bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-cyan-900/20 dark:to-blue-900/20 p-6 rounded-xl border border-cyan-200 dark:border-cyan-800">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Repeat className="h-5 w-5 text-cyan-600" />
+                      <Label className="text-lg font-semibold text-cyan-900 dark:text-cyan-100">
+                        Retweet
+                      </Label>
+                    </div>
+                    <Input
+                      placeholder="https://twitter.com/usuario/status/123..."
+                      value={retweetUrl}
+                      onChange={(e) => setRetweetUrl(e.target.value)}
+                      className="border-2 focus:border-cyan-500 transition-colors duration-200"
+                    />
+                    <Button
+                      onClick={handleRetweet}
+                      disabled={loading || !retweetUrl.trim()}
+                      className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 transition-all duration-200 hover:scale-105 w-full"
+                    >
+                      {loading ? (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <Repeat className="h-4 w-4 mr-2" />
+                      )}
+                      Retweet
+                    </Button>
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="follow" className="space-y-6 animate-fade-in">
+                <div className="bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 p-6 rounded-xl border border-purple-200 dark:border-purple-800">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <UserPlus className="h-5 w-5 text-purple-600" />
+                      <Label className="text-lg font-semibold text-purple-900 dark:text-purple-100">
+                        Seguir Usuario
+                      </Label>
+                    </div>
+                    <Input
+                      placeholder="@usuario o URL del perfil"
+                      value={followUser}
+                      onChange={(e) => setFollowUser(e.target.value)}
+                      className="border-2 focus:border-purple-500 transition-colors duration-200"
+                    />
+                    <Button
+                      onClick={handleFollow}
+                      disabled={loading || !followUser.trim()}
+                      className="bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 transition-all duration-200 hover:scale-105 w-full"
+                    >
+                      {loading ? (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <UserPlus className="h-4 w-4 mr-2" />
+                      )}
+                      Seguir Usuario
+                    </Button>
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent
+                value="unfollow"
+                className="space-y-6 animate-fade-in"
+              >
+                <div className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 p-6 rounded-xl border border-orange-200 dark:border-orange-800">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <UserMinus className="h-5 w-5 text-orange-600" />
+                      <Label className="text-lg font-semibold text-orange-900 dark:text-orange-100">
+                        Dejar de Seguir
+                      </Label>
+                    </div>
+                    <Input
+                      placeholder="@usuario o URL del perfil"
+                      value={unfollowUser}
+                      onChange={(e) => setUnfollowUser(e.target.value)}
+                      className="border-2 focus:border-orange-500 transition-colors duration-200"
+                    />
+                    <Button
+                      onClick={handleUnfollow}
+                      disabled={loading || !unfollowUser.trim()}
+                      className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 transition-all duration-200 hover:scale-105 w-full"
+                    >
+                      {loading ? (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <UserMinus className="h-4 w-4 mr-2" />
+                      )}
+                      Dejar de Seguir
+                    </Button>
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+
+        {/* Progress mejorado */}
+        {loading && (
+          <Card className="shadow-xl border-0 bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 animate-slide-up">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="bg-yellow-100 dark:bg-yellow-900 p-2 rounded-lg">
+                  <Activity className="h-5 w-5 text-yellow-600 dark:text-yellow-400 animate-pulse" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl">Ejecutando Acciones</CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Procesando cuentas seleccionadas...
+                  </p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="relative">
+                  <Progress
+                    value={(progress.current / progress.total) * 100}
+                    className="h-3 progress-bar-shimmer"
                   />
-                </ModalBody>
-                <ModalFooter>
-                  <Button color="danger" variant="light" onPress={onClose}>
-                    Cancelar
-                  </Button>
-                  <Button
-                    color="primary"
-                    onPress={() => {
-                      assignAccountsToTweet(tempSelectedAccounts);
-                      onClose();
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-medium">
+                    {progress.current} de {progress.total} cuentas procesadas
+                  </span>
+                  <span className="text-muted-foreground">
+                    {Math.round((progress.current / progress.total) * 100)}%
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-yellow-600 dark:text-yellow-400">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Ejecutando acciones con delays de seguridad...</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Resultados mejorados */}
+        {actionResults.length > 0 && (
+          <Card className="shadow-xl border-0 bg-gradient-to-br from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 animate-slide-up">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="bg-green-100 dark:bg-green-900 p-2 rounded-lg">
+                  <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl">
+                    Resultados de Ejecución
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Estado de cada cuenta procesada
+                  </p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3 max-h-64 overflow-y-auto custom-scrollbar">
+                {actionResults.map((result, index) => (
+                  <div
+                    key={index}
+                    className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all duration-300 hover:shadow-md ${
+                      result.success
+                        ? "border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20"
+                        : "border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20"
+                    }`}
+                    style={{
+                      animationDelay: `${index * 100}ms`,
                     }}
                   >
-                    Asignar Cuentas ({tempSelectedAccounts.length})
-                  </Button>
-                </ModalFooter>
-              </>
-            );
-          }}
-        </ModalContent>
-      </Modal>
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                          result.success
+                            ? "bg-green-500 text-white"
+                            : "bg-red-500 text-white"
+                        }`}
+                      >
+                        {result.success ? (
+                          <CheckCircle className="h-4 w-4" />
+                        ) : (
+                          <AlertCircle className="h-4 w-4" />
+                        )}
+                      </div>
+                      <div>
+                        <span className="font-medium">@{result.account}</span>
+                        <p className="text-sm text-muted-foreground">
+                          {result.message}
+                        </p>
+                      </div>
+                    </div>
+                    <Badge
+                      variant={result.success ? "default" : "destructive"}
+                      className="transition-all duration-200 hover:scale-105"
+                    >
+                      {result.success ? "Éxito" : "Error"}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex items-center justify-between text-sm">
+                  <span>Total procesado: {actionResults.length}</span>
+                  <div className="flex gap-4">
+                    <span className="text-green-600">
+                      ✓ {actionResults.filter((r) => r.success).length} exitosos
+                    </span>
+                    <span className="text-red-600">
+                      ✗ {actionResults.filter((r) => !r.success).length} errores
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
 }

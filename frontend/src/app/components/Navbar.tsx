@@ -4,16 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import AuthStatus from "@/components/auth/AuthStatus";
+import { Button } from "@/components/ui/button";
 import {
-  Navbar,
-  NavbarBrand,
-  NavbarContent,
-  NavbarItem,
-  Button,
-  NavbarMenuToggle,
-  NavbarMenu,
-  NavbarMenuItem,
-} from "@heroui/react";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Menu, X } from "lucide-react";
 import React from "react";
 
 interface User {
@@ -44,12 +41,11 @@ export default function NavbarComponent({ user, loading }: NavbarProps) {
   };
 
   const getNavLinkClass = (path: string, isMobile: boolean = false) => {
-    const baseClass = `relative group flex items-center px-3 py-2 text-sm font-medium ${
+    const baseClass = `relative group flex items-center px-3 py-2 text-sm font-medium transition-colors ${
       isMobile ? "text-lg w-full" : ""
     }`;
-    const activeClass = "text-blue-600 dark:text-blue-400";
-    const inactiveClass =
-      "text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400";
+    const activeClass = "text-primary";
+    const inactiveClass = "text-muted-foreground hover:text-foreground";
 
     return `${baseClass} ${isActive(path) ? activeClass : inactiveClass}`;
   };
@@ -171,7 +167,11 @@ export default function NavbarComponent({ user, loading }: NavbarProps) {
           bottom: -1px;
           left: 0;
           right: 0;
-          background: linear-gradient(to right, #3b82f6, #10b981);
+          background: linear-gradient(
+            to right,
+            hsl(var(--primary)),
+            hsl(var(--secondary))
+          );
           border-radius: 1px;
           transform-origin: left;
           transform: scaleX(0);
@@ -186,116 +186,125 @@ export default function NavbarComponent({ user, loading }: NavbarProps) {
           transform: scaleX(1);
         }
       `}</style>
-      <Navbar
-        isBordered
-        isBlurred
-        onMenuOpenChange={setIsMenuOpen}
-        className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-800 shadow-lg backdrop-blur-sm bg-opacity-90 dark:bg-opacity-90"
-      >
-        <NavbarContent>
-          <NavbarMenuToggle
-            aria-label={isMenuOpen ? "Cerrar menú" : "Abrir menú"}
-            className="sm:hidden"
-          />
-          <NavbarBrand>
-            <Link href="/dashboard" className="flex items-center">
-              <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-green-600">
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex h-14 items-center">
+          {/* Mobile menu button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="sm:hidden mr-2"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            {isMenuOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
+          </Button>
+
+          {/* Brand */}
+          <div className="mr-6 flex">
+            <Link href="/dashboard" className="flex items-center space-x-2">
+              <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
                 Control-X
               </span>
             </Link>
-          </NavbarBrand>
-        </NavbarContent>
+          </div>
 
-        <NavbarContent className="hidden sm:flex gap-4" justify="center">
-          {loading ? (
-            // Skeleton loading para los links
-            <>
-              {[1, 2, 3].map((i) => (
-                <NavbarItem key={i}>
-                  <div className="flex items-center px-3 py-2">
-                    <div className="w-5 h-5 mr-1 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></div>
-                    <div className="w-16 h-4 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></div>
-                  </div>
-                </NavbarItem>
-              ))}
-            </>
-          ) : user ? (
-            // Links normales cuando hay usuario
-            <>
-              {filteredNavLinks.map((link) => (
-                <NavbarItem key={link.path} isActive={isActive(link.path)}>
-                  <Link href={link.path} className={getNavLinkClass(link.path)}>
-                    {link.icon}
-                    {link.label}
-                    <span
-                      className={`nav-indicator ${
-                        isActive(link.path) ? "active" : ""
-                      }`}
-                    ></span>
-                  </Link>
-                </NavbarItem>
-              ))}
-            </>
-          ) : (
-            // Mensaje cuando no hay usuario
-            <NavbarItem>
-              <div className="text-gray-500 dark:text-gray-400 text-sm">
-                Inicia sesión para ver el menú
-              </div>
-            </NavbarItem>
-          )}
-        </NavbarContent>
-
-        <NavbarContent justify="end">
-          {loading ? (
-            // Skeleton para AuthStatus
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gray-300 dark:bg-gray-600 rounded-full animate-pulse"></div>
-              <div className="w-16 h-4 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></div>
+          {/* Desktop Navigation - Centrado */}
+          <div className="hidden sm:flex items-center justify-center flex-1">
+            <div className="flex items-center space-x-8 text-sm font-medium">
+              {loading ? (
+                // Skeleton loading para los links
+                <>
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="flex items-center px-3 py-2">
+                      <div className="w-5 h-5 mr-1 bg-muted rounded animate-pulse"></div>
+                      <div className="w-16 h-4 bg-muted rounded animate-pulse"></div>
+                    </div>
+                  ))}
+                </>
+              ) : user ? (
+                // Links normales cuando hay usuario
+                <>
+                  {filteredNavLinks.map((link) => (
+                    <Link
+                      key={link.path}
+                      href={link.path}
+                      className={getNavLinkClass(link.path)}
+                    >
+                      {link.icon}
+                      {link.label}
+                      <span
+                        className={`nav-indicator ${
+                          isActive(link.path) ? "active" : ""
+                        }`}
+                      ></span>
+                    </Link>
+                  ))}
+                </>
+              ) : (
+                // Mensaje cuando no hay usuario
+                <div className="text-muted-foreground text-sm">
+                  Inicia sesión para ver el menú
+                </div>
+              )}
             </div>
-          ) : (
-            <AuthStatus user={user} />
-          )}
-        </NavbarContent>
+          </div>
 
-        <NavbarMenu>
-          {loading ? (
-            // Skeleton loading para menú móvil
-            <>
-              {[1, 2, 3].map((i) => (
-                <NavbarMenuItem key={i}>
-                  <div className="flex items-center py-2 w-full">
-                    <div className="w-5 h-5 mr-1 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></div>
-                    <div className="w-20 h-4 bg-gray-300 dark:bg-gray-600 rounded animate-pulse"></div>
-                  </div>
-                </NavbarMenuItem>
-              ))}
-            </>
-          ) : user ? (
-            // Links normales cuando hay usuario
-            <>
-              {filteredNavLinks.map((link) => (
-                <NavbarMenuItem key={link.path}>
-                  <Link
-                    href={link.path}
-                    className={getNavLinkClass(link.path, true)}
-                  >
-                    {link.icon}
-                    {link.label}
-                  </Link>
-                </NavbarMenuItem>
-              ))}
-            </>
-          ) : (
-            // Mensaje cuando no hay usuario
-            <NavbarMenuItem>
-              <div className="text-gray-500 dark:text-gray-400 text-sm py-2">
-                Inicia sesión para ver el menú
+          {/* Right side */}
+          <div className="flex items-center">
+            {loading ? (
+              // Skeleton para AuthStatus
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-muted rounded-full animate-pulse"></div>
+                <div className="w-16 h-4 bg-muted rounded animate-pulse"></div>
               </div>
-            </NavbarMenuItem>
-          )}
-        </NavbarMenu>
-      </Navbar>
+            ) : (
+              <AuthStatus user={user} />
+            )}
+          </div>
+        </div>
+
+        {/* Mobile Navigation Menu */}
+        {isMenuOpen && (
+          <div className="sm:hidden border-t bg-background">
+            <div className="space-y-1 px-4 py-2">
+              {loading ? (
+                // Skeleton loading para menú móvil
+                <>
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="flex items-center py-2 w-full">
+                      <div className="w-5 h-5 mr-1 bg-muted rounded animate-pulse"></div>
+                      <div className="w-20 h-4 bg-muted rounded animate-pulse"></div>
+                    </div>
+                  ))}
+                </>
+              ) : user ? (
+                // Links normales cuando hay usuario
+                <>
+                  {filteredNavLinks.map((link) => (
+                    <Link
+                      key={link.path}
+                      href={link.path}
+                      className={getNavLinkClass(link.path, true)}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {link.icon}
+                      {link.label}
+                    </Link>
+                  ))}
+                </>
+              ) : (
+                // Mensaje cuando no hay usuario
+                <div className="text-muted-foreground text-sm py-2">
+                  Inicia sesión para ver el menú
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </nav>
     </>
   );
 }

@@ -4,24 +4,40 @@ import { useState, useEffect } from "react";
 import {
   Card,
   CardHeader,
-  CardBody,
+  CardContent,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import {
   Table,
-  TableHeader,
-  TableColumn,
   TableBody,
-  TableRow,
   TableCell,
-  Chip,
-  Progress,
-  Button,
-  Input,
-  Divider,
-  Spinner,
-  Tooltip,
-  Tabs,
-  Tab,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import {
+  Loader2,
+  RefreshCw,
+  Activity,
+  Users,
+  AlertTriangle,
+  CheckCircle2,
+} from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
   Pagination,
-} from "@heroui/react";
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { API_CONFIG, buildApiUrl } from "@/config/api";
 
 interface AccountLimits {
@@ -106,6 +122,19 @@ export default function Dashboard() {
   const [historyPerPage] = useState(10);
   const [totalHistoryItems, setTotalHistoryItems] = useState(0);
 
+  // Agregar variables calculadas que faltaban
+  const totalActiveAccounts = accountLimits.filter(
+    (account) => account.status === "active"
+  ).length;
+
+  const totalLimitedAccounts = accountLimits.filter(
+    (account) => account.status === "limited"
+  ).length;
+
+  const totalSuspendedAccounts = accountLimits.filter(
+    (account) => account.status === "suspended"
+  ).length;
+
   const fetchAccountLimits = async () => {
     try {
       const response = await fetch(
@@ -177,23 +206,46 @@ export default function Dashboard() {
 
   const getProgressColor = (used: number, limit: number) => {
     const percentage = (used / limit) * 100;
-    if (percentage >= 90) return "danger";
-    if (percentage >= 70) return "warning";
-    return "success";
+    if (percentage >= 90) return "bg-red-500";
+    if (percentage >= 70) return "bg-yellow-500";
+    return "bg-green-500";
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusBadge = (status: string) => {
     switch (status) {
       case "active":
-        return "success";
+        return (
+          <Badge variant="default" className="bg-green-500 hover:bg-green-600">
+            <CheckCircle2 className="w-3 h-3 mr-1" />
+            Activa
+          </Badge>
+        );
       case "limited":
-        return "warning";
+        return (
+          <Badge
+            variant="secondary"
+            className="bg-yellow-500 hover:bg-yellow-600"
+          >
+            <AlertTriangle className="w-3 h-3 mr-1" />
+            Limitada
+          </Badge>
+        );
       case "suspended":
-        return "danger";
+        return (
+          <Badge variant="destructive">
+            <AlertTriangle className="w-3 h-3 mr-1" />
+            Suspendida
+          </Badge>
+        );
       case "error":
-        return "danger";
+        return (
+          <Badge variant="destructive">
+            <AlertTriangle className="w-3 h-3 mr-1" />
+            Error
+          </Badge>
+        );
       default:
-        return "default";
+        return <Badge variant="outline">Desconocido</Badge>;
     }
   };
 
@@ -225,20 +277,6 @@ export default function Dashboard() {
       return "Tiempo inválido";
     }
   };
-
-  // Estadísticas calculadas
-  const totalLimitedAccounts = accountLimits.filter(
-    (a: AccountLimits) => a.status === "limited"
-  ).length;
-  const totalSuspendedAccounts = accountLimits.filter(
-    (a: AccountLimits) => a.status === "suspended"
-  ).length;
-  const totalActiveAccounts = accountLimits.filter(
-    (a: AccountLimits) => a.status === "active"
-  ).length;
-  const totalErrorAccounts = accountLimits.filter(
-    (a: AccountLimits) => a.status === "error"
-  ).length;
 
   // Función para cancelar una acción
   const cancelAction = async (actionId: string) => {
@@ -358,50 +396,41 @@ export default function Dashboard() {
     }
   };
 
-  const getActionColor = (action: string) => {
-    switch (action) {
-      case "tweet":
-        return "primary";
-      case "like":
-        return "danger";
-      case "retweet":
-        return "success";
-      case "reply":
-        return "secondary";
-      case "follow":
-        return "warning";
-      case "unfollow":
-        return "default";
-      default:
-        return "warning";
-    }
-  };
-
   // Función para renderizar los labels de las cuentas
   const renderAccountLabels = (labels?: string[]) => {
     if (!labels || labels.length === 0) return null;
 
     return (
-      <div className="flex flex-wrap gap-1 mt-1">
+      <div className="flex flex-wrap gap-1 mt-2">
         {labels.map((label) => (
-          <Chip
-            key={label}
-            size="sm"
-            variant="flat"
-            color="secondary"
-            className="text-xs"
-          >
+          <Badge key={label} variant="outline" className="text-xs">
             {label}
-          </Chip>
+          </Badge>
         ))}
       </div>
     );
   };
 
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await Promise.all([
+        fetchAccountLimits(),
+        fetchQueueStatus(),
+        fetchRealtimeMetrics(),
+      ]);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <Spinner size="lg" color="primary" />
+        <div className="flex flex-col items-center space-y-4">
+          <Loader2 className="animate-spin h-8 w-8" />
+          <p className="text-muted-foreground">Cargando dashboard...</p>
+        </div>
       </div>
     );
   }
@@ -409,894 +438,603 @@ export default function Dashboard() {
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-6">
       {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Dashboard de Límites
+          </h1>
+          <p className="text-muted-foreground mt-2">
+            Monitorea el uso y límites de todas las cuentas de X en tiempo real
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          onClick={handleRefresh}
+          disabled={refreshing}
+          size="sm"
+        >
+          {refreshing ? (
+            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+          ) : (
+            <RefreshCw className="h-4 w-4 mr-2" />
+          )}
+          Actualizar
+        </Button>
+      </div>
+
+      {/* Search Bar */}
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">Dashboard de Límites</h1>
-            <p className="text-gray-600 dark:text-gray-400">
-              Monitorea el uso y límites de todas las cuentas de X
-            </p>
+        <CardContent className="p-6">
+          <div className="relative max-w-md">
+            <Input
+              placeholder="Buscar cuentas por username..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 search-input"
+            />
+            <svg
+              className="w-4 h-4 text-muted-foreground absolute left-3 top-3"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
           </div>
-          <Button
-            color="primary"
-            variant="flat"
-            onClick={fetchAccountLimits}
-            isLoading={refreshing}
-          >
-            Actualizar
-          </Button>
-        </CardHeader>
-        <CardBody>
-          <Input
-            label="Buscar cuentas"
-            placeholder="Username o etiqueta..."
-            value={searchTerm}
-            onValueChange={setSearchTerm}
-            className="max-w-md"
-            startContent={
-              <svg
-                className="w-4 h-4 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-            }
-          />
-        </CardBody>
+        </CardContent>
       </Card>
 
       {/* Estadísticas generales */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardBody className="text-center">
-            <h3 className="text-2xl font-bold text-green-600">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="stat-card dashboard-card">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Cuentas Activas
+            </CardTitle>
+            <CheckCircle2 className="h-4 w-4 text-green-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600 stat-number">
               {totalActiveAccounts}
-            </h3>
-            <p className="text-sm text-gray-600">Cuentas Activas</p>
-          </CardBody>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {((totalActiveAccounts / accountLimits.length) * 100).toFixed(1)}%
+              del total
+            </p>
+            <div className="pulse-indicator active h-1 w-full mt-2 rounded-full"></div>
+          </CardContent>
         </Card>
-        <Card>
-          <CardBody className="text-center">
-            <h3 className="text-2xl font-bold text-yellow-600">
+
+        <Card className="stat-card dashboard-card">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Cuentas Limitadas
+            </CardTitle>
+            <AlertTriangle className="h-4 w-4 text-yellow-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-yellow-600 stat-number">
               {totalLimitedAccounts}
-            </h3>
-            <p className="text-sm text-gray-600">Cuentas Limitadas</p>
-          </CardBody>
+            </div>
+            <p className="text-xs text-muted-foreground">Requieren atención</p>
+            <div className="pulse-indicator warning h-1 w-full mt-2 rounded-full"></div>
+          </CardContent>
         </Card>
-        <Card>
-          <CardBody className="text-center">
-            <h3 className="text-2xl font-bold text-red-600">
+
+        <Card className="stat-card dashboard-card">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Cuentas Suspendidas
+            </CardTitle>
+            <AlertTriangle className="h-4 w-4 text-red-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-red-600 stat-number">
               {totalSuspendedAccounts}
-            </h3>
-            <p className="text-sm text-gray-600">Cuentas Suspendidas</p>
-          </CardBody>
+            </div>
+            <p className="text-xs text-muted-foreground">Necesitan revisión</p>
+            <div className="pulse-indicator error h-1 w-full mt-2 rounded-full"></div>
+          </CardContent>
         </Card>
-        <Card>
-          <CardBody className="text-center">
-            <h3 className="text-2xl font-bold text-blue-600">
+
+        <Card className="stat-card dashboard-card">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Cuentas</CardTitle>
+            <Users className="h-4 w-4 text-blue-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-600 stat-number">
               {accountLimits.length}
-            </h3>
-            <p className="text-sm text-gray-600">Total Cuentas</p>
-          </CardBody>
+            </div>
+            <p className="text-xs text-muted-foreground">Cuentas gestionadas</p>
+            <div className="pulse-indicator active h-1 w-full mt-2 rounded-full"></div>
+          </CardContent>
         </Card>
       </div>
 
       {/* Tabla de cuentas */}
       <Card>
         <CardHeader>
-          <h2 className="text-xl font-semibold">Detalles por Cuenta</h2>
+          <CardTitle>Detalle de Cuentas</CardTitle>
+          <CardDescription>
+            Estado actual de límites y uso para cada cuenta
+          </CardDescription>
         </CardHeader>
-        <CardBody>
-          <Table aria-label="Límites de cuentas">
-            <TableHeader>
-              <TableColumn>CUENTA</TableColumn>
-              <TableColumn>ESTADO</TableColumn>
-              <TableColumn>TWEETS</TableColumn>
-              <TableColumn>FOLLOWS</TableColumn>
-              <TableColumn>LIKES</TableColumn>
-              <TableColumn>RETWEETS</TableColumn>
-              <TableColumn>ÚLTIMA ACTIVIDAD</TableColumn>
-            </TableHeader>
-            <TableBody>
-              {filteredAccounts.map((account) => (
-                <TableRow key={account._id}>
-                  <TableCell>
-                    <div>
-                      <p className="font-medium">@{account.username}</p>
-                      {renderAccountLabels(account.labels)}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Chip color={getStatusColor(account.status)} variant="flat">
-                      {account.status}
-                    </Chip>
-                  </TableCell>
-                  <TableCell>
-                    <div className="space-y-1">
-                      <Progress
-                        value={
-                          (account.dailyLimits.tweets.used /
-                            account.dailyLimits.tweets.limit) *
-                          100
-                        }
-                        color={getProgressColor(
-                          account.dailyLimits.tweets.used,
-                          account.dailyLimits.tweets.limit
-                        )}
-                        size="sm"
-                      />
-                      <p className="text-xs text-gray-600">
-                        {account.dailyLimits.tweets.used}/
-                        {account.dailyLimits.tweets.limit}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        Reset:{" "}
-                        {getTimeUntilReset(account.dailyLimits.tweets.reset)}
-                      </p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="space-y-1">
-                      <Progress
-                        value={
-                          (account.dailyLimits.follows.used /
-                            account.dailyLimits.follows.limit) *
-                          100
-                        }
-                        color={getProgressColor(
-                          account.dailyLimits.follows.used,
-                          account.dailyLimits.follows.limit
-                        )}
-                        size="sm"
-                      />
-                      <p className="text-xs text-gray-600">
-                        {account.dailyLimits.follows.used}/
-                        {account.dailyLimits.follows.limit}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        Reset:{" "}
-                        {getTimeUntilReset(account.dailyLimits.follows.reset)}
-                      </p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="space-y-1">
-                      <Progress
-                        value={
-                          (account.dailyLimits.likes.used /
-                            account.dailyLimits.likes.limit) *
-                          100
-                        }
-                        color={getProgressColor(
-                          account.dailyLimits.likes.used,
-                          account.dailyLimits.likes.limit
-                        )}
-                        size="sm"
-                      />
-                      <p className="text-xs text-gray-600">
-                        {account.dailyLimits.likes.used}/
-                        {account.dailyLimits.likes.limit}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        Reset:{" "}
-                        {getTimeUntilReset(account.dailyLimits.likes.reset)}
-                      </p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="space-y-1">
-                      <Progress
-                        value={
-                          (account.dailyLimits.retweets.used /
-                            account.dailyLimits.retweets.limit) *
-                          100
-                        }
-                        color={getProgressColor(
-                          account.dailyLimits.retweets.used,
-                          account.dailyLimits.retweets.limit
-                        )}
-                        size="sm"
-                      />
-                      <p className="text-xs text-gray-600">
-                        {account.dailyLimits.retweets.used}/
-                        {account.dailyLimits.retweets.limit}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        Reset:{" "}
-                        {getTimeUntilReset(account.dailyLimits.retweets.reset)}
-                      </p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <p className="text-sm text-gray-600">
-                      {formatTime(account.lastActivity)}
-                    </p>
-                  </TableCell>
+        <CardContent>
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Cuenta</TableHead>
+                  <TableHead>Estado</TableHead>
+                  <TableHead>Tweets</TableHead>
+                  <TableHead>Follows</TableHead>
+                  <TableHead>Likes</TableHead>
+                  <TableHead>Retweets</TableHead>
+                  <TableHead>Última Actividad</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardBody>
-      </Card>
-
-      {/* Información adicional */}
-      <Card>
-        <CardHeader>
-          <h3 className="text-lg font-semibold">
-            ℹ️ Información sobre Límites
-          </h3>
-        </CardHeader>
-        <CardBody>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h4 className="font-medium mb-2">Límites Diarios por Acción</h4>
-              <ul className="text-sm space-y-1 text-gray-600">
-                <li>
-                  • <strong>Tweets:</strong> Hasta 300 por día
-                </li>
-                <li>
-                  • <strong>Follows:</strong> Hasta 400 por día
-                </li>
-                <li>
-                  • <strong>Likes:</strong> Hasta 1,000 por día
-                </li>
-                <li>
-                  • <strong>Retweets:</strong> Hasta 600 por día
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-medium mb-2">Estados de Cuenta</h4>
-              <ul className="text-sm space-y-1 text-gray-600">
-                <li>
-                  • <strong>Active:</strong> Funcionando normalmente
-                </li>
-                <li>
-                  • <strong>Limited:</strong> Cerca del límite diario
-                </li>
-                <li>
-                  • <strong>Suspended:</strong> Cuenta suspendida
-                </li>
-                <li>
-                  • <strong>Error:</strong> Error de conectividad
-                </li>
-              </ul>
-            </div>
-          </div>
-        </CardBody>
-      </Card>
-
-      {/* Tabs para diferentes vistas */}
-      <Card>
-        <CardBody>
-          <Tabs
-            aria-label="Estado de acciones"
-            color="primary"
-            variant="underlined"
-          >
-            <Tab
-              key="running"
-              title={
-                <div className="flex items-center space-x-2">
-                  <span>🚀 Ejecutándose</span>
-                  {queueStatus.running?.length > 0 && (
-                    <Chip color="warning" variant="flat" size="sm">
-                      {queueStatus.running.length} ejecutándose
-                    </Chip>
-                  )}
-                </div>
-              }
-            >
-              <div className="mt-4">
-                {queueStatus?.running && queueStatus.running.length > 0 ? (
-                  <div className="space-y-4">
-                    {/* Acciones ejecutándose con mejor visualización */}
-                    {queueStatus.running.map((action) => (
-                      <Card
-                        key={action.id}
-                        className="border-l-4 border-l-orange-500 bg-orange-50 dark:bg-orange-950"
-                      >
-                        <CardBody className="p-4">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                              <div className="flex items-center gap-2">
-                                <span className="text-2xl animate-pulse">
-                                  {getActionIcon(action.action)}
-                                </span>
-                                <div>
-                                  <div className="flex items-center gap-2">
-                                    <Chip
-                                      size="sm"
-                                      color={
-                                        getActionColor(action.action) as any
-                                      }
-                                      variant="solid"
-                                      className="animate-pulse"
-                                    >
-                                      {action.action.toUpperCase()}
-                                    </Chip>
-                                    <span className="font-bold text-orange-700 dark:text-orange-300">
-                                      {renderAccountLabels(
-                                        action.accountLabels
-                                      )}
-                                    </span>
-                                  </div>
-                                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                    {getActionDescription(action)}
-                                  </p>
-                                </div>
-                              </div>
+              </TableHeader>
+              <TableBody>
+                {filteredAccounts.length > 0 ? (
+                  filteredAccounts.map((account) => (
+                    <TableRow
+                      key={account._id}
+                      className={`table-row account-card ${account.status}`}
+                    >
+                      <TableCell>
+                        <div>
+                          <p className="font-medium">@{account.username}</p>
+                          {renderAccountLabels(account.labels)}
+                        </div>
+                      </TableCell>
+                      <TableCell>{getStatusBadge(account.status)}</TableCell>
+                      <TableCell>
+                        <div className="space-y-2">
+                          <div className="flex items-center space-x-2">
+                            <div className="progress-bar-container flex-1">
+                              <Progress
+                                value={
+                                  (account.dailyLimits.tweets.used /
+                                    account.dailyLimits.tweets.limit) *
+                                  100
+                                }
+                                className="flex-1"
+                              />
                             </div>
-                            <div className="text-right">
-                              <div className="text-sm text-gray-500">
-                                Iniciado: {formatRelativeTime(action.startedAt)}
-                              </div>
-                              <div className="flex items-center gap-2 mt-1">
-                                <Spinner size="sm" color="warning" />
-                                <span className="text-xs text-orange-600 dark:text-orange-400">
-                                  Ejecutando...
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Barra de progreso visual */}
-                          <div className="mt-3">
-                            <Progress
-                              value={action.progress || 50}
-                              className="max-w-full"
-                              color="warning"
-                              size="sm"
-                              isIndeterminate
-                              label={`Procesando ${action.action}...`}
-                            />
-                          </div>
-                        </CardBody>
-                      </Card>
-                    ))}
-
-                    {/* Tabla adicional para vista compacta */}
-                    <Divider className="my-4" />
-                    <Table aria-label="Acciones en ejecución" className="mt-4">
-                      <TableHeader>
-                        <TableColumn>ACCIÓN</TableColumn>
-                        <TableColumn>CUENTA</TableColumn>
-                        <TableColumn>CONTENIDO</TableColumn>
-                        <TableColumn>ESTADO</TableColumn>
-                        <TableColumn>INICIADO</TableColumn>
-                      </TableHeader>
-                      <TableBody>
-                        {queueStatus.running.map((action) => (
-                          <TableRow key={`table-${action.id}`}>
-                            <TableCell>
-                              <div className="flex items-center gap-2">
-                                <span className="animate-pulse">
-                                  {getActionIcon(action.action)}
-                                </span>
-                                <Chip
-                                  size="sm"
-                                  color={getActionColor(action.action) as any}
-                                  variant="flat"
-                                  className="animate-pulse"
-                                >
-                                  {action.action}
-                                </Chip>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <div>
-                                <span className="font-semibold text-orange-600">
-                                  @{action.accountUsername}
-                                </span>
-                                {renderAccountLabels(action.accountLabels)}
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <Tooltip content={getActionDescription(action)}>
-                                <span className="text-sm truncate max-w-xs block">
-                                  {getActionDescription(action).length > 30
-                                    ? `${getActionDescription(action).substring(
-                                        0,
-                                        30
-                                      )}...`
-                                    : getActionDescription(action)}
-                                </span>
-                              </Tooltip>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex items-center gap-2">
-                                <Spinner size="sm" color="warning" />
-                                <span className="text-xs text-orange-600">
-                                  Ejecutando
-                                </span>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <span className="text-sm text-gray-500">
-                                {formatRelativeTime(action.startedAt)}
-                              </span>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <div className="text-6xl mb-4">😴</div>
-                    <p className="text-gray-500 text-lg">
-                      No hay acciones ejecutándose
-                    </p>
-                    <p className="text-gray-400 text-sm mt-2">
-                      Las acciones aparecerán aquí cuando se estén procesando
-                    </p>
-                  </div>
-                )}
-              </div>
-            </Tab>
-
-            <Tab
-              key="queue"
-              title={
-                <div className="flex items-center space-x-2">
-                  <span>⏳ En Cola</span>
-                  {queueStatus.queue?.length > 0 && (
-                    <Chip color="primary" variant="flat" size="sm">
-                      {queueStatus.queue.length} en cola
-                    </Chip>
-                  )}
-                </div>
-              }
-            >
-              <div className="mt-4">
-                {queueStatus?.queue && queueStatus.queue.length > 0 ? (
-                  <Table aria-label="Acciones en cola">
-                    <TableHeader>
-                      <TableColumn>POSICIÓN</TableColumn>
-                      <TableColumn>ACCIÓN</TableColumn>
-                      <TableColumn>CUENTA</TableColumn>
-                      <TableColumn>CONTENIDO</TableColumn>
-                      <TableColumn>ESTIMADO</TableColumn>
-                      <TableColumn>ACCIONES</TableColumn>
-                    </TableHeader>
-                    <TableBody>
-                      {queueStatus.queue.map((action, index) => (
-                        <TableRow key={action.id}>
-                          <TableCell>
-                            <Chip size="sm" color="default" variant="flat">
-                              #{index + 1}
-                            </Chip>
-                          </TableCell>
-                          <TableCell>
-                            <Chip size="sm" color="warning" variant="flat">
-                              {action.action}
-                            </Chip>
-                          </TableCell>
-                          <TableCell>
-                            <div>
-                              <span className="font-semibold">
-                                @{action.accountUsername}
-                              </span>
-                              {renderAccountLabels(action.accountLabels)}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Tooltip content={action.text}>
-                              <span className="text-sm truncate max-w-xs block">
-                                {action.text}
-                              </span>
-                            </Tooltip>
-                          </TableCell>
-                          <TableCell>
-                            <span className="text-sm text-gray-500">
-                              {formatRelativeTime(action.estimatedStartTime)}
+                            <span className="text-xs text-muted-foreground min-w-[45px]">
+                              {account.dailyLimits.tweets.used}/
+                              {account.dailyLimits.tweets.limit}
                             </span>
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              size="sm"
-                              color="danger"
-                              variant="light"
-                              onPress={() => cancelAction(action.id)}
-                            >
-                              Cancelar
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            Reset:{" "}
+                            {getTimeUntilReset(
+                              account.dailyLimits.tweets.reset
+                            )}
+                          </p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="space-y-2">
+                          <div className="flex items-center space-x-2">
+                            <Progress
+                              value={
+                                (account.dailyLimits.follows.used /
+                                  account.dailyLimits.follows.limit) *
+                                100
+                              }
+                              className="flex-1"
+                            />
+                            <span className="text-xs text-muted-foreground min-w-[45px]">
+                              {account.dailyLimits.follows.used}/
+                              {account.dailyLimits.follows.limit}
+                            </span>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            Reset:{" "}
+                            {getTimeUntilReset(
+                              account.dailyLimits.follows.reset
+                            )}
+                          </p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="space-y-2">
+                          <div className="flex items-center space-x-2">
+                            <Progress
+                              value={
+                                (account.dailyLimits.likes.used /
+                                  account.dailyLimits.likes.limit) *
+                                100
+                              }
+                              className="flex-1"
+                            />
+                            <span className="text-xs text-muted-foreground min-w-[45px]">
+                              {account.dailyLimits.likes.used}/
+                              {account.dailyLimits.likes.limit}
+                            </span>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            Reset:{" "}
+                            {getTimeUntilReset(account.dailyLimits.likes.reset)}
+                          </p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="space-y-2">
+                          <div className="flex items-center space-x-2">
+                            <Progress
+                              value={
+                                (account.dailyLimits.retweets.used /
+                                  account.dailyLimits.retweets.limit) *
+                                100
+                              }
+                              className="flex-1"
+                            />
+                            <span className="text-xs text-muted-foreground min-w-[45px]">
+                              {account.dailyLimits.retweets.used}/
+                              {account.dailyLimits.retweets.limit}
+                            </span>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            Reset:{" "}
+                            {getTimeUntilReset(
+                              account.dailyLimits.retweets.reset
+                            )}
+                          </p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <p className="text-sm text-muted-foreground">
+                          {formatTime(account.lastActivity)}
+                        </p>
+                      </TableCell>
+                    </TableRow>
+                  ))
                 ) : (
-                  <div className="text-center py-8">
-                    <p className="text-gray-500">No hay acciones en cola</p>
-                  </div>
-                )}
-              </div>
-            </Tab>
-
-            <Tab
-              key="history"
-              title={
-                <div className="flex items-center space-x-2">
-                  <span>📝 Historial</span>
-                  {totalHistoryItems > 0 && (
-                    <Chip size="sm" color="default">
-                      {totalHistoryItems}
-                    </Chip>
-                  )}
-                </div>
-              }
-            >
-              <div className="mt-4">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-semibold">
-                    Historial de Acciones ({totalHistoryItems} total)
-                  </h3>
-                </div>
-
-                {queueStatus?.history && queueStatus.history.length > 0 ? (
-                  <div className="space-y-4">
-                    <Table aria-label="Historial de acciones">
-                      <TableHeader>
-                        <TableColumn>ACCIÓN</TableColumn>
-                        <TableColumn>CUENTA</TableColumn>
-                        <TableColumn>CONTENIDO</TableColumn>
-                        <TableColumn>ESTADO</TableColumn>
-                        <TableColumn>COMPLETADO</TableColumn>
-                      </TableHeader>
-                      <TableBody>
-                        {queueStatus.history.map((action, index) => (
-                          <TableRow key={`${action.id}-${index}`}>
-                            <TableCell>
-                              <div className="flex items-center gap-2">
-                                <span>{getActionIcon(action.action)}</span>
-                                <Chip
-                                  size="sm"
-                                  color={getActionColor(action.action) as any}
-                                  variant="flat"
-                                >
-                                  {action.action}
-                                </Chip>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <div>
-                                <span className="font-semibold">
-                                  @{action.accountUsername}
-                                </span>
-                                {renderAccountLabels(action.accountLabels)}
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <Tooltip
-                                content={
-                                  action.status === "failed" && action.error
-                                    ? `Error: ${action.error}`
-                                    : getActionDescription(action)
-                                }
-                                className="max-w-xs"
-                              >
-                                <span className="text-sm truncate max-w-xs block cursor-help">
-                                  {action.status === "failed" && action.error
-                                    ? `❌ ${
-                                        action.error.length > 30
-                                          ? action.error.substring(0, 30) +
-                                            "..."
-                                          : action.error
-                                      }`
-                                    : getActionDescription(action).length > 30
-                                    ? `${getActionDescription(action).substring(
-                                        0,
-                                        30
-                                      )}...`
-                                    : getActionDescription(action)}
-                                </span>
-                              </Tooltip>
-                            </TableCell>
-                            <TableCell>
-                              <Tooltip
-                                content={
-                                  action.status === "failed" && action.error
-                                    ? `Error completo: ${action.error}`
-                                    : action.status === "completed"
-                                    ? "Acción completada exitosamente"
-                                    : action.status === "cancelled"
-                                    ? "Acción cancelada por el usuario"
-                                    : "Estado desconocido"
-                                }
-                              >
-                                <Chip
-                                  size="sm"
-                                  color={
-                                    action.status === "completed"
-                                      ? "success"
-                                      : action.status === "failed"
-                                      ? "danger"
-                                      : "warning"
-                                  }
-                                  variant="flat"
-                                  className="cursor-help"
-                                >
-                                  {action.status === "completed" &&
-                                    "✅ Completado"}
-                                  {action.status === "failed" && "❌ Fallido"}
-                                  {action.status === "cancelled" &&
-                                    "⚠️ Cancelado"}
-                                </Chip>
-                              </Tooltip>
-                            </TableCell>
-                            <TableCell>
-                              <span className="text-sm text-gray-500">
-                                {formatRelativeTime(action.completedAt)}
-                              </span>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-
-                    {/* Paginación */}
-                    {totalHistoryItems > historyPerPage && (
-                      <div className="flex justify-center mt-4">
-                        <Pagination
-                          total={Math.ceil(totalHistoryItems / historyPerPage)}
-                          page={historyPage}
-                          onChange={setHistoryPage}
-                          showControls
-                          showShadow
-                          color="primary"
-                        />
+                  <TableRow>
+                    <TableCell colSpan={7} className="h-24 text-center">
+                      <div className="flex flex-col items-center justify-center space-y-2">
+                        <Users className="h-8 w-8 text-muted-foreground" />
+                        <p className="text-muted-foreground">
+                          No se encontraron cuentas
+                        </p>
                       </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <div className="text-6xl mb-4">📝</div>
-                    <p className="text-gray-500 text-lg">
-                      No hay historial de acciones
-                    </p>
-                    <p className="text-gray-400 text-sm mt-2">
-                      Las acciones completadas aparecerán aquí
-                    </p>
-                  </div>
+                    </TableCell>
+                  </TableRow>
                 )}
-              </div>
-            </Tab>
-          </Tabs>
-        </CardBody>
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
       </Card>
 
-      {/* Estadísticas adicionales */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="pb-3">
-            <h4 className="text-lg font-semibold text-blue-600">🔄 En Cola</h4>
+      {/* Métricas en tiempo real */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className="stat-card dashboard-card">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">En Cola</CardTitle>
+            <Activity className="h-4 w-4 text-blue-600" />
           </CardHeader>
-          <CardBody className="pt-0">
-            <p className="text-3xl font-bold">
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-600 stat-number">
               {queueStatus.queue?.length || 0}
-            </p>
-          </CardBody>
+            </div>
+            <p className="text-xs text-muted-foreground">Acciones pendientes</p>
+            <div className="h-2 w-2 bg-blue-500 rounded-full animate-pulse mt-2"></div>
+          </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="pb-3">
-            <h4 className="text-lg font-semibold text-orange-600">
-              ⚡ Ejecutándose
-            </h4>
+
+        <Card className="stat-card dashboard-card">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Ejecutándose</CardTitle>
+            <Activity className="h-4 w-4 text-orange-600 animate-pulse" />
           </CardHeader>
-          <CardBody className="pt-0">
-            <p className="text-3xl font-bold">
+          <CardContent>
+            <div className="text-2xl font-bold text-orange-600 stat-number">
               {queueStatus.running?.length || 0}
-            </p>
-          </CardBody>
+            </div>
+            <p className="text-xs text-muted-foreground">Acciones activas</p>
+            <div className="h-2 w-2 bg-orange-500 rounded-full animate-pulse mt-2"></div>
+          </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="pb-3">
-            <h4 className="text-lg font-semibold text-green-600">
-              ✅ Completadas Hoy
-            </h4>
+
+        <Card className="stat-card dashboard-card">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Completadas Hoy
+            </CardTitle>
+            <CheckCircle2 className="h-4 w-4 text-green-600" />
           </CardHeader>
-          <CardBody className="pt-0">
-            <p className="text-3xl font-bold">
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600 stat-number">
               {realtimeMetrics?.totalActionsToday || 0}
-            </p>
-          </CardBody>
+            </div>
+            <p className="text-xs text-muted-foreground">Acciones exitosas</p>
+            <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse mt-2"></div>
+          </CardContent>
         </Card>
       </div>
 
-      {/* Cola y Estado de Acciones */}
+      {/* Estado de Actividad */}
       {(queueStatus.queue?.length > 0 ||
         queueStatus.running?.length > 0 ||
         queueStatus.history?.length > 0) && (
         <Card>
           <CardHeader>
-            <h3 className="text-xl font-semibold">
-              📊 Estado de Acciones en Tiempo Real
-            </h3>
+            <CardTitle>Estado de Actividad en Tiempo Real</CardTitle>
+            <CardDescription>
+              Monitoreo de acciones en cola, ejecutándose y completadas
+            </CardDescription>
           </CardHeader>
-          <CardBody>
-            <div className="space-y-6">
-              {/* Acciones en ejecución */}
-              {queueStatus.running?.length > 0 && (
-                <div>
-                  <h4 className="text-lg font-semibold text-orange-600 mb-3">
-                    ⚡ Ejecutándose Ahora
-                  </h4>
-                  <div className="space-y-2">
+          <CardContent>
+            <Tabs defaultValue="running" className="w-full">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger
+                  value="running"
+                  className="flex items-center space-x-2"
+                >
+                  <Activity className="h-4 w-4" />
+                  <span>Ejecutándose</span>
+                  {queueStatus.running?.length > 0 && (
+                    <Badge variant="secondary" className="ml-2">
+                      {queueStatus.running.length}
+                    </Badge>
+                  )}
+                </TabsTrigger>
+                <TabsTrigger
+                  value="queue"
+                  className="flex items-center space-x-2"
+                >
+                  <Activity className="h-4 w-4" />
+                  <span>En Cola</span>
+                  {queueStatus.queue?.length > 0 && (
+                    <Badge variant="outline" className="ml-2">
+                      {queueStatus.queue.length}
+                    </Badge>
+                  )}
+                </TabsTrigger>
+                <TabsTrigger
+                  value="history"
+                  className="flex items-center space-x-2"
+                >
+                  <CheckCircle2 className="h-4 w-4" />
+                  <span>Historial</span>
+                  {totalHistoryItems > 0 && (
+                    <Badge variant="outline" className="ml-2">
+                      {totalHistoryItems}
+                    </Badge>
+                  )}
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="running" className="mt-6">
+                {queueStatus.running?.length > 0 ? (
+                  <div className="space-y-4">
                     {queueStatus.running.map((action, index) => (
                       <div
                         key={index}
-                        className="flex items-center justify-between p-3 bg-orange-50 dark:bg-orange-950 rounded-lg"
+                        className="flex items-center justify-between p-4 border rounded-lg bg-orange-50 dark:bg-orange-950/20"
                       >
-                        <div className="flex items-center gap-3">
-                          <span className="text-orange-600">⚡</span>
+                        <div className="flex items-center space-x-3">
+                          <Activity className="h-5 w-5 text-orange-600 animate-pulse" />
                           <div>
-                            <span className="font-medium">
+                            <p className="font-medium">
                               @{action.accountUsername}
-                            </span>
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              {getActionDescription(action)}
+                            </p>
                             {renderAccountLabels(action.accountLabels)}
                           </div>
-                          <Chip size="sm" color="warning" variant="flat">
-                            {action.action}
-                          </Chip>
+                          <Badge variant="secondary">{action.action}</Badge>
                         </div>
-                        <span className="text-sm text-gray-500">
-                          Iniciado:{" "}
-                          {new Date(action.startedAt).toLocaleTimeString()}
-                        </span>
+                        <div className="text-right">
+                          <p className="text-sm text-muted-foreground">
+                            Iniciado: {formatTime(action.startedAt)}
+                          </p>
+                        </div>
                       </div>
                     ))}
                   </div>
-                </div>
-              )}
+                ) : (
+                  <div className="text-center py-12">
+                    <Activity className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-muted-foreground">
+                      No hay acciones ejecutándose actualmente
+                    </p>
+                  </div>
+                )}
+              </TabsContent>
 
-              {/* Cola de acciones */}
-              {queueStatus.queue?.length > 0 && (
-                <div>
-                  <h4 className="text-lg font-semibold text-blue-600 mb-3">
-                    🔄 En Cola
-                  </h4>
-                  <div className="space-y-2">
-                    {queueStatus.queue.slice(0, 5).map((action, index) => (
+              <TabsContent value="queue" className="mt-6">
+                {queueStatus.queue?.length > 0 ? (
+                  <div className="space-y-4">
+                    {queueStatus.queue.slice(0, 10).map((action, index) => (
                       <div
                         key={index}
-                        className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-950 rounded-lg"
+                        className="flex items-center justify-between p-4 border rounded-lg"
                       >
-                        <div className="flex items-center gap-3">
-                          <span className="text-blue-600">🔄</span>
+                        <div className="flex items-center space-x-3">
+                          <div className="h-2 w-2 bg-blue-500 rounded-full animate-pulse" />
                           <div>
-                            <span className="font-medium">
+                            <p className="font-medium">
                               @{action.accountUsername}
-                            </span>
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              {getActionDescription(action)}
+                            </p>
                             {renderAccountLabels(action.accountLabels)}
                           </div>
-                          <Chip size="sm" color="primary" variant="flat">
-                            {action.action}
-                          </Chip>
+                          <Badge variant="outline">{action.action}</Badge>
                         </div>
-                        <span className="text-sm text-gray-500">
-                          Estimado:{" "}
-                          {new Date(
-                            action.estimatedStartTime
-                          ).toLocaleTimeString()}
-                        </span>
+                        <div className="text-right">
+                          <p className="text-sm text-muted-foreground">
+                            Estimado: {formatTime(action.estimatedStartTime)}
+                          </p>
+                        </div>
                       </div>
                     ))}
-                    {queueStatus.queue.length > 5 && (
-                      <div className="text-center text-sm text-gray-500">
-                        Y {queueStatus.queue.length - 5} más en cola...
+                    {queueStatus.queue.length > 10 && (
+                      <div className="text-center py-4">
+                        <p className="text-sm text-muted-foreground">
+                          Y {queueStatus.queue.length - 10} acciones más en
+                          cola...
+                        </p>
                       </div>
                     )}
                   </div>
-                </div>
-              )}
+                ) : (
+                  <div className="text-center py-12">
+                    <Activity className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-muted-foreground">
+                      No hay acciones en cola
+                    </p>
+                  </div>
+                )}
+              </TabsContent>
 
-              {/* Historial reciente */}
-              {queueStatus.history?.length > 0 && (
-                <div>
-                  <h4 className="text-lg font-semibold text-green-600 mb-3">
-                    📝 Historial Reciente
-                  </h4>
-                  <div className="space-y-2">
-                    {queueStatus.history.slice(0, 5).map((action, index) => (
+              <TabsContent value="history" className="mt-6">
+                {queueStatus.history?.length > 0 ? (
+                  <div className="space-y-4">
+                    {queueStatus.history.map((action, index) => (
                       <div
                         key={index}
-                        className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                        className="flex items-center justify-between p-4 border rounded-lg"
                       >
-                        <div className="flex items-center gap-3">
-                          <span
-                            className={
-                              action.status === "completed"
-                                ? "text-green-600"
-                                : "text-red-600"
-                            }
-                          >
-                            {action.status === "completed" ? "✅" : "❌"}
-                          </span>
+                        <div className="flex items-center space-x-3">
+                          {action.status === "completed" ? (
+                            <CheckCircle2 className="h-5 w-5 text-green-600" />
+                          ) : (
+                            <AlertTriangle className="h-5 w-5 text-red-600" />
+                          )}
                           <div>
-                            <span className="font-medium">
+                            <p className="font-medium">
                               @{action.accountUsername}
-                            </span>
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              {getActionDescription(action)}
+                            </p>
                             {renderAccountLabels(action.accountLabels)}
+                            {action.error && (
+                              <p className="text-xs text-red-500 mt-1">
+                                {action.error}
+                              </p>
+                            )}
                           </div>
-                          <Chip
-                            size="sm"
-                            color={
+                          <Badge
+                            variant={
                               action.status === "completed"
-                                ? "success"
-                                : "danger"
+                                ? "default"
+                                : "destructive"
                             }
-                            variant="flat"
                           >
                             {action.action}
-                          </Chip>
+                          </Badge>
                         </div>
-                        <div className="text-right text-sm text-gray-500">
-                          <div>
-                            {new Date(action.completedAt).toLocaleTimeString()}
-                          </div>
-                          {action.error && (
-                            <div className="text-red-500 text-xs">
-                              {action.error}
-                            </div>
-                          )}
+                        <div className="text-right">
+                          <p className="text-sm text-muted-foreground">
+                            {formatTime(action.completedAt)}
+                          </p>
                         </div>
                       </div>
                     ))}
                   </div>
-                </div>
-              )}
-
-              {/* Métricas adicionales */}
-              {realtimeMetrics && (
-                <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
-                  <h5 className="font-semibold text-blue-800 dark:text-blue-200 mb-2">
-                    📈 Métricas del Sistema
-                  </h5>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                    <div>
-                      <span className="text-gray-600">Cuentas Activas:</span>
-                      <span className="font-bold ml-2">
-                        {realtimeMetrics.activeAccounts}/
-                        {realtimeMetrics.totalAccounts}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">Acciones Hoy:</span>
-                      <span className="font-bold ml-2">
-                        {realtimeMetrics.totalActionsToday}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">Tasa de Éxito:</span>
-                      <span className="font-bold ml-2">
-                        {realtimeMetrics.successRate}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">Última Acción:</span>
-                      <span className="font-bold ml-2">
-                        {realtimeMetrics.lastActionTime
-                          ? new Date(
-                              realtimeMetrics.lastActionTime
-                            ).toLocaleTimeString()
-                          : "N/A"}
-                      </span>
-                    </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <CheckCircle2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-muted-foreground">
+                      No hay historial disponible
+                    </p>
                   </div>
-                </div>
-              )}
-            </div>
-          </CardBody>
+                )}
+              </TabsContent>
+            </Tabs>
+          </CardContent>
         </Card>
       )}
+
+      {/* Información adicional */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <AlertTriangle className="h-5 w-5 text-blue-600" />
+            <span>Información sobre Límites</span>
+          </CardTitle>
+          <CardDescription>
+            Detalles importantes sobre los límites y estados de las cuentas
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-3">
+              <h4 className="font-semibold text-sm">
+                Límites Diarios por Acción
+              </h4>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">
+                    📝 Tweets:
+                  </span>
+                  <Badge variant="outline">300 por día</Badge>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">
+                    ➕ Follows:
+                  </span>
+                  <Badge variant="outline">400 por día</Badge>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">
+                    ❤️ Likes:
+                  </span>
+                  <Badge variant="outline">1,000 por día</Badge>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">
+                    🔄 Retweets:
+                  </span>
+                  <Badge variant="outline">600 por día</Badge>
+                </div>
+              </div>
+            </div>
+            <div className="space-y-3">
+              <h4 className="font-semibold text-sm">Estados de Cuenta</h4>
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <CheckCircle2 className="h-4 w-4 text-green-600" />
+                  <span className="text-sm">
+                    <strong>Activa:</strong> Funcionando normalmente
+                  </span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <AlertTriangle className="h-4 w-4 text-yellow-600" />
+                  <span className="text-sm">
+                    <strong>Limitada:</strong> Cerca del límite diario
+                  </span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <AlertTriangle className="h-4 w-4 text-red-600" />
+                  <span className="text-sm">
+                    <strong>Suspendida:</strong> Cuenta suspendida por X
+                  </span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <AlertTriangle className="h-4 w-4 text-red-600" />
+                  <span className="text-sm">
+                    <strong>Error:</strong> Error de conectividad
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -1,32 +1,50 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
-  Card,
-  CardHeader,
-  CardBody,
-  Button,
-  Input,
-  Textarea,
   Select,
+  SelectContent,
   SelectItem,
-  Chip,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  useDisclosure,
-  Tabs,
-  Tab,
-  DatePicker,
-  TimeInput,
-  addToast,
-} from "@heroui/react";
-import { CalendarDate, Time } from "@internationalized/date";
-import { fromZonedTime, toZonedTime, formatInTimeZone } from "date-fns-tz";
-import AccountSelector from "@/components/AccountSelector";
-import { API_CONFIG, buildApiUrl } from "@/config/api";
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Loader2,
+  AlertTriangle,
+  Plus,
+  Trash2,
+  Calendar,
+  Clock,
+  MessageSquare,
+  Heart,
+  Repeat,
+  UserPlus,
+  UserMinus,
+} from "lucide-react";
+import { toast } from "sonner";
 
 interface Account {
   _id: string;
@@ -56,24 +74,17 @@ export default function SchedulePage() {
   );
   const [loading, setLoading] = useState(false);
   const [isScheduling, setIsScheduling] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   // Estados del formulario
-  const [actionType, setActionType] = useState<
-    "tweet" | "reply" | "like" | "retweet" | "follow" | "unfollow" | ""
-  >("");
+  const [actionType, setActionType] = useState<string>("");
   const [text, setText] = useState("");
   const [tweetId, setTweetId] = useState("");
   const [targetUserId, setTargetUserId] = useState("");
-  const [scheduledDate, setScheduledDate] = useState<CalendarDate | null>(null);
-  const [scheduledTime, setScheduledTime] = useState<Time | null>(null);
+  const [scheduledDate, setScheduledDate] = useState("");
+  const [scheduledTime, setScheduledTime] = useState("");
   const [baseDelay, setBaseDelay] = useState(30);
   const [randomDelay, setRandomDelay] = useState(60);
-
-  const {
-    isOpen: isScheduleOpen,
-    onOpen: onScheduleOpen,
-    onOpenChange: onScheduleOpenChange,
-  } = useDisclosure();
 
   useEffect(() => {
     fetchAccounts();
@@ -82,24 +93,18 @@ export default function SchedulePage() {
 
   const fetchAccounts = async () => {
     try {
-      const response = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.ACCOUNTS));
+      const response = await fetch("/api/accounts");
       if (!response.ok) throw new Error("Error al cargar cuentas");
       const data = await response.json();
       setAccounts(data);
     } catch (err) {
-      addToast({
-        title: "Error",
-        description: "Error al cargar las cuentas",
-        color: "danger",
-      });
+      toast.error("Error al cargar las cuentas");
     }
   };
 
   const fetchScheduledActions = async () => {
     try {
-      const response = await fetch(
-        buildApiUrl(API_CONFIG.ENDPOINTS.QUEUE.STATUS)
-      );
+      const response = await fetch("/api/schedule");
       if (!response.ok) throw new Error("Error al cargar acciones programadas");
       const data = await response.json();
       setScheduledActions(data.scheduled || []);
@@ -154,50 +159,30 @@ export default function SchedulePage() {
 
   const scheduleAction = async () => {
     if (!actionType) {
-      addToast({
-        title: "Error",
-        description: "Selecciona un tipo de acción",
-        color: "danger",
-      });
+      toast.error("Selecciona un tipo de acción");
       return;
     }
 
     if (selectedAccounts.length === 0) {
-      addToast({
-        title: "Error",
-        description: "Selecciona al menos una cuenta",
-        color: "danger",
-      });
+      toast.error("Selecciona al menos una cuenta");
       return;
     }
 
     if (!scheduledDate || !scheduledTime) {
-      addToast({
-        title: "Error",
-        description: "Selecciona fecha y hora",
-        color: "danger",
-      });
+      toast.error("Selecciona fecha y hora");
       return;
     }
 
     // Validaciones específicas por tipo de acción
     if (["tweet", "reply"].includes(actionType) && !text.trim()) {
-      addToast({
-        title: "Error",
-        description: "El texto es requerido para tweets y respuestas",
-        color: "danger",
-      });
+      toast.error("El texto es requerido para tweets y respuestas");
       return;
     }
 
     if (["like", "retweet", "reply"].includes(actionType)) {
       const validatedTweetId = extractTweetId(tweetId);
       if (!validatedTweetId) {
-        addToast({
-          title: "Error",
-          description: "URL o ID de tweet inválido",
-          color: "danger",
-        });
+        toast.error("URL o ID de tweet inválido");
         return;
       }
     }
@@ -205,460 +190,377 @@ export default function SchedulePage() {
     if (["follow", "unfollow"].includes(actionType)) {
       const validatedUserId = extractAndValidateUserId(targetUserId);
       if (!validatedUserId) {
-        addToast({
-          title: "Error",
-          description: "Usuario inválido",
-          color: "danger",
-        });
+        toast.error("Usuario inválido");
         return;
       }
     }
 
-    setLoading(true);
+    setIsScheduling(true);
 
     try {
-      // Crear fecha y hora programada en zona horaria argentina
-      const argentineTimeZone = "America/Argentina/Buenos_Aires";
+      // Combinar fecha y hora
+      const scheduledDateTime = new Date(`${scheduledDate}T${scheduledTime}`);
 
-      // Crear fecha local en zona horaria argentina
-      const localDateTime = new Date(
-        scheduledDate.year,
-        scheduledDate.month - 1,
-        scheduledDate.day,
-        scheduledTime.hour,
-        scheduledTime.minute
-      );
+      const actionData = {
+        action: actionType,
+        accountIds: selectedAccounts,
+        text: text.trim() || undefined,
+        tweetId: extractTweetId(tweetId) || undefined,
+        targetUserId: extractAndValidateUserId(targetUserId) || undefined,
+        scheduledTime: scheduledDateTime.toISOString(),
+        baseDelay,
+        randomDelay,
+      };
 
-      // Convertir la fecha local argentina a UTC para el backend
-      const scheduledDateTime = fromZonedTime(localDateTime, argentineTimeZone);
-
-      // Verificar que la fecha sea futura (comparar en hora argentina)
-      const nowInArgentina = toZonedTime(new Date(), argentineTimeZone);
-      if (localDateTime <= nowInArgentina) {
-        addToast({
-          title: "Error",
-          description: "La fecha y hora debe ser futura (hora argentina)",
-          color: "danger",
-        });
-        return;
-      }
-
-      console.log(
-        "🇦🇷 Fecha programada (Argentina):",
-        formatInTimeZone(
-          scheduledDateTime,
-          argentineTimeZone,
-          "yyyy-MM-dd HH:mm:ss zzz"
-        )
-      );
-      console.log(
-        "🌍 Fecha programada (UTC):",
-        scheduledDateTime.toISOString()
-      );
-
-      const response = await fetch(
-        buildApiUrl(API_CONFIG.ENDPOINTS.QUEUE.ADD),
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            action: actionType,
-            accountIds: selectedAccounts,
-            text: text.trim() || undefined,
-            tweetId: extractTweetId(tweetId) || undefined,
-            targetUserId: extractAndValidateUserId(targetUserId) || undefined,
-            baseDelay: baseDelay * 1000,
-            randomDelay: randomDelay * 1000,
-            scheduledTime: scheduledDateTime.toISOString(),
-          }),
-        }
-      );
+      const response = await fetch("/api/schedule", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(actionData),
+      });
 
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Error al programar acción");
       }
 
-      const result = await response.json();
-
-      addToast({
-        title: "Acción Programada",
-        description: `${
-          result.actions.length
-        } acciones programadas para ${formatInTimeZone(
-          scheduledDateTime,
-          argentineTimeZone,
-          "dd/MM/yyyy 'a las' HH:mm 'hs (Argentina)'"
-        )}`,
-        color: "success",
-      });
-
-      // Limpiar formulario
-      setActionType("");
-      setSelectedAccounts([]);
-      setText("");
-      setTweetId("");
-      setTargetUserId("");
-      setScheduledDate(null);
-      setScheduledTime(null);
-      setBaseDelay(30);
-      setRandomDelay(60);
-
-      // Cerrar modal y refrescar datos
-      onScheduleOpenChange();
-      fetchScheduledActions();
-    } catch (error: any) {
-      console.error("Error programando acción:", error);
-      addToast({
-        title: "Error",
-        description: error.message || "Error al programar acción",
-        color: "danger",
-      });
+      toast.success("Acción programada exitosamente");
+      setIsDialogOpen(false);
+      resetForm();
+      await fetchScheduledActions();
+    } catch (err: any) {
+      toast.error(err.message || "Error al programar acción");
     } finally {
-      setLoading(false);
+      setIsScheduling(false);
     }
   };
 
   const cancelScheduledAction = async (actionId: string) => {
     try {
-      const response = await fetch(
-        buildApiUrl(API_CONFIG.ENDPOINTS.QUEUE.CANCEL(actionId)),
-        {
-          method: "DELETE",
-        }
-      );
+      const response = await fetch(`/api/schedule/${actionId}`, {
+        method: "DELETE",
+      });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Error al cancelar acción");
+        throw new Error("Error al cancelar acción");
       }
 
-      const result = await response.json();
-
-      addToast({
-        title: "Acción Cancelada",
-        description: `Acción ${result.canceledAction.action} para @${result.canceledAction.username} cancelada`,
-        color: "success",
-      });
-
-      // Refrescar datos
-      fetchScheduledActions();
-    } catch (error: any) {
-      console.error("Error cancelando acción:", error);
-      addToast({
-        title: "Error",
-        description: error.message || "Error al cancelar acción",
-        color: "danger",
-      });
+      toast.success("Acción cancelada");
+      await fetchScheduledActions();
+    } catch (err: any) {
+      toast.error(err.message || "Error al cancelar acción");
     }
   };
 
+  const resetForm = () => {
+    setActionType("");
+    setText("");
+    setTweetId("");
+    setTargetUserId("");
+    setScheduledDate("");
+    setScheduledTime("");
+    setSelectedAccounts([]);
+    setBaseDelay(30);
+    setRandomDelay(60);
+  };
+
   const getAccountName = (accountId: string) => {
-    const account = accounts.find((a) => a._id === accountId);
-    return account ? account.username : accountId;
+    const account = accounts.find((acc) => acc._id === accountId);
+    return account ? account.username : "Cuenta desconocida";
   };
 
   const formatScheduledTime = (timeString: string) => {
-    const argentineTimeZone = "America/Argentina/Buenos_Aires";
     try {
-      return formatInTimeZone(
-        new Date(timeString),
-        argentineTimeZone,
-        "dd/MM/yyyy HH:mm 'hs (Argentina)'"
-      );
-    } catch (error) {
-      return "Fecha inválida";
+      return new Date(timeString).toLocaleString();
+    } catch {
+      return timeString;
     }
   };
 
   const getActionIcon = (action: string) => {
     switch (action) {
       case "tweet":
-        return "📝";
+        return <MessageSquare className="h-4 w-4" />;
       case "reply":
-        return "💬";
+        return <MessageSquare className="h-4 w-4" />;
       case "like":
-        return "❤️";
+        return <Heart className="h-4 w-4" />;
       case "retweet":
-        return "🔄";
+        return <Repeat className="h-4 w-4" />;
       case "follow":
-        return "➕";
+        return <UserPlus className="h-4 w-4" />;
       case "unfollow":
-        return "➖";
+        return <UserMinus className="h-4 w-4" />;
       default:
-        return "📋";
+        return null;
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusVariant = (status: string) => {
     switch (status) {
       case "scheduled":
-        return "primary";
+        return "secondary";
       case "executing":
-        return "warning";
-      case "completed":
-        return "success";
-      case "error":
-        return "danger";
-      default:
         return "default";
+      case "completed":
+        return "default";
+      case "error":
+        return "destructive";
+      default:
+        return "secondary";
     }
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold">📅 Programar Acciones</h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Programa acciones de Twitter para ejecutar en fechas y horas
-            específicas
+          <h1 className="text-3xl font-bold">Programador de Acciones</h1>
+          <p className="text-muted-foreground mt-2">
+            Programa tweets, likes, retweets y más
           </p>
         </div>
-        <Button
-          color="primary"
-          onPress={onScheduleOpen}
-          size="lg"
-          startContent="⏰"
-        >
-          Nueva Acción Programada
-        </Button>
+
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Nueva Acción
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Programar Nueva Acción</DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-6">
+              {/* Tipo de acción */}
+              <div className="space-y-2">
+                <Label>Tipo de Acción</Label>
+                <Select value={actionType} onValueChange={setActionType}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecciona una acción" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="tweet">Publicar Tweet</SelectItem>
+                    <SelectItem value="reply">Responder Tweet</SelectItem>
+                    <SelectItem value="like">Dar Like</SelectItem>
+                    <SelectItem value="retweet">Hacer Retweet</SelectItem>
+                    <SelectItem value="follow">Seguir Usuario</SelectItem>
+                    <SelectItem value="unfollow">Dejar de Seguir</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Selección de cuentas */}
+              <div className="space-y-2">
+                <Label>Cuentas</Label>
+                <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto border rounded-lg p-2">
+                  {accounts.map((account) => (
+                    <label
+                      key={account._id}
+                      className="flex items-center space-x-2"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedAccounts.includes(account._id)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedAccounts([
+                              ...selectedAccounts,
+                              account._id,
+                            ]);
+                          } else {
+                            setSelectedAccounts(
+                              selectedAccounts.filter(
+                                (id) => id !== account._id
+                              )
+                            );
+                          }
+                        }}
+                        className="rounded"
+                      />
+                      <span className="text-sm">@{account.username}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Texto (para tweets y respuestas) */}
+              {["tweet", "reply"].includes(actionType) && (
+                <div className="space-y-2">
+                  <Label>Texto</Label>
+                  <Textarea
+                    placeholder="Escribe tu mensaje..."
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    rows={4}
+                  />
+                </div>
+              )}
+
+              {/* Tweet ID (para likes, retweets, respuestas) */}
+              {["like", "retweet", "reply"].includes(actionType) && (
+                <div className="space-y-2">
+                  <Label>URL o ID del Tweet</Label>
+                  <Input
+                    placeholder="https://twitter.com/usuario/status/123... o solo el ID"
+                    value={tweetId}
+                    onChange={(e) => setTweetId(e.target.value)}
+                  />
+                </div>
+              )}
+
+              {/* Usuario (para follow/unfollow) */}
+              {["follow", "unfollow"].includes(actionType) && (
+                <div className="space-y-2">
+                  <Label>Usuario</Label>
+                  <Input
+                    placeholder="@usuario, ID numérico o URL de perfil"
+                    value={targetUserId}
+                    onChange={(e) => setTargetUserId(e.target.value)}
+                  />
+                </div>
+              )}
+
+              {/* Fecha y hora */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Fecha</Label>
+                  <Input
+                    type="date"
+                    value={scheduledDate}
+                    onChange={(e) => setScheduledDate(e.target.value)}
+                    min={new Date().toISOString().split("T")[0]}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Hora</Label>
+                  <Input
+                    type="time"
+                    value={scheduledTime}
+                    onChange={(e) => setScheduledTime(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {/* Delays */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Delay Base (segundos)</Label>
+                  <Input
+                    type="number"
+                    value={baseDelay}
+                    onChange={(e) =>
+                      setBaseDelay(parseInt(e.target.value) || 0)
+                    }
+                    min="0"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Delay Aleatorio (segundos)</Label>
+                  <Input
+                    type="number"
+                    value={randomDelay}
+                    onChange={(e) =>
+                      setRandomDelay(parseInt(e.target.value) || 0)
+                    }
+                    min="0"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsDialogOpen(false)}
+                >
+                  Cancelar
+                </Button>
+                <Button onClick={scheduleAction} disabled={isScheduling}>
+                  {isScheduling ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Programando...
+                    </>
+                  ) : (
+                    "Programar Acción"
+                  )}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Lista de acciones programadas */}
       <Card>
         <CardHeader>
-          <h2 className="text-xl font-semibold">🗓️ Acciones Programadas</h2>
+          <CardTitle>
+            Acciones Programadas ({scheduledActions.length})
+          </CardTitle>
         </CardHeader>
-        <CardBody>
+        <CardContent>
           {scheduledActions.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              <p>No hay acciones programadas</p>
-              <p className="text-sm">
-                Haz clic en "Nueva Acción Programada" para comenzar
-              </p>
+            <div className="text-center py-8 text-muted-foreground">
+              No hay acciones programadas
             </div>
           ) : (
-            <div className="space-y-4">
-              {scheduledActions.map((action) => (
-                <div
-                  key={action.id}
-                  className="p-4 border rounded-lg bg-gray-50 dark:bg-gray-800"
-                >
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-lg">
-                          {getActionIcon(action.action)}
-                        </span>
-                        <span className="font-medium capitalize">
-                          {action.action}
-                        </span>
-                        <Chip
-                          color={getStatusColor(action.status)}
-                          size="sm"
-                          variant="flat"
-                        >
-                          {action.status}
-                        </Chip>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Acción</TableHead>
+                  <TableHead>Cuentas</TableHead>
+                  <TableHead>Programado para</TableHead>
+                  <TableHead>Estado</TableHead>
+                  <TableHead>Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {scheduledActions.map((action) => (
+                  <TableRow key={action.id}>
+                    <TableCell>
+                      <div className="flex items-center space-x-2">
+                        {getActionIcon(action.action)}
+                        <span className="capitalize">{action.action}</span>
                       </div>
-
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                        📅 {formatScheduledTime(action.scheduledTime)}
-                      </p>
-
-                      {action.text && (
-                        <p className="text-sm mb-2 p-2 bg-white dark:bg-gray-700 rounded">
-                          "{action.text}"
-                        </p>
-                      )}
-
-                      <div className="flex flex-wrap gap-1 mb-2">
-                        {(action.accountIds || []).map((accountId) => (
-                          <Chip key={accountId} size="sm" variant="bordered">
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1">
+                        {action.accountIds.map((accountId) => (
+                          <Badge key={accountId} variant="outline">
                             @{getAccountName(accountId)}
-                          </Chip>
+                          </Badge>
                         ))}
                       </div>
-
-                      <p className="text-xs text-gray-500">
-                        Delay: {action.baseDelay / 1000}s base +{" "}
-                        {action.randomDelay / 1000}s aleatorio
-                      </p>
-                    </div>
-
-                    {action.status === "scheduled" && (
-                      <Button
-                        color="danger"
-                        variant="light"
-                        size="sm"
-                        onPress={() => cancelScheduledAction(action.id)}
-                      >
-                        Cancelar
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
+                    </TableCell>
+                    <TableCell>
+                      {formatScheduledTime(action.scheduledTime)}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={getStatusVariant(action.status)}>
+                        {action.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {action.status === "scheduled" && (
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => cancelScheduledAction(action.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           )}
-        </CardBody>
+        </CardContent>
       </Card>
-
-      {/* Modal para nueva acción programada */}
-      <Modal
-        isOpen={isScheduleOpen}
-        onOpenChange={onScheduleOpenChange}
-        size="2xl"
-      >
-        <ModalContent>
-          {(onClose: () => void) => (
-            <>
-              <ModalHeader>
-                <h3 className="text-lg font-semibold">
-                  📅 Programar Nueva Acción
-                </h3>
-              </ModalHeader>
-              <ModalBody className="space-y-4">
-                <Select
-                  label="Tipo de Acción"
-                  placeholder="Selecciona el tipo de acción"
-                  selectedKeys={actionType ? [actionType] : []}
-                  onSelectionChange={(keys: any) =>
-                    setActionType(Array.from(keys)[0] as any)
-                  }
-                >
-                  <SelectItem key="tweet">📝 Tweet</SelectItem>
-                  <SelectItem key="reply">💬 Respuesta</SelectItem>
-                  <SelectItem key="like">❤️ Like</SelectItem>
-                  <SelectItem key="retweet">🔄 Retweet</SelectItem>
-                  <SelectItem key="follow">👥 Seguir</SelectItem>
-                  <SelectItem key="unfollow">👥❌ Dejar de seguir</SelectItem>
-                </Select>
-
-                {/* Campos específicos por tipo de acción */}
-                {["tweet", "reply"].includes(actionType) && (
-                  <Textarea
-                    label="Texto"
-                    placeholder="Escribe el contenido..."
-                    value={text}
-                    onValueChange={setText}
-                    maxRows={4}
-                    maxLength={280}
-                    description={`${text.length}/280 caracteres`}
-                  />
-                )}
-
-                {["like", "retweet", "reply"].includes(actionType) && (
-                  <Input
-                    label="URL o ID del Tweet"
-                    placeholder="https://x.com/usuario/status/123456789 o 123456789"
-                    value={tweetId}
-                    onValueChange={setTweetId}
-                    description="URL completa del tweet o solo el ID numérico"
-                  />
-                )}
-
-                {["follow", "unfollow"].includes(actionType) && (
-                  <Input
-                    label="Usuario a seguir/dejar de seguir"
-                    placeholder="@usuario, https://x.com/usuario o ID numérico"
-                    value={targetUserId}
-                    onValueChange={setTargetUserId}
-                    description="Username, URL del perfil o ID numérico del usuario"
-                  />
-                )}
-
-                {/* Selector de cuentas */}
-                <div>
-                  <AccountSelector
-                    accounts={accounts}
-                    selectedAccounts={selectedAccounts}
-                    onSelectionChange={setSelectedAccounts}
-                    title="Cuentas para ejecutar la acción"
-                  />
-                </div>
-
-                {/* Fecha y hora */}
-                <div className="grid grid-cols-2 gap-4">
-                  <DatePicker
-                    label="Fecha"
-                    value={scheduledDate}
-                    onChange={setScheduledDate}
-                    minValue={
-                      new CalendarDate(
-                        new Date().getFullYear(),
-                        new Date().getMonth() + 1,
-                        new Date().getDate()
-                      )
-                    }
-                  />
-                  <TimeInput
-                    label="Hora"
-                    value={scheduledTime}
-                    onChange={setScheduledTime}
-                  />
-                </div>
-
-                {/* Configuración de delays */}
-                <div className="grid grid-cols-2 gap-4">
-                  <Input
-                    type="number"
-                    label="Delay Base (segundos)"
-                    value={baseDelay.toString()}
-                    onValueChange={(value: any) =>
-                      setBaseDelay(parseInt(value) || 30)
-                    }
-                    min="1"
-                    max="3600"
-                  />
-                  <Input
-                    type="number"
-                    label="Delay Aleatorio (segundos)"
-                    value={randomDelay.toString()}
-                    onValueChange={(value: any) =>
-                      setRandomDelay(parseInt(value) || 60)
-                    }
-                    min="0"
-                    max="3600"
-                  />
-                </div>
-
-                <div className="text-sm text-gray-600">
-                  <p>
-                    <strong>Delay Total:</strong> {baseDelay} + 0-{randomDelay}{" "}
-                    segundos
-                  </p>
-                  <p>
-                    <strong>Rango:</strong> {baseDelay} -{" "}
-                    {baseDelay + randomDelay} segundos entre acciones
-                  </p>
-                </div>
-              </ModalBody>
-              <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
-                  Cancelar
-                </Button>
-                <Button
-                  color="primary"
-                  onPress={scheduleAction}
-                  isLoading={loading}
-                  disabled={
-                    !actionType ||
-                    selectedAccounts.length === 0 ||
-                    !scheduledDate ||
-                    !scheduledTime
-                  }
-                >
-                  {loading ? "Programando..." : "Programar Acción"}
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
     </div>
   );
 }

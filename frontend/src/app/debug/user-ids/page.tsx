@@ -1,207 +1,124 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardHeader, CardBody, Chip, Button } from "@heroui/react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Loader2, AlertTriangle } from "lucide-react";
 
-interface Account {
-  _id: string;
+interface UserIdInfo {
+  account: string;
+  userId: string;
   username: string;
-  userId?: string;
-  labels?: string[];
+  verificationStatus: string;
 }
 
-export default function UserIdsDebugPage() {
-  const [accounts, setAccounts] = useState<Account[]>([]);
+export default function DebugUserIdsPage() {
+  const [userIds, setUserIds] = useState<UserIdInfo[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    fetchAccounts();
+    fetchUserIds();
   }, []);
 
-  const fetchAccounts = async () => {
+  const fetchUserIds = async () => {
     try {
-      const response = await fetch("/api/accounts");
-      if (!response.ok) throw new Error("Error al cargar cuentas");
+      setLoading(true);
+      const response = await fetch("/api/debug/user-ids");
+      if (!response.ok) {
+        throw new Error("Error al cargar user IDs");
+      }
       const data = await response.json();
-      setAccounts(data);
-    } catch (err) {
-      console.error("Error:", err);
+      setUserIds(data.userIds || []);
+    } catch (err: any) {
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const accountsWithUserId = accounts.filter((acc) => acc.userId);
-  const accountsWithoutUserId = accounts.filter((acc) => !acc.userId);
-
   if (loading) {
     return (
-      <div className="max-w-4xl mx-auto p-6">
-        <Card>
-          <CardBody>
-            <p>Cargando cuentas...</p>
-          </CardBody>
-        </Card>
+      <div className="flex justify-center items-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
-      {/* Header */}
-      <Card>
-        <CardHeader>
-          <div>
-            <h1 className="text-2xl font-bold">Debug: User IDs</h1>
-            <p className="text-gray-600 dark:text-gray-400">
-              Verificación de userIds configurados en las cuentas
-            </p>
-          </div>
-        </CardHeader>
-        <CardBody>
-          <div className="flex gap-4">
-            <Chip color="success" variant="flat">
-              {accountsWithUserId.length} con userId
-            </Chip>
-            <Chip color="danger" variant="flat">
-              {accountsWithoutUserId.length} sin userId
-            </Chip>
-            <Chip color="primary" variant="flat">
-              {accounts.length} total
-            </Chip>
-          </div>
-        </CardBody>
-      </Card>
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold">Debug User IDs</h1>
+        <p className="text-muted-foreground mt-2">
+          Información de User IDs de todas las cuentas
+        </p>
+      </div>
 
-      {/* Cuentas con userId */}
-      {accountsWithUserId.length > 0 && (
-        <Card>
-          <CardHeader>
-            <h2 className="text-lg font-semibold text-green-600">
-              ✅ Cuentas con userId ({accountsWithUserId.length})
-            </h2>
-          </CardHeader>
-          <CardBody>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {accountsWithUserId.map((account) => (
-                <div
-                  key={account._id}
-                  className="p-3 border border-green-200 dark:border-green-800 rounded-lg bg-green-50 dark:bg-green-950"
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="font-medium">@{account.username}</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        ID: {account.userId}
-                      </p>
-                    </div>
-                    <Chip size="sm" color="success" variant="flat">
-                      ✓ Listo
-                    </Chip>
-                  </div>
-                  {account.labels && account.labels.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {account.labels.map((label) => (
-                        <Chip
-                          key={label}
-                          size="sm"
-                          variant="flat"
-                          color="secondary"
-                        >
-                          {label}
-                        </Chip>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </CardBody>
-        </Card>
+      {error && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       )}
 
-      {/* Cuentas sin userId */}
-      {accountsWithoutUserId.length > 0 && (
-        <Card>
-          <CardHeader>
-            <h2 className="text-lg font-semibold text-red-600">
-              ❌ Cuentas sin userId ({accountsWithoutUserId.length})
-            </h2>
-            <p className="text-sm text-red-500">
-              Estas cuentas no pueden usar las funciones de like y retweet
-            </p>
-          </CardHeader>
-          <CardBody>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {accountsWithoutUserId.map((account) => (
-                <div
-                  key={account._id}
-                  className="p-3 border border-red-200 dark:border-red-800 rounded-lg bg-red-50 dark:bg-red-950"
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="font-medium">@{account.username}</p>
-                      <p className="text-sm text-red-600 dark:text-red-400">
-                        No userId configurado
-                      </p>
-                    </div>
-                    <Chip size="sm" color="danger" variant="flat">
-                      ⚠ Sin ID
-                    </Chip>
-                  </div>
-                  {account.labels && account.labels.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {account.labels.map((label) => (
-                        <Chip
-                          key={label}
-                          size="sm"
-                          variant="flat"
-                          color="secondary"
-                        >
-                          {label}
-                        </Chip>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </CardBody>
-        </Card>
-      )}
-
-      {/* Instrucciones para solucionar */}
-      {accountsWithoutUserId.length > 0 && (
-        <Card>
-          <CardHeader>
-            <h3 className="text-lg font-semibold">🔧 Cómo solucionarlo</h3>
-          </CardHeader>
-          <CardBody>
-            <div className="space-y-4">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Para que las cuentas sin userId puedan usar likes y retweets,
-                necesitas:
+      <div className="grid gap-4">
+        {userIds.length === 0 ? (
+          <Card>
+            <CardContent className="text-center py-12">
+              <p className="text-muted-foreground">
+                No hay User IDs para mostrar
               </p>
-              <ol className="list-decimal list-inside space-y-2 text-sm">
-                <li>
-                  Obtener el userId de cada cuenta desde la API de Twitter
-                </li>
-                <li>Actualizar la base de datos con estos IDs</li>
-                <li>El userId es diferente al username - es un número único</li>
-              </ol>
-              <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950 rounded-lg">
-                <p className="text-sm text-blue-800 dark:text-blue-200">
-                  💡 <strong>Tip:</strong> Puedes obtener el userId usando la
-                  API de Twitter:
-                  <code className="ml-1 px-1 bg-blue-100 dark:bg-blue-900 rounded">
-                    GET /2/users/by/username/:username
-                  </code>
-                </p>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
-      )}
+            </CardContent>
+          </Card>
+        ) : (
+          userIds.map((info, index) => (
+            <Card key={index}>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle>@{info.username}</CardTitle>
+                  <Badge
+                    variant={
+                      info.verificationStatus === "verified"
+                        ? "default"
+                        : "secondary"
+                    }
+                  >
+                    {info.verificationStatus}
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Account ID
+                    </p>
+                    <p className="font-mono text-sm">{info.account}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      User ID
+                    </p>
+                    <p className="font-mono text-sm">{info.userId}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Username
+                    </p>
+                    <p className="font-mono text-sm">@{info.username}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        )}
+      </div>
+
+      <div className="flex justify-center mt-8">
+        <Button onClick={fetchUserIds}>Actualizar</Button>
+      </div>
     </div>
   );
 }
