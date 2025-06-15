@@ -8,9 +8,24 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -19,6 +34,37 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  Send,
+  Loader2,
+  Users,
+  Heart,
+  Repeat,
+  UserPlus,
+  UserMinus,
+  Settings,
+  Filter,
+  ChevronDown,
+  Plus,
+  X,
+  List,
+  Grid,
+  Edit,
+  Calendar as CalendarIcon,
+  CalendarDays,
+  Trash2,
+  Check,
+  CheckCircle,
+  Clock,
+  AlertCircle,
+  Activity,
+  Zap,
+  Search,
+} from "lucide-react";
+import { toast } from "sonner";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import { API_CONFIG, buildApiUrl } from "@/config/api";
+import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
@@ -26,44 +72,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import {
-  Loader2,
-  Send,
-  Heart,
-  Repeat,
-  UserPlus,
-  UserMinus,
-  Zap,
-  Activity,
-  Clock,
-  CheckCircle,
-  AlertCircle,
-  Users,
-  Search,
-  Filter,
-  X,
-  Plus,
-  Minus,
-  ChevronDown,
-  Check,
-  List,
-  Grid,
-  Settings,
-} from "lucide-react";
-import { toast } from "sonner";
 
 interface Account {
   _id: string;
@@ -147,11 +155,25 @@ export default function TweetsPage() {
   const [batchTweets, setBatchTweets] = useState<BatchTweet[]>([]);
   const [batchTweetText, setBatchTweetText] = useState("");
 
+  // Nuevo estado para el dialog de asignación
+  const [assignmentDialogOpen, setAssignmentDialogOpen] = useState(false);
+  const [selectedTweetForAssignment, setSelectedTweetForAssignment] = useState<
+    string | null
+  >(null);
+
   // Estados para vista
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
+  // Estados para programación
+  const [isScheduled, setIsScheduled] = useState(false);
+  const [scheduledDate, setScheduledDate] = useState("");
+  const [scheduledTime, setScheduledTime] = useState("");
+  const [scheduledActions, setScheduledActions] = useState<any[]>([]);
+  const [showScheduledActions, setShowScheduledActions] = useState(false);
+
   useEffect(() => {
     fetchAccounts();
+    fetchScheduledActions();
     // Animación de entrada
     setTimeout(() => setIsVisible(true), 100);
   }, []);
@@ -164,6 +186,122 @@ export default function TweetsPage() {
       setAccounts(data);
     } catch (err) {
       toast.error("Error al cargar las cuentas");
+    }
+  };
+
+  const fetchScheduledActions = async () => {
+    try {
+      const response = await fetch(
+        buildApiUrl(API_CONFIG.ENDPOINTS.QUEUE.STATUS)
+      );
+      if (!response.ok) throw new Error("Error al cargar acciones programadas");
+      const data = await response.json();
+
+      // Extraer acciones programadas del backend
+      // El backend devuelve las acciones programadas en scheduledActions
+      const scheduled = data.scheduledActions || [];
+      setScheduledActions(scheduled);
+    } catch (err) {
+      console.error("Error al cargar acciones programadas:", err);
+    }
+  };
+
+  const scheduleAction = async (actionType: string, actionData: any) => {
+    if (!scheduledDate || !scheduledTime) {
+      toast.error("Selecciona fecha y hora para programar");
+      return false;
+    }
+
+    try {
+      // Crear fecha local manteniendo la hora exacta que el usuario seleccionó
+      const localDateTime = new Date(`${scheduledDate}T${scheduledTime}:00`);
+
+      // Para Argentina, consideramos un margen más amplio para fechas "futuras"
+      const now = new Date();
+      const argentinaOffset = -3 * 60; // Argentina UTC-3 en minutos
+      const nowInArgentina = new Date(now.getTime() + argentinaOffset * 60000);
+
+      // Verificar que la fecha sea al menos 1 minuto en el futuro
+      const minimumTime = new Date(nowInArgentina.getTime() + 1 * 60000); // +1 minuto
+
+      if (localDateTime < minimumTime) {
+        toast.error(
+          "La fecha programada debe ser al menos 1 minuto en el futuro"
+        );
+        return false;
+      }
+
+      console.log("🕒 Fechas de programación:", {
+        inputDate: scheduledDate,
+        inputTime: scheduledTime,
+        localDateTime: localDateTime.toString(),
+        localISOString: localDateTime.toISOString(),
+        nowInArgentina: nowInArgentina.toString(),
+        minimumTime: minimumTime.toString(),
+        userTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      });
+
+      const scheduleData = {
+        action: actionType,
+        accountIds: selectedAccounts,
+        scheduledTime: localDateTime.toISOString(),
+        baseDelay: baseDelay * 1000,
+        randomDelay: randomDelay * 1000,
+        ...actionData,
+      };
+
+      // Usar la ruta del backend que ya existe
+      const response = await fetch(
+        buildApiUrl(API_CONFIG.ENDPOINTS.QUEUE.ADD),
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(scheduleData),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Error al programar acción");
+      }
+
+      const result = await response.json();
+      toast.success(
+        `Acción programada exitosamente para ${localDateTime.toLocaleString(
+          "es-ES"
+        )}`
+      );
+      await fetchScheduledActions();
+      return true;
+    } catch (err: any) {
+      console.error("Error al programar acción:", err);
+      toast.error(err.message || "Error al programar acción");
+      return false;
+    }
+  };
+
+  const cancelScheduledAction = async (actionId: string) => {
+    try {
+      const response = await fetch(
+        buildApiUrl(API_CONFIG.ENDPOINTS.QUEUE.CANCEL(actionId)),
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Error al cancelar acción");
+      }
+
+      const result = await response.json();
+      toast.success("Acción cancelada exitosamente");
+      await fetchScheduledActions();
+    } catch (err: any) {
+      console.error("Error al cancelar acción:", err);
+      toast.error(err.message || "Error al cancelar acción");
     }
   };
 
@@ -352,6 +490,28 @@ export default function TweetsPage() {
     return finalResult;
   });
 
+  // Función para obtener todas las cuentas que ya tienen tweets asignados
+  const getAccountsWithAssignments = () => {
+    const accountsWithAssignments = new Map<string, number>();
+
+    batchTweets.forEach((tweet) => {
+      tweet.assignedAccounts.forEach((accountId) => {
+        accountsWithAssignments.set(
+          accountId,
+          (accountsWithAssignments.get(accountId) || 0) + 1
+        );
+      });
+    });
+
+    return accountsWithAssignments;
+  };
+
+  // Función para abrir el dialog de asignación
+  const openAssignmentDialog = (tweetId: string) => {
+    setSelectedTweetForAssignment(tweetId);
+    setAssignmentDialogOpen(true);
+  };
+
   // Función para agregar tweets en lote
   const handleBatchTweetAdd = () => {
     if (!batchTweetText.trim()) return;
@@ -380,6 +540,88 @@ export default function TweetsPage() {
           : tweet
       )
     );
+  };
+
+  // Función para shuffle de array nativo (sin dependencias externas)
+  const shuffleArray = (array: any[]): any[] => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
+
+  // Función para auto-asignar tweets a cuentas filtradas aleatoriamente (1:1, sin repetir cuentas)
+  const handleAutoAssignTweets = () => {
+    if (batchTweets.length === 0) {
+      toast.error("No hay tweets en el lote para asignar");
+      return;
+    }
+
+    if (filteredAccounts.length === 0) {
+      toast.error("No hay cuentas filtradas disponibles");
+      return;
+    }
+
+    // Crear una copia de los tweets para modificar
+    const updatedTweets = [...batchTweets];
+
+    // Primero: limpiar todas las asignaciones existentes
+    updatedTweets.forEach((tweet, index) => {
+      updatedTweets[index] = {
+        ...tweet,
+        assignedAccounts: [],
+      };
+    });
+
+    // Mezclar ALEATORIAMENTE tanto los tweets como las cuentas
+    const shuffledTweets = shuffleArray([...updatedTweets]);
+    const shuffledAccounts = shuffleArray([...filteredAccounts]);
+
+    // Determinar cuántos tweets se pueden asignar (máximo = número de cuentas)
+    const maxAssignments = Math.min(
+      shuffledTweets.length,
+      shuffledAccounts.length
+    );
+
+    // Asignar solo la cantidad que se pueda sin repetir cuentas
+    for (let i = 0; i < maxAssignments; i++) {
+      const tweetToAssign = shuffledTweets[i];
+      const accountToAssign = shuffledAccounts[i];
+
+      // Encontrar el índice original del tweet en el array principal
+      const originalIndex = updatedTweets.findIndex(
+        (t) => t.id === tweetToAssign.id
+      );
+
+      // Asignar UNA cuenta al tweet seleccionado aleatoriamente
+      updatedTweets[originalIndex] = {
+        ...tweetToAssign,
+        assignedAccounts: [accountToAssign._id],
+      };
+    }
+
+    setBatchTweets(updatedTweets);
+
+    // Estadísticas precisas
+    const totalAssigned = maxAssignments;
+    const unassignedTweets = updatedTweets.length - totalAssigned;
+    const unassignedAccounts = filteredAccounts.length - totalAssigned;
+
+    let message = `🎲 Auto-asignación ALEATORIA 1:1 completada: ${totalAssigned} tweets asignados`;
+
+    if (unassignedTweets > 0) {
+      message += `, ${unassignedTweets} tweets sin asignar`;
+    }
+
+    if (unassignedAccounts > 0) {
+      message += `, ${unassignedAccounts} cuentas sin usar`;
+    }
+
+    message += ` (sin repetir cuentas)`;
+
+    toast.success(message);
   };
 
   // Función para ejecutar tweets en lote
@@ -577,15 +819,26 @@ export default function TweetsPage() {
     }
   };
 
-  const handleTweet = () => {
+  const handleTweet = async () => {
     if (!tweetText.trim()) {
       toast.error("El texto del tweet es obligatorio");
       return;
     }
-    executeAction("tweet", { text: tweetText });
+
+    if (isScheduled) {
+      const success = await scheduleAction("tweet", { text: tweetText });
+      if (success) {
+        setTweetText("");
+        setIsScheduled(false);
+        setScheduledDate("");
+        setScheduledTime("");
+      }
+    } else {
+      executeAction("tweet", { text: tweetText });
+    }
   };
 
-  const handleReply = () => {
+  const handleReply = async () => {
     if (!replyText.trim()) {
       toast.error("El texto de la respuesta es obligatorio");
       return;
@@ -601,10 +854,24 @@ export default function TweetsPage() {
       return;
     }
 
-    executeAction("reply", { text: replyText, tweetId });
+    if (isScheduled) {
+      const success = await scheduleAction("reply", {
+        text: replyText,
+        tweetId,
+      });
+      if (success) {
+        setReplyText("");
+        setReplyTweetUrl("");
+        setIsScheduled(false);
+        setScheduledDate("");
+        setScheduledTime("");
+      }
+    } else {
+      executeAction("reply", { text: replyText, tweetId });
+    }
   };
 
-  const handleLike = () => {
+  const handleLike = async () => {
     if (!likeTweetUrl.trim()) {
       toast.error("La URL del tweet es obligatoria");
       return;
@@ -616,10 +883,20 @@ export default function TweetsPage() {
       return;
     }
 
-    executeAction("like", { tweetId });
+    if (isScheduled) {
+      const success = await scheduleAction("like", { tweetId });
+      if (success) {
+        setLikeTweetUrl("");
+        setIsScheduled(false);
+        setScheduledDate("");
+        setScheduledTime("");
+      }
+    } else {
+      executeAction("like", { tweetId });
+    }
   };
 
-  const handleRetweet = () => {
+  const handleRetweet = async () => {
     if (!retweetUrl.trim()) {
       toast.error("La URL del tweet es obligatoria");
       return;
@@ -631,23 +908,59 @@ export default function TweetsPage() {
       return;
     }
 
-    executeAction("retweet", { tweetId });
+    if (isScheduled) {
+      const success = await scheduleAction("retweet", { tweetId });
+      if (success) {
+        setRetweetUrl("");
+        setIsScheduled(false);
+        setScheduledDate("");
+        setScheduledTime("");
+      }
+    } else {
+      executeAction("retweet", { tweetId });
+    }
   };
 
-  const handleFollow = () => {
+  const handleFollow = async () => {
     if (!followUser.trim()) {
       toast.error("El usuario es obligatorio");
       return;
     }
-    executeAction("follow", { targetUserId: followUser });
+
+    if (isScheduled) {
+      const success = await scheduleAction("follow", {
+        targetUserId: followUser,
+      });
+      if (success) {
+        setFollowUser("");
+        setIsScheduled(false);
+        setScheduledDate("");
+        setScheduledTime("");
+      }
+    } else {
+      executeAction("follow", { targetUserId: followUser });
+    }
   };
 
-  const handleUnfollow = () => {
+  const handleUnfollow = async () => {
     if (!unfollowUser.trim()) {
       toast.error("El usuario es obligatorio");
       return;
     }
-    executeAction("unfollow", { targetUserId: unfollowUser });
+
+    if (isScheduled) {
+      const success = await scheduleAction("unfollow", {
+        targetUserId: unfollowUser,
+      });
+      if (success) {
+        setUnfollowUser("");
+        setIsScheduled(false);
+        setScheduledDate("");
+        setScheduledTime("");
+      }
+    } else {
+      executeAction("unfollow", { targetUserId: unfollowUser });
+    }
   };
 
   const selectAllAccounts = () => {
@@ -685,6 +998,143 @@ export default function TweetsPage() {
     setSearchQuery("");
   };
 
+  // Componente para el control de programación
+  const ScheduleControl = () => (
+    <div className="border-t mt-4 pt-4 space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Switch
+            checked={isScheduled}
+            onCheckedChange={setIsScheduled}
+            id="schedule-toggle"
+          />
+          <Label htmlFor="schedule-toggle" className="text-sm font-medium">
+            Programar para más tarde
+          </Label>
+        </div>
+        {scheduledActions.length > 0 && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowScheduledActions(!showScheduledActions)}
+            className="text-xs"
+          >
+            <CalendarIcon className="h-4 w-4 mr-1" />
+            Ver programadas ({scheduledActions.length})
+          </Button>
+        )}
+      </div>
+
+      {isScheduled && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-800/50 dark:to-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700 animate-slide-up">
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Fecha
+            </Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal border-gray-300 focus:border-blue-500",
+                    !scheduledDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {scheduledDate ? (
+                    format(new Date(scheduledDate), "PPP")
+                  ) : (
+                    <span>Seleccionar fecha</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={scheduledDate ? new Date(scheduledDate) : undefined}
+                  onSelect={(date) => {
+                    if (date) {
+                      setScheduledDate(format(date, "yyyy-MM-dd"));
+                    }
+                  }}
+                  disabled={(date) => {
+                    // Para Argentina (UTC-3), consideramos la fecha local
+                    const today = new Date();
+                    // Restamos 1 día para permitir seleccionar "hoy"
+                    const yesterday = new Date(today);
+                    yesterday.setDate(today.getDate() - 1);
+                    return date < yesterday || date < new Date("1900-01-01");
+                  }}
+                  captionLayout="dropdown"
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Hora
+            </Label>
+            <div className="flex gap-2">
+              <Select
+                value={scheduledTime.split(":")[0] || ""}
+                onValueChange={(hour) => {
+                  const currentMinute = scheduledTime.split(":")[1] || "00";
+                  setScheduledTime(`${hour}:${currentMinute}`);
+                }}
+              >
+                <SelectTrigger className="flex-1">
+                  <SelectValue placeholder="Hora" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from({ length: 24 }, (_, i) => (
+                    <SelectItem key={i} value={i.toString().padStart(2, "0")}>
+                      {i.toString().padStart(2, "0")}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select
+                value={scheduledTime.split(":")[1] || ""}
+                onValueChange={(minute) => {
+                  const currentHour = scheduledTime.split(":")[0] || "00";
+                  setScheduledTime(`${currentHour}:${minute}`);
+                }}
+              >
+                <SelectTrigger className="flex-1">
+                  <SelectValue placeholder="Min" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from({ length: 60 }, (_, i) => (
+                    <SelectItem key={i} value={i.toString().padStart(2, "0")}>
+                      {i.toString().padStart(2, "0")}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          {scheduledDate && scheduledTime && (
+            <div className="flex items-center justify-center text-sm text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
+              <Clock className="h-4 w-4 mr-2" />
+              <div className="text-center">
+                <div className="font-medium">Se ejecutará:</div>
+                <div className="text-xs">
+                  {new Date(`${scheduledDate}T${scheduledTime}`).toLocaleString(
+                    "es-ES",
+                    {
+                      dateStyle: "short",
+                      timeStyle: "short",
+                    }
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <div
       className={`max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 transition-all duration-1000 ${
@@ -694,10 +1144,10 @@ export default function TweetsPage() {
       {/* Hero Section */}
       <div className="mb-12 text-center">
         <div className="inline-flex items-center gap-3 mb-6 animate-pulse">
-          <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-3 rounded-full">
+          <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-3 rounded-full">
             <Zap className="h-8 w-8 text-white" />
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
             Panel de Acciones de Twitter
           </h1>
         </div>
@@ -1227,17 +1677,24 @@ export default function TweetsPage() {
                       </div>
                       <Button
                         onClick={handleTweet}
-                        disabled={loading || !tweetText.trim()}
+                        disabled={
+                          loading ||
+                          !tweetText.trim() ||
+                          (isScheduled && (!scheduledDate || !scheduledTime))
+                        }
                         className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {loading ? (
                           <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        ) : isScheduled ? (
+                          <CalendarIcon className="h-4 w-4 mr-2" />
                         ) : (
                           <Send className="h-4 w-4 mr-2" />
                         )}
-                        Publicar Tweet
+                        {isScheduled ? "Programar Tweet" : "Publicar Tweet"}
                       </Button>
                     </div>
+                    <ScheduleControl />
                   </div>
                 </div>
               </TabsContent>
@@ -1252,7 +1709,7 @@ export default function TweetsPage() {
                           Tweets en Lote
                         </Label>
                       </div>
-                      <Badge variant="outline" className="text-purple-700">
+                      <Badge variant="outline" className="text-purple-400">
                         {batchTweets.length} tweets preparados
                       </Badge>
                     </div>
@@ -1285,7 +1742,7 @@ Cada línea será un tweet separado`}
                           onClick={handleBatchTweetAdd}
                           disabled={!batchTweetText.trim()}
                           size="sm"
-                          className="bg-purple-600 hover:bg-purple-700"
+                          className="bg-purple-600 hover:bg-purple-700 text-white cursor-pointer"
                         >
                           <Plus className="h-4 w-4 mr-1" />
                           Agregar al Lote
@@ -1300,18 +1757,33 @@ Cada línea será un tweet separado`}
                           <Label className="text-sm font-medium">
                             Tweets en el lote
                           </Label>
-                          <Button
-                            onClick={() => setBatchTweets([])}
-                            variant="ghost"
-                            size="sm"
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <X className="h-4 w-4 mr-1" />
-                            Limpiar lote
-                          </Button>
+                          <div className="flex gap-2">
+                            <Button
+                              onClick={handleAutoAssignTweets}
+                              variant="default"
+                              size="sm"
+                              disabled={
+                                batchTweets.length === 0 ||
+                                filteredAccounts.length === 0
+                              }
+                              className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+                            >
+                              <Zap className="h-4 w-4 mr-1" />
+                              🎲 Auto-asignar 1:1 Aleatorio
+                            </Button>
+                            <Button
+                              onClick={() => setBatchTweets([])}
+                              variant="ghost"
+                              size="sm"
+                              className="text-red-600 hover:text-red-700"
+                            >
+                              <X className="h-4 w-4 mr-1" />
+                              Limpiar lote
+                            </Button>
+                          </div>
                         </div>
 
-                        <div className="max-h-64 overflow-y-auto space-y-3 border rounded-lg p-3 bg-white dark:bg-slate-800">
+                        <div className="max-h-96 overflow-y-auto space-y-3 border rounded-lg p-3 bg-white dark:bg-slate-800">
                           {batchTweets.map((tweet, index) => (
                             <div
                               key={tweet.id}
@@ -1348,130 +1820,152 @@ Cada línea será un tweet separado`}
                                 </Button>
                               </div>
 
-                              {/* Selector de cuentas para este tweet */}
-                              <div className="space-y-2">
-                                <Label className="text-xs font-medium text-muted-foreground">
-                                  Asignar a cuentas:
-                                </Label>
-                                <div className="flex flex-wrap gap-2">
-                                  {selectedAccounts.length === 0 ? (
-                                    <span className="text-xs text-muted-foreground italic">
-                                      Selecciona cuentas arriba para asignar a
-                                      este tweet
+                              {/* Información de asignación y botón para dialog */}
+                              <div className="flex items-center justify-between bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                                <div className="flex items-center gap-3">
+                                  <div className="flex items-center gap-2">
+                                    <Users className="h-4 w-4 text-blue-600" />
+                                    <span className="text-sm font-medium">
+                                      {tweet.assignedAccounts.length} cuenta
+                                      {tweet.assignedAccounts.length !== 1
+                                        ? "s"
+                                        : ""}{" "}
+                                      asignada
+                                      {tweet.assignedAccounts.length !== 1
+                                        ? "s"
+                                        : ""}
                                     </span>
-                                  ) : (
-                                    selectedAccounts.map((accountId) => {
-                                      const account = accounts.find(
-                                        (a) => a._id === accountId
-                                      );
-                                      const isAssigned =
-                                        tweet.assignedAccounts.includes(
-                                          accountId
-                                        );
-                                      return (
+                                  </div>
+                                  {tweet.assignedAccounts.length > 0 && (
+                                    <div className="flex gap-1 max-w-48 overflow-hidden">
+                                      {tweet.assignedAccounts
+                                        .slice(0, 3)
+                                        .map((accountId) => {
+                                          const account = accounts.find(
+                                            (a) => a._id === accountId
+                                          );
+                                          return (
+                                            <Badge
+                                              key={accountId}
+                                              variant="secondary"
+                                              className="text-xs"
+                                            >
+                                              @{account?.username}
+                                            </Badge>
+                                          );
+                                        })}
+                                      {tweet.assignedAccounts.length > 3 && (
                                         <Badge
-                                          key={accountId}
-                                          variant={
-                                            isAssigned ? "default" : "outline"
-                                          }
-                                          className={`cursor-pointer text-xs transition-all duration-200 ${
-                                            isAssigned
-                                              ? "bg-purple-600 text-white"
-                                              : "hover:bg-purple-100 dark:hover:bg-purple-900/20"
-                                          }`}
-                                          onClick={() => {
-                                            const updatedAccounts = isAssigned
-                                              ? tweet.assignedAccounts.filter(
-                                                  (id) => id !== accountId
-                                                )
-                                              : [
-                                                  ...tweet.assignedAccounts,
-                                                  accountId,
-                                                ];
-                                            handleAssignAccountsToTweet(
-                                              tweet.id,
-                                              updatedAccounts
-                                            );
-                                          }}
+                                          variant="secondary"
+                                          className="text-xs"
                                         >
-                                          @{account?.username}
-                                          {isAssigned && (
-                                            <Check className="h-3 w-3 ml-1" />
-                                          )}
+                                          +{tweet.assignedAccounts.length - 3}
                                         </Badge>
-                                      );
-                                    })
-                                  )}
-                                </div>
-                                <div className="flex justify-between items-center">
-                                  <span className="text-xs text-muted-foreground">
-                                    {tweet.assignedAccounts.length} cuenta(s)
-                                    asignada(s)
-                                  </span>
-                                  {selectedAccounts.length > 0 && (
-                                    <div className="flex gap-1">
-                                      <Button
-                                        onClick={() =>
-                                          handleAssignAccountsToTweet(
-                                            tweet.id,
-                                            selectedAccounts
-                                          )
-                                        }
-                                        size="sm"
-                                        variant="ghost"
-                                        className="text-xs h-6 px-2"
-                                      >
-                                        Todas
-                                      </Button>
-                                      <Button
-                                        onClick={() =>
-                                          handleAssignAccountsToTweet(
-                                            tweet.id,
-                                            []
-                                          )
-                                        }
-                                        size="sm"
-                                        variant="ghost"
-                                        className="text-xs h-6 px-2"
-                                      >
-                                        Ninguna
-                                      </Button>
+                                      )}
                                     </div>
                                   )}
                                 </div>
+                                <Button
+                                  onClick={() => openAssignmentDialog(tweet.id)}
+                                  size="sm"
+                                  variant="outline"
+                                  className="hover:bg-blue-50 hover:border-blue-300 transition-all duration-200"
+                                >
+                                  <Edit className="h-4 w-4 mr-1" />
+                                  Asignar cuentas
+                                </Button>
                               </div>
                             </div>
                           ))}
                         </div>
 
+                        {/* Controles de programación para lote */}
+                        <ScheduleControl />
+
                         {/* Botón para ejecutar lote */}
                         <div className="flex items-center justify-between pt-4 border-t">
                           <div className="text-sm text-muted-foreground">
-                            <span className="font-medium">
-                              {
-                                batchTweets.filter(
-                                  (t) => t.assignedAccounts.length > 0
-                                ).length
-                              }
-                            </span>{" "}
-                            de {batchTweets.length} tweets listos para enviar
+                            <div className="flex items-center gap-4">
+                              <div>
+                                <span className="font-medium text-green-600">
+                                  {
+                                    batchTweets.filter(
+                                      (t) => t.assignedAccounts.length > 0
+                                    ).length
+                                  }
+                                </span>{" "}
+                                de {batchTweets.length} tweets listos
+                              </div>
+                              <div>
+                                <span className="font-medium text-blue-600">
+                                  {
+                                    new Set(
+                                      batchTweets.flatMap(
+                                        (t) => t.assignedAccounts
+                                      )
+                                    ).size
+                                  }
+                                </span>{" "}
+                                cuentas utilizadas
+                              </div>
+                              <div>
+                                <span className="font-medium text-gray-600">
+                                  {batchTweets.reduce(
+                                    (sum, t) => sum + t.assignedAccounts.length,
+                                    0
+                                  )}
+                                </span>{" "}
+                                asignaciones totales
+                              </div>
+                            </div>
                           </div>
                           <Button
-                            onClick={handleBatchTweetExecute}
+                            onClick={async () => {
+                              if (isScheduled) {
+                                // Programar lote
+                                const tweetsToSchedule = batchTweets.filter(
+                                  (tweet) => tweet.assignedAccounts.length > 0
+                                );
+                                let successCount = 0;
+                                for (const tweet of tweetsToSchedule) {
+                                  const success = await scheduleAction(
+                                    "tweet",
+                                    {
+                                      text: tweet.text,
+                                      accountIds: tweet.assignedAccounts,
+                                    }
+                                  );
+                                  if (success) successCount++;
+                                }
+                                if (successCount > 0) {
+                                  setBatchTweets([]);
+                                  toast.success(
+                                    `${successCount} tweets programados exitosamente`
+                                  );
+                                }
+                              } else {
+                                // Ejecutar inmediatamente
+                                handleBatchTweetExecute();
+                              }
+                            }}
                             disabled={
                               loading ||
                               batchTweets.filter(
                                 (t) => t.assignedAccounts.length > 0
-                              ).length === 0
+                              ).length === 0 ||
+                              (isScheduled &&
+                                (!scheduledDate || !scheduledTime))
                             }
-                            className="bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 transition-all duration-200 hover:scale-105"
+                            className="bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 transition-all duration-200 hover:scale-105 text-white cursor-pointer"
                           >
                             {loading ? (
                               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            ) : isScheduled ? (
+                              <CalendarIcon className="h-4 w-4 mr-2" />
                             ) : (
                               <Send className="h-4 w-4 mr-2" />
                             )}
-                            Ejecutar Lote
+                            {isScheduled ? "Programar Lote" : "Ejecutar Lote"}
                           </Button>
                         </div>
                       </div>
@@ -1484,6 +1978,51 @@ Cada línea será un tweet separado`}
                         <p className="text-xs mt-1">
                           Agrega algunos tweets arriba para comenzar
                         </p>
+                      </div>
+                    )}
+
+                    {/* Información sobre auto-asignación */}
+                    {batchTweets.length > 0 && filteredAccounts.length > 0 && (
+                      <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                        <div className="flex items-start gap-3">
+                          <div className="bg-blue-100 dark:bg-blue-900 p-2 rounded-lg flex-shrink-0">
+                            <Zap className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2">
+                              🎲 Auto-asignación 1:1 Aleatoria (Sin Repetir
+                              Cuentas)
+                            </h4>
+                            <div className="space-y-2 text-xs text-blue-700 dark:text-blue-300">
+                              <div className="flex items-center gap-2">
+                                <div className="w-1 h-1 bg-blue-600 rounded-full"></div>
+                                <span>
+                                  🎲 Selecciona tweets y cuentas ALEATORIAMENTE
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <div className="w-1 h-1 bg-blue-600 rounded-full"></div>
+                                <span>
+                                  🚫 SIN REPETIR cuentas (1 cuenta = máx 1
+                                  tweet)
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <div className="w-1 h-1 bg-blue-600 rounded-full"></div>
+                                <span>
+                                  📊 {batchTweets.length} tweets disponibles,{" "}
+                                  {filteredAccounts.length} cuentas → Solo se
+                                  asignarán{" "}
+                                  {Math.min(
+                                    batchTweets.length,
+                                    filteredAccounts.length
+                                  )}{" "}
+                                  tweets
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -1522,18 +2061,24 @@ Cada línea será un tweet separado`}
                       <Button
                         onClick={handleReply}
                         disabled={
-                          loading || !replyText.trim() || !replyTweetUrl.trim()
+                          loading ||
+                          !replyText.trim() ||
+                          !replyTweetUrl.trim() ||
+                          (isScheduled && (!scheduledDate || !scheduledTime))
                         }
                         className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 transition-all duration-200 hover:scale-105"
                       >
                         {loading ? (
                           <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        ) : isScheduled ? (
+                          <CalendarIcon className="h-4 w-4 mr-2" />
                         ) : (
                           <Send className="h-4 w-4 mr-2" />
                         )}
-                        Responder
+                        {isScheduled ? "Programar Respuesta" : "Responder"}
                       </Button>
                     </div>
+                    <ScheduleControl />
                   </div>
                 </div>
               </TabsContent>
@@ -1555,16 +2100,23 @@ Cada línea será un tweet separado`}
                     />
                     <Button
                       onClick={handleLike}
-                      disabled={loading || !likeTweetUrl.trim()}
+                      disabled={
+                        loading ||
+                        !likeTweetUrl.trim() ||
+                        (isScheduled && (!scheduledDate || !scheduledTime))
+                      }
                       className="bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 transition-all duration-200 hover:scale-105 w-full"
                     >
                       {loading ? (
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : isScheduled ? (
+                        <CalendarIcon className="h-4 w-4 mr-2" />
                       ) : (
                         <Heart className="h-4 w-4 mr-2" />
                       )}
-                      Dar Me Gusta
+                      {isScheduled ? "Programar Like" : "Dar Me Gusta"}
                     </Button>
+                    <ScheduleControl />
                   </div>
                 </div>
               </TabsContent>
@@ -1589,16 +2141,23 @@ Cada línea será un tweet separado`}
                     />
                     <Button
                       onClick={handleRetweet}
-                      disabled={loading || !retweetUrl.trim()}
+                      disabled={
+                        loading ||
+                        !retweetUrl.trim() ||
+                        (isScheduled && (!scheduledDate || !scheduledTime))
+                      }
                       className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 transition-all duration-200 hover:scale-105 w-full"
                     >
                       {loading ? (
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : isScheduled ? (
+                        <CalendarIcon className="h-4 w-4 mr-2" />
                       ) : (
                         <Repeat className="h-4 w-4 mr-2" />
                       )}
-                      Retweet
+                      {isScheduled ? "Programar Retweet" : "Retweet"}
                     </Button>
+                    <ScheduleControl />
                   </div>
                 </div>
               </TabsContent>
@@ -1620,16 +2179,23 @@ Cada línea será un tweet separado`}
                     />
                     <Button
                       onClick={handleFollow}
-                      disabled={loading || !followUser.trim()}
+                      disabled={
+                        loading ||
+                        !followUser.trim() ||
+                        (isScheduled && (!scheduledDate || !scheduledTime))
+                      }
                       className="bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 transition-all duration-200 hover:scale-105 w-full"
                     >
                       {loading ? (
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : isScheduled ? (
+                        <CalendarIcon className="h-4 w-4 mr-2" />
                       ) : (
                         <UserPlus className="h-4 w-4 mr-2" />
                       )}
-                      Seguir Usuario
+                      {isScheduled ? "Programar Follow" : "Seguir Usuario"}
                     </Button>
+                    <ScheduleControl />
                   </div>
                 </div>
               </TabsContent>
@@ -1654,16 +2220,23 @@ Cada línea será un tweet separado`}
                     />
                     <Button
                       onClick={handleUnfollow}
-                      disabled={loading || !unfollowUser.trim()}
+                      disabled={
+                        loading ||
+                        !unfollowUser.trim() ||
+                        (isScheduled && (!scheduledDate || !scheduledTime))
+                      }
                       className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 transition-all duration-200 hover:scale-105 w-full"
                     >
                       {loading ? (
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : isScheduled ? (
+                        <CalendarIcon className="h-4 w-4 mr-2" />
                       ) : (
                         <UserMinus className="h-4 w-4 mr-2" />
                       )}
-                      Dejar de Seguir
+                      {isScheduled ? "Programar Unfollow" : "Dejar de Seguir"}
                     </Button>
+                    <ScheduleControl />
                   </div>
                 </div>
               </TabsContent>
@@ -1792,6 +2365,479 @@ Cada línea será un tweet separado`}
           </Card>
         )}
       </div>
+
+      {/* Lista de acciones programadas */}
+      {showScheduledActions && scheduledActions.length > 0 && (
+        <Card className="shadow-xl border-0 bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 animate-slide-up">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="bg-purple-100 dark:bg-purple-900 p-2 rounded-lg">
+                  <CalendarIcon className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl">
+                    Acciones Programadas
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    {scheduledActions.length} acciones esperando ejecución
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowScheduledActions(false)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3 max-h-96 overflow-y-auto">
+              {scheduledActions.map((action: any, index: number) => (
+                <div
+                  key={action.id || index}
+                  className="flex items-center justify-between p-4 border rounded-lg bg-white dark:bg-slate-800 hover:shadow-md transition-all duration-200"
+                >
+                  <div className="flex items-center gap-4 flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      {action.action === "tweet" && (
+                        <Send className="h-4 w-4 text-blue-600" />
+                      )}
+                      {action.action === "reply" && (
+                        <Send className="h-4 w-4 text-green-600" />
+                      )}
+                      {action.action === "like" && (
+                        <Heart className="h-4 w-4 text-red-600" />
+                      )}
+                      {action.action === "retweet" && (
+                        <Repeat className="h-4 w-4 text-cyan-600" />
+                      )}
+                      {action.action === "follow" && (
+                        <UserPlus className="h-4 w-4 text-purple-600" />
+                      )}
+                      {action.action === "unfollow" && (
+                        <UserMinus className="h-4 w-4 text-orange-600" />
+                      )}
+                      <Badge variant="outline" className="capitalize">
+                        {action.action}
+                      </Badge>
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm font-medium">
+                          {action.accountIds?.length || 0} cuenta
+                          {(action.accountIds?.length || 0) !== 1 ? "s" : ""}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(action.scheduledTime).toLocaleString(
+                            "es-ES"
+                          )}
+                        </span>
+                      </div>
+                      {action.text && (
+                        <p className="text-sm text-muted-foreground truncate">
+                          {action.text.length > 50
+                            ? `${action.text.substring(0, 50)}...`
+                            : action.text}
+                        </p>
+                      )}
+                      {(action.tweetId || action.targetUserId) && (
+                        <p className="text-xs text-muted-foreground">
+                          {action.tweetId && `Tweet ID: ${action.tweetId}`}
+                          {action.targetUserId &&
+                            `Usuario: ${action.targetUserId}`}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <Badge
+                      variant={
+                        action.status === "scheduled" ? "secondary" : "default"
+                      }
+                      className="text-xs"
+                    >
+                      {action.status === "scheduled"
+                        ? "Programado"
+                        : action.status}
+                    </Badge>
+                    {action.status === "scheduled" && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => cancelScheduledAction(action.id)}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {scheduledActions.length === 0 && (
+              <div className="text-center py-8 text-muted-foreground">
+                <CalendarIcon className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <p>No hay acciones programadas</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Dialog para asignación de cuentas */}
+      <Dialog
+        open={assignmentDialogOpen}
+        onOpenChange={setAssignmentDialogOpen}
+      >
+        <DialogContent className="max-w-[95vw] max-h-[90vh] w-[90vw] flex flex-col">
+          <DialogHeader className="flex-shrink-0">
+            <DialogTitle className="flex items-center gap-2">
+              <Edit className="h-5 w-5 text-purple-600" />
+              Asignar Cuentas al Tweet
+            </DialogTitle>
+            <DialogDescription>
+              {selectedTweetForAssignment && (
+                <>
+                  <div className="mt-2 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                    <p className="text-sm font-medium text-purple-900 dark:text-purple-100">
+                      Tweet: "
+                      {
+                        batchTweets.find(
+                          (t) => t.id === selectedTweetForAssignment
+                        )?.text
+                      }
+                      "
+                    </p>
+                  </div>
+                </>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedTweetForAssignment && (
+            <div className="flex-1 overflow-hidden flex flex-col space-y-6">
+              {/* Indicadores de cuentas ya asignadas */}
+              <div className="flex-shrink-0 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="bg-blue-100 dark:bg-blue-900 p-2 rounded-lg">
+                    <Users className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100">
+                      Resumen de Asignaciones del Lote
+                    </h4>
+                    <p className="text-xs text-blue-600 dark:text-blue-400">
+                      Cuentas con tweets asignados en este lote
+                    </p>
+                  </div>
+                </div>
+
+                {(() => {
+                  const accountsWithAssignments = getAccountsWithAssignments();
+                  const totalAssignments = Array.from(
+                    accountsWithAssignments.values()
+                  ).reduce((sum, count) => sum + count, 0);
+
+                  return accountsWithAssignments.size > 0 ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between bg-blue-100 dark:bg-blue-900/50 rounded-lg p-3">
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
+                          <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                            {accountsWithAssignments.size} cuentas seleccionadas
+                          </span>
+                        </div>
+                        <Badge
+                          variant="default"
+                          className="bg-blue-600 text-white"
+                        >
+                          {totalAssignments} asignaciones totales
+                        </Badge>
+                      </div>
+
+                      <div className="space-y-2 max-h-40 overflow-y-auto">
+                        {Array.from(accountsWithAssignments.entries()).map(
+                          ([accountId, count]) => {
+                            const account = accounts.find(
+                              (a) => a._id === accountId
+                            );
+                            return (
+                              <div
+                                key={accountId}
+                                className="flex items-center justify-between bg-white dark:bg-gray-800 rounded-lg px-3 py-2 border border-blue-200 dark:border-blue-700"
+                              >
+                                <div className="flex items-center gap-2 flex-1 min-w-0">
+                                  <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
+                                    {account?.username[0].toUpperCase()}
+                                  </div>
+                                  <span className="font-medium text-sm text-gray-700 dark:text-gray-300 truncate">
+                                    @{account?.username}
+                                  </span>
+                                </div>
+                                <Badge
+                                  variant="secondary"
+                                  className="bg-blue-100 text-blue-800 border-blue-300 flex-shrink-0 ml-2"
+                                >
+                                  {count} tweet{count > 1 ? "s" : ""}
+                                </Badge>
+                              </div>
+                            );
+                          }
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-6">
+                      <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <Users className="h-6 w-6 text-blue-400" />
+                      </div>
+                      <p className="text-blue-600 dark:text-blue-400 text-sm">
+                        Ninguna cuenta tiene tweets asignados aún
+                      </p>
+                      <p className="text-xs text-blue-500 dark:text-blue-500 mt-1">
+                        Selecciona cuentas para los tweets en el lote
+                      </p>
+                    </div>
+                  );
+                })()}
+              </div>
+
+              {/* Lista de cuentas disponibles */}
+              <div className="flex-1 overflow-hidden flex flex-col">
+                <div className="flex-shrink-0 flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <h4 className="text-lg font-semibold">
+                      Seleccionar cuentas
+                    </h4>
+                    {selectedAccounts.length > 0 && (
+                      <Badge
+                        variant="secondary"
+                        className="bg-blue-100 text-blue-800"
+                      >
+                        Mostrando solo cuentas seleccionadas
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        if (selectedTweetForAssignment) {
+                          handleAssignAccountsToTweet(
+                            selectedTweetForAssignment,
+                            selectedAccounts.length > 0
+                              ? selectedAccounts
+                              : filteredAccounts.map((a) => a._id)
+                          );
+                        }
+                      }}
+                      disabled={
+                        selectedAccounts.length === 0 &&
+                        filteredAccounts.length === 0
+                      }
+                    >
+                      <Check className="h-4 w-4 mr-1" />
+                      {selectedAccounts.length > 0
+                        ? `Asignar seleccionadas (${selectedAccounts.length})`
+                        : `Asignar filtradas (${filteredAccounts.length})`}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        if (selectedTweetForAssignment) {
+                          handleAssignAccountsToTweet(
+                            selectedTweetForAssignment,
+                            []
+                          );
+                        }
+                      }}
+                    >
+                      <X className="h-4 w-4 mr-1" />
+                      Quitar todas
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="flex-1 overflow-y-auto">
+                  <div className="space-y-3 pr-2">
+                    {/* Mostrar solo cuentas seleccionadas si hay alguna, sino mostrar todas */}
+                    {(selectedAccounts.length > 0
+                      ? accounts.filter((account) =>
+                          selectedAccounts.includes(account._id)
+                        )
+                      : filteredAccounts
+                    ).map((account) => {
+                      const isAssigned =
+                        batchTweets
+                          .find((t) => t.id === selectedTweetForAssignment)
+                          ?.assignedAccounts.includes(account._id) || false;
+                      const assignmentCount =
+                        getAccountsWithAssignments().get(account._id) || 0;
+
+                      return (
+                        <div
+                          key={account._id}
+                          className={`
+                            relative p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 hover:shadow-md
+                            ${
+                              isAssigned
+                                ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20"
+                                : "border-gray-200 dark:border-gray-700 hover:border-purple-300"
+                            }
+                          `}
+                          onClick={() => {
+                            if (selectedTweetForAssignment) {
+                              const currentTweet = batchTweets.find(
+                                (t) => t.id === selectedTweetForAssignment
+                              );
+                              if (currentTweet) {
+                                const updatedAccounts = isAssigned
+                                  ? currentTweet.assignedAccounts.filter(
+                                      (id) => id !== account._id
+                                    )
+                                  : [
+                                      ...currentTweet.assignedAccounts,
+                                      account._id,
+                                    ];
+                                handleAssignAccountsToTweet(
+                                  selectedTweetForAssignment,
+                                  updatedAccounts
+                                );
+                              }
+                            }
+                          }}
+                        >
+                          {/* Indicador de múltiples asignaciones */}
+                          {assignmentCount > 1 && (
+                            <div className="absolute -top-2 -right-2 bg-yellow-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold">
+                              {assignmentCount}
+                            </div>
+                          )}
+
+                          <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-3 flex-shrink-0">
+                              <Checkbox
+                                checked={isAssigned}
+                                className="pointer-events-none"
+                              />
+                              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-violet-600 rounded-full flex items-center justify-center text-white text-lg font-semibold">
+                                {account.username[0].toUpperCase()}
+                              </div>
+                            </div>
+
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-2">
+                                <p className="font-semibold text-base text-purple-900 dark:text-purple-100">
+                                  @{account.username}
+                                </p>
+                                {isAssigned && (
+                                  <Badge
+                                    variant="default"
+                                    className="bg-purple-600 text-white"
+                                  >
+                                    Asignada
+                                  </Badge>
+                                )}
+                              </div>
+
+                              {account.labels.length > 0 && (
+                                <div className="flex flex-wrap gap-2">
+                                  {account.labels.map((label, idx) => (
+                                    <Badge
+                                      key={idx}
+                                      variant="outline"
+                                      className="text-xs bg-white dark:bg-gray-800 border-purple-200 dark:border-purple-700"
+                                    >
+                                      {label}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              )}
+
+                              {assignmentCount > 0 && (
+                                <div className="mt-2 text-sm text-yellow-600 dark:text-yellow-400 flex items-center gap-1">
+                                  <AlertCircle className="h-4 w-4" />
+                                  <span>
+                                    Ya tiene {assignmentCount} tweet
+                                    {assignmentCount > 1 ? "s" : ""} asignado
+                                    {assignmentCount > 1 ? "s" : ""} en este
+                                    lote
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="flex-shrink-0">
+                              {isAssigned ? (
+                                <div className="flex items-center gap-1 text-green-600 dark:text-green-400">
+                                  <CheckCircle className="h-5 w-5" />
+                                  <span className="text-sm font-medium">
+                                    Seleccionada
+                                  </span>
+                                </div>
+                              ) : (
+                                <div className="text-gray-400 dark:text-gray-500">
+                                  <span className="text-sm">
+                                    Clic para seleccionar
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {filteredAccounts.length === 0 && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p>No se encontraron cuentas con los filtros aplicados</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter className="flex-shrink-0 border-t pt-4">
+            <div className="flex items-center justify-between w-full">
+              <div className="text-sm text-muted-foreground">
+                {selectedTweetForAssignment && (
+                  <>
+                    {batchTweets.find(
+                      (t) => t.id === selectedTweetForAssignment
+                    )?.assignedAccounts.length || 0}{" "}
+                    cuenta(s) asignada(s)
+                  </>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setAssignmentDialogOpen(false)}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={() => setAssignmentDialogOpen(false)}
+                  className="bg-purple-600 hover:bg-purple-700"
+                >
+                  Guardar Asignaciones
+                </Button>
+              </div>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -14,6 +14,7 @@ const { corsMiddleware, logCorsConfig } = require("./src/config/cors");
 // Importar modelo y utilidades (serán creados a continuación)
 const XAccount = require("./models/XAccount"); // Asegúrate de crear models/XAccount.js
 const Account = XAccount; // Alias para compatibilidad
+const ActionHistory = require("./models/ActionHistory"); // Modelo para historial completo
 const {
   generateOAuth1Signature,
   generateOAuth1Headers,
@@ -32,11 +33,59 @@ let actionIdCounter = 1;
 // Función para generar ID único de acción
 const generateActionId = () => `action_${actionIdCounter++}`;
 
-// Función para agregar al historial
-const addToHistory = (actionInfo) => {
+// Función para agregar al historial (memoria y base de datos)
+const addToHistory = async (actionInfo) => {
+  // Agregar a memoria para consultas rápidas
   actionHistory.unshift(actionInfo);
   if (actionHistory.length > MAX_HISTORY_SIZE) {
     actionHistory.pop();
+  }
+
+  // Guardar en base de datos para historial completo
+  try {
+    // Validar que accountId esté presente
+    if (!actionInfo.accountId) {
+      console.error("❌ ERROR: accountId faltante en actionInfo:", actionInfo);
+      return; // No intentar guardar si falta accountId
+    }
+
+    const historyDocument = new ActionHistory({
+      actionId: actionInfo.id,
+      accountId: actionInfo.accountId,
+      username: actionInfo.username,
+      accountLabels: actionInfo.accountLabels || [],
+      action: actionInfo.action,
+      text: actionInfo.text,
+      tweetId: actionInfo.tweetId,
+      targetUserId: actionInfo.targetUserId,
+      status: actionInfo.status,
+      success: actionInfo.success || false,
+      createdAt: actionInfo.createdAt
+        ? new Date(actionInfo.createdAt)
+        : new Date(),
+      startedAt: actionInfo.startedAt
+        ? new Date(actionInfo.startedAt)
+        : undefined,
+      completedAt: actionInfo.completedAt
+        ? new Date(actionInfo.completedAt)
+        : undefined,
+      baseDelay: actionInfo.baseDelay,
+      randomDelay: actionInfo.randomDelay,
+      actualDelay: actionInfo.actualDelay,
+      result: actionInfo.result,
+      error: actionInfo.error,
+      errorCode: actionInfo.errorCode,
+      batchId: actionInfo.batchId,
+    });
+
+    await historyDocument.save();
+    console.log(
+      "✅ Acción guardada en historial correctamente:",
+      actionInfo.id
+    );
+  } catch (error) {
+    console.error("Error guardando acción en historial:", error);
+    // No interrumpir el flujo si falla el guardado
   }
 };
 
@@ -579,7 +628,8 @@ app.delete("/api/queue/:actionId", (req, res) => {
   const removedAction = actionQueue.splice(index, 1)[0];
   addToHistory({
     ...removedAction,
-    accountLabels: removedAction.account?.labels || [], // Añadir labels de la cuenta
+    accountId: removedAction.accountId,
+    accountLabels: removedAction.account?.labels || [],
     status: "cancelled",
     completedAt: new Date().toISOString(),
     error: "Cancelado por el usuario",
@@ -591,6 +641,38 @@ app.delete("/api/queue/:actionId", (req, res) => {
 // Verificar acciones programadas cada minuto
 cron.schedule("* * * * *", () => {
   const now = new Date();
+  console.log(
+    `🕒 Verificando acciones programadas a las ${now.toISOString()} (${now.toLocaleString(
+      "es-ES"
+    )})`
+  );
+  console.log(`📊 Total acciones programadas: ${scheduledActions.length}`);
+
+  if (scheduledActions.length > 0) {
+    console.log("📋 Acciones programadas actuales:");
+    scheduledActions.forEach((action, index) => {
+      const scheduledTime = new Date(action.scheduledTime);
+      const timeDiff = scheduledTime.getTime() - now.getTime();
+      const minutesDiff = Math.round(timeDiff / (1000 * 60));
+
+      console.log(
+        `  ${index + 1}. ${action.id} - ${action.action} para @${
+          action.accountUsername
+        }`
+      );
+      console.log(
+        `     📅 Programado para: ${scheduledTime.toISOString()} (${scheduledTime.toLocaleString(
+          "es-ES"
+        )})`
+      );
+      console.log(
+        `     ⏰ Diferencia: ${minutesDiff} minutos (${
+          timeDiff > 0 ? "futuro" : "pasado"
+        })`
+      );
+    });
+  }
+
   const actionsToExecute = scheduledActions.filter(
     (action) => action.scheduledTime && action.scheduledTime <= now
   );
@@ -613,6 +695,10 @@ cron.schedule("* * * * *", () => {
         `📅➡️📝 Acción programada ${action.id} movida a cola: ${action.action} para @${action.accountUsername}`
       );
     });
+  } else if (scheduledActions.length > 0) {
+    console.log(
+      `⏸️ Ninguna acción lista para ejecutar aún. Próxima verificación en 1 minuto.`
+    );
   }
 });
 
@@ -632,8 +718,9 @@ const processQueue = async () => {
   // Añadir al historial como iniciado
   addToHistory({
     id: action.id,
+    accountId: action.accountId,
     username: action.accountUsername,
-    accountLabels: action.account?.labels || [], // Añadir labels de la cuenta
+    accountLabels: action.account?.labels || [],
     action: action.action,
     text: action.text || "",
     tweetId: action.tweetId || "",
@@ -694,15 +781,16 @@ const processQueue = async () => {
     // Actualizar historial con éxito
     addToHistory({
       id: action.id,
+      accountId: action.accountId,
       username: action.accountUsername,
-      accountLabels: action.account?.labels || [], // Añadir labels de la cuenta
+      accountLabels: action.account?.labels || [],
       action: action.action,
       text: action.text || "",
       tweetId: action.tweetId || "",
       targetUserId: action.targetUserId || "",
       success: true,
       timestamp: new Date().toISOString(),
-      completedAt: new Date().toISOString(), // Añadir fecha de completado
+      completedAt: new Date().toISOString(),
       status: "completed",
       result: result,
     });
@@ -719,15 +807,16 @@ const processQueue = async () => {
     // Actualizar historial con error
     addToHistory({
       id: action.id,
+      accountId: action.accountId,
       username: action.accountUsername,
-      accountLabels: action.account?.labels || [], // Añadir labels de la cuenta
+      accountLabels: action.account?.labels || [],
       action: action.action,
       text: action.text || "",
       tweetId: action.tweetId || "",
       targetUserId: action.targetUserId || "",
       success: false,
       timestamp: new Date().toISOString(),
-      completedAt: new Date().toISOString(), // Añadir fecha de completado
+      completedAt: new Date().toISOString(),
       status: "failed",
       error: error.message,
     });
@@ -1339,6 +1428,29 @@ app.post("/api/queue/add", async (req, res) => {
 
     for (const account of accounts) {
       const actionId = generateActionId();
+
+      // Manejar el tiempo programado si existe
+      let processedScheduledTime = null;
+      if (scheduledTime) {
+        processedScheduledTime = new Date(scheduledTime);
+
+        // Verificar que la fecha sea válida
+        if (isNaN(processedScheduledTime.getTime())) {
+          return res.status(400).json({
+            error: "Fecha programada inválida",
+          });
+        }
+
+        // Log para debug de zona horaria
+        console.log("📅 Procesando fecha programada:", {
+          input: scheduledTime,
+          parsed: processedScheduledTime.toISOString(),
+          localString: processedScheduledTime.toLocaleString("es-ES"),
+          timestamp: processedScheduledTime.getTime(),
+          now: new Date().toISOString(),
+        });
+      }
+
       const actionObj = {
         id: actionId,
         action,
@@ -1350,7 +1462,7 @@ app.post("/api/queue/add", async (req, res) => {
         targetUserId,
         baseDelay: parseInt(baseDelay),
         randomDelay: parseInt(randomDelay),
-        scheduledTime: scheduledTime ? new Date(scheduledTime) : null,
+        scheduledTime: processedScheduledTime,
         createdAt: new Date(),
       };
 
@@ -1358,7 +1470,9 @@ app.post("/api/queue/add", async (req, res) => {
         // Si es programada, añadir a la lista de acciones programadas
         scheduledActions.push(actionObj);
         console.log(
-          `📅 Acción ${actionId} programada para ${scheduledTime}: ${action} para @${account.username}`
+          `📅 Acción ${actionId} programada para ${processedScheduledTime.toISOString()} (${processedScheduledTime.toLocaleString(
+            "es-ES"
+          )}): ${action} para @${account.username}`
         );
       } else {
         // Añadir a la cola inmediatamente
@@ -1425,7 +1539,8 @@ app.delete("/api/queue/cancel/:actionId", (req, res) => {
       const removedAction = actionQueue.splice(queueIndex, 1)[0];
       addToHistory({
         ...removedAction,
-        accountLabels: removedAction.account?.labels || [], // Añadir labels de la cuenta
+        accountId: removedAction.accountId,
+        accountLabels: removedAction.account?.labels || [],
         status: "cancelled",
         completedAt: new Date().toISOString(),
         error: "Cancelado por el usuario",
@@ -1470,6 +1585,250 @@ app.get("/api/keepalive", (req, res) => {
     uptime,
     message: "Backend activo y funcionando",
   });
+});
+
+// Endpoints para historial completo
+app.get("/api/history", async (req, res) => {
+  try {
+    const {
+      page = 1,
+      limit = 50,
+      search = "",
+      action = "all",
+      status = "all",
+      account = "all",
+      days = "7",
+    } = req.query;
+
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const skip = (pageNum - 1) * limitNum;
+
+    // Construir filtros
+    let filters = {};
+
+    // Filtro por fecha
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - parseInt(days));
+    filters.createdAt = { $gte: startDate };
+
+    // Filtro por acción
+    if (action !== "all") {
+      filters.action = action;
+    }
+
+    // Filtro por estado
+    if (status !== "all") {
+      filters.status = status;
+    }
+
+    // Filtro por cuenta
+    if (account !== "all" && account.trim()) {
+      filters.username = { $regex: account.replace("@", ""), $options: "i" };
+    }
+
+    // Filtro por texto de búsqueda
+    if (search.trim()) {
+      filters.$or = [
+        { username: { $regex: search, $options: "i" } },
+        { text: { $regex: search, $options: "i" } },
+        { error: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    const [actions, total] = await Promise.all([
+      ActionHistory.find(filters)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limitNum)
+        .populate("accountId", "username labels"),
+      ActionHistory.countDocuments(filters),
+    ]);
+
+    res.json({
+      actions,
+      total,
+      page: pageNum,
+      limit: limitNum,
+      pages: Math.ceil(total / limitNum),
+    });
+  } catch (error) {
+    console.error("Error obteniendo historial:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+});
+
+// Endpoint para estadísticas del historial
+app.get("/api/history/stats", async (req, res) => {
+  try {
+    const { days = "7" } = req.query;
+
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - parseInt(days));
+
+    const stats = await ActionHistory.aggregate([
+      { $match: { createdAt: { $gte: startDate } } },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+          successful: { $sum: { $cond: ["$success", 1, 0] } },
+          failed: { $sum: { $cond: ["$success", 0, 1] } },
+        },
+      },
+    ]);
+
+    const result = stats[0] || { total: 0, successful: 0, failed: 0 };
+    const successRate =
+      result.total > 0 ? (result.successful / result.total) * 100 : 0;
+
+    res.json({
+      ...result,
+      successRate,
+    });
+  } catch (error) {
+    console.error("Error obteniendo estadísticas:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+});
+
+// Endpoint para exportar historial
+app.get("/api/history/export", async (req, res) => {
+  try {
+    const {
+      action = "all",
+      status = "all",
+      account = "all",
+      days = "7",
+    } = req.query;
+
+    // Construir filtros
+    let filters = {};
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - parseInt(days));
+    filters.createdAt = { $gte: startDate };
+
+    if (action !== "all") filters.action = action;
+    if (status !== "all") filters.status = status;
+    if (account !== "all" && account.trim()) {
+      filters.username = { $regex: account.replace("@", ""), $options: "i" };
+    }
+
+    const actions = await ActionHistory.find(filters)
+      .sort({ createdAt: -1 })
+      .limit(10000)
+      .populate("accountId", "username labels");
+
+    const csvHeaders = [
+      "Fecha",
+      "Usuario",
+      "Acción",
+      "Texto",
+      "Estado",
+      "Éxito",
+      "Error",
+    ].join(",");
+
+    const csvRows = actions.map((action) => {
+      return [
+        `"${new Date(action.createdAt).toLocaleString("es-ES")}"`,
+        `"@${action.username}"`,
+        `"${action.action}"`,
+        `"${(action.text || "").replace(/"/g, '""')}"`,
+        `"${action.status}"`,
+        action.success ? "Sí" : "No",
+        `"${(action.error || "").replace(/"/g, '""')}"`,
+      ].join(",");
+    });
+
+    const csvContent = [csvHeaders, ...csvRows].join("\n");
+
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="historial-acciones-${
+        new Date().toISOString().split("T")[0]
+      }.csv"`
+    );
+    res.send(csvContent);
+  } catch (error) {
+    console.error("Error exportando historial:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+});
+
+// Endpoint temporal para debug de fechas programadas
+app.get("/api/debug/scheduled", (req, res) => {
+  const now = new Date();
+
+  const debugInfo = {
+    serverTime: {
+      iso: now.toISOString(),
+      local: now.toLocaleString("es-ES"),
+      timestamp: now.getTime(),
+      timezone: process.env.TZ || "Sistema",
+    },
+    scheduledActionsCount: scheduledActions.length,
+    scheduledActions: scheduledActions.map((action) => ({
+      id: action.id,
+      accountUsername: action.accountUsername,
+      action: action.action,
+      scheduledTime: {
+        iso: action.scheduledTime.toISOString(),
+        local: action.scheduledTime.toLocaleString("es-ES"),
+        timestamp: action.scheduledTime.getTime(),
+      },
+      timeUntilExecution: {
+        milliseconds: action.scheduledTime.getTime() - now.getTime(),
+        minutes: Math.round(
+          (action.scheduledTime.getTime() - now.getTime()) / (1000 * 60)
+        ),
+        isPast: action.scheduledTime <= now,
+      },
+    })),
+  };
+
+  console.log("🐛 Debug de fechas programadas solicitado:", debugInfo);
+  res.json(debugInfo);
+});
+
+// Endpoint para forzar verificación de acciones programadas (solo para debug)
+app.post("/api/debug/check-scheduled", (req, res) => {
+  const now = new Date();
+  console.log(
+    `🔧 Verificación forzada de acciones programadas a las ${now.toISOString()}`
+  );
+
+  const actionsToExecute = scheduledActions.filter(
+    (action) => action.scheduledTime && action.scheduledTime <= now
+  );
+
+  if (actionsToExecute.length > 0) {
+    console.log(`⚡ FORZANDO ejecución de ${actionsToExecute.length} acciones`);
+
+    actionsToExecute.forEach((action) => {
+      const index = scheduledActions.findIndex((a) => a.id === action.id);
+      if (index !== -1) {
+        scheduledActions.splice(index, 1);
+      }
+      actionQueue.push(action);
+      console.log(`🚀 Acción ${action.id} movida a cola manualmente`);
+    });
+
+    res.json({
+      message: `${actionsToExecute.length} acciones movidas a cola`,
+      executedActions: actionsToExecute.map((a) => ({
+        id: a.id,
+        account: a.accountUsername,
+        action: a.action,
+      })),
+    });
+  } else {
+    res.json({
+      message: "No hay acciones listas para ejecutar",
+      scheduledCount: scheduledActions.length,
+    });
+  }
 });
 
 // Iniciar servidor

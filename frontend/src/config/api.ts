@@ -15,6 +15,7 @@ export const API_CONFIG = {
       CANCEL: (id: string) => `/api/queue/cancel/${id}`,
       DELETE: (id: string) => `/api/queue/${id}`,
     },
+    SCHEDULE: "/api/schedule",
     METRICS: {
       REALTIME: "/api/metrics/realtime",
     },
