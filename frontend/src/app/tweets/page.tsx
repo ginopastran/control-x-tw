@@ -655,13 +655,16 @@ export default function TweetsPage() {
           };
 
           // Enviar al sistema de colas usando el endpoint correcto
-          const response = await fetch("http://localhost:3001/api/queue/add", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(actionData),
-          });
+          const response = await fetch(
+            buildApiUrl(API_CONFIG.ENDPOINTS.QUEUE.ADD),
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(actionData),
+            }
+          );
 
           if (!response.ok) {
             const errorData = await response.json();
@@ -766,13 +769,16 @@ export default function TweetsPage() {
       };
 
       // Enviar al sistema de colas usando el endpoint correcto
-      const response = await fetch("http://localhost:3001/api/queue/add", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(actionData),
-      });
+      const response = await fetch(
+        buildApiUrl(API_CONFIG.ENDPOINTS.QUEUE.ADD),
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(actionData),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();

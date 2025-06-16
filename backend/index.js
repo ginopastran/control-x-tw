@@ -35,13 +35,23 @@ const generateActionId = () => `action_${actionIdCounter++}`;
 
 // Función para agregar al historial (memoria y base de datos)
 const addToHistory = async (actionInfo) => {
-  // Agregar a memoria para consultas rápidas
-  actionHistory.unshift(actionInfo);
-  if (actionHistory.length > MAX_HISTORY_SIZE) {
-    actionHistory.pop();
+  // Actualizar en memoria para consultas rápidas
+  const existingIndex = actionHistory.findIndex((a) => a.id === actionInfo.id);
+  if (existingIndex !== -1) {
+    // Actualizar registro existente
+    actionHistory[existingIndex] = {
+      ...actionHistory[existingIndex],
+      ...actionInfo,
+    };
+  } else {
+    // Agregar nuevo registro
+    actionHistory.unshift(actionInfo);
+    if (actionHistory.length > MAX_HISTORY_SIZE) {
+      actionHistory.pop();
+    }
   }
 
-  // Guardar en base de datos para historial completo
+  // Guardar/actualizar en base de datos para historial completo
   try {
     // Validar que accountId esté presente
     if (!actionInfo.accountId) {
@@ -49,8 +59,7 @@ const addToHistory = async (actionInfo) => {
       return; // No intentar guardar si falta accountId
     }
 
-    const historyDocument = new ActionHistory({
-      actionId: actionInfo.id,
+    const updateData = {
       accountId: actionInfo.accountId,
       username: actionInfo.username,
       accountLabels: actionInfo.accountLabels || [],
@@ -60,15 +69,6 @@ const addToHistory = async (actionInfo) => {
       targetUserId: actionInfo.targetUserId,
       status: actionInfo.status,
       success: actionInfo.success || false,
-      createdAt: actionInfo.createdAt
-        ? new Date(actionInfo.createdAt)
-        : new Date(),
-      startedAt: actionInfo.startedAt
-        ? new Date(actionInfo.startedAt)
-        : undefined,
-      completedAt: actionInfo.completedAt
-        ? new Date(actionInfo.completedAt)
-        : undefined,
       baseDelay: actionInfo.baseDelay,
       randomDelay: actionInfo.randomDelay,
       actualDelay: actionInfo.actualDelay,
@@ -76,11 +76,40 @@ const addToHistory = async (actionInfo) => {
       error: actionInfo.error,
       errorCode: actionInfo.errorCode,
       batchId: actionInfo.batchId,
-    });
+    };
 
-    await historyDocument.save();
+    // Agregar timestamps solo si están presentes
+    if (actionInfo.createdAt) {
+      updateData.createdAt = new Date(actionInfo.createdAt);
+    }
+    if (actionInfo.startedAt) {
+      updateData.startedAt = new Date(actionInfo.startedAt);
+    }
+    if (actionInfo.completedAt) {
+      updateData.completedAt = new Date(actionInfo.completedAt);
+    }
+
+    // Usar findOneAndUpdate con upsert para evitar duplicados
+    await ActionHistory.findOneAndUpdate(
+      { actionId: actionInfo.id },
+      {
+        $set: updateData,
+        $setOnInsert: {
+          actionId: actionInfo.id,
+          createdAt: actionInfo.createdAt
+            ? new Date(actionInfo.createdAt)
+            : new Date(),
+        },
+      },
+      {
+        upsert: true,
+        new: true,
+        runValidators: true,
+      }
+    );
+
     console.log(
-      "✅ Acción guardada en historial correctamente:",
+      "✅ Acción guardada/actualizada en historial correctamente:",
       actionInfo.id
     );
   } catch (error) {
@@ -728,6 +757,7 @@ const processQueue = async () => {
     success: false,
     timestamp: new Date().toISOString(),
     status: "running",
+    startedAt: new Date().toISOString(),
   });
 
   console.log(
@@ -819,6 +849,7 @@ const processQueue = async () => {
       completedAt: new Date().toISOString(),
       status: "failed",
       error: error.message,
+      result: null,
     });
 
     console.log(
