@@ -186,8 +186,11 @@ const processCSVData = (csvData) => {
       const lineNumber = index + 2; // +2 porque index empieza en 0 y hay header
 
       // Mapeo de campos del CSV a nuestro modelo
+      const twitterHandle = row["Tag Twitter"] || "";
+      const cleanTwitterHandle = twitterHandle.replace(/^@/, "").trim(); // Remover @ inicial si existe
+
       const accountData = {
-        username: cleanUsername(row["Email"] || ""),
+        username: cleanTwitterHandle || cleanUsername(row["Email"] || ""),
         labels: [],
 
         // Credenciales OAuth 1.0a
@@ -209,7 +212,16 @@ const processCSVData = (csvData) => {
 
       // Validar datos mínimos
       if (!accountData.username) {
-        throw new Error("Username/Email es requerido");
+        throw new Error(
+          "Tag Twitter o Email es requerido para generar username"
+        );
+      }
+
+      // Validar que el username no tenga caracteres especiales
+      if (!/^[a-zA-Z0-9_]+$/.test(accountData.username)) {
+        throw new Error(
+          `Username inválido: ${accountData.username}. Solo se permiten letras, números y guiones bajos`
+        );
       }
 
       // Verificar si tiene credenciales OAuth 1.0a completas
