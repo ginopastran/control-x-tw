@@ -115,6 +115,57 @@ interface ScheduledAction {
 }
 
 export default function Dashboard() {
+  // Agregar estilos CSS personalizados
+  const customStyles = `
+    .stat-number {
+      transition: all 0.3s ease;
+    }
+    .stat-number:hover {
+      transform: scale(1.05);
+    }
+    .account-card.active {
+      border-left: 4px solid #10b981;
+    }
+    .account-card.limited {
+      border-left: 4px solid #f59e0b;
+    }
+    .account-card.suspended {
+      border-left: 4px solid #ef4444;
+    }
+    .account-card.error {
+      border-left: 4px solid #ef4444;
+    }
+    .progress-bar-container {
+      transition: all 0.3s ease;
+    }
+    .progress-bar-container:hover {
+      transform: scaleY(1.2);
+    }
+    .search-input {
+      transition: all 0.3s ease;
+    }
+    .search-input:focus {
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    .table-row {
+      transition: all 0.2s ease;
+    }
+    .table-row:hover {
+      background-color: rgba(59, 130, 246, 0.05);
+      transform: translateX(2px);
+    }
+  `;
+
+  // Inyectar estilos
+  if (typeof document !== "undefined") {
+    const styleSheet = document.createElement("style");
+    styleSheet.type = "text/css";
+    styleSheet.innerText = customStyles;
+    if (!document.head.querySelector("style[data-dashboard-styles]")) {
+      styleSheet.setAttribute("data-dashboard-styles", "true");
+      document.head.appendChild(styleSheet);
+    }
+  }
   const [accountLimits, setAccountLimits] = useState<AccountLimits[]>([]);
   const [queueStatus, setQueueStatus] = useState<QueueStatus>({
     queue: [],
@@ -269,11 +320,27 @@ export default function Dashboard() {
 
   const formatTime = (dateString: string) => {
     try {
-      return new Date(dateString).toLocaleTimeString("es-ES", {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      });
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffMs = now.getTime() - date.getTime();
+      const diffMinutes = Math.floor(diffMs / (1000 * 60));
+
+      if (diffMinutes < 1) {
+        return "Ahora mismo";
+      } else if (diffMinutes < 60) {
+        return `Hace ${diffMinutes}min`;
+      } else if (diffMinutes < 1440) {
+        // 24 horas
+        const hours = Math.floor(diffMinutes / 60);
+        return `Hace ${hours}h`;
+      } else {
+        return date.toLocaleDateString("es-ES", {
+          day: "2-digit",
+          month: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      }
     } catch {
       return "Hora inválida";
     }
@@ -399,34 +466,40 @@ export default function Dashboard() {
     switch (action.action) {
       case "tweet":
         return action.text
-          ? action.text.length > 50
-            ? `${action.text.substring(0, 50)}...`
+          ? action.text.length > 60
+            ? `${action.text.substring(0, 60)}...`
             : action.text
-          : "Nuevo tweet";
+          : "Publicar nuevo tweet";
       case "retweet":
         return action.tweetId
-          ? `Retweet del tweet: ${action.tweetId}`
-          : "Retweet";
+          ? `Retweet del tweet ID: ${action.tweetId.substring(0, 12)}...`
+          : "Hacer retweet";
       case "like":
-        return action.tweetId ? `Like al tweet: ${action.tweetId}` : "Like";
+        return action.tweetId
+          ? `Like al tweet ID: ${action.tweetId.substring(0, 12)}...`
+          : "Dar like a tweet";
       case "reply":
         return action.text
-          ? `Reply: ${
-              action.text.length > 40
-                ? action.text.substring(0, 40) + "..."
+          ? `Responder: "${
+              action.text.length > 50
+                ? action.text.substring(0, 50) + "..."
                 : action.text
-            }`
-          : "Reply";
+            }"`
+          : "Responder a tweet";
       case "follow":
         return action.targetUserId
-          ? `Seguir a: ${action.targetUserId}`
+          ? `Seguir a @${action.targetUserId}`
           : "Seguir usuario";
       case "unfollow":
         return action.targetUserId
-          ? `Dejar de seguir a: ${action.targetUserId}`
+          ? `Dejar de seguir a @${action.targetUserId}`
           : "Dejar de seguir";
+      case "dm":
+        return action.text
+          ? `Mensaje directo: "${action.text.substring(0, 40)}..."`
+          : "Enviar mensaje directo";
       default:
-        return action.text || "Sin contenido específico";
+        return action.text || "Acción personalizada";
     }
   };
 
@@ -441,9 +514,15 @@ export default function Dashboard() {
       case "reply":
         return "💬";
       case "follow":
-        return "➕";
+        return "👥";
       case "unfollow":
-        return "➖";
+        return "👤";
+      case "dm":
+        return "✉️";
+      case "mention":
+        return "📢";
+      case "quote":
+        return "🔗";
       default:
         return "⚡";
     }
@@ -993,32 +1072,38 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-3">
               <h4 className="font-semibold text-sm">
-                Límites Diarios por Acción
+                Límites API Twitter v2 (Por 15 min)
               </h4>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">
-                    📝 Tweets:
+                    📝 Crear Tweets:
                   </span>
-                  <Badge variant="outline">300 por día</Badge>
+                  <Badge variant="outline">300/día • 50/15min</Badge>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">
-                    ➕ Follows:
+                    ➕ Seguir Usuarios:
                   </span>
-                  <Badge variant="outline">400 por día</Badge>
+                  <Badge variant="outline">400/día • 50/15min</Badge>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">
-                    ❤️ Likes:
+                    ❤️ Dar Like:
                   </span>
-                  <Badge variant="outline">1,000 por día</Badge>
+                  <Badge variant="outline">1000/día • 75/15min</Badge>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">
-                    🔄 Retweets:
+                    🔄 Retweet:
                   </span>
-                  <Badge variant="outline">600 por día</Badge>
+                  <Badge variant="outline">300/día • 75/15min</Badge>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">
+                    💬 Menciones:
+                  </span>
+                  <Badge variant="outline">300/día • 180/15min</Badge>
                 </div>
               </div>
             </div>
@@ -1028,25 +1113,28 @@ export default function Dashboard() {
                 <div className="flex items-center space-x-2">
                   <CheckCircle2 className="h-4 w-4 text-green-600" />
                   <span className="text-sm">
-                    <strong>Activa:</strong> Funcionando normalmente
+                    <strong>Activa:</strong> Funcionando normalmente, dentro de
+                    límites
                   </span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <AlertTriangle className="h-4 w-4 text-yellow-600" />
                   <span className="text-sm">
-                    <strong>Limitada:</strong> Cerca del límite diario
+                    <strong>Limitada:</strong> &gt;75% del límite de 15min
+                    alcanzado
                   </span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <AlertTriangle className="h-4 w-4 text-red-600" />
                   <span className="text-sm">
-                    <strong>Suspendida:</strong> Cuenta suspendida por X
+                    <strong>Suspendida:</strong> Cuenta suspendida por X/Rate
+                    limit
                   </span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <AlertTriangle className="h-4 w-4 text-red-600" />
                   <span className="text-sm">
-                    <strong>Error:</strong> Error de conectividad
+                    <strong>Error:</strong> Falló autenticación o conectividad
                   </span>
                 </div>
               </div>
@@ -1054,6 +1142,204 @@ export default function Dashboard() {
           </div>
         </CardContent>
       </Card>
+      {/* Análisis de Rendimiento y Rate Limits */}
+      <Card className="shadow-xl border-0 bg-gradient-to-br from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 transition-all duration-500 hover:shadow-2xl">
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <BarChart3 className="h-5 w-5 text-indigo-600" />
+            <span>Análisis de Rendimiento en Tiempo Real</span>
+          </CardTitle>
+          <CardDescription>
+            Monitoreo de límites de API de Twitter v2 y eficiencia de las
+            cuentas
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Resumen de límites por tipo de acción */}
+            <div className="space-y-4">
+              <h4 className="font-semibold text-sm flex items-center space-x-2">
+                <Activity className="h-4 w-4 text-blue-600" />
+                <span>Uso Promedio por Tipo de Acción</span>
+              </h4>
+              <div className="space-y-3">
+                {accountLimits.length > 0 && (
+                  <>
+                    <div className="flex items-center justify-between p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-lg">📝</span>
+                        <span className="text-sm font-medium">Tweets</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-bold text-blue-600">
+                          {Math.round(
+                            accountLimits.reduce(
+                              (acc, account) =>
+                                acc + account.dailyLimits.tweets.used,
+                              0
+                            ) / accountLimits.length
+                          )}{" "}
+                          promedio
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          de {accountLimits[0]?.dailyLimits.tweets.limit || 300}{" "}
+                          límite diario
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between p-3 rounded-lg bg-purple-50 dark:bg-purple-900/20">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-lg">👥</span>
+                        <span className="text-sm font-medium">Follows</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-bold text-purple-600">
+                          {Math.round(
+                            accountLimits.reduce(
+                              (acc, account) =>
+                                acc + account.dailyLimits.follows.used,
+                              0
+                            ) / accountLimits.length
+                          )}{" "}
+                          promedio
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          de{" "}
+                          {accountLimits[0]?.dailyLimits.follows.limit || 400}{" "}
+                          límite diario
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between p-3 rounded-lg bg-red-50 dark:bg-red-900/20">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-lg">❤️</span>
+                        <span className="text-sm font-medium">Likes</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-bold text-red-600">
+                          {Math.round(
+                            accountLimits.reduce(
+                              (acc, account) =>
+                                acc + account.dailyLimits.likes.used,
+                              0
+                            ) / accountLimits.length
+                          )}{" "}
+                          promedio
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          de {accountLimits[0]?.dailyLimits.likes.limit || 1000}{" "}
+                          límite diario
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 dark:bg-green-900/20">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-lg">🔄</span>
+                        <span className="text-sm font-medium">Retweets</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-bold text-green-600">
+                          {Math.round(
+                            accountLimits.reduce(
+                              (acc, account) =>
+                                acc + account.dailyLimits.retweets.used,
+                              0
+                            ) / accountLimits.length
+                          )}{" "}
+                          promedio
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          de{" "}
+                          {accountLimits[0]?.dailyLimits.retweets.limit || 300}{" "}
+                          límite diario
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Estado de salud del sistema */}
+            <div className="space-y-4">
+              <h4 className="font-semibold text-sm flex items-center space-x-2">
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                <span>Estado de Salud del Sistema</span>
+              </h4>
+              <div className="space-y-3">
+                <div className="p-3 rounded-lg bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">
+                      Cuentas Operativas
+                    </span>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-lg font-bold text-green-600">
+                        {totalActiveAccounts}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        de {accountLimits.length}
+                      </span>
+                    </div>
+                  </div>
+                  <Progress
+                    value={(totalActiveAccounts / accountLimits.length) * 100}
+                    className="mt-2 h-2"
+                  />
+                </div>
+
+                <div className="p-3 rounded-lg bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">
+                      Eficiencia Global
+                    </span>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-lg font-bold text-blue-600">
+                        {accountLimits.length > 0
+                          ? Math.round(
+                              (accountLimits.filter(
+                                (acc) => acc.status === "active"
+                              ).length /
+                                accountLimits.length) *
+                                100
+                            )
+                          : 0}
+                        %
+                      </span>
+                    </div>
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Basado en cuentas activas vs total
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-lg bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">
+                      Acciones por Hora
+                    </span>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-lg font-bold text-orange-600">
+                        {realtimeMetrics?.actionsPerHour ||
+                          Math.round(
+                            (realtimeMetrics?.totalActionsToday || 0) / 24
+                          )}
+                      </span>
+                      <span className="text-xs text-muted-foreground">/hr</span>
+                    </div>
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Promedio calculado del total diario
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Estadísticas generales */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="shadow-xl border-0 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 transition-all duration-500 hover:shadow-2xl">
@@ -1226,20 +1512,33 @@ export default function Dashboard() {
                                     account.dailyLimits.tweets.limit) *
                                   100
                                 }
-                                className="flex-1"
+                                className={`flex-1 ${getProgressColor(
+                                  account.dailyLimits.tweets.used,
+                                  account.dailyLimits.tweets.limit
+                                )}`}
                               />
                             </div>
-                            <span className="text-xs text-muted-foreground min-w-[45px]">
+                            <span className="text-xs text-muted-foreground min-w-[60px] font-mono">
                               {account.dailyLimits.tweets.used}/
                               {account.dailyLimits.tweets.limit}
                             </span>
                           </div>
-                          <p className="text-xs text-muted-foreground">
-                            Reset:{" "}
-                            {getTimeUntilReset(
-                              account.dailyLimits.tweets.reset
-                            )}
-                          </p>
+                          <div className="flex justify-between items-center">
+                            <p className="text-xs text-muted-foreground">
+                              Reset:{" "}
+                              {getTimeUntilReset(
+                                account.dailyLimits.tweets.reset
+                              )}
+                            </p>
+                            <span className="text-xs font-semibold text-blue-600">
+                              {Math.round(
+                                (account.dailyLimits.tweets.used /
+                                  account.dailyLimits.tweets.limit) *
+                                  100
+                              )}
+                              %
+                            </span>
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell>
@@ -1251,19 +1550,32 @@ export default function Dashboard() {
                                   account.dailyLimits.follows.limit) *
                                 100
                               }
-                              className="flex-1"
+                              className={`flex-1 ${getProgressColor(
+                                account.dailyLimits.follows.used,
+                                account.dailyLimits.follows.limit
+                              )}`}
                             />
-                            <span className="text-xs text-muted-foreground min-w-[45px]">
+                            <span className="text-xs text-muted-foreground min-w-[60px] font-mono">
                               {account.dailyLimits.follows.used}/
                               {account.dailyLimits.follows.limit}
                             </span>
                           </div>
-                          <p className="text-xs text-muted-foreground">
-                            Reset:{" "}
-                            {getTimeUntilReset(
-                              account.dailyLimits.follows.reset
-                            )}
-                          </p>
+                          <div className="flex justify-between items-center">
+                            <p className="text-xs text-muted-foreground">
+                              Reset:{" "}
+                              {getTimeUntilReset(
+                                account.dailyLimits.follows.reset
+                              )}
+                            </p>
+                            <span className="text-xs font-semibold text-purple-600">
+                              {Math.round(
+                                (account.dailyLimits.follows.used /
+                                  account.dailyLimits.follows.limit) *
+                                  100
+                              )}
+                              %
+                            </span>
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell>
@@ -1275,17 +1587,32 @@ export default function Dashboard() {
                                   account.dailyLimits.likes.limit) *
                                 100
                               }
-                              className="flex-1"
+                              className={`flex-1 ${getProgressColor(
+                                account.dailyLimits.likes.used,
+                                account.dailyLimits.likes.limit
+                              )}`}
                             />
-                            <span className="text-xs text-muted-foreground min-w-[45px]">
+                            <span className="text-xs text-muted-foreground min-w-[60px] font-mono">
                               {account.dailyLimits.likes.used}/
                               {account.dailyLimits.likes.limit}
                             </span>
                           </div>
-                          <p className="text-xs text-muted-foreground">
-                            Reset:{" "}
-                            {getTimeUntilReset(account.dailyLimits.likes.reset)}
-                          </p>
+                          <div className="flex justify-between items-center">
+                            <p className="text-xs text-muted-foreground">
+                              Reset:{" "}
+                              {getTimeUntilReset(
+                                account.dailyLimits.likes.reset
+                              )}
+                            </p>
+                            <span className="text-xs font-semibold text-red-600">
+                              {Math.round(
+                                (account.dailyLimits.likes.used /
+                                  account.dailyLimits.likes.limit) *
+                                  100
+                              )}
+                              %
+                            </span>
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell>
@@ -1297,19 +1624,32 @@ export default function Dashboard() {
                                   account.dailyLimits.retweets.limit) *
                                 100
                               }
-                              className="flex-1"
+                              className={`flex-1 ${getProgressColor(
+                                account.dailyLimits.retweets.used,
+                                account.dailyLimits.retweets.limit
+                              )}`}
                             />
-                            <span className="text-xs text-muted-foreground min-w-[45px]">
+                            <span className="text-xs text-muted-foreground min-w-[60px] font-mono">
                               {account.dailyLimits.retweets.used}/
                               {account.dailyLimits.retweets.limit}
                             </span>
                           </div>
-                          <p className="text-xs text-muted-foreground">
-                            Reset:{" "}
-                            {getTimeUntilReset(
-                              account.dailyLimits.retweets.reset
-                            )}
-                          </p>
+                          <div className="flex justify-between items-center">
+                            <p className="text-xs text-muted-foreground">
+                              Reset:{" "}
+                              {getTimeUntilReset(
+                                account.dailyLimits.retweets.reset
+                              )}
+                            </p>
+                            <span className="text-xs font-semibold text-green-600">
+                              {Math.round(
+                                (account.dailyLimits.retweets.used /
+                                  account.dailyLimits.retweets.limit) *
+                                  100
+                              )}
+                              %
+                            </span>
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell>

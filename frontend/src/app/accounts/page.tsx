@@ -155,15 +155,28 @@ export default function AccountsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [isVisible, setIsVisible] = useState(false);
+  const [mutualFollowCampaign, setMutualFollowCampaign] = useState<any>(null);
+  const [isStartingCampaign, setIsStartingCampaign] = useState(false);
+  const [isMutualFollowDialogOpen, setIsMutualFollowDialogOpen] =
+    useState(false);
 
   const router = useRouter();
 
   useEffect(() => {
     fetchAccountsData();
     fetchUserRole();
+    fetchMutualFollowCampaignStatus();
     // Animación de entrada
     setTimeout(() => setIsVisible(true), 100);
   }, []);
+
+  // Fetch periódico del estado de la campaña
+  useEffect(() => {
+    if (mutualFollowCampaign?.isRunning) {
+      const interval = setInterval(fetchMutualFollowCampaignStatus, 30000); // Cada 30 segundos
+      return () => clearInterval(interval);
+    }
+  }, [mutualFollowCampaign?.isRunning]);
 
   useEffect(() => {
     if (debugData) {
@@ -202,6 +215,73 @@ export default function AccountsPage() {
       }
     } catch (err) {
       console.error("Error al obtener rol del usuario:", err);
+    }
+  };
+
+  const fetchMutualFollowCampaignStatus = async () => {
+    try {
+      const response = await fetch("/api/mutual-follow-campaign");
+      if (response.ok) {
+        const data = await response.json();
+        setMutualFollowCampaign(data);
+      }
+    } catch (err) {
+      console.error("Error al obtener estado de campaña:", err);
+    }
+  };
+
+  const startMutualFollowCampaign = async () => {
+    try {
+      setIsStartingCampaign(true);
+      const response = await fetch("/api/mutual-follow-campaign", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMutualFollowCampaign(data.campaign);
+        setIsMutualFollowDialogOpen(false);
+        // Mostrar notificación de éxito
+        alert(
+          `Campaña iniciada exitosamente! Se ejecutarán ${data.campaign.progress.total} acciones de follow distribuidas en 5 días.`
+        );
+      } else {
+        throw new Error(data.error || "Error al iniciar campaña");
+      }
+    } catch (err) {
+      console.error("Error al iniciar campaña:", err);
+      alert("Error al iniciar la campaña. Intente nuevamente.");
+    } finally {
+      setIsStartingCampaign(false);
+    }
+  };
+
+  const cancelMutualFollowCampaign = async () => {
+    if (
+      confirm("¿Estás seguro que deseas cancelar la campaña de follow mutuo?")
+    ) {
+      try {
+        const response = await fetch("/api/mutual-follow-campaign", {
+          method: "DELETE",
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setMutualFollowCampaign(null);
+          alert(
+            `Campaña cancelada. ${
+              data.canceledActions || 0
+            } acciones pendientes fueron removidas.`
+          );
+        }
+      } catch (err) {
+        console.error("Error al cancelar campaña:", err);
+        alert("Error al cancelar la campaña.");
+      }
     }
   };
 
@@ -384,6 +464,32 @@ export default function AccountsPage() {
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Actualizar
               </Button>
+              {debugData && debugData.accounts.length >= 2 && (
+                <Button
+                  onClick={() => setIsMutualFollowDialogOpen(true)}
+                  variant={
+                    mutualFollowCampaign?.isRunning ? "secondary" : "default"
+                  }
+                  disabled={mutualFollowCampaign?.isRunning}
+                  className={
+                    mutualFollowCampaign?.isRunning
+                      ? "bg-gray-400"
+                      : "bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 transition-all duration-200 hover:scale-105"
+                  }
+                >
+                  {mutualFollowCampaign?.isRunning ? (
+                    <>
+                      <Activity className="h-4 w-4 mr-2 animate-pulse" />
+                      Campaña en Curso
+                    </>
+                  ) : (
+                    <>
+                      <Users className="h-4 w-4 mr-2" />
+                      Follow Mutuo
+                    </>
+                  )}
+                </Button>
+              )}
               <Button
                 onClick={() => setIsAddAccountModalOpen(true)}
                 className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all duration-200 hover:scale-105"
@@ -394,6 +500,116 @@ export default function AccountsPage() {
             </div>
           </div>
         </div>
+
+        {/* Estado de la campaña de follow mutuo */}
+        {mutualFollowCampaign && mutualFollowCampaign.isRunning && (
+          <Card className="mb-6 shadow-xl border-0 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3">
+                <div className="bg-green-100 dark:bg-green-900 p-2 rounded-full">
+                  <Activity className="h-5 w-5 text-green-600 dark:text-green-400 animate-pulse" />
+                </div>
+                <span>Campaña de Follow Mutuo en Curso</span>
+                <Badge variant="secondary" className="ml-auto">
+                  {mutualFollowCampaign.currentPhase}
+                </Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="space-y-3">
+                  <h4 className="font-semibold text-sm">Progreso General</h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>Completadas:</span>
+                      <span className="font-semibold text-green-600">
+                        {mutualFollowCampaign.progress.completed}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>Restantes:</span>
+                      <span className="font-semibold text-blue-600">
+                        {mutualFollowCampaign.progress.remaining}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>Fallidas:</span>
+                      <span className="font-semibold text-red-600">
+                        {mutualFollowCampaign.progress.failed}
+                      </span>
+                    </div>
+                  </div>
+                  <Progress
+                    value={
+                      (mutualFollowCampaign.progress.completed /
+                        mutualFollowCampaign.progress.total) *
+                      100
+                    }
+                    className="h-3"
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <h4 className="font-semibold text-sm">Información</h4>
+                  <div className="space-y-2 text-sm">
+                    <div>
+                      <span className="text-muted-foreground">Iniciada:</span>
+                      <div className="font-medium">
+                        {new Date(
+                          mutualFollowCampaign.startedAt
+                        ).toLocaleDateString("es-ES", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">
+                        Finalización estimada:
+                      </span>
+                      <div className="font-medium">
+                        {new Date(
+                          mutualFollowCampaign.estimatedCompletionDate
+                        ).toLocaleDateString("es-ES", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <h4 className="font-semibold text-sm">Acciones</h4>
+                  <div className="space-y-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={fetchMutualFollowCampaignStatus}
+                      className="w-full"
+                    >
+                      <RefreshCw className="h-4 w-4 mr-2" />
+                      Actualizar Estado
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={cancelMutualFollowCampaign}
+                      className="w-full"
+                    >
+                      <XCircle className="h-4 w-4 mr-2" />
+                      Cancelar Campaña
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Estadísticas mejoradas */}
         {debugData && (
@@ -948,6 +1164,206 @@ export default function AccountsPage() {
                 className="hover:scale-105 transition-transform duration-200"
               >
                 Cerrar
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Modal de campaña de follow mutuo */}
+        <Dialog
+          open={isMutualFollowDialogOpen}
+          onOpenChange={setIsMutualFollowDialogOpen}
+        >
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="bg-green-100 dark:bg-green-900 p-3 rounded-full">
+                  <Users className="h-6 w-6 text-green-600 dark:text-green-400" />
+                </div>
+                <div>
+                  <DialogTitle className="text-xl">
+                    Campaña de Follow Mutuo
+                  </DialogTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Hacer que todas las cuentas se sigan entre ellas
+                  </p>
+                </div>
+              </div>
+            </DialogHeader>
+
+            <div className="space-y-6">
+              {/* Información de la campaña */}
+              <Card className="border-0 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
+                <CardContent className="p-6">
+                  <h4 className="font-semibold mb-4 flex items-center gap-2">
+                    <BarChart3 className="h-5 w-5 text-blue-600" />
+                    Detalles de la Campaña
+                  </h4>
+
+                  {debugData && (
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="text-muted-foreground">
+                          Cuentas participantes:
+                        </span>
+                        <div className="font-semibold text-lg text-blue-600">
+                          {
+                            debugData.accounts.filter(
+                              (acc) =>
+                                acc.useOwnCredentials && acc.credentialsVerified
+                            ).length
+                          }
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">
+                          Total de follows:
+                        </span>
+                        <div className="font-semibold text-lg text-green-600">
+                          {debugData.accounts.filter(
+                            (acc) =>
+                              acc.useOwnCredentials && acc.credentialsVerified
+                          ).length *
+                            (debugData.accounts.filter(
+                              (acc) =>
+                                acc.useOwnCredentials && acc.credentialsVerified
+                            ).length -
+                              1)}
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">
+                          Duración estimada:
+                        </span>
+                        <div className="font-semibold text-purple-600">
+                          5 días
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">
+                          Límites API:
+                        </span>
+                        <div className="font-semibold text-orange-600">
+                          50/15min
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Advertencias y consideraciones */}
+              <Card className="border-0 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20">
+                <CardContent className="p-6">
+                  <h4 className="font-semibold mb-4 flex items-center gap-2">
+                    <AlertTriangle className="h-5 w-5 text-yellow-600" />
+                    Consideraciones Importantes
+                  </h4>
+
+                  <div className="space-y-3 text-sm">
+                    <div className="flex items-start gap-2">
+                      <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0" />
+                      <span>
+                        <strong>Límites de Twitter:</strong> Se respetarán los
+                        límites de 400 follows por día y 50 por cada 15 minutos
+                        según la documentación oficial de Twitter API v2.
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
+                      <span>
+                        <strong>Distribución temporal:</strong> Las acciones se
+                        distribuirán uniformemente durante 5 días con
+                        variaciones aleatorias para parecer más natural.
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0" />
+                      <span>
+                        <strong>Solo cuentas verificadas:</strong> Solo
+                        participarán cuentas con credenciales propias
+                        verificadas.
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0" />
+                      <span>
+                        <strong>No duplicados:</strong> El sistema evitará
+                        automáticamente acciones duplicadas.
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Lista de cuentas que participarán */}
+              {debugData && (
+                <Card className="border-0 bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-900/50 dark:to-gray-900/50">
+                  <CardContent className="p-6">
+                    <h4 className="font-semibold mb-4 flex items-center gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-green-600" />
+                      Cuentas Participantes
+                    </h4>
+
+                    <ScrollArea className="h-32">
+                      <div className="space-y-2">
+                        {debugData.accounts
+                          .filter(
+                            (acc) =>
+                              acc.useOwnCredentials && acc.credentialsVerified
+                          )
+                          .map((account, index) => (
+                            <div
+                              key={index}
+                              className="flex items-center gap-3 p-2 bg-white dark:bg-slate-800 rounded-lg"
+                            >
+                              <Avatar className="w-8 h-8">
+                                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-sm">
+                                  {account.username[0].toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                              <span className="font-medium">
+                                @{account.username}
+                              </span>
+                              <Badge
+                                variant="secondary"
+                                className="ml-auto text-xs"
+                              >
+                                Verificada
+                              </Badge>
+                            </div>
+                          ))}
+                      </div>
+                    </ScrollArea>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+
+            <DialogFooter className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setIsMutualFollowDialogOpen(false)}
+                className="hover:scale-105 transition-transform duration-200"
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={startMutualFollowCampaign}
+                disabled={isStartingCampaign}
+                className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 transition-all duration-200 hover:scale-105"
+              >
+                {isStartingCampaign ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Iniciando...
+                  </>
+                ) : (
+                  <>
+                    <Zap className="h-4 w-4 mr-2" />
+                    Iniciar Campaña
+                  </>
+                )}
               </Button>
             </DialogFooter>
           </DialogContent>

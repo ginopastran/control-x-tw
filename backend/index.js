@@ -1874,6 +1874,350 @@ app.post("/api/debug/check-scheduled", (req, res) => {
   }
 });
 
+// Estado del sistema de follow mutuo
+let mutualFollowCampaign = {
+  isRunning: false,
+  startedAt: null,
+  progress: {
+    total: 0,
+    completed: 0,
+    failed: 0,
+    remaining: 0,
+  },
+  accounts: [],
+  processedPairs: new Set(), // Para evitar duplicados
+  estimatedCompletionDate: null,
+  currentPhase: "idle", // idle, calculating, running, completed, error
+};
+
+// Endpoint para iniciar campaña de follow mutuo
+app.post("/api/mutual-follow-campaign", async (req, res) => {
+  try {
+    // Verificar si ya hay una campaña en curso
+    if (mutualFollowCampaign.isRunning) {
+      return res.status(400).json({
+        error: "Ya hay una campaña de follow mutuo en curso",
+        campaign: mutualFollowCampaign,
+      });
+    }
+
+    // Obtener todas las cuentas activas
+    const accounts = await XAccount.find({
+      useOwnCredentials: true,
+      credentialsVerified: true,
+      ownAccessToken: { $exists: true },
+      ownAccessTokenSecret: { $exists: true },
+    });
+
+    if (accounts.length < 2) {
+      return res.status(400).json({
+        error:
+          "Se necesitan al menos 2 cuentas con credenciales verificadas para ejecutar la campaña",
+      });
+    }
+
+    console.log(
+      `🤝 Iniciando campaña de follow mutuo con ${accounts.length} cuentas`
+    );
+
+    // Calcular todas las combinaciones posibles (sin repetir pares)
+    const followPairs = [];
+    for (let i = 0; i < accounts.length; i++) {
+      for (let j = 0; j < accounts.length; j++) {
+        if (i !== j) {
+          const followerAccount = accounts[i];
+          const targetAccount = accounts[j];
+
+          // Crear identificador único del par para evitar duplicados
+          const pairId = `${followerAccount._id}_follows_${targetAccount._id}`;
+
+          if (!mutualFollowCampaign.processedPairs.has(pairId)) {
+            followPairs.push({
+              followerAccount,
+              targetAccount,
+              pairId,
+            });
+          }
+        }
+      }
+    }
+
+    console.log(
+      `📊 Total de acciones de follow a ejecutar: ${followPairs.length}`
+    );
+
+    // Configurar la campaña
+    mutualFollowCampaign = {
+      isRunning: true,
+      startedAt: new Date(),
+      progress: {
+        total: followPairs.length,
+        completed: 0,
+        failed: 0,
+        remaining: followPairs.length,
+      },
+      accounts: accounts.map((acc) => ({
+        id: acc._id,
+        username: acc.username,
+        userId: acc.userId,
+      })),
+      processedPairs: new Set(),
+      estimatedCompletionDate: calculateEstimatedCompletion(followPairs.length),
+      currentPhase: "running",
+    };
+
+    // Programar las acciones con delays distribuidos en 4-5 días
+    scheduleMutualFollowActions(followPairs);
+
+    res.json({
+      success: true,
+      message: "Campaña de follow mutuo iniciada exitosamente",
+      campaign: {
+        ...mutualFollowCampaign,
+        processedPairs: Array.from(mutualFollowCampaign.processedPairs),
+      },
+    });
+  } catch (error) {
+    console.error("Error iniciando campaña de follow mutuo:", error);
+    mutualFollowCampaign.currentPhase = "error";
+    res.status(500).json({
+      error: "Error interno del servidor",
+      details: error.message,
+    });
+  }
+});
+
+// Endpoint para obtener estado de la campaña
+app.get("/api/mutual-follow-campaign", (req, res) => {
+  res.json({
+    ...mutualFollowCampaign,
+    processedPairs: Array.from(mutualFollowCampaign.processedPairs),
+  });
+});
+
+// Endpoint para cancelar la campaña
+app.delete("/api/mutual-follow-campaign", (req, res) => {
+  if (mutualFollowCampaign.isRunning) {
+    // Cancelar acciones programadas pendientes
+    const canceledActions = scheduledActions.filter(
+      (action) =>
+        action.action === "follow" && action.source === "mutual-follow-campaign"
+    );
+
+    // Remover de acciones programadas
+    canceledActions.forEach((action) => {
+      const index = scheduledActions.indexOf(action);
+      if (index > -1) {
+        scheduledActions.splice(index, 1);
+      }
+    });
+
+    mutualFollowCampaign.isRunning = false;
+    mutualFollowCampaign.currentPhase = "cancelled";
+
+    console.log(
+      `🛑 Campaña de follow mutuo cancelada. ${canceledActions.length} acciones pendientes removidas.`
+    );
+
+    res.json({
+      success: true,
+      message: "Campaña cancelada exitosamente",
+      canceledActions: canceledActions.length,
+    });
+  } else {
+    res.json({
+      message: "No hay campaña activa para cancelar",
+    });
+  }
+});
+
+// Función para calcular fecha estimada de finalización
+function calculateEstimatedCompletion(totalActions) {
+  // Límite de Twitter: 400 follows por día, 50 por 15 minutos
+  // Para ser conservadores, usamos 300 follows por día distribuidos
+  const followsPerDay = 300;
+  const daysNeeded = Math.ceil(totalActions / followsPerDay);
+
+  const completionDate = new Date();
+  completionDate.setDate(completionDate.getDate() + daysNeeded);
+
+  return completionDate;
+}
+
+// Función para programar las acciones de follow mutuo
+function scheduleMutualFollowActions(followPairs) {
+  const now = new Date();
+
+  // Distribuir las acciones en 4-5 días (usaremos 5 días para ser conservadores)
+  const distributionDays = 5;
+  const totalMinutes = distributionDays * 24 * 60; // 5 días en minutos
+  const intervalBetweenActions = Math.floor(totalMinutes / followPairs.length); // minutos entre cada acción
+
+  console.log(
+    `⏰ Distribuyendo ${followPairs.length} acciones en ${distributionDays} días`
+  );
+  console.log(`⏰ Intervalo entre acciones: ${intervalBetweenActions} minutos`);
+
+  followPairs.forEach((pair, index) => {
+    // Calcular el momento de ejecución
+    const executionTime = new Date(
+      now.getTime() + index * intervalBetweenActions * 60 * 1000
+    );
+
+    // Agregar variación aleatoria de ±30 minutos para parecer más natural
+    const randomVariation = (Math.random() - 0.5) * 60 * 60 * 1000; // ±30 minutos en ms
+    executionTime.setTime(executionTime.getTime() + randomVariation);
+
+    const actionId = generateActionId();
+
+    const scheduledAction = {
+      id: actionId,
+      action: "follow",
+      accountUsername: pair.followerAccount.username,
+      accountLabels: pair.followerAccount.labels || [],
+      text: `Seguir a @${pair.targetAccount.username}`,
+      targetUserId: pair.targetAccount.userId || pair.targetAccount.username,
+      scheduledTime: executionTime.toISOString(),
+      createdAt: new Date().toISOString(),
+      baseDelay: intervalBetweenActions * 60 * 1000, // en millisegundos
+      randomDelay: Math.abs(randomVariation),
+      source: "mutual-follow-campaign", // Identificador para poder cancelar después
+      pairId: pair.pairId,
+      metadata: {
+        followerAccountId: pair.followerAccount._id,
+        targetAccountId: pair.targetAccount._id,
+        campaignType: "mutual-follow",
+      },
+    };
+
+    scheduledActions.push(scheduledAction);
+    console.log(
+      `📅 Programado: @${pair.followerAccount.username} seguirá a @${
+        pair.targetAccount.username
+      } el ${executionTime.toLocaleString("es-ES")}`
+    );
+  });
+
+  console.log(
+    `✅ ${followPairs.length} acciones de follow programadas exitosamente`
+  );
+}
+
+// Función mejorada para procesar acciones programadas (actualizar la existente)
+const processScheduledActions = () => {
+  const now = new Date();
+  const actionsToExecute = [];
+
+  // Buscar acciones que deben ejecutarse ahora
+  for (let i = scheduledActions.length - 1; i >= 0; i--) {
+    const scheduledAction = scheduledActions[i];
+    const scheduledTime = new Date(scheduledAction.scheduledTime);
+
+    if (scheduledTime <= now) {
+      actionsToExecute.push(scheduledAction);
+      scheduledActions.splice(i, 1); // Remover de programadas
+    }
+  }
+
+  // Ejecutar acciones
+  actionsToExecute.forEach(async (scheduledAction) => {
+    try {
+      console.log(
+        `🚀 Ejecutando acción programada: ${scheduledAction.action} para @${scheduledAction.accountUsername}`
+      );
+
+      // Obtener la cuenta completa
+      const account = await XAccount.findOne({
+        username: scheduledAction.accountUsername,
+      });
+      if (!account) {
+        throw new Error(
+          `Cuenta @${scheduledAction.accountUsername} no encontrada`
+        );
+      }
+
+      // Verificar que la cuenta tenga credenciales válidas
+      if (!account.useOwnCredentials || !account.credentialsVerified) {
+        throw new Error(
+          `Cuenta @${scheduledAction.accountUsername} no tiene credenciales verificadas`
+        );
+      }
+
+      // Crear objeto de acción para la cola
+      const actionForQueue = {
+        id: scheduledAction.id,
+        accountId: account._id,
+        action: scheduledAction.action,
+        targetUserId: scheduledAction.targetUserId,
+        text: scheduledAction.text,
+        source: scheduledAction.source || "scheduled",
+        metadata: scheduledAction.metadata || {},
+      };
+
+      // Agregar a la cola de ejecución inmediata
+      actionQueue.push(actionForQueue);
+
+      // Si es parte de la campaña de follow mutuo, actualizar progreso
+      if (scheduledAction.source === "mutual-follow-campaign") {
+        mutualFollowCampaign.processedPairs.add(scheduledAction.pairId);
+        mutualFollowCampaign.progress.remaining--;
+        console.log(
+          `📊 Progreso campaña: ${mutualFollowCampaign.processedPairs.size}/${mutualFollowCampaign.progress.total}`
+        );
+      }
+    } catch (error) {
+      console.error(
+        `❌ Error ejecutando acción programada ${scheduledAction.id}:`,
+        error.message
+      );
+
+      // Si es parte de la campaña, actualizar contadores de error
+      if (scheduledAction.source === "mutual-follow-campaign") {
+        mutualFollowCampaign.progress.failed++;
+        mutualFollowCampaign.progress.remaining--;
+      }
+
+      // Agregar al historial como fallida
+      addToHistory({
+        id: scheduledAction.id,
+        action: scheduledAction.action,
+        accountUsername: scheduledAction.accountUsername,
+        status: "failed",
+        completedAt: new Date().toISOString(),
+        error: error.message,
+      });
+    }
+  });
+};
+
+// Actualizar el cron job existente para incluir el procesamiento de acciones programadas
+cron.schedule("*/1 * * * *", () => {
+  // Procesar acciones programadas
+  processScheduledActions();
+
+  // El resto del código del cron job existente...
+  processActionQueue();
+});
+
+// Función para verificar si la campaña debe marcarse como completada
+function checkCampaignCompletion() {
+  if (
+    mutualFollowCampaign.isRunning &&
+    mutualFollowCampaign.progress.remaining === 0
+  ) {
+    mutualFollowCampaign.isRunning = false;
+    mutualFollowCampaign.currentPhase = "completed";
+    mutualFollowCampaign.progress.completed =
+      mutualFollowCampaign.processedPairs.size;
+
+    console.log(`🎉 Campaña de follow mutuo completada!`);
+    console.log(`📊 Estadísticas finales:`, mutualFollowCampaign.progress);
+  }
+}
+
+// Llamar esta función después de cada acción procesada
+setInterval(checkCampaignCompletion, 60000); // Verificar cada minuto
+
 // Iniciar servidor
 app.listen(PORT, () => {
   console.log(`🚀 Servidor ejecutándose en puerto ${PORT}`);
