@@ -16,10 +16,10 @@ export async function POST(req: NextRequest) {
     }
 
     await connectDB();
-    
+
     // Obtener la cuenta
     const account = await XAccount.findById(accountId);
-    
+
     if (!account) {
       return NextResponse.json(
         { error: "Cuenta no encontrada" },
@@ -30,22 +30,24 @@ export async function POST(req: NextRequest) {
     // Enviar a la API de X
     const endpoint = `https://api.twitter.com/2/users/${account.userId}/likes`;
     const payload = {
-      tweet_id: tweetId
+      tweet_id: tweetId,
     };
 
-    console.log(`Enviando like al tweet ${tweetId} con la cuenta ${account.username}`);
+    console.log(
+      `Enviando like al tweet ${tweetId} con la cuenta ${account.username}`
+    );
 
     const response = await fetch(endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${account.accessToken}`
+        Authorization: `Bearer ${account.accessToken}`,
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     });
 
     const data = await response.json();
-    
+
     if (!response.ok) {
       console.error("Error al dar like:", data);
       return NextResponse.json(
@@ -56,13 +58,10 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       message: "Like dado correctamente",
-      result: data.data
+      result: data.data,
     });
   } catch (error) {
     console.error("Error al dar like:", error);
-    return NextResponse.json(
-      { error: "Error al dar like" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Error al dar like" }, { status: 500 });
   }
-} 
+}

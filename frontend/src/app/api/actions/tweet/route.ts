@@ -16,10 +16,10 @@ export async function POST(req: NextRequest) {
     }
 
     await connectDB();
-    
+
     // Obtener la cuenta
     const account = await XAccount.findById(accountId);
-    
+
     if (!account) {
       return NextResponse.json(
         { error: "Cuenta no encontrada" },
@@ -27,16 +27,21 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    console.log(`Enviando tweet desde la cuenta ${account.username}: "${text.substring(0, 30)}..."`);
+    console.log(
+      `Enviando tweet desde la cuenta ${account.username}: "${text.substring(
+        0,
+        30
+      )}..."`
+    );
 
     // Datos para la API de X
     const tweetData: any = {
-      text: text
+      text: text,
     };
 
     // Si hay media, agregarla
     if (media && media.length > 0) {
-      // Esta es una versión simplificada, la API de X requiere 
+      // Esta es una versión simplificada, la API de X requiere
       // primero subir el media y obtener un ID
       tweetData.media = { media_ids: media };
     }
@@ -46,13 +51,13 @@ export async function POST(req: NextRequest) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${account.accessToken}`
+        Authorization: `Bearer ${account.accessToken}`,
       },
-      body: JSON.stringify(tweetData)
+      body: JSON.stringify(tweetData),
     });
 
     const data = await response.json();
-    
+
     if (!response.ok) {
       console.error("Error al publicar tweet:", data);
       return NextResponse.json(
@@ -65,13 +70,16 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       message: "Tweet publicado correctamente",
-      tweet: data.data
+      tweet: data.data,
     });
   } catch (error: any) {
     console.error("Error al publicar tweet:", error);
     return NextResponse.json(
-      { error: "Error al publicar tweet: " + (error.message || "Error desconocido") },
+      {
+        error:
+          "Error al publicar tweet: " + (error.message || "Error desconocido"),
+      },
       { status: 500 }
     );
   }
-} 
+}

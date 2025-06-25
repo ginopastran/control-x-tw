@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { buildApiUrl } from "@/config/api";
 import {
   Table,
   TableBody,
@@ -303,9 +304,8 @@ export default function AccountsPage() {
 
       console.log("🧪 Iniciando test de todas las cuentas...");
 
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
-
-      const response = await fetch(`${apiUrl}/api/accounts/test-all`, {
+      // Usar el endpoint proxy local que se conecta al backend
+      const response = await fetch("/api/accounts/test-all", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

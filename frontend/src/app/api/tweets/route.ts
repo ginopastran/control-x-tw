@@ -49,24 +49,29 @@ const createOAuthSignature = (
   // 1. Encode parámetros y ordenarlos alfabéticamente
   const encodedParams = Object.keys(parameters)
     .sort()
-    .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(parameters[key])}`)
-    .join('&');
+    .map(
+      (key) =>
+        `${encodeURIComponent(key)}=${encodeURIComponent(parameters[key])}`
+    )
+    .join("&");
 
   // 2. Crear signature base string
   const signatureBaseString = [
     method.toUpperCase(),
     encodeURIComponent(baseUrl),
-    encodeURIComponent(encodedParams)
-  ].join('&');
+    encodeURIComponent(encodedParams),
+  ].join("&");
 
   // 3. Crear signing key
-  const signingKey = `${encodeURIComponent(consumerSecret)}&${encodeURIComponent(tokenSecret)}`;
+  const signingKey = `${encodeURIComponent(
+    consumerSecret
+  )}&${encodeURIComponent(tokenSecret)}`;
 
   // 4. Generar signature usando HMAC-SHA1
   const signature = crypto
-    .createHmac('sha1', signingKey)
+    .createHmac("sha1", signingKey)
     .update(signatureBaseString)
-    .digest('base64');
+    .digest("base64");
 
   return signature;
 };
@@ -95,16 +100,16 @@ const generateOAuth1Headers = async (
 
   // Generar nonce y timestamp
   const timestamp = Math.floor(Date.now() / 1000).toString();
-  const nonce = crypto.randomBytes(16).toString('hex');
+  const nonce = crypto.randomBytes(16).toString("hex");
 
   // Parámetros OAuth base
   const oauthParams: Record<string, string> = {
     oauth_consumer_key: consumerKey,
     oauth_token: accessToken,
-    oauth_signature_method: 'HMAC-SHA1',
+    oauth_signature_method: "HMAC-SHA1",
     oauth_timestamp: timestamp,
     oauth_nonce: nonce,
-    oauth_version: '1.0'
+    oauth_version: "1.0",
   };
 
   // Generar signature
@@ -120,15 +125,20 @@ const generateOAuth1Headers = async (
   oauthParams.oauth_signature = signature;
 
   // Crear authorization header
-  const authHeaderValue = 'OAuth ' + Object.keys(oauthParams)
-    .map(key => `${encodeURIComponent(key)}="${encodeURIComponent(oauthParams[key])}"`)
-    .join(', ');
+  const authHeaderValue =
+    "OAuth " +
+    Object.keys(oauthParams)
+      .map(
+        (key) =>
+          `${encodeURIComponent(key)}="${encodeURIComponent(oauthParams[key])}"`
+      )
+      .join(", ");
 
   return {
-    'Authorization': authHeaderValue,
-    'Content-Type': 'application/json',
-    'User-Agent': 'TwitterAPI-v2',
-    'Accept': 'application/json'
+    Authorization: authHeaderValue,
+    "Content-Type": "application/json",
+    "User-Agent": "TwitterAPI-v2",
+    Accept: "application/json",
   };
 };
 
@@ -261,7 +271,7 @@ export async function POST(req: NextRequest) {
           authMethod = "oauth1";
           useOwnCredentials = true;
         } else if (!needsWriteAccess && decryptedCreds.bearerToken) {
-          // Usar Bearer Token para lectura  
+          // Usar Bearer Token para lectura
           accessToken = decryptedCreds.bearerToken;
           authMethod = "bearer";
           useOwnCredentials = true;
@@ -327,7 +337,7 @@ export async function POST(req: NextRequest) {
 
       try {
         let headers: Record<string, string>;
-        
+
         if (authMethod === "oauth1") {
           if (!accessTokenSecret) {
             throw new Error("Access Token Secret requerido para OAuth 1.0a");
@@ -343,10 +353,10 @@ export async function POST(req: NextRequest) {
           );
         } else {
           headers = {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-            'User-Agent': 'TwitterAPI-v2',
-            'Accept': 'application/json'
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+            "User-Agent": "TwitterAPI-v2",
+            Accept: "application/json",
           };
         }
 
@@ -465,9 +475,11 @@ export async function POST(req: NextRequest) {
                 "Uno o más parámetros de la solicitud son inválidos.";
             }
           } else if (response.status === 401) {
-            errorMessage = "Error de autenticación: credenciales inválidas o expiradas";
+            errorMessage =
+              "Error de autenticación: credenciales inválidas o expiradas";
           } else if (response.status === 403) {
-            errorMessage = "Acceso denegado: no tienes permisos para realizar esta acción";
+            errorMessage =
+              "Acceso denegado: no tienes permisos para realizar esta acción";
           } else {
             errorMessage = `Error ${response.status} de Twitter API`;
           }
@@ -490,7 +502,6 @@ export async function POST(req: NextRequest) {
 
         const responseData = await response.json();
         return responseData;
-
       } catch (error: any) {
         clearTimeout(timeoutId);
 

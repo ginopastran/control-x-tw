@@ -34,13 +34,28 @@ export async function GET(req: NextRequest) {
           _id: account._id,
           username: account.username,
           userId: account.userId,
-          developerTag: account.developerTag,
+          developerTag:
+            account.developerTag ||
+            (account.useOwnCredentials ? "Usuario propio" : "Compartida"),
           labels: account.labels || [],
           createdAt: account.createdAt,
-          hasAccessToken: !!account.accessToken,
-          hasRefreshToken: !!account.refreshToken,
-          accessTokenLength: account.accessToken?.length || 0,
-          refreshTokenLength: account.refreshToken?.length || 0,
+          useOwnCredentials: account.useOwnCredentials,
+          credentialsVerified: account.credentialsVerified,
+          userAppName: account.userAppName,
+          appCreatedAt: account.appCreatedAt,
+          // Credenciales OAuth 1.0a
+          hasAccessToken: !!(account.useOwnCredentials
+            ? account.ownAccessToken
+            : process.env.TWITTER_ACCESS_TOKEN),
+          hasRefreshToken: !!(account.useOwnCredentials
+            ? account.ownOAuth2RefreshToken
+            : false),
+          accessTokenLength: account.useOwnCredentials
+            ? account.ownAccessToken?.length || 0
+            : process.env.TWITTER_ACCESS_TOKEN?.length || 0,
+          refreshTokenLength: account.useOwnCredentials
+            ? account.ownOAuth2RefreshToken?.length || 0
+            : 0,
           needsReauth: needsReauthentication,
           tokenInfo: tokenInfo
             ? {

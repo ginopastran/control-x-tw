@@ -10,16 +10,18 @@ export async function POST(req: NextRequest) {
 
     if (!accountId || !tweetId || !text) {
       return NextResponse.json(
-        { error: "Se requiere ID de cuenta, ID del tweet y texto de respuesta" },
+        {
+          error: "Se requiere ID de cuenta, ID del tweet y texto de respuesta",
+        },
         { status: 400 }
       );
     }
 
     await connectDB();
-    
+
     // Obtener la cuenta
     const account = await XAccount.findById(accountId);
-    
+
     if (!account) {
       return NextResponse.json(
         { error: "Cuenta no encontrada" },
@@ -31,24 +33,26 @@ export async function POST(req: NextRequest) {
     const replyData = {
       text: text,
       reply: {
-        in_reply_to_tweet_id: tweetId
-      }
+        in_reply_to_tweet_id: tweetId,
+      },
     };
 
-    console.log(`Enviando respuesta al tweet ${tweetId} con la cuenta ${account.username}`);
+    console.log(
+      `Enviando respuesta al tweet ${tweetId} con la cuenta ${account.username}`
+    );
 
     // Enviar a la API de X
     const response = await fetch("https://api.twitter.com/2/tweets", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${account.accessToken}`
+        Authorization: `Bearer ${account.accessToken}`,
       },
-      body: JSON.stringify(replyData)
+      body: JSON.stringify(replyData),
     });
 
     const data = await response.json();
-    
+
     if (!response.ok) {
       console.error("Error al enviar respuesta:", data);
       return NextResponse.json(
@@ -59,7 +63,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       message: "Respuesta enviada correctamente",
-      tweet: data.data
+      tweet: data.data,
     });
   } catch (error) {
     console.error("Error al enviar respuesta:", error);
@@ -68,4 +72,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}
