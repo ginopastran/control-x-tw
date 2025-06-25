@@ -2337,7 +2337,7 @@ app.put(
       const { name, description } = req.body;
 
       // Buscar la cuenta
-      const account = await Account.findById(id);
+      const account = await XAccount.findById(id);
       if (!account) {
         return res.status(404).json({ error: "Cuenta no encontrada" });
       }
@@ -2422,10 +2422,13 @@ app.put(
 
           // Registrar acción
           await ActionHistory.create({
+            actionId: generateActionId(),
             accountId: account._id,
+            username: account.username,
             action: "profile_update",
             status: "completed",
-            details: { updatedFields: Object.keys(updateData) },
+            success: true,
+            result: { updatedFields: Object.keys(updateData) },
             createdAt: new Date(),
           });
 
@@ -2482,7 +2485,7 @@ app.post(
       }
 
       // Buscar la cuenta
-      const account = await Account.findById(id);
+      const account = await XAccount.findById(id);
       if (!account) {
         return res.status(404).json({ error: "Cuenta no encontrada" });
       }

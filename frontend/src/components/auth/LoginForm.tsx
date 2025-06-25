@@ -37,6 +37,11 @@ export default function LoginForm() {
         throw new Error(data.error || "Error al iniciar sesión");
       }
 
+      // Guardar token en localStorage para deploy cross-domain
+      if (data.token && typeof window !== "undefined") {
+        localStorage.setItem("auth_token", data.token);
+      }
+
       // Redireccionar al dashboard o a la página solicitada
       const urlParams = new URLSearchParams(window.location.search);
       const from = urlParams.get("from") || "/dashboard";

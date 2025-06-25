@@ -137,11 +137,20 @@ export default function AccountCustomize() {
     options: RequestInit = {}
   ): RequestInit => {
     const { headers = {}, ...otherOptions } = options;
+
+    // Intentar obtener token de localStorage para deploy
+    let authToken = null;
+    if (typeof window !== "undefined") {
+      authToken = localStorage.getItem("auth_token");
+    }
+
     return {
       ...otherOptions,
-      credentials: "include", // Incluir cookies
+      credentials: "include", // Incluir cookies para localhost
       headers: {
         ...headers,
+        // Agregar Authorization header para deploy cross-domain
+        ...(authToken && { Authorization: `Bearer ${authToken}` }),
       },
     };
   };

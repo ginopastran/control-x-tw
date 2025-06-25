@@ -49,6 +49,7 @@ export async function POST(req: NextRequest) {
     // Crear respuesta
     const response = NextResponse.json({
       success: true,
+      token: token, // Agregar token para localStorage
       user: {
         id: user._id,
         name: user.name,
