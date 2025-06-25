@@ -9,7 +9,7 @@ export default function BackgroundGradient({
 }: BackgroundGradientProps) {
   return (
     <div
-      className={`relative min-h-screen bg-gradient-to-br from-[#040404] via-[#101010] to-black ${className}`}
+      className={`relative min-h-screen bg-gradient-to-br from-[#101010] via-[#202020] to-[#303030] ${className}`}
     >
       {/* Efectos de resplandor animados */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">

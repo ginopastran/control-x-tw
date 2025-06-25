@@ -32,7 +32,16 @@ const ActionHistorySchema = new mongoose.Schema(
     action: {
       type: String,
       required: true,
-      enum: ["tweet", "reply", "like", "retweet", "follow", "unfollow"],
+      enum: [
+        "tweet",
+        "reply",
+        "like",
+        "retweet",
+        "follow",
+        "unfollow",
+        "profile_update",
+        "banner_upload",
+      ],
       index: true,
     },
 

@@ -7,6 +7,7 @@ const { TwitterApi } = require("twitter-api-v2");
 const cron = require("node-cron");
 const multer = require("multer");
 const csv = require("csv-parse/sync");
+const jwt = require("jsonwebtoken"); // Agregar jsonwebtoken
 
 // Importar configuración CORS
 const { corsMiddleware, logCorsConfig } = require("./src/config/cors");
@@ -20,6 +21,66 @@ const {
   generateOAuth1Headers,
 } = require("./utils/oauth1Helper"); // Asegúrate de crear utils/oauth1Helper.js
 
+// ========== MIDDLEWARES DE AUTENTICACIÓN ==========
+
+const JWT_SECRET = process.env.JWT_SECRET || "jwt_super_secret_key_control_x";
+
+// Middleware para autenticar token JWT
+const authenticateToken = (req, res, next) => {
+  // Obtener token de headers o cookies
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1]; // Bearer TOKEN
+
+  // También intentar obtener de cookies si no está en headers
+  const cookieToken = req.headers.cookie
+    ?.split(";")
+    .find((c) => c.trim().startsWith("auth_token="))
+    ?.split("=")[1];
+
+  const finalToken = token || cookieToken;
+
+  if (!finalToken) {
+    return res.status(401).json({ error: "Token de acceso requerido" });
+  }
+
+  jwt.verify(finalToken, JWT_SECRET, (err, user) => {
+    if (err) {
+      return res.status(403).json({ error: "Token inválido" });
+    }
+    req.user = user;
+    next();
+  });
+};
+
+// Middleware para verificar roles
+const requireRole = (allowedRoles) => {
+  return (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({ error: "Usuario no autenticado" });
+    }
+
+    const userRole = req.user.role;
+
+    // Permitir tanto "superadmin" como "SUPERADMIN"
+    const normalizedUserRole = userRole.toLowerCase();
+    const normalizedAllowedRoles = allowedRoles.map((role) =>
+      role.toLowerCase()
+    );
+
+    if (!normalizedAllowedRoles.includes(normalizedUserRole)) {
+      return res.status(403).json({
+        error: "Acceso denegado",
+        requiredRoles: allowedRoles,
+        userRole: userRole,
+      });
+    }
+
+    next();
+  };
+};
+
+// ========== FIN MIDDLEWARES DE AUTENTICACIÓN ==========
+
 // Sistema de colas en memoria
 const actionQueue = [];
 const runningActions = new Set(); // Cambiar de Map a Set para almacenar solo IDs
@@ -31,7 +92,8 @@ const MAX_HISTORY_SIZE = 100;
 let actionIdCounter = 1;
 
 // Función para generar ID único de acción
-const generateActionId = () => `action_${actionIdCounter++}`;
+const generateActionId = () =>
+  `action_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
 // Función para agregar al historial (memoria y base de datos)
 const addToHistory = async (actionInfo) => {
@@ -151,7 +213,7 @@ const getValidToken = async (accountId) => {
   );
 };
 
-// Configurar multer para subida de archivos
+// Configurar multer para subida de archivos CSV
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
@@ -165,6 +227,21 @@ const upload = multer({
       cb(null, true);
     } else {
       cb(new Error("Solo se permiten archivos CSV"), false);
+    }
+  },
+});
+
+// Configurar multer para subida de imágenes (perfil y portada)
+const uploadImage = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB máximo para imágenes
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith("image/")) {
+      cb(null, true);
+    } else {
+      cb(new Error("Solo se permiten archivos de imagen"), false);
     }
   },
 });
@@ -2218,6 +2295,1032 @@ function checkCampaignCompletion() {
 // Llamar esta función después de cada acción procesada
 setInterval(checkCampaignCompletion, 60000); // Verificar cada minuto
 
+// ========== ENDPOINTS PARA PERSONALIZACIÓN DE CUENTAS (SUPERADMIN) ==========
+
+// Obtener estadísticas de una cuenta específica
+app.get(
+  "/api/accounts/:id/stats",
+  authenticateToken,
+  requireRole(["superadmin"]),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      // Buscar acciones del historial de la cuenta
+      const actions = await ActionHistory.find({ accountId: id }).lean();
+
+      // Contar tipos de acciones
+      const stats = {
+        tweets: actions.filter((a) => a.action === "tweet").length,
+        retweets: actions.filter((a) => a.action === "retweet").length,
+        likes: actions.filter((a) => a.action === "like").length,
+        follows: actions.filter((a) => a.action === "follow").length,
+        unfollows: actions.filter((a) => a.action === "unfollow").length,
+      };
+
+      res.json({ stats });
+    } catch (error) {
+      console.error("Error al obtener estadísticas:", error);
+      res.status(500).json({ error: "Error interno del servidor" });
+    }
+  }
+);
+
+// Actualizar perfil de cuenta de Twitter
+app.put(
+  "/api/accounts/:id/profile",
+  authenticateToken,
+  requireRole(["superadmin"]),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { name, description } = req.body;
+
+      // Buscar la cuenta
+      const account = await Account.findById(id);
+      if (!account) {
+        return res.status(404).json({ error: "Cuenta no encontrada" });
+      }
+
+      // Debug: Mostrar credenciales disponibles
+      console.log(`🔍 Debug credenciales para @${account.username}:`);
+      console.log(
+        `   ownApiKey: ${account.ownApiKey ? "✅ Presente" : "❌ Faltante"}`
+      );
+      console.log(
+        `   ownApiSecret: ${
+          account.ownApiSecret ? "✅ Presente" : "❌ Faltante"
+        }`
+      );
+      console.log(
+        `   ownAccessToken: ${
+          account.ownAccessToken ? "✅ Presente" : "❌ Faltante"
+        }`
+      );
+      console.log(
+        `   ownAccessTokenSecret: ${
+          account.ownAccessTokenSecret ? "✅ Presente" : "❌ Faltante"
+        }`
+      );
+
+      // Verificar que tenga credenciales OAuth 1.0a completas
+      const hasCompleteOAuth1 =
+        account.ownAccessToken &&
+        account.ownAccessTokenSecret &&
+        account.ownApiKey &&
+        account.ownApiSecret;
+
+      if (!hasCompleteOAuth1) {
+        const missingCredentials = [
+          !account.ownApiKey ? "API Key" : "",
+          !account.ownApiSecret ? "API Secret" : "",
+          !account.ownAccessToken ? "Access Token" : "",
+          !account.ownAccessTokenSecret ? "Access Token Secret" : "",
+        ].filter(Boolean);
+
+        console.log(
+          `❌ [PROFILE UPDATE] Credenciales faltantes para @${
+            account.username
+          }: ${missingCredentials.join(", ")}`
+        );
+        console.log(`❌ [PROFILE UPDATE] ID cuenta: ${account._id}`);
+        console.log(
+          `❌ [PROFILE UPDATE] useOwnCredentials: ${account.useOwnCredentials}`
+        );
+
+        return res.status(400).json({
+          error:
+            "Se requieren credenciales OAuth 1.0a completas para actualizar perfil",
+          missing: missingCredentials,
+          account: account.username,
+          details:
+            "La cuenta necesita configurar sus propias credenciales OAuth 1.0a",
+        });
+      }
+
+      try {
+        // Crear cliente de Twitter usando las credenciales de la cuenta
+        const userClient = await createTwitterClient(account);
+
+        // Actualizar perfil usando Twitter API v1 (más compatible para updates)
+        const updateData = {};
+        if (name) updateData.name = name.substring(0, 50); // Twitter limit
+        if (description) updateData.description = description.substring(0, 160); // Twitter limit
+
+        if (Object.keys(updateData).length > 0) {
+          const updatedProfile = await userClient.v1.updateAccountProfile(
+            updateData
+          );
+
+          // Actualizar en nuestra base de datos
+          account.profileInfo = {
+            ...account.profileInfo,
+            name: updatedProfile.name,
+            description: updatedProfile.description,
+          };
+          await account.save();
+
+          // Registrar acción
+          await ActionHistory.create({
+            accountId: account._id,
+            action: "profile_update",
+            status: "completed",
+            details: { updatedFields: Object.keys(updateData) },
+            createdAt: new Date(),
+          });
+
+          console.log(
+            `✅ Perfil actualizado para @${account.username}: ${Object.keys(
+              updateData
+            ).join(", ")}`
+          );
+
+          res.json({
+            success: true,
+            profile: updatedProfile,
+            message: "Perfil actualizado exitosamente",
+          });
+        } else {
+          res.status(400).json({ error: "No hay datos para actualizar" });
+        }
+      } catch (twitterError) {
+        console.error(
+          `❌ Error de Twitter API para @${account.username}:`,
+          twitterError
+        );
+        res.status(400).json({
+          error: "Error al actualizar perfil en Twitter",
+          details: twitterError.message,
+        });
+      }
+    } catch (error) {
+      console.error("Error al actualizar perfil:", error);
+      res.status(500).json({ error: "Error interno del servidor" });
+    }
+  }
+);
+
+// Subir media (foto de perfil o portada)
+app.post(
+  "/api/accounts/:id/media",
+  authenticateToken,
+  requireRole(["superadmin"]),
+  uploadImage.single("media"),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { type } = req.body; // "profile" o "banner"
+
+      if (!req.file) {
+        return res.status(400).json({ error: "No se proporcionó archivo" });
+      }
+
+      if (!["profile", "banner"].includes(type)) {
+        return res.status(400).json({
+          error: "Tipo de media inválido. Debe ser 'profile' o 'banner'",
+        });
+      }
+
+      // Buscar la cuenta
+      const account = await Account.findById(id);
+      if (!account) {
+        return res.status(404).json({ error: "Cuenta no encontrada" });
+      }
+
+      // Verificar que tenga credenciales OAuth 1.0a completas
+      const hasCompleteOAuth1 =
+        account.ownAccessToken &&
+        account.ownAccessTokenSecret &&
+        account.ownApiKey &&
+        account.ownApiSecret;
+
+      if (!hasCompleteOAuth1) {
+        const missingCredentials = [
+          !account.ownApiKey ? "API Key" : "",
+          !account.ownApiSecret ? "API Secret" : "",
+          !account.ownAccessToken ? "Access Token" : "",
+          !account.ownAccessTokenSecret ? "Access Token Secret" : "",
+        ].filter(Boolean);
+
+        console.log(
+          `❌ [MEDIA UPLOAD] Credenciales faltantes para @${
+            account.username
+          }: ${missingCredentials.join(", ")}`
+        );
+        console.log(`❌ [MEDIA UPLOAD] ID cuenta: ${account._id}`);
+        console.log(`❌ [MEDIA UPLOAD] Tipo de media: ${type}`);
+        console.log(
+          `❌ [MEDIA UPLOAD] useOwnCredentials: ${account.useOwnCredentials}`
+        );
+
+        return res.status(400).json({
+          error:
+            "Se requieren credenciales OAuth 1.0a completas para subir media",
+          missing: missingCredentials,
+          account: account.username,
+          details:
+            "La cuenta necesita configurar sus propias credenciales OAuth 1.0a",
+        });
+      }
+
+      try {
+        console.log(
+          `🔍 [MEDIA UPLOAD] Iniciando subida de ${type} para @${account.username}`
+        );
+        console.log(`🔍 [MEDIA UPLOAD] Tamaño archivo: ${req.file.size} bytes`);
+        console.log(`🔍 [MEDIA UPLOAD] Tipo archivo: ${req.file.mimetype}`);
+
+        // Crear cliente de Twitter usando las credenciales de la cuenta
+        const userClient = await createTwitterClient(account);
+
+        // Subir imagen según el tipo
+        let result;
+        if (type === "profile") {
+          console.log(
+            `🔄 [PROFILE] Actualizando foto de perfil para @${account.username}...`
+          );
+          // Actualizar foto de perfil usando v1 API
+          result = await userClient.v1.updateAccountProfileImage(
+            req.file.buffer
+          );
+          console.log(
+            `✅ Foto de perfil actualizada para @${account.username}`
+          );
+        } else if (type === "banner") {
+          console.log(
+            `🔄 [BANNER] Actualizando banner para @${account.username}...`
+          );
+          console.log(`🔄 [BANNER] Verificando formato de datos...`);
+
+          // Verificar si los datos son válidos
+          if (!req.file.buffer || req.file.buffer.length === 0) {
+            throw new Error("Buffer de archivo vacío");
+          }
+
+          console.log(
+            `🔄 [BANNER] Buffer válido: ${req.file.buffer.length} bytes`
+          );
+
+          // Actualizar banner usando v1 API
+          result = await userClient.v1.updateAccountProfileBanner(
+            req.file.buffer
+          );
+          console.log(`✅ Banner actualizado para @${account.username}`);
+        }
+
+        // Actualizar información en base de datos
+        if (type === "profile" && result) {
+          account.profileInfo = {
+            ...account.profileInfo,
+            profile_image_url:
+              result.profile_image_url_https || result.profile_image_url,
+          };
+        } else if (type === "banner") {
+          // Para banner necesitamos obtener las URLs actualizadas
+          const updatedProfile = await userClient.v2.me({
+            "user.fields": ["profile_image_url"],
+          });
+          account.profileInfo = {
+            ...account.profileInfo,
+            profile_banner_url: `https://pbs.twimg.com/profile_banners/${updatedProfile.data.id}/1500x500`,
+          };
+        }
+
+        await account.save();
+
+        // Registrar acción
+        await ActionHistory.create({
+          actionId: generateActionId(),
+          accountId: account._id,
+          username: account.username,
+          action: `${type}_upload`,
+          status: "completed",
+          success: true,
+          result: { mediaType: type, fileName: req.file.originalname },
+          createdAt: new Date(),
+        });
+
+        res.json({
+          success: true,
+          type,
+          message: `${
+            type === "profile" ? "Foto de perfil" : "Banner"
+          } actualizado exitosamente`,
+        });
+      } catch (twitterError) {
+        console.error(
+          `❌ [MEDIA UPLOAD] Error de Twitter API para @${account.username}:`,
+          twitterError
+        );
+        console.error(`❌ [MEDIA UPLOAD] Código error: ${twitterError.code}`);
+        console.error(`❌ [MEDIA UPLOAD] Tipo de media: ${type}`);
+
+        // Análisis específico del error
+        let errorMessage = twitterError.message;
+        if (twitterError.code === 403) {
+          if (type === "banner") {
+            errorMessage =
+              "Error 403: Los tokens de acceso no tienen permisos para actualizar banners. " +
+              "Si cambiaste los permisos de la aplicación recientemente, necesitas REGENERAR los Access Tokens " +
+              "en el Developer Portal y actualizar las credenciales en la base de datos.";
+          } else {
+            errorMessage =
+              "Error 403: Los tokens de acceso no tienen permisos suficientes. " +
+              "Regenera los tokens después de cambiar permisos en Developer Portal.";
+          }
+        } else if (twitterError.code === 400) {
+          errorMessage =
+            "Imagen inválida. Verifica el formato y tamaño (máx 5MB para banner, 400x400px para perfil).";
+        } else if (twitterError.code === 429) {
+          errorMessage =
+            "Límite de rate excedido. Espera unos minutos antes de intentar nuevamente.";
+        }
+
+        res.status(400).json({
+          error: `Error al subir ${
+            type === "profile" ? "foto de perfil" : "banner"
+          } en Twitter`,
+          details: errorMessage,
+          code: twitterError.code,
+          twitterError: twitterError.message,
+        });
+      }
+    } catch (error) {
+      console.error("Error al subir media:", error);
+      res.status(500).json({ error: "Error interno del servidor" });
+    }
+  }
+);
+
+// Eliminar tweets/retweets
+app.delete(
+  "/api/accounts/:id/tweets",
+  authenticateToken,
+  requireRole(["superadmin"]),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { type } = req.body; // "tweets", "retweets", o "all"
+
+      if (!["tweets", "retweets", "all"].includes(type)) {
+        return res.status(400).json({
+          error: "Tipo inválido. Debe ser 'tweets', 'retweets' o 'all'",
+        });
+      }
+
+      // Buscar la cuenta
+      const account = await Account.findById(id);
+      if (!account) {
+        return res.status(404).json({ error: "Cuenta no encontrada" });
+      }
+
+      // Verificar que tenga credenciales
+      if (!account.accessToken || !account.accessTokenSecret) {
+        return res
+          .status(400)
+          .json({ error: "Cuenta sin credenciales válidas" });
+      }
+
+      try {
+        // Crear cliente de Twitter para la cuenta
+        const userClient = new TwitterApi({
+          appKey: process.env.TWITTER_CONSUMER_KEY,
+          appSecret: process.env.TWITTER_CONSUMER_SECRET,
+          accessToken: account.accessToken,
+          accessSecret: account.accessTokenSecret,
+        });
+
+        let deletedCount = 0;
+
+        // Obtener timeline del usuario
+        const timeline = await userClient.v2.userTimeline(
+          account.twitterUserId,
+          {
+            max_results: 100, // Máximo por request
+            "tweet.fields": ["referenced_tweets"],
+          }
+        );
+
+        // Procesar tweets según el tipo
+        for await (const tweet of timeline) {
+          let shouldDelete = false;
+
+          if (type === "all") {
+            shouldDelete = true;
+          } else if (type === "tweets") {
+            // Solo tweets originales (no retweets)
+            shouldDelete = !tweet.referenced_tweets?.some(
+              (ref) => ref.type === "retweeted"
+            );
+          } else if (type === "retweets") {
+            // Solo retweets
+            shouldDelete = tweet.referenced_tweets?.some(
+              (ref) => ref.type === "retweeted"
+            );
+          }
+
+          if (shouldDelete) {
+            try {
+              await userClient.v2.deleteTweet(tweet.id);
+              deletedCount++;
+
+              // Pequeña pausa para no exceder rate limits
+              await new Promise((resolve) => setTimeout(resolve, 1000));
+            } catch (deleteError) {
+              console.error(
+                `Error al eliminar tweet ${tweet.id}:`,
+                deleteError
+              );
+              // Continuar con el siguiente tweet
+            }
+          }
+        }
+
+        // Registrar acción
+        await ActionHistory.create({
+          accountId: account._id,
+          action: `delete_${type}`,
+          status: "completed",
+          details: { deletedCount, type },
+          createdAt: new Date(),
+        });
+
+        res.json({
+          success: true,
+          deleted: deletedCount,
+          message: `${deletedCount} ${
+            type === "tweets"
+              ? "tweets"
+              : type === "retweets"
+              ? "retweets"
+              : "tweets/retweets"
+          } eliminados exitosamente`,
+        });
+      } catch (twitterError) {
+        console.error("Error de Twitter API:", twitterError);
+        res.status(400).json({
+          error: "Error al eliminar tweets en Twitter",
+          details: twitterError.message,
+        });
+      }
+    } catch (error) {
+      console.error("Error al eliminar tweets:", error);
+      res.status(500).json({ error: "Error interno del servidor" });
+    }
+  }
+);
+
+// Testear todas las cuentas
+app.post(
+  "/api/accounts/test-all",
+  authenticateToken,
+  requireRole(["superadmin"]),
+  async (req, res) => {
+    try {
+      console.log("🧪 [TEST ALL] Iniciando test de todas las cuentas...");
+
+      // Obtener todas las cuentas
+      const accounts = await Account.find({});
+
+      if (accounts.length === 0) {
+        return res.json({
+          success: true,
+          summary: {
+            total: 0,
+            success: 0,
+            warnings: 0,
+            errors: 0,
+          },
+          results: [],
+          testedAt: new Date().toISOString(),
+        });
+      }
+
+      const results = [];
+      let successCount = 0;
+      let warningCount = 0;
+      let errorCount = 0;
+
+      for (const account of accounts) {
+        console.log(`🔍 [TEST] Probando cuenta @${account.username}...`);
+
+        const result = {
+          accountId: account._id,
+          username: account.username,
+          status: "error",
+          message: "",
+          details: {
+            hasTokens: false,
+            tokenValid: false,
+            apiAccess: false,
+            rateLimitStatus: "unknown",
+            lastError: null,
+          },
+        };
+
+        try {
+          // Verificar que tenga credenciales
+          const hasOAuth1 =
+            account.ownApiKey &&
+            account.ownApiSecret &&
+            account.ownAccessToken &&
+            account.ownAccessTokenSecret;
+          const hasOAuth2 = account.accessToken && account.refreshToken;
+
+          if (!hasOAuth1 && !hasOAuth2) {
+            result.status = "error";
+            result.message = "Sin credenciales OAuth válidas";
+            result.details.lastError =
+              "No tiene credenciales OAuth 1.0a ni OAuth 2.0";
+            errorCount++;
+            results.push(result);
+            continue;
+          }
+
+          result.details.hasTokens = true;
+
+          // Crear cliente de Twitter
+          let client;
+          try {
+            client = await createTwitterClient(account);
+            result.details.tokenValid = true;
+          } catch (clientError) {
+            result.status = "error";
+            result.message = "Error al crear cliente de Twitter";
+            result.details.lastError = clientError.message;
+            errorCount++;
+            results.push(result);
+            continue;
+          }
+
+          // Test básico: obtener información del usuario
+          try {
+            const userInfo = await client.v2.me();
+
+            if (userInfo.data) {
+              result.details.apiAccess = true;
+              result.status = "success";
+              result.message = `Conexión exitosa - Usuario: ${userInfo.data.username}`;
+              successCount++;
+            } else {
+              result.status = "warning";
+              result.message = "Conexión establecida pero sin datos de usuario";
+              result.details.lastError = "API respondió sin datos de usuario";
+              warningCount++;
+            }
+          } catch (apiError) {
+            // Analizar el tipo de error
+            if (apiError.code === 401) {
+              result.status = "error";
+              result.message = "Credenciales inválidas o expiradas";
+              result.details.lastError = "Error 401: Unauthorized";
+            } else if (apiError.code === 403) {
+              result.status = "warning";
+              result.message = "Acceso limitado - Permisos insuficientes";
+              result.details.lastError = "Error 403: Forbidden";
+              warningCount++;
+            } else if (apiError.code === 429) {
+              result.status = "warning";
+              result.message = "Rate limit alcanzado";
+              result.details.rateLimitStatus = "limited";
+              result.details.lastError = "Error 429: Rate limit";
+              warningCount++;
+            } else {
+              result.status = "error";
+              result.message = `Error de API: ${apiError.message}`;
+              result.details.lastError = apiError.message;
+            }
+
+            if (result.status === "error") {
+              errorCount++;
+            }
+          }
+        } catch (generalError) {
+          result.status = "error";
+          result.message = "Error general durante el test";
+          result.details.lastError = generalError.message;
+          errorCount++;
+        }
+
+        results.push(result);
+
+        // Pequeña pausa entre tests para evitar rate limits
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      }
+
+      console.log(
+        `✅ [TEST ALL] Completado: ${successCount} exitosos, ${warningCount} advertencias, ${errorCount} errores`
+      );
+
+      res.json({
+        success: true,
+        summary: {
+          total: accounts.length,
+          success: successCount,
+          warnings: warningCount,
+          errors: errorCount,
+        },
+        results,
+        testedAt: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error("❌ [TEST ALL] Error:", error);
+      res.status(500).json({
+        success: false,
+        error: "Error interno del servidor durante el test",
+        details: error.message,
+      });
+    }
+  }
+);
+
+// Eliminar tweet específico
+app.delete(
+  "/api/accounts/:id/tweet/:tweetId",
+  authenticateToken,
+  requireRole(["superadmin"]),
+  async (req, res) => {
+    try {
+      const { id, tweetId } = req.params;
+
+      // Validar y extraer Tweet ID
+      const validTweetId = extractAndValidateTweetId(tweetId);
+      if (!validTweetId) {
+        return res.status(400).json({
+          error:
+            "ID de tweet inválido. Proporciona un ID numérico válido o URL de tweet.",
+        });
+      }
+
+      // Buscar la cuenta
+      const account = await Account.findById(id);
+      if (!account) {
+        return res.status(404).json({ error: "Cuenta no encontrada" });
+      }
+
+      // Verificar que tenga credenciales
+      if (!account.accessToken || !account.accessTokenSecret) {
+        return res
+          .status(400)
+          .json({ error: "Cuenta sin credenciales válidas" });
+      }
+
+      try {
+        // Crear cliente de Twitter para la cuenta
+        const userClient = new TwitterApi({
+          appKey: process.env.TWITTER_CONSUMER_KEY,
+          appSecret: process.env.TWITTER_CONSUMER_SECRET,
+          accessToken: account.accessToken,
+          accessSecret: account.accessTokenSecret,
+        });
+
+        // Primero verificar que el tweet existe y pertenece al usuario
+        let tweet;
+        try {
+          tweet = await userClient.v2.singleTweet(validTweetId, {
+            "tweet.fields": ["author_id", "text", "referenced_tweets"],
+          });
+        } catch (error) {
+          if (error.code === 404) {
+            return res.status(404).json({ error: "Tweet no encontrado" });
+          }
+          throw error;
+        }
+
+        if (!tweet.data) {
+          return res.status(404).json({ error: "Tweet no encontrado" });
+        }
+
+        // Verificar que el tweet pertenece a la cuenta
+        if (tweet.data.author_id !== account.twitterUserId) {
+          return res.status(403).json({
+            error: "El tweet no pertenece a esta cuenta",
+          });
+        }
+
+        // Eliminar el tweet usando Twitter API v2
+        await userClient.v2.deleteTweet(validTweetId);
+
+        // Determinar si era un retweet
+        const isRetweet = tweet.data.referenced_tweets?.some(
+          (ref) => ref.type === "retweeted"
+        );
+
+        // Registrar acción en historial
+        await ActionHistory.create({
+          accountId: account._id,
+          action: isRetweet ? "delete_retweet" : "delete_tweet",
+          status: "completed",
+          details: {
+            tweetId: validTweetId,
+            tweetText:
+              tweet.data.text?.substring(0, 100) +
+              (tweet.data.text?.length > 100 ? "..." : ""),
+            isRetweet,
+            deletedAt: new Date().toISOString(),
+          },
+          createdAt: new Date(),
+        });
+
+        res.json({
+          success: true,
+          message: `${isRetweet ? "Retweet" : "Tweet"} eliminado exitosamente`,
+          tweetId: validTweetId,
+          isRetweet,
+        });
+      } catch (twitterError) {
+        console.error(`Error eliminando tweet ${validTweetId}:`, twitterError);
+
+        // Registrar error en historial
+        await ActionHistory.create({
+          accountId: account._id,
+          action: "delete_tweet",
+          status: "failed",
+          details: {
+            tweetId: validTweetId,
+            error: twitterError.message,
+            errorCode: twitterError.code,
+          },
+          createdAt: new Date(),
+        });
+
+        // Manejar errores específicos de Twitter API
+        if (twitterError.code === 404) {
+          return res.status(404).json({ error: "Tweet no encontrado" });
+        } else if (twitterError.code === 403) {
+          return res
+            .status(403)
+            .json({ error: "No tienes permisos para eliminar este tweet" });
+        } else if (twitterError.code === 429) {
+          return res.status(429).json({
+            error:
+              "Límite de rate excedido. Intenta nuevamente en unos minutos.",
+          });
+        }
+
+        res.status(400).json({
+          error: "Error al eliminar tweet en Twitter",
+          details: twitterError.message,
+        });
+      }
+    } catch (error) {
+      console.error("Error al eliminar tweet específico:", error);
+      res.status(500).json({ error: "Error interno del servidor" });
+    }
+  }
+);
+
+// Gestión de follows (seguir/dejar de seguir)
+app.post(
+  "/api/accounts/:id/follow",
+  authenticateToken,
+  requireRole(["superadmin"]),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { action, username } = req.body; // action: "follow" o "unfollow"
+
+      if (!["follow", "unfollow"].includes(action)) {
+        return res.status(400).json({
+          error: "Acción inválida. Debe ser 'follow' o 'unfollow'",
+        });
+      }
+
+      if (!username) {
+        return res.status(400).json({ error: "Username requerido" });
+      }
+
+      // Buscar la cuenta
+      const account = await Account.findById(id);
+      if (!account) {
+        return res.status(404).json({ error: "Cuenta no encontrada" });
+      }
+
+      // Verificar que tenga credenciales OAuth 1.0a completas
+      const hasCompleteOAuth1 =
+        account.ownAccessToken &&
+        account.ownAccessTokenSecret &&
+        account.ownApiKey &&
+        account.ownApiSecret;
+
+      if (!hasCompleteOAuth1) {
+        return res.status(400).json({
+          error:
+            "Se requieren credenciales OAuth 1.0a completas para gestionar follows",
+          missing: [
+            !account.ownApiKey ? "API Key" : "",
+            !account.ownApiSecret ? "API Secret" : "",
+            !account.ownAccessToken ? "Access Token" : "",
+            !account.ownAccessTokenSecret ? "Access Token Secret" : "",
+          ].filter(Boolean),
+        });
+      }
+
+      try {
+        // Crear cliente de Twitter usando las credenciales de la cuenta
+        const userClient = await createTwitterClient(account);
+
+        // Obtener ID del usuario a seguir/dejar de seguir
+        let targetUserId;
+        try {
+          const targetUser = await userClient.v2.userByUsername(username);
+          targetUserId = targetUser.data.id;
+        } catch (error) {
+          return res.status(404).json({
+            error: `Usuario @${username} no encontrado`,
+            details: error.message,
+          });
+        }
+
+        // Ejecutar acción
+        let result;
+        if (action === "follow") {
+          result = await userClient.v2.follow(
+            account.twitterUserId,
+            targetUserId
+          );
+          console.log(`✅ @${account.username} siguió a @${username}`);
+        } else {
+          result = await userClient.v2.unfollow(
+            account.twitterUserId,
+            targetUserId
+          );
+          console.log(`✅ @${account.username} dejó de seguir a @${username}`);
+        }
+
+        // Registrar acción
+        await ActionHistory.create({
+          accountId: account._id,
+          action: action,
+          status: "completed",
+          details: {
+            targetUsername: username,
+            targetUserId: targetUserId,
+          },
+          createdAt: new Date(),
+        });
+
+        res.json({
+          success: true,
+          action,
+          targetUser: username,
+          message: `${
+            action === "follow" ? "Siguiendo" : "Dejaste de seguir"
+          } a @${username}`,
+        });
+      } catch (twitterError) {
+        console.error(
+          `❌ Error de Twitter API para @${account.username}:`,
+          twitterError
+        );
+        res.status(400).json({
+          error: `Error al ${
+            action === "follow" ? "seguir" : "dejar de seguir"
+          }`,
+          details: twitterError.message,
+        });
+      }
+    } catch (error) {
+      console.error("Error en gestión de follows:", error);
+      res.status(500).json({ error: "Error interno del servidor" });
+    }
+  }
+);
+
+// Eliminar tweet específico por ID
+app.delete(
+  "/api/accounts/:id/tweet/:tweetId",
+  authenticateToken,
+  requireRole(["superadmin"]),
+  async (req, res) => {
+    try {
+      const { id, tweetId } = req.params;
+
+      // Buscar la cuenta
+      const account = await Account.findById(id);
+      if (!account) {
+        return res.status(404).json({ error: "Cuenta no encontrada" });
+      }
+
+      // Validar y extraer tweet ID
+      const validTweetId = extractAndValidateTweetId(tweetId);
+      if (!validTweetId) {
+        return res.status(400).json({
+          error: "ID de tweet inválido",
+          provided: tweetId,
+        });
+      }
+
+      // Verificar que tenga credenciales OAuth 1.0a completas
+      const hasCompleteOAuth1 =
+        account.ownAccessToken &&
+        account.ownAccessTokenSecret &&
+        account.ownApiKey &&
+        account.ownApiSecret;
+
+      if (!hasCompleteOAuth1) {
+        return res.status(400).json({
+          error:
+            "Se requieren credenciales OAuth 1.0a completas para eliminar tweets",
+          missing: [
+            !account.ownApiKey ? "API Key" : "",
+            !account.ownApiSecret ? "API Secret" : "",
+            !account.ownAccessToken ? "Access Token" : "",
+            !account.ownAccessTokenSecret ? "Access Token Secret" : "",
+          ].filter(Boolean),
+        });
+      }
+
+      try {
+        // Crear cliente de Twitter usando las credenciales de la cuenta
+        const userClient = await createTwitterClient(account);
+
+        // Intentar obtener información del tweet antes de eliminar
+        let tweetInfo = null;
+        try {
+          const tweetData = await userClient.v2.singleTweet(validTweetId, {
+            "tweet.fields": ["author_id", "referenced_tweets"],
+          });
+          tweetInfo = tweetData.data;
+
+          // Verificar que el tweet pertenece a la cuenta
+          if (tweetInfo.author_id !== account.twitterUserId) {
+            return res.status(403).json({
+              error: "Este tweet no pertenece a la cuenta seleccionada",
+              tweetAuthor: tweetInfo.author_id,
+              accountId: account.twitterUserId,
+            });
+          }
+        } catch (fetchError) {
+          // Si no se puede obtener info del tweet, intentar eliminar de todas formas
+          console.log(
+            `⚠️ No se pudo obtener info del tweet ${validTweetId}: ${fetchError.message}`
+          );
+        }
+
+        // Eliminar el tweet
+        const deleteResult = await userClient.v2.deleteTweet(validTweetId);
+
+        // Determinar tipo de tweet eliminado
+        const isRetweet = tweetInfo?.referenced_tweets?.some(
+          (ref) => ref.type === "retweeted"
+        );
+        const tweetType = isRetweet ? "retweet" : "tweet";
+
+        console.log(
+          `✅ ${tweetType} eliminado por @${account.username}: ${validTweetId}`
+        );
+
+        // Registrar acción
+        await ActionHistory.create({
+          accountId: account._id,
+          action: "delete_tweet",
+          status: "completed",
+          details: {
+            tweetId: validTweetId,
+            tweetType: tweetType,
+            originalTweetId: tweetId, // El ID original que envió el usuario
+          },
+          createdAt: new Date(),
+        });
+
+        res.json({
+          success: true,
+          deletedTweetId: validTweetId,
+          tweetType: tweetType,
+          message: `${
+            tweetType === "retweet" ? "Retweet" : "Tweet"
+          } eliminado exitosamente`,
+        });
+      } catch (twitterError) {
+        console.error(
+          `❌ Error de Twitter API para @${account.username}:`,
+          twitterError
+        );
+
+        // Manejar errores específicos de Twitter
+        let errorMessage = "Error al eliminar tweet";
+        if (twitterError.code === 144) {
+          errorMessage = "Tweet no encontrado o ya fue eliminado";
+        } else if (twitterError.code === 403) {
+          errorMessage = "No tienes permisos para eliminar este tweet";
+        } else if (twitterError.code === 429) {
+          errorMessage = "Límite de rate limiting alcanzado, intenta más tarde";
+        }
+
+        res.status(400).json({
+          error: errorMessage,
+          details: twitterError.message,
+          tweetId: validTweetId,
+        });
+      }
+    } catch (error) {
+      console.error("Error al eliminar tweet:", error);
+      res.status(500).json({ error: "Error interno del servidor" });
+    }
+  }
+);
+
 // Iniciar servidor
 app.listen(PORT, () => {
   console.log(`🚀 Servidor ejecutándose en puerto ${PORT}`);
@@ -2605,3 +3708,83 @@ const executeTwitterAction = async (actionObj) => {
     }
   }
 };
+
+// ========== ENDPOINTS DE DEBUG ==========
+
+// Debug endpoint para cuentas (similar al frontend)
+app.get("/api/debug/accounts", async (req, res) => {
+  try {
+    // Obtener todas las cuentas
+    const accounts = await Account.find({});
+
+    // Transformar para compatibilidad con frontend
+    const accountsWithTokens = accounts.map((account) => {
+      const now = new Date();
+
+      // Verificar credenciales OAuth 1.0a completas
+      const hasCompleteOAuth1 = !!(
+        account.ownAccessToken &&
+        account.ownAccessTokenSecret &&
+        account.ownApiKey &&
+        account.ownApiSecret
+      );
+
+      return {
+        _id: account._id,
+        username: account.username,
+        userId: account.userId || account.twitterUserId,
+        developerTag: account.developerTag || account.username,
+        labels: account.labels || [],
+        createdAt: account.createdAt,
+        hasAccessToken: !!(account.ownAccessToken || account.accessToken),
+        hasRefreshToken: !!(
+          account.ownOAuth2RefreshToken || account.refreshToken
+        ),
+        needsReauth: !account.ownAccessToken && !account.ownOAuth2AccessToken,
+        useOwnCredentials: account.useOwnCredentials || false,
+        credentialsVerified: account.credentialsVerified || false,
+        userAppName: account.userAppName,
+        appCreatedAt: account.appCreatedAt,
+        status: account.isActive ? "active" : "inactive",
+        profileInfo: account.profileInfo || {},
+        hasCompleteOAuth1: hasCompleteOAuth1, // Nueva información
+        credentialsDebug: {
+          // Debug información
+          hasOwnApiKey: !!account.ownApiKey,
+          hasOwnApiSecret: !!account.ownApiSecret,
+          hasOwnAccessToken: !!account.ownAccessToken,
+          hasOwnAccessTokenSecret: !!account.ownAccessTokenSecret,
+        },
+      };
+    });
+
+    // Estadísticas
+    const stats = {
+      total: accounts.length,
+      active: accountsWithTokens.filter((a) => a.status === "active").length,
+      withOwnCredentials: accountsWithTokens.filter((a) => a.useOwnCredentials)
+        .length,
+      withAccessTokens: accountsWithTokens.filter((a) => a.hasAccessToken)
+        .length,
+      needsReauth: accountsWithTokens.filter((a) => a.needsReauth).length,
+      withCompleteOAuth1: accountsWithTokens.filter((a) => a.hasCompleteOAuth1)
+        .length,
+      canCustomize: accountsWithTokens.filter((a) => a.hasCompleteOAuth1)
+        .length,
+    };
+
+    res.json({
+      environment: {
+        hasMongoConnection: true,
+        nodeEnv: process.env.NODE_ENV || "development",
+      },
+      stats,
+      accounts: accountsWithTokens,
+    });
+  } catch (error) {
+    console.error("Error al obtener debug de cuentas:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+});
+
+// ========== ENDPOINTS PARA PERSONALIZACIÓN DE CUENTAS (SUPERADMIN) ==========

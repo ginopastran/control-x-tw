@@ -159,6 +159,7 @@ export default function AccountsPage() {
   const [isStartingCampaign, setIsStartingCampaign] = useState(false);
   const [isMutualFollowDialogOpen, setIsMutualFollowDialogOpen] =
     useState(false);
+  const [isTestDialogOpen, setIsTestDialogOpen] = useState(false);
 
   const router = useRouter();
 
@@ -211,7 +212,16 @@ export default function AccountsPage() {
       const response = await fetch("/api/auth/me");
       if (response.ok) {
         const data = await response.json();
-        setUserRole(data.user?.role || null);
+        const role = data.user?.role || null;
+        console.log(
+          "🔍 Debug - Rol obtenido:",
+          role,
+          "Tipo:",
+          typeof role,
+          "Data completa:",
+          data
+        );
+        setUserRole(role);
       }
     } catch (err) {
       console.error("Error al obtener rol del usuario:", err);
@@ -282,6 +292,41 @@ export default function AccountsPage() {
         console.error("Error al cancelar campaña:", err);
         alert("Error al cancelar la campaña.");
       }
+    }
+  };
+
+  const testAllAccounts = async () => {
+    try {
+      setTestingAccounts(true);
+      setTestProgress(0);
+      setTestResults(null);
+
+      console.log("🧪 Iniciando test de todas las cuentas...");
+
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+
+      const response = await fetch(`${apiUrl}/api/accounts/test-all`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // Esto incluye las cookies automáticamente
+      });
+
+      if (!response.ok) {
+        throw new Error("Error al testear las cuentas");
+      }
+
+      const data = await response.json();
+      setTestResults(data);
+      setTestProgress(100);
+
+      console.log("✅ Test completado:", data);
+    } catch (err) {
+      console.error("❌ Error al testear cuentas:", err);
+      alert("Error al testear las cuentas. Intente nuevamente.");
+    } finally {
+      setTestingAccounts(false);
     }
   };
 
@@ -464,6 +509,18 @@ export default function AccountsPage() {
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Actualizar
               </Button>
+
+              <Button
+                onClick={() => setIsTestDialogOpen(true)}
+                variant="outline"
+                className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white border-0 transition-all duration-200 hover:scale-105"
+              >
+                <Activity className="h-4 w-4 mr-2" />
+                Testear Cuentas
+              </Button>
+
+              {/* Botón de debugging temporal */}
+
               {debugData && debugData.accounts.length >= 2 && (
                 <Button
                   onClick={() => setIsMutualFollowDialogOpen(true)}
@@ -488,6 +545,15 @@ export default function AccountsPage() {
                       Follow Mutuo
                     </>
                   )}
+                </Button>
+              )}
+              {(userRole === "superadmin" || userRole === "SUPERADMIN") && (
+                <Button
+                  onClick={() => router.push("/accounts/customize")}
+                  className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white transition-all duration-200 hover:scale-105 shadow-lg"
+                >
+                  <Settings className="h-4 w-4 mr-2" />
+                  Personalizar Cuentas
                 </Button>
               )}
               <Button
@@ -1461,6 +1527,250 @@ export default function AccountsPage() {
                 className="hover:scale-105 transition-transform duration-200"
               >
                 Cancelar
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Modal de testing de cuentas */}
+        <Dialog open={isTestDialogOpen} onOpenChange={setIsTestDialogOpen}>
+          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="bg-orange-100 dark:bg-orange-900 p-3 rounded-full">
+                  <Activity className="h-6 w-6 text-orange-600 dark:text-orange-400" />
+                </div>
+                <div>
+                  <DialogTitle className="text-xl">
+                    Test de Conexión de Cuentas
+                  </DialogTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Verificar el estado de las credenciales y conexión API
+                  </p>
+                </div>
+              </div>
+            </DialogHeader>
+
+            <div className="space-y-6">
+              {/* Información del test */}
+              <Card className="border-0 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
+                <CardContent className="p-6">
+                  <h4 className="font-semibold mb-4 flex items-center gap-2">
+                    <BarChart3 className="h-5 w-5 text-blue-600" />
+                    Información del Test
+                  </h4>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-muted-foreground">
+                        Verificaciones:
+                      </span>
+                      <div className="font-semibold text-blue-600">
+                        • Credenciales OAuth
+                        <br />
+                        • Validez de tokens
+                        <br />• Acceso a API de X
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">
+                        Duración estimada:
+                      </span>
+                      <div className="font-semibold text-green-600">
+                        {debugData?.accounts.length
+                          ? `~${Math.ceil(
+                              debugData.accounts.length * 0.5
+                            )} segundos`
+                          : "Calculando..."}
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Progreso del test */}
+              {testingAccounts && (
+                <Card className="border-0 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20">
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <Loader2 className="h-5 w-5 animate-spin text-orange-600" />
+                      <h4 className="font-semibold">Testing en Progreso...</h4>
+                    </div>
+                    <Progress value={testProgress} className="h-3" />
+                    <p className="text-sm text-muted-foreground mt-2">
+                      Verificando credenciales y conectividad...
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Resultados del test */}
+              {testResults && (
+                <div className="space-y-4">
+                  {/* Resumen */}
+                  <Card className="border-0 bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-900/50 dark:to-gray-900/50">
+                    <CardContent className="p-6">
+                      <h4 className="font-semibold mb-4 flex items-center gap-2">
+                        <CheckCircle2 className="h-5 w-5 text-green-600" />
+                        Resumen del Test
+                      </h4>
+                      <div className="grid grid-cols-4 gap-4">
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-blue-600">
+                            {testResults.summary.total}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            Total
+                          </div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-green-600">
+                            {testResults.summary.success}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            Exitosos
+                          </div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-yellow-600">
+                            {testResults.summary.warnings}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            Advertencias
+                          </div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-red-600">
+                            {testResults.summary.errors}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            Errores
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Detalles por cuenta */}
+                  <Card className="border-0 bg-gradient-to-r from-white to-gray-50 dark:from-slate-900 dark:to-slate-800">
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <Users className="h-5 w-5 text-blue-600" />
+                        Resultados por Cuenta
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                      <ScrollArea className="h-64">
+                        <div className="space-y-2 p-6">
+                          {testResults.results.map((result, index) => (
+                            <div
+                              key={index}
+                              className={`flex items-center gap-3 p-3 rounded-lg ${
+                                result.status === "success"
+                                  ? "bg-green-50 dark:bg-green-900/20"
+                                  : result.status === "warning"
+                                  ? "bg-yellow-50 dark:bg-yellow-900/20"
+                                  : "bg-red-50 dark:bg-red-900/20"
+                              }`}
+                            >
+                              <Avatar className="w-8 h-8">
+                                <AvatarFallback
+                                  className={`text-white text-sm ${
+                                    result.status === "success"
+                                      ? "bg-green-500"
+                                      : result.status === "warning"
+                                      ? "bg-yellow-500"
+                                      : "bg-red-500"
+                                  }`}
+                                >
+                                  {result.username[0].toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium">
+                                  @{result.username}
+                                </div>
+                                <div
+                                  className={`text-sm ${
+                                    result.status === "success"
+                                      ? "text-green-700 dark:text-green-300"
+                                      : result.status === "warning"
+                                      ? "text-yellow-700 dark:text-yellow-300"
+                                      : "text-red-700 dark:text-red-300"
+                                  }`}
+                                >
+                                  {result.message}
+                                </div>
+                                {result.details.lastError && (
+                                  <div className="text-xs text-muted-foreground mt-1">
+                                    {result.details.lastError}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {result.details.hasTokens && (
+                                  <Badge
+                                    variant="secondary"
+                                    className="text-xs"
+                                  >
+                                    Tokens
+                                  </Badge>
+                                )}
+                                {result.details.apiAccess && (
+                                  <Badge variant="default" className="text-xs">
+                                    API
+                                  </Badge>
+                                )}
+                                <Badge
+                                  variant={
+                                    result.status === "success"
+                                      ? "default"
+                                      : result.status === "warning"
+                                      ? "secondary"
+                                      : "destructive"
+                                  }
+                                  className="text-xs"
+                                >
+                                  {result.status === "success"
+                                    ? "OK"
+                                    : result.status === "warning"
+                                    ? "WARN"
+                                    : "ERROR"}
+                                </Badge>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </ScrollArea>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+            </div>
+
+            <DialogFooter className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setIsTestDialogOpen(false)}
+                className="hover:scale-105 transition-transform duration-200"
+              >
+                Cerrar
+              </Button>
+              <Button
+                onClick={testAllAccounts}
+                disabled={testingAccounts}
+                className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 transition-all duration-200 hover:scale-105"
+              >
+                {testingAccounts ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Testing...
+                  </>
+                ) : (
+                  <>
+                    <Zap className="h-4 w-4 mr-2" />
+                    Iniciar Test
+                  </>
+                )}
               </Button>
             </DialogFooter>
           </DialogContent>
