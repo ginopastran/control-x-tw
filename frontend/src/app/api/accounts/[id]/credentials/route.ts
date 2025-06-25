@@ -10,121 +10,54 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: accountId } = await params;
-    console.log("🔑 GET credentials para account:", accountId);
+    const { id } = await params;
 
     await connectDB();
+    const account = await XAccount.findById(id);
 
-    const account = await XAccount.findById(accountId);
     if (!account) {
-      console.log("❌ Cuenta no encontrada:", accountId);
       return NextResponse.json(
         { error: "Cuenta no encontrada" },
         { status: 404 }
       );
     }
 
-    console.log("✅ Cuenta encontrada:", {
-      id: account._id,
-      username: account.username,
-      useOwnCredentials: account.useOwnCredentials,
-    });
-
+    // Verificar si la cuenta usa credenciales propias
     if (!account.useOwnCredentials) {
-      console.log("❌ Cuenta no usa credenciales propias");
-      return NextResponse.json(
-        { error: "Esta cuenta no usa credenciales propias" },
-        { status: 400 }
-      );
-    }
-
-    // Log de credenciales RAW de la base de datos
-    console.log("🗃️ Credenciales RAW de BD:", {
-      hasOwnApiKey: !!account.ownApiKey,
-      hasOwnApiSecret: !!account.ownApiSecret,
-      hasOwnBearerToken: !!account.ownBearerToken,
-      hasOwnAccessToken: !!account.ownAccessToken,
-      hasOwnAccessTokenSecret: !!account.ownAccessTokenSecret,
-      hasOwnClientId: !!account.ownClientId,
-      hasOwnClientSecret: !!account.ownClientSecret,
-      hasOwnOAuth2AccessToken: !!account.ownOAuth2AccessToken,
-      hasOwnOAuth2RefreshToken: !!account.ownOAuth2RefreshToken,
-      // Mostrar primeros caracteres para verificar
-      ownApiKeyStart: account.ownApiKey
-        ? account.ownApiKey.substring(0, 10) + "..."
-        : null,
-      ownClientIdStart: account.ownClientId
-        ? account.ownClientId.substring(0, 10) + "..."
-        : null,
-    });
-
-    // Desencriptar credenciales directamente en NextJS
-    let decryptedCredentials: {
-      apiKey?: string;
-      apiSecret?: string;
-      bearerToken?: string;
-      accessToken?: string;
-      accessTokenSecret?: string;
-      clientId?: string;
-      clientSecret?: string;
-      oauth2AccessToken?: string;
-      oauth2RefreshToken?: string;
-    } = {};
-    try {
-      decryptedCredentials = decryptCredentials({
-        // OAuth 1.0a
-        ownApiKey: account.ownApiKey,
-        ownApiSecret: account.ownApiSecret,
-        ownBearerToken: account.ownBearerToken,
-        ownAccessToken: account.ownAccessToken,
-        ownAccessTokenSecret: account.ownAccessTokenSecret,
-        // OAuth 2.0
-        ownClientId: account.ownClientId,
-        ownClientSecret: account.ownClientSecret,
-        ownOAuth2AccessToken: account.ownOAuth2AccessToken,
-        ownOAuth2RefreshToken: account.ownOAuth2RefreshToken,
+      return NextResponse.json({
+        useOwnCredentials: false,
+        hasCredentials: false,
+        credentialsVerified: false,
+        fields: {
+          apiKey: false,
+          apiSecret: false,
+          bearerToken: false,
+          accessToken: false,
+          accessTokenSecret: false,
+        },
       });
-    } catch (error) {
-      console.error("❌ Error desencriptando credenciales:", error);
-      // Si falla la desencriptación, usar valores vacíos
     }
 
-    console.log("✅ Credenciales procesadas para envío:", {
-      hasApiKey: !!decryptedCredentials.apiKey,
-      hasApiSecret: !!decryptedCredentials.apiSecret,
-      hasBearerToken: !!decryptedCredentials.bearerToken,
-      hasClientId: !!decryptedCredentials.clientId,
-      hasClientSecret: !!decryptedCredentials.clientSecret,
-      hasOAuth2AccessToken: !!decryptedCredentials.oauth2AccessToken,
-    });
-
-    await logAction(accountId, "get_credentials_success", true);
-
-    const response = {
-      success: true,
-      credentials: decryptedCredentials,
-      // Información adicional de la cuenta
-      appName: account.appName || "",
-      developerEmail: account.developerEmail || "",
-      useOwnCredentials: account.useOwnCredentials,
+    // Verificar qué credenciales están disponibles
+    const fields = {
+      apiKey: !!account.ownApiKey,
+      apiSecret: !!account.ownApiSecret,
+      bearerToken: !!account.ownBearerToken,
+      accessToken: !!account.ownAccessToken,
+      accessTokenSecret: !!account.ownAccessTokenSecret,
     };
 
-    console.log("📤 Enviando respuesta:", {
-      success: response.success,
-      hasCredentials: !!response.credentials,
-      appName: response.appName,
-      developerEmail: response.developerEmail,
-    });
+    const hasCredentials = Object.values(fields).some(Boolean);
 
-    return NextResponse.json(response);
+    return NextResponse.json({
+      useOwnCredentials: account.useOwnCredentials,
+      hasCredentials,
+      credentialsVerified: account.credentialsVerified || false,
+      userAppName: account.userAppName || "",
+      fields,
+    });
   } catch (error) {
-    console.error("❌ Error obteniendo credenciales:", error);
-
-    await logError("get_credentials_failed", {
-      message: error instanceof Error ? error.message : "Error desconocido",
-      accountId: (await params).id,
-    });
-
+    console.error("Error obteniendo credenciales:", error);
     return NextResponse.json(
       { error: "Error interno del servidor" },
       { status: 500 }

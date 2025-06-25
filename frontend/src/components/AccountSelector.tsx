@@ -12,7 +12,7 @@ import {
   Divider,
 } from "@heroui/react";
 
-interface Account {
+interface XAccount {
   _id: string;
   username: string;
   labels: string[];
@@ -25,7 +25,7 @@ interface Account {
 }
 
 interface AccountSelectorProps {
-  accounts: Account[];
+  accounts: XAccount[];
   selectedAccounts: string[];
   onSelectionChange: (selectedIds: string[]) => void;
   title?: string;
@@ -80,7 +80,7 @@ export default function AccountSelector({
       return { "": filteredAccounts };
     }
 
-    const groups: { [key: string]: Account[] } = {};
+    const groups: { [key: string]: XAccount[] } = {};
 
     filteredAccounts.forEach((account) => {
       if (!account.labels || account.labels.length === 0) {

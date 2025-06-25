@@ -13,7 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import Link from "next/link";
 import { Loader2, AlertTriangle, Check, X, ArrowLeft } from "lucide-react";
 
-interface Account {
+interface XAccount {
   _id: string;
   username: string;
   userId: string;
@@ -29,7 +29,7 @@ export default function ApiKeysPage() {
   const params = useParams();
   const accountId = params?.id as string;
 
-  const [account, setAccount] = useState<Account | null>(null);
+  const [account, setAccount] = useState<XAccount | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -182,7 +182,7 @@ export default function ApiKeysPage() {
     }
   };
 
-  const fetchExistingCredentials = async (accountData?: Account) => {
+  const fetchExistingCredentials = async (accountData?: XAccount) => {
     const currentAccount = accountData || account;
 
     if (!currentAccount?.useOwnCredentials || !params?.id) {

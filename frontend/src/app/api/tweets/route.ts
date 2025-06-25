@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import XAccount from "@/models/XAccount";
 import { getValidToken } from "@/services/tokenService";
-import { decryptCredentials } from "@/services/cryptoService";
 import { logError, logAction } from "@/lib/log-action";
 import crypto from "crypto";
 
@@ -85,18 +84,13 @@ const generateOAuth1Headers = async (
   accessToken: string,
   accessTokenSecret: string
 ): Promise<Record<string, string>> => {
-  // Obtener API keys encriptadas
-  const decryptedCreds = decryptCredentials({
-    ownApiKey: account.ownApiKey,
-    ownApiSecret: account.ownApiSecret,
-  });
-
-  if (!decryptedCreds.apiKey || !decryptedCreds.apiSecret) {
+  // Usar API keys directamente
+  if (!account.ownApiKey || !account.ownApiSecret) {
     throw new Error("No se encontraron API Key y API Secret");
   }
 
-  const consumerKey = decryptedCreds.apiKey;
-  const consumerSecret = decryptedCreds.apiSecret;
+  const consumerKey = account.ownApiKey;
+  const consumerSecret = account.ownApiSecret;
 
   // Generar nonce y timestamp
   const timestamp = Math.floor(Date.now() / 1000).toString();
@@ -246,14 +240,6 @@ export async function POST(req: NextRequest) {
     ) {
       // Usar credenciales propias del usuario
       try {
-        const decryptedCreds = decryptCredentials({
-          ownBearerToken: account.ownBearerToken,
-          ownApiKey: account.ownApiKey,
-          ownApiSecret: account.ownApiSecret,
-          ownAccessToken: account.ownAccessToken,
-          ownAccessTokenSecret: account.ownAccessTokenSecret,
-        });
-
         // Para acciones de escritura (tweet, like, retweet, reply) usar OAuth 1.0a
         // Para acciones de lectura usar Bearer Token
         const needsWriteAccess = ["tweet", "like", "retweet", "reply"].includes(
@@ -262,17 +248,17 @@ export async function POST(req: NextRequest) {
 
         if (
           needsWriteAccess &&
-          decryptedCreds.accessToken &&
-          decryptedCreds.accessTokenSecret
+          account.ownAccessToken &&
+          account.ownAccessTokenSecret
         ) {
           // Usar OAuth 1.0a para escritura
-          accessToken = decryptedCreds.accessToken;
-          accessTokenSecret = decryptedCreds.accessTokenSecret;
+          accessToken = account.ownAccessToken;
+          accessTokenSecret = account.ownAccessTokenSecret;
           authMethod = "oauth1";
           useOwnCredentials = true;
-        } else if (!needsWriteAccess && decryptedCreds.bearerToken) {
+        } else if (!needsWriteAccess && account.ownBearerToken) {
           // Usar Bearer Token para lectura
-          accessToken = decryptedCreds.bearerToken;
+          accessToken = account.ownBearerToken;
           authMethod = "bearer";
           useOwnCredentials = true;
         } else {
@@ -283,7 +269,7 @@ export async function POST(req: NextRequest) {
           );
         }
       } catch (error) {
-        logError("decrypt_own_credentials_failed", {
+        logError("credentials_missing", {
           accountId: account._id,
           username: account.username,
           error: error instanceof Error ? error.message : String(error),

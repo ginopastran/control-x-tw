@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 
-interface Account {
+interface XAccount {
   _id: string;
   username: string;
   labels: string[];
@@ -20,7 +20,7 @@ interface ScheduledAction {
 }
 
 export default function Scheduler() {
-  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [accounts, setAccounts] = useState<XAccount[]>([]);
   const [selectedAccounts, setSelectedAccounts] = useState<string[]>([]);
   const [availableLabels, setAvailableLabels] = useState<string[]>([]);
   const [selectedLabel, setSelectedLabel] = useState<string>("");

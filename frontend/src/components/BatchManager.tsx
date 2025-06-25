@@ -29,14 +29,14 @@ interface BatchMessage {
   category?: string;
 }
 
-interface Account {
+interface XAccount {
   _id: string;
   username: string;
   labels: string[];
 }
 
 interface BatchManagerProps {
-  accounts: Account[];
+  accounts: XAccount[];
   selectedAccounts: string[];
   onExecute: (messages: BatchMessage[], mode: string) => void;
   isLoading?: boolean;
@@ -195,7 +195,7 @@ export default function BatchManager({
 
   const distributeSequential = (
     msgs: BatchMessage[],
-    accs: Account[]
+    accs: XAccount[]
   ): BatchMessage[] => {
     const accountsPerMessage = Math.ceil(accs.length / msgs.length);
 
@@ -214,7 +214,7 @@ export default function BatchManager({
 
   const distributeRoundRobin = (
     msgs: BatchMessage[],
-    accs: Account[]
+    accs: XAccount[]
   ): BatchMessage[] => {
     const distribution: string[][] = msgs.map(() => []);
 
@@ -231,7 +231,7 @@ export default function BatchManager({
 
   const distributeRandom = (
     msgs: BatchMessage[],
-    accs: Account[]
+    accs: XAccount[]
   ): BatchMessage[] => {
     const shuffledAccounts = [...accs].sort(() => Math.random() - 0.5);
     return distributeRoundRobin(msgs, shuffledAccounts);
@@ -239,7 +239,7 @@ export default function BatchManager({
 
   const distributePriority = (
     msgs: BatchMessage[],
-    accs: Account[]
+    accs: XAccount[]
   ): BatchMessage[] => {
     const priorityOrder = { high: 3, medium: 2, low: 1 };
     const sortedMessages = [...msgs].sort(
@@ -269,7 +269,7 @@ export default function BatchManager({
 
   const optimizeDistribution = (
     msgs: BatchMessage[],
-    accs: Account[]
+    accs: XAccount[]
   ): BatchMessage[] => {
     // Balancear por etiquetas si está habilitado
     if (enableCategoryBalance) {
@@ -281,9 +281,9 @@ export default function BatchManager({
 
   const balanceByLabels = (
     msgs: BatchMessage[],
-    accs: Account[]
+    accs: XAccount[]
   ): BatchMessage[] => {
-    const labelGroups: { [key: string]: Account[] } = {};
+    const labelGroups: { [key: string]: XAccount[] } = {};
 
     accs.forEach((acc) => {
       acc.labels.forEach((label) => {

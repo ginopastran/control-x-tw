@@ -1,153 +1,156 @@
-import { NextResponse, NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { randomBytes, createHash } from "crypto";
 import { connectDB } from "@/lib/mongodb";
 import XAccount from "@/models/XAccount";
-import { decryptCredentials } from "@/lib/crypto-nextjs";
 
-// Función para generar un desafío PKCE
-function generatePKCE() {
-  // Generar un verifier aleatorio
-  const verifier = randomBytes(32).toString("base64url");
-
-  // Generar el challenge con SHA-256
-  const challenge = createHash("sha256").update(verifier).digest("base64url");
-
-  return { verifier, challenge };
-}
-
-export async function GET(req: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
-    const accountId = searchParams.get("accountId");
+    const { accountId } = await req.json();
 
     if (!accountId) {
-      return NextResponse.redirect(
-        new URL(
-          "/error?message=AccountId+requerido+para+autenticación",
-          req.url
-        )
+      return NextResponse.json(
+        { error: "accountId es requerido" },
+        { status: 400 }
       );
     }
 
-    // Conectar a la base de datos y obtener credenciales del usuario
     await connectDB();
     const account = await XAccount.findById(accountId);
 
     if (!account) {
-      return NextResponse.redirect(
-        new URL("/error?message=Cuenta+no+encontrada", req.url)
+      return NextResponse.json(
+        { error: "Cuenta no encontrada" },
+        { status: 404 }
       );
     }
 
-    if (!account.useOwnCredentials) {
-      return NextResponse.redirect(
-        new URL(
-          "/error?message=Cuenta+no+configurada+para+usar+credenciales+propias",
-          req.url
-        )
+    // Verificar si la cuenta tiene credenciales propias
+    if (
+      !account.useOwnCredentials ||
+      !account.ownApiKey ||
+      !account.ownApiSecret
+    ) {
+      return NextResponse.json(
+        { error: "Esta cuenta no tiene credenciales OAuth configuradas" },
+        { status: 400 }
       );
     }
 
-    // Desencriptar credenciales específicas del usuario
-    let credentials;
-    try {
-      credentials = decryptCredentials({
-        ownClientId: account.ownClientId,
-        ownClientSecret: account.ownClientSecret,
-      });
-    } catch (error) {
-      console.error("Error desencriptando credenciales:", error);
-      return NextResponse.redirect(
-        new URL("/error?message=Error+desencriptando+credenciales", req.url)
-      );
-    }
-
-    if (!credentials.clientId || !credentials.clientSecret) {
-      return NextResponse.redirect(
-        new URL("/error?message=Credenciales+OAuth+2.0+no+encontradas", req.url)
-      );
-    }
-
-    const CLIENT_ID = credentials.clientId;
-    const REDIRECT_URI = process.env.NEXT_PUBLIC_API_URL
-      ? `${process.env.NEXT_PUBLIC_API_URL}/api/auth/x/callback`
-      : "http://localhost:3000/api/auth/x/callback";
-
-    // Alcances/permisos necesarios para la API de X
-    const SCOPES = [
-      "tweet.read",
-      "tweet.write",
-      "users.read",
-      "offline.access",
-      "like.write",
-      "follows.write",
-    ];
-
-    // Generar un estado aleatorio más largo para mayor seguridad
-    const state = randomBytes(32).toString("hex");
-
-    // Generar PKCE para mayor seguridad
-    const { verifier, challenge } = generatePKCE();
-
-    // Crear la URL de autorización con todos los parámetros necesarios
-    const authUrl = new URL("https://twitter.com/i/oauth2/authorize");
-    authUrl.searchParams.append("response_type", "code");
-    authUrl.searchParams.append("client_id", CLIENT_ID);
-    authUrl.searchParams.append("redirect_uri", REDIRECT_URI);
-    authUrl.searchParams.append("scope", SCOPES.join(" "));
-    authUrl.searchParams.append("state", state);
-    authUrl.searchParams.append("code_challenge_method", "S256");
-    authUrl.searchParams.append("code_challenge", challenge);
-
-    // FORZAR LOGOUT Y SELECCIÓN DE CUENTA
-    authUrl.searchParams.append("force_login", "true");
-
-    console.log(
-      `Iniciando autenticación con X para cuenta ${accountId}: Redirección a ${authUrl.hostname}`
-    );
-
-    // Crear la respuesta con la redirección
-    const response = NextResponse.redirect(authUrl.toString());
-
-    // Configurar las cookies con opciones más seguras
-    const cookieOptions = {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax" as const,
-      path: "/",
-      maxAge: 60 * 15, // 15 minutos
-      domain: process.env.COOKIE_DOMAIN || undefined,
+    // Usar credenciales directamente
+    const credentials = {
+      apiKey: account.ownApiKey,
+      apiSecret: account.ownApiSecret,
     };
 
-    // Limpiar cookies existentes primero
-    response.cookies.delete("oauth_state");
-    response.cookies.delete("code_verifier");
-    response.cookies.delete("oauth_account_id");
+    // Generar parámetros OAuth
+    const oauth_nonce = randomBytes(16).toString("hex");
+    const oauth_timestamp = Math.floor(Date.now() / 1000).toString();
+    const oauth_callback = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/x/callback`;
 
-    // Establecer las nuevas cookies incluyendo el accountId
-    response.cookies.set({
-      name: "oauth_state",
-      value: state,
-      ...cookieOptions,
+    // Crear parámetros base para la signature
+    const baseParams = {
+      oauth_callback,
+      oauth_consumer_key: credentials.apiKey,
+      oauth_nonce,
+      oauth_signature_method: "HMAC-SHA1",
+      oauth_timestamp,
+      oauth_version: "1.0",
+    };
+
+    // Crear signature base string
+    const paramString = Object.keys(baseParams)
+      .sort()
+      .map(
+        (key) =>
+          `${encodeURIComponent(key)}=${encodeURIComponent(baseParams[key])}`
+      )
+      .join("&");
+
+    const signatureBaseString = [
+      "POST",
+      encodeURIComponent("https://api.twitter.com/oauth/request_token"),
+      encodeURIComponent(paramString),
+    ].join("&");
+
+    // Crear signing key
+    const signingKey = `${encodeURIComponent(credentials.apiSecret)}&`;
+
+    // Generar signature
+    const crypto = require("crypto");
+    const oauth_signature = crypto
+      .createHmac("sha1", signingKey)
+      .update(signatureBaseString)
+      .digest("base64");
+
+    // Crear Authorization header
+    const authParams = {
+      ...baseParams,
+      oauth_signature,
+    };
+
+    const authHeader =
+      "OAuth " +
+      Object.keys(authParams)
+        .map(
+          (key) =>
+            `${encodeURIComponent(key)}="${encodeURIComponent(
+              authParams[key]
+            )}"`
+        )
+        .join(", ");
+
+    // Solicitar request token
+    const response = await fetch(
+      "https://api.twitter.com/oauth/request_token",
+      {
+        method: "POST",
+        headers: {
+          Authorization: authHeader,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      return NextResponse.json(
+        { error: "Error obteniendo request token", details: errorText },
+        { status: response.status }
+      );
+    }
+
+    const responseText = await response.text();
+    const params = new URLSearchParams(responseText);
+    const oauth_token = params.get("oauth_token");
+    const oauth_token_secret = params.get("oauth_token_secret");
+
+    if (!oauth_token || !oauth_token_secret) {
+      return NextResponse.json(
+        { error: "Request token inválido" },
+        { status: 400 }
+      );
+    }
+
+    // Guardar el token secret temporalmente (en producción usar Redis o similar)
+    // Por ahora lo guardamos en la cuenta
+    await XAccount.findByIdAndUpdate(accountId, {
+      tempOAuthTokenSecret: oauth_token_secret,
     });
 
-    response.cookies.set({
-      name: "code_verifier",
-      value: verifier,
-      ...cookieOptions,
-    });
+    // Crear URL de autorización
+    const authUrl = `https://api.twitter.com/oauth/authorize?oauth_token=${oauth_token}&oauth_callback=${encodeURIComponent(
+      oauth_callback
+    )}`;
 
-    response.cookies.set({
-      name: "oauth_account_id",
-      value: accountId,
-      ...cookieOptions,
+    return NextResponse.json({
+      authUrl,
+      oauth_token,
     });
-
-    return response;
   } catch (error) {
-    console.error("Error al iniciar autenticación con X:", error);
-    return NextResponse.redirect(
-      new URL("/error?message=Error+al+iniciar+autenticacion", req.url)
+    console.error("Error en OAuth login:", error);
+    return NextResponse.json(
+      { error: "Error interno del servidor" },
+      { status: 500 }
     );
   }
 }

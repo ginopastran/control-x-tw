@@ -73,7 +73,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-interface Account {
+interface XAccount {
   _id: string;
   username: string;
   labels: string[];
@@ -113,7 +113,7 @@ const LABEL_FILTERS = {
 };
 
 export default function TweetsPage() {
-  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [accounts, setAccounts] = useState<XAccount[]>([]);
   const [selectedAccounts, setSelectedAccounts] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [actionResults, setActionResults] = useState<ActionResult[]>([]);

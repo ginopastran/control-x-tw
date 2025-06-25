@@ -68,7 +68,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 
-interface Account {
+interface XAccount {
   _id: string;
   username: string;
   userId: string;
@@ -103,8 +103,8 @@ interface ActionStats {
 }
 
 export default function AccountCustomize() {
-  const [accounts, setAccounts] = useState<Account[]>([]);
-  const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
+  const [accounts, setAccounts] = useState<XAccount[]>([]);
+  const [selectedAccount, setSelectedAccount] = useState<XAccount | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -200,15 +200,13 @@ export default function AccountCustomize() {
   const fetchAccounts = async () => {
     try {
       setIsLoading(true);
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
       const response = await fetch(
-        `${apiUrl}/api/debug/accounts`,
+        "/api/debug/accounts",
         getAuthenticatedFetchOptions()
       );
       if (response.ok) {
         const data = await response.json();
         console.log("🔍 Cuentas obtenidas:", data);
-        // Usar el mismo endpoint que la página principal
         setAccounts(data.accounts || []);
       }
     } catch (error) {
@@ -221,9 +219,8 @@ export default function AccountCustomize() {
 
   const fetchAccountStats = async (accountId: string) => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
       const response = await fetch(
-        `${apiUrl}/api/accounts/${accountId}/stats`,
+        `/api/accounts/${accountId}/stats`,
         getAuthenticatedFetchOptions()
       );
       if (response.ok) {
@@ -248,7 +245,6 @@ export default function AccountCustomize() {
 
     try {
       setIsUpdating(true);
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
       console.log(
         "🔍 Actualizando perfil para cuenta:",
@@ -260,7 +256,7 @@ export default function AccountCustomize() {
       });
 
       const response = await fetch(
-        `${apiUrl}/api/accounts/${selectedAccount._id}/profile`,
+        `/api/accounts/${selectedAccount._id}/profile`,
         getAuthenticatedFetchOptions({
           method: "PUT",
           headers: {
@@ -322,9 +318,8 @@ export default function AccountCustomize() {
       console.log("🔍 Tipo de media:", type);
       console.log("🔍 Archivo:", file.name, file.size, "bytes");
 
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
       const response = await fetch(
-        `${apiUrl}/api/accounts/${selectedAccount._id}/media`,
+        `/api/accounts/${selectedAccount._id}/media`,
         getAuthenticatedFetchOptions({
           method: "POST",
           body: formData,
@@ -413,9 +408,8 @@ export default function AccountCustomize() {
 
     try {
       setIsDeletingTweets(true);
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
       const response = await fetch(
-        `${apiUrl}/api/accounts/${selectedAccount._id}/tweet/${tweetId}`,
+        `/api/accounts/${selectedAccount._id}/tweet/${tweetId}`,
         getAuthenticatedFetchOptions({
           method: "DELETE",
           headers: {
@@ -449,9 +443,8 @@ export default function AccountCustomize() {
 
     try {
       setIsManagingFollows(true);
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
       const response = await fetch(
-        `${apiUrl}/api/accounts/${selectedAccount._id}/follow`,
+        `/api/accounts/${selectedAccount._id}/follow`,
         getAuthenticatedFetchOptions({
           method: "POST",
           headers: {
@@ -487,7 +480,7 @@ export default function AccountCustomize() {
     }
   };
 
-  const getStatusBadge = (account: Account) => {
+  const getStatusBadge = (account: XAccount) => {
     // Determinar el estado basado en la información de la cuenta
     let status = "active";
     let text = "Activa";
