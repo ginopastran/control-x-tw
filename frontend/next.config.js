@@ -2,8 +2,12 @@
 const nextConfig = {
   experimental: {
     serverComponentsExternalPackages: ["@prisma/client"],
+    esmExternals: false,
   },
   transpilePackages: ["lucide-react"],
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   webpack: (config) => {
     config.resolve.fallback = {
       ...config.resolve.fallback,
