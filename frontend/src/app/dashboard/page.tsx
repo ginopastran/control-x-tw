@@ -46,11 +46,11 @@ interface AccountLimits {
   _id: string;
   username: string;
   labels: string[];
-  dailyLimits: {
-    tweets: { used: number; limit: number; reset: string };
-    follows: { used: number; limit: number; reset: string };
-    likes: { used: number; limit: number; reset: string };
-    retweets: { used: number; limit: number; reset: string };
+  dailyLimits?: {
+    tweets?: { used: number; limit: number; reset: string };
+    follows?: { used: number; limit: number; reset: string };
+    likes?: { used: number; limit: number; reset: string };
+    retweets?: { used: number; limit: number; reset: string };
   };
   status: "active" | "suspended" | "limited" | "error";
   lastActivity: string;
@@ -274,6 +274,7 @@ export default function Dashboard() {
   );
 
   const getProgressColor = (used: number, limit: number) => {
+    if (!used || !limit || limit === 0) return "bg-gray-300";
     const percentage = (used / limit) * 100;
     if (percentage >= 90) return "bg-red-500";
     if (percentage >= 70) return "bg-yellow-500";
@@ -837,15 +838,18 @@ export default function Dashboard() {
                           <div className="flex items-center space-x-2">
                             <Progress
                               value={
-                                (account.dailyLimits.tweets.used /
-                                  account.dailyLimits.tweets.limit) *
-                                100
+                                account.dailyLimits?.tweets
+                                  ? (account.dailyLimits.tweets.used /
+                                      account.dailyLimits.tweets.limit) *
+                                    100
+                                  : 0
                               }
                               className="flex-1 h-1"
                             />
                             <span className="text-xs text-gray-600 font-mono min-w-[50px]">
-                              {account.dailyLimits.tweets.used}/
-                              {account.dailyLimits.tweets.limit}
+                              {account.dailyLimits?.tweets
+                                ? `${account.dailyLimits.tweets.used}/${account.dailyLimits.tweets.limit}`
+                                : "N/A"}
                             </span>
                           </div>
                         </div>
@@ -855,15 +859,18 @@ export default function Dashboard() {
                           <div className="flex items-center space-x-2">
                             <Progress
                               value={
-                                (account.dailyLimits.follows.used /
-                                  account.dailyLimits.follows.limit) *
-                                100
+                                account.dailyLimits?.follows
+                                  ? (account.dailyLimits.follows.used /
+                                      account.dailyLimits.follows.limit) *
+                                    100
+                                  : 0
                               }
                               className="flex-1 h-1"
                             />
                             <span className="text-xs text-gray-600 font-mono min-w-[50px]">
-                              {account.dailyLimits.follows.used}/
-                              {account.dailyLimits.follows.limit}
+                              {account.dailyLimits?.follows
+                                ? `${account.dailyLimits.follows.used}/${account.dailyLimits.follows.limit}`
+                                : "N/A"}
                             </span>
                           </div>
                         </div>
@@ -873,15 +880,18 @@ export default function Dashboard() {
                           <div className="flex items-center space-x-2">
                             <Progress
                               value={
-                                (account.dailyLimits.likes.used /
-                                  account.dailyLimits.likes.limit) *
-                                100
+                                account.dailyLimits?.likes
+                                  ? (account.dailyLimits.likes.used /
+                                      account.dailyLimits.likes.limit) *
+                                    100
+                                  : 0
                               }
                               className="flex-1 h-1"
                             />
                             <span className="text-xs text-gray-600 font-mono min-w-[50px]">
-                              {account.dailyLimits.likes.used}/
-                              {account.dailyLimits.likes.limit}
+                              {account.dailyLimits?.likes
+                                ? `${account.dailyLimits.likes.used}/${account.dailyLimits.likes.limit}`
+                                : "N/A"}
                             </span>
                           </div>
                         </div>
@@ -891,15 +901,18 @@ export default function Dashboard() {
                           <div className="flex items-center space-x-2">
                             <Progress
                               value={
-                                (account.dailyLimits.retweets.used /
-                                  account.dailyLimits.retweets.limit) *
-                                100
+                                account.dailyLimits?.retweets
+                                  ? (account.dailyLimits.retweets.used /
+                                      account.dailyLimits.retweets.limit) *
+                                    100
+                                  : 0
                               }
                               className="flex-1 h-1"
                             />
                             <span className="text-xs text-gray-600 font-mono min-w-[50px]">
-                              {account.dailyLimits.retweets.used}/
-                              {account.dailyLimits.retweets.limit}
+                              {account.dailyLimits?.retweets
+                                ? `${account.dailyLimits.retweets.used}/${account.dailyLimits.retweets.limit}`
+                                : "N/A"}
                             </span>
                           </div>
                         </div>

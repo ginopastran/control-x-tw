@@ -1671,6 +1671,66 @@ async function processQueueEnhanced() {
   }
 }
 
+// ========== ENDPOINTS DE DEBUG ==========
+
+// Endpoint para debug de cuentas (usado por el frontend)
+app.get("/api/debug/accounts", async (req, res) => {
+  try {
+    const accounts = await prisma.xAccount.findMany({
+      select: {
+        id: true,
+        username: true,
+        userId: true,
+        labels: true,
+        createdAt: true,
+        useOwnCredentials: true,
+        credentialsVerified: true,
+        isActive: true,
+        status: true,
+        lastActivity: true,
+      },
+      orderBy: { username: "asc" },
+    });
+
+    // Calcular estadísticas
+    const stats = {
+      total: accounts.length,
+      valid: accounts.filter((acc) => acc.isActive).length,
+      needsRefresh: 0, // Por implementar
+      expired: 0, // Por implementar
+      invalid: accounts.filter((acc) => !acc.isActive).length,
+      needsReauth: 0, // Por implementar
+    };
+
+    res.json({
+      stats,
+      accounts: accounts.map((account) => ({
+        _id: account.id,
+        username: account.username,
+        userId: account.userId,
+        developerTag: account.username, // Temporal
+        labels: account.labels || [],
+        createdAt: account.createdAt.toISOString(),
+        hasAccessToken: account.useOwnCredentials,
+        hasRefreshToken: account.credentialsVerified,
+        needsReauth: false,
+        useOwnCredentials: account.useOwnCredentials,
+        credentialsVerified: account.credentialsVerified,
+        tokenInfo: {
+          isValid: account.isActive,
+          status: account.isActive ? "VALID" : "INVALID",
+          hoursToExpiry: null,
+        },
+      })),
+    });
+  } catch (error) {
+    console.error("Error en /api/debug/accounts:", error);
+    res.status(500).json({
+      error: error.message || "Error interno del servidor",
+    });
+  }
+});
+
 // ========== INICIAR SERVIDOR ==========
 
 app.listen(PORT, () => {

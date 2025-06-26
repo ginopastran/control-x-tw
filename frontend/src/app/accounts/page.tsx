@@ -501,21 +501,17 @@ export default function AccountsPage() {
                 <Palette className="h-4 w-4 mr-2" />
                 Personalizar
               </Button>
-              {!mutualFollowCampaign?.isRunning &&
-                debugData &&
-                debugData.accounts.filter(
-                  (acc) => acc.useOwnCredentials && acc.credentialsVerified
-                ).length >= 2 && (
-                  <Button
-                    onClick={() => setIsMutualFollowDialogOpen(true)}
-                    variant="outline"
-                    size="sm"
-                    className="border-green-200 text-green-700 hover:bg-green-50"
-                  >
-                    <Users className="h-4 w-4 mr-2" />
-                    Follow Mutuo
-                  </Button>
-                )}
+              {debugData && debugData.accounts.length >= 2 && (
+                <Button
+                  onClick={() => setIsMutualFollowDialogOpen(true)}
+                  variant="outline"
+                  size="sm"
+                  className="border-green-200 text-green-700 hover:bg-green-50"
+                >
+                  <Users className="h-4 w-4 mr-2" />
+                  Follow Mutuo (Debug)
+                </Button>
+              )}
               {mutualFollowCampaign?.isRunning && (
                 <Button
                   onClick={cancelMutualFollowCampaign}
@@ -760,7 +756,8 @@ export default function AccountsPage() {
                         <TableCell className="py-4">
                           {(() => {
                             const tokenInfo = account.tokenInfo;
-                            return tokenInfo?.hoursToExpiry !== null ? (
+                            return tokenInfo?.hoursToExpiry !== null &&
+                              tokenInfo?.hoursToExpiry !== undefined ? (
                               <div className="text-sm">
                                 <div
                                   className={`font-medium ${
@@ -776,9 +773,10 @@ export default function AccountsPage() {
                                     : "Expirado"}
                                 </div>
                                 <div className="text-xs text-gray-500">
-                                  {new Date(
-                                    tokenInfo.expiresAt
-                                  ).toLocaleDateString("es-ES")}
+                                  {tokenInfo.expiresAt &&
+                                    new Date(
+                                      tokenInfo.expiresAt
+                                    ).toLocaleDateString("es-ES")}
                                 </div>
                               </div>
                             ) : (
@@ -1290,10 +1288,10 @@ export default function AccountsPage() {
                 onClick={startMutualFollowCampaign}
                 disabled={
                   isStartingCampaign ||
-                  (debugData &&
-                    debugData.accounts.filter(
-                      (acc) => acc.useOwnCredentials && acc.credentialsVerified
-                    ).length < 2)
+                  !debugData ||
+                  debugData.accounts.filter(
+                    (acc) => acc.useOwnCredentials && acc.credentialsVerified
+                  ).length < 2
                 }
                 className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
               >
