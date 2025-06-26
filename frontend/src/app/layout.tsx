@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Providers } from "./providers";
 import ConditionalNavbar from "./components/ConditionalNavbar";
-import BackgroundGradient from "@/components/ui/BackgroundGradient";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,13 +17,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es" className="dark">
-      <body className={`${inter.className}`}>
+    <html lang="es" className="h-full">
+      <body className={`${inter.className} h-full bg-gray-50 antialiased`}>
         <Providers>
-          <BackgroundGradient>
+          <div className="min-h-full">
             <ConditionalNavbar />
-            <main className="min-h-screen">{children}</main>
-          </BackgroundGradient>
+            <main className="animate-fade-in">{children}</main>
+          </div>
         </Providers>
       </body>
     </html>

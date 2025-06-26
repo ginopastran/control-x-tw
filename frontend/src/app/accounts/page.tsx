@@ -66,6 +66,7 @@ import {
   RefreshCw,
   Download,
   Upload,
+  Palette,
 } from "lucide-react";
 
 interface XAccount {
@@ -436,17 +437,16 @@ export default function AccountsPage() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="flex flex-col items-center justify-center gap-4">
-          <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-4 rounded-full animate-pulse">
-            <Users className="h-8 w-8 text-white" />
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="bg-white border border-gray-200 p-4 rounded-lg shadow-sm mb-4">
+            <Users className="h-8 w-8 text-gray-400 mx-auto" />
           </div>
-          <div className="flex items-center gap-2">
-            <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
-            <span className="text-lg font-medium">Cargando cuentas...</span>
-          </div>
-          <div className="w-64 h-1 bg-gray-200 rounded-full overflow-hidden">
-            <div className="w-full h-full bg-gradient-to-r from-blue-500 to-purple-600 animate-pulse" />
+          <div className="flex items-center justify-center gap-2">
+            <Loader2 className="h-4 w-4 animate-spin text-gray-600" />
+            <span className="text-gray-700 font-medium">
+              Cargando cuentas...
+            </span>
           </div>
         </div>
       </div>
@@ -454,327 +454,186 @@ export default function AccountsPage() {
   }
 
   return (
-    <TooltipProvider>
-      <div
-        className={`max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 transition-all duration-1000 ${
-          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-        }`}
-      >
-        {/* Header mejorado */}
-        <div className="mb-12">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-3 mb-6">
-              <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-3 rounded-full animate-pulse">
-                <Users className="h-8 w-8 text-white" />
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto p-6 space-y-6">
+        {/* Header limpio y moderno */}
+        <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="bg-gray-100 p-2 rounded-lg">
+                  <Users className="h-5 w-5 text-gray-700" />
+                </div>
+                <h1 className="text-2xl font-semibold text-gray-900">
+                  Cuentas Conectadas
+                </h1>
               </div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Cuentas de X Conectadas
-              </h1>
+              <p className="text-gray-600">
+                Gestiona tus cuentas de X y su estado de autenticación
+              </p>
             </div>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Gestiona tus cuentas conectadas y su estado de autenticación
-            </p>
-          </div>
 
-          {/* Controles superiores */}
-          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between mb-8">
-            <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Buscar cuentas..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 w-full sm:w-80 border-2 focus:border-blue-500 transition-all duration-200"
-                />
-              </div>
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="px-4 py-2 border-2 border-gray-200 rounded-md focus:border-blue-500 focus:outline-none transition-all duration-200 bg-white dark:bg-slate-800"
-              >
-                <option value="all">Todos los estados</option>
-                <option value="valid">Válidos</option>
-                <option value="needs_refresh">Necesita Refresh</option>
-                <option value="expired">Expirados</option>
-                <option value="invalid">Inválidos</option>
-              </select>
-            </div>
-            <div className="flex gap-3">
+            <div className="flex items-center gap-3">
               <Button
                 variant="outline"
+                size="sm"
                 onClick={fetchAccountsData}
-                className="hover:scale-105 transition-transform duration-200"
+                className="border-gray-300 hover:bg-gray-50 text-gray-700"
               >
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Actualizar
               </Button>
-
               <Button
                 onClick={() => setIsTestDialogOpen(true)}
                 variant="outline"
-                className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white border-0 transition-all duration-200 hover:scale-105"
+                size="sm"
+                className="border-orange-200 text-orange-700 hover:bg-orange-50"
               >
                 <Activity className="h-4 w-4 mr-2" />
-                Testear Cuentas
+                Testear
               </Button>
-
-              {/* Botón de debugging temporal */}
-
-              {debugData && debugData.accounts.length >= 2 && (
-                <Button
-                  onClick={() => setIsMutualFollowDialogOpen(true)}
-                  variant={
-                    mutualFollowCampaign?.isRunning ? "secondary" : "default"
-                  }
-                  disabled={mutualFollowCampaign?.isRunning}
-                  className={
-                    mutualFollowCampaign?.isRunning
-                      ? "bg-gray-400"
-                      : "bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 transition-all duration-200 hover:scale-105"
-                  }
-                >
-                  {mutualFollowCampaign?.isRunning ? (
-                    <>
-                      <Activity className="h-4 w-4 mr-2 animate-pulse" />
-                      Campaña en Curso
-                    </>
-                  ) : (
-                    <>
-                      <Users className="h-4 w-4 mr-2" />
-                      Follow Mutuo
-                    </>
-                  )}
-                </Button>
-              )}
-              {(userRole === "superadmin" || userRole === "SUPERADMIN") && (
-                <Button
-                  onClick={() => router.push("/accounts/customize")}
-                  className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white transition-all duration-200 hover:scale-105 shadow-lg"
-                >
-                  <Settings className="h-4 w-4 mr-2" />
-                  Personalizar Cuentas
-                </Button>
-              )}
+              <Button
+                onClick={() => router.push("/accounts/customize")}
+                variant="outline"
+                size="sm"
+                className="border-purple-200 text-purple-700 hover:bg-purple-50"
+              >
+                <Palette className="h-4 w-4 mr-2" />
+                Personalizar
+              </Button>
               <Button
                 onClick={() => setIsAddAccountModalOpen(true)}
-                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all duration-200 hover:scale-105"
+                className="bg-gray-900 hover:bg-gray-800 text-white"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Conectar Cuenta
               </Button>
             </div>
           </div>
+
+          {/* Controles de búsqueda */}
+          <div className="flex items-center gap-4 pt-4 border-t border-gray-100">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Buscar por username..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 border-gray-300 focus:border-gray-400 focus:ring-gray-400"
+              />
+            </div>
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-md focus:border-gray-400 focus:outline-none bg-white text-gray-700"
+            >
+              <option value="all">Todos los estados</option>
+              <option value="valid">Válidos</option>
+              <option value="needs_refresh">Necesita Refresh</option>
+              <option value="expired">Expirados</option>
+              <option value="invalid">Inválidos</option>
+            </select>
+          </div>
         </div>
 
-        {/* Estado de la campaña de follow mutuo */}
-        {mutualFollowCampaign && mutualFollowCampaign.isRunning && (
-          <Card className="mb-6 shadow-xl border-0 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-3">
-                <div className="bg-green-100 dark:bg-green-900 p-2 rounded-full">
-                  <Activity className="h-5 w-5 text-green-600 dark:text-green-400 animate-pulse" />
-                </div>
-                <span>Campaña de Follow Mutuo en Curso</span>
-                <Badge variant="secondary" className="ml-auto">
-                  {mutualFollowCampaign.currentPhase}
-                </Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="space-y-3">
-                  <h4 className="font-semibold text-sm">Progreso General</h4>
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span>Completadas:</span>
-                      <span className="font-semibold text-green-600">
-                        {mutualFollowCampaign.progress.completed}
-                      </span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span>Restantes:</span>
-                      <span className="font-semibold text-blue-600">
-                        {mutualFollowCampaign.progress.remaining}
-                      </span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span>Fallidas:</span>
-                      <span className="font-semibold text-red-600">
-                        {mutualFollowCampaign.progress.failed}
-                      </span>
-                    </div>
-                  </div>
-                  <Progress
-                    value={
-                      (mutualFollowCampaign.progress.completed /
-                        mutualFollowCampaign.progress.total) *
-                      100
-                    }
-                    className="h-3"
-                  />
-                </div>
-
-                <div className="space-y-3">
-                  <h4 className="font-semibold text-sm">Información</h4>
-                  <div className="space-y-2 text-sm">
-                    <div>
-                      <span className="text-muted-foreground">Iniciada:</span>
-                      <div className="font-medium">
-                        {new Date(
-                          mutualFollowCampaign.startedAt
-                        ).toLocaleDateString("es-ES", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </div>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">
-                        Finalización estimada:
-                      </span>
-                      <div className="font-medium">
-                        {new Date(
-                          mutualFollowCampaign.estimatedCompletionDate
-                        ).toLocaleDateString("es-ES", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <h4 className="font-semibold text-sm">Acciones</h4>
-                  <div className="space-y-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={fetchMutualFollowCampaignStatus}
-                      className="w-full"
-                    >
-                      <RefreshCw className="h-4 w-4 mr-2" />
-                      Actualizar Estado
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={cancelMutualFollowCampaign}
-                      className="w-full"
-                    >
-                      <XCircle className="h-4 w-4 mr-2" />
-                      Cancelar Campaña
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Estadísticas mejoradas */}
+        {/* Estadísticas limpias */}
         {debugData && (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
             {[
-              {
-                label: "Total",
-                value: debugData.stats.total,
-                color: "blue",
-                icon: Users,
-              },
+              { label: "Total", value: debugData.stats.total, color: "gray" },
               {
                 label: "Válidas",
                 value: debugData.stats.valid,
                 color: "green",
-                icon: CheckCircle2,
               },
               {
                 label: "Refresh",
                 value: debugData.stats.needsRefresh,
                 color: "yellow",
-                icon: RefreshCw,
               },
               {
                 label: "Expiradas",
                 value: debugData.stats.expired,
                 color: "red",
-                icon: XCircle,
               },
               {
                 label: "Inválidas",
                 value: debugData.stats.invalid,
                 color: "red",
-                icon: AlertTriangle,
               },
               {
                 label: "Re-auth",
                 value: debugData.stats.needsReauth,
                 color: "purple",
-                icon: Shield,
               },
             ].map((stat, index) => (
               <Card
                 key={index}
-                className="shadow-xl border-0 bg-gradient-to-br from-white to-gray-50 dark:from-slate-800 dark:to-slate-900 transition-all duration-500 hover:shadow-2xl hover:scale-105 stat-card"
-                style={{
-                  animationDelay: `${index * 100}ms`,
-                }}
+                className="bg-white border border-gray-200 shadow-sm"
               >
-                <CardContent className="text-center py-6">
-                  <div
-                    className={`inline-flex items-center justify-center w-12 h-12 rounded-full mb-3 bg-${stat.color}-100 dark:bg-${stat.color}-900/20`}
-                  >
-                    <stat.icon
-                      className={`h-6 w-6 text-${stat.color}-600 dark:text-${stat.color}-400`}
-                    />
-                  </div>
-                  <div
-                    className={`text-3xl font-bold text-${stat.color}-600 dark:text-${stat.color}-400 mb-1`}
-                  >
+                <CardContent className="p-4 text-center">
+                  <div className="text-2xl font-bold text-gray-900 mb-1">
                     {stat.value}
                   </div>
-                  <div className="text-sm text-muted-foreground font-medium">
-                    {stat.label}
-                  </div>
+                  <div className="text-sm text-gray-600">{stat.label}</div>
                 </CardContent>
               </Card>
             ))}
           </div>
         )}
 
-        {error && (
-          <Card className="mb-6 border-0 bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 animate-slide-up">
-            <CardContent className="py-4">
-              <div className="flex items-center text-red-600 dark:text-red-400">
-                <AlertTriangle className="h-5 w-5 mr-3" />
-                {error}
+        {/* Estado de campaña limpio */}
+        {mutualFollowCampaign?.isRunning && (
+          <Card className="bg-green-50 border border-green-200">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <Activity className="h-5 w-5 text-green-600 animate-pulse" />
+                  <span className="font-semibold text-green-900">
+                    Campaña Follow Mutuo en Curso
+                  </span>
+                  <Badge className="bg-green-100 text-green-700 border-green-200">
+                    {mutualFollowCampaign.currentPhase}
+                  </Badge>
+                </div>
+                <div className="text-sm font-medium text-green-800">
+                  {mutualFollowCampaign.progress.completed}/
+                  {mutualFollowCampaign.progress.total}
+                </div>
+              </div>
+              <div className="w-full bg-green-200 rounded-full h-2">
+                <div
+                  className="bg-green-600 h-2 rounded-full transition-all duration-300"
+                  style={{
+                    width: `${
+                      (mutualFollowCampaign.progress.completed /
+                        mutualFollowCampaign.progress.total) *
+                      100
+                    }%`,
+                  }}
+                />
               </div>
             </CardContent>
           </Card>
         )}
 
-        {/* Tabla mejorada */}
+        {/* Tabla principal limpia */}
         {debugData && debugData.accounts.length === 0 ? (
-          <Card className="shadow-2xl border-0 bg-gradient-to-br from-slate-50 to-white dark:from-slate-900 dark:to-slate-800">
-            <CardContent className="text-center py-20">
-              <div className="bg-blue-100 dark:bg-blue-900 p-6 rounded-full mx-auto mb-6 w-fit">
-                <Users className="h-16 w-16 text-blue-600 dark:text-blue-400" />
+          <Card className="bg-white border border-gray-200 shadow-sm">
+            <CardContent className="text-center py-16">
+              <div className="bg-gray-50 p-6 rounded-full mx-auto mb-6 w-fit">
+                <Users className="h-12 w-12 text-gray-400" />
               </div>
-              <h3 className="text-2xl font-medium mb-4">
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">
                 No hay cuentas conectadas
               </h3>
-              <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-                Comienza conectando tu primera cuenta de X para gestionar tus
+              <p className="text-gray-600 mb-8 max-w-md mx-auto">
+                Conecta tu primera cuenta de X para comenzar a gestionar tus
                 acciones.
               </p>
               <Button
                 onClick={() => setIsAddAccountModalOpen(true)}
-                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all duration-200 hover:scale-105"
+                className="bg-gray-900 hover:bg-gray-800 text-white"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Conectar Primera Cuenta
@@ -782,39 +641,35 @@ export default function AccountsPage() {
             </CardContent>
           </Card>
         ) : (
-          <Card className="shadow-2xl border-0 bg-gradient-to-br from-white to-gray-50 dark:from-slate-900 dark:to-slate-800 overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-b">
-              <div className="flex items-center gap-3">
-                <div className="bg-blue-100 dark:bg-blue-900 p-2 rounded-lg">
-                  <BarChart3 className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div>
-                  <CardTitle className="text-xl">Cuentas Conectadas</CardTitle>
-                  <p className="text-sm text-muted-foreground">
-                    {filteredAccounts.length} de{" "}
-                    {debugData?.accounts.length || 0} cuentas mostradas
-                  </p>
-                </div>
-              </div>
+          <Card className="bg-white border border-gray-200 shadow-sm overflow-hidden">
+            <CardHeader className="bg-gray-50 border-b border-gray-200 py-4">
+              <CardTitle className="text-lg font-semibold text-gray-900">
+                {filteredAccounts.length} de {debugData?.accounts.length || 0}{" "}
+                cuentas
+              </CardTitle>
             </CardHeader>
             <CardContent className="p-0">
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow className="border-b bg-muted/30">
-                      <TableHead className="font-semibold">CUENTA</TableHead>
-                      <TableHead className="font-semibold">
-                        DESARROLLADOR
+                    <TableRow className="border-b border-gray-200 bg-gray-50">
+                      <TableHead className="font-semibold text-gray-700 py-3">
+                        Cuenta
                       </TableHead>
-                      <TableHead className="font-semibold">
-                        ESTADO TOKEN
+                      <TableHead className="font-semibold text-gray-700">
+                        Desarrollador
                       </TableHead>
-                      <TableHead className="font-semibold">
-                        EXPIRACIÓN
+                      <TableHead className="font-semibold text-gray-700">
+                        Estado
                       </TableHead>
-                      <TableHead className="font-semibold">ETIQUETAS</TableHead>
-                      <TableHead className="font-semibold text-center">
-                        ACCIONES
+                      <TableHead className="font-semibold text-gray-700">
+                        Expiración
+                      </TableHead>
+                      <TableHead className="font-semibold text-gray-700">
+                        Etiquetas
+                      </TableHead>
+                      <TableHead className="font-semibold text-gray-700 text-center">
+                        Acciones
                       </TableHead>
                     </TableRow>
                   </TableHeader>
@@ -822,198 +677,144 @@ export default function AccountsPage() {
                     {filteredAccounts.map((account, index) => (
                       <TableRow
                         key={account._id}
-                        className={`hover:bg-muted/50 transition-all duration-300 border-b account-row ${
-                          account.tokenInfo?.status.toLowerCase() || "unknown"
-                        }`}
-                        style={{
-                          animationDelay: `${index * 50}ms`,
-                        }}
+                        className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
                       >
                         <TableCell className="py-4">
-                          <div className="flex items-center gap-4">
-                            <div className="relative">
-                              <Avatar className="w-12 h-12 border-2 border-white shadow-lg">
-                                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold text-lg">
-                                  {account.username[0].toUpperCase()}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white">
-                                {getStatusIcon(
-                                  account.tokenInfo?.status || "unknown"
-                                )}
-                              </div>
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <div className="font-semibold text-lg truncate">
+                          <div className="flex items-center gap-3">
+                            <Avatar className="w-10 h-10 border border-gray-200">
+                              <AvatarFallback className="bg-gray-100 text-gray-700 font-semibold">
+                                {account.username[0].toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <div className="font-semibold text-gray-900">
                                 @{account.username}
                               </div>
-                              <div className="text-sm text-muted-foreground truncate font-mono">
-                                {account.userId}
+                              <div className="text-sm text-gray-500 font-mono">
+                                {account.userId?.substring(0, 12)}...
                               </div>
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
-                            <span className="text-sm font-medium truncate max-w-32">
-                              {account.developerTag}
-                            </span>
+                        <TableCell className="py-4">
+                          <div className="text-sm text-gray-700 max-w-32 truncate">
+                            {account.developerTag}
                           </div>
                         </TableCell>
-                        <TableCell>
-                          <div className="flex flex-col gap-2">
-                            {account.tokenInfo ? (
-                              <div className="flex items-center gap-2">
-                                {getStatusIcon(account.tokenInfo.status)}
-                                <Badge
-                                  variant={getStatusColor(
-                                    account.tokenInfo.status
-                                  )}
-                                  className="transition-all duration-200 hover:scale-105"
-                                >
-                                  {getStatusText(account.tokenInfo.status)}
-                                </Badge>
-                              </div>
-                            ) : (
-                              <Badge variant="outline" className="w-fit">
-                                <AlertTriangle className="h-3 w-3 mr-1" />
-                                Sin info
-                              </Badge>
-                            )}
-                            {account.needsReauth && (
-                              <Badge
-                                variant="destructive"
-                                className="w-fit animate-pulse"
-                              >
-                                <Shield className="h-3 w-3 mr-1" />
-                                Re-auth
-                              </Badge>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
+                        <TableCell className="py-4">
                           {account.tokenInfo ? (
-                            <div className="space-y-1">
-                              {account.tokenInfo.hoursToExpiry !== null ? (
-                                <div className="flex items-center gap-2">
-                                  <Clock className="h-4 w-4 text-muted-foreground" />
-                                  <div>
-                                    <div
-                                      className={`font-semibold text-sm ${
-                                        account.tokenInfo.hoursToExpiry < 1
-                                          ? "text-red-600"
-                                          : account.tokenInfo.hoursToExpiry < 24
-                                          ? "text-yellow-600"
-                                          : "text-green-600"
-                                      }`}
-                                    >
-                                      {account.tokenInfo.hoursToExpiry > 0
-                                        ? `${account.tokenInfo.hoursToExpiry}h`
-                                        : "Expirado"}
-                                    </div>
-                                    <div className="text-xs text-muted-foreground">
-                                      {new Date(
-                                        account.tokenInfo.expiresAt
-                                      ).toLocaleDateString("es-ES")}
-                                    </div>
-                                  </div>
-                                </div>
-                              ) : (
-                                <div className="flex items-center gap-2 text-muted-foreground">
-                                  <AlertTriangle className="h-4 w-4" />
-                                  <span className="text-sm">Sin fecha</span>
-                                </div>
-                              )}
-                            </div>
+                            <Badge
+                              variant={
+                                account.tokenInfo.status === "VALID"
+                                  ? "default"
+                                  : account.tokenInfo.status === "NEEDS_REFRESH"
+                                  ? "secondary"
+                                  : "destructive"
+                              }
+                              className="font-medium"
+                            >
+                              {account.tokenInfo.status === "VALID"
+                                ? "Válido"
+                                : account.tokenInfo.status === "NEEDS_REFRESH"
+                                ? "Refresh"
+                                : account.tokenInfo.status === "EXPIRED"
+                                ? "Expirado"
+                                : "Inválido"}
+                            </Badge>
                           ) : (
-                            <div className="flex items-center gap-2 text-muted-foreground">
-                              <XCircle className="h-4 w-4" />
-                              <span className="text-sm">N/A</span>
-                            </div>
+                            <Badge variant="outline" className="text-gray-500">
+                              Sin info
+                            </Badge>
                           )}
                         </TableCell>
-                        <TableCell>
-                          <div className="max-w-64">
-                            {(account.labels || []).length > 0 ? (
-                              <ScrollArea className="max-h-20">
-                                <div className="flex flex-wrap gap-1">
-                                  {account.labels
-                                    .slice(0, 3)
-                                    .map((label, labelIndex) => (
-                                      <Badge
-                                        key={labelIndex}
-                                        variant="secondary"
-                                        className="text-xs transition-all duration-200 hover:scale-105"
-                                      >
-                                        {label}
-                                      </Badge>
-                                    ))}
-                                  {account.labels.length > 3 && (
-                                    <Badge
-                                      variant="outline"
-                                      className="text-xs"
-                                    >
-                                      +{account.labels.length - 3}
-                                    </Badge>
-                                  )}
+                        <TableCell className="py-4">
+                          {(() => {
+                            const tokenInfo = account.tokenInfo;
+                            return tokenInfo?.hoursToExpiry !== null ? (
+                              <div className="text-sm">
+                                <div
+                                  className={`font-medium ${
+                                    tokenInfo.hoursToExpiry < 1
+                                      ? "text-red-600"
+                                      : tokenInfo.hoursToExpiry < 24
+                                      ? "text-yellow-600"
+                                      : "text-green-600"
+                                  }`}
+                                >
+                                  {tokenInfo.hoursToExpiry > 0
+                                    ? `${tokenInfo.hoursToExpiry}h`
+                                    : "Expirado"}
                                 </div>
-                              </ScrollArea>
+                                <div className="text-xs text-gray-500">
+                                  {new Date(
+                                    tokenInfo.expiresAt
+                                  ).toLocaleDateString("es-ES")}
+                                </div>
+                              </div>
                             ) : (
-                              <span className="text-sm text-muted-foreground italic">
+                              <span className="text-sm text-gray-400">N/A</span>
+                            );
+                          })()}
+                        </TableCell>
+                        <TableCell className="py-4">
+                          <div className="max-w-40">
+                            {(account.labels || []).length > 0 ? (
+                              <div className="flex flex-wrap gap-1">
+                                {account.labels
+                                  .slice(0, 2)
+                                  .map((label, labelIndex) => (
+                                    <Badge
+                                      key={labelIndex}
+                                      variant="outline"
+                                      className="text-xs border-gray-300 text-gray-600"
+                                    >
+                                      {label}
+                                    </Badge>
+                                  ))}
+                                {account.labels.length > 2 && (
+                                  <Badge variant="outline" className="text-xs">
+                                    +{account.labels.length - 2}
+                                  </Badge>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-sm text-gray-400">
                                 Sin etiquetas
                               </span>
                             )}
                           </div>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="py-4">
                           <div className="flex items-center justify-center gap-1">
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => {
-                                    setSelectedAccount(account);
-                                    setIsDetailModalOpen(true);
-                                  }}
-                                  className="hover:bg-blue-100 dark:hover:bg-blue-900 hover:scale-110 transition-all duration-200"
-                                >
-                                  <Eye className="w-4 h-4 text-blue-600" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Ver detalles</TooltipContent>
-                            </Tooltip>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() =>
-                                    router.push(`/accounts/${account._id}`)
-                                  }
-                                  className="hover:bg-green-100 dark:hover:bg-green-900 hover:scale-110 transition-all duration-200"
-                                >
-                                  <Edit className="w-4 h-4 text-green-600" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Editar cuenta</TooltipContent>
-                            </Tooltip>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() =>
-                                    handleDeleteAccount(account._id)
-                                  }
-                                  className="hover:bg-red-100 dark:hover:bg-red-900 hover:scale-110 transition-all duration-200"
-                                >
-                                  <Trash2 className="w-4 h-4 text-red-600" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Eliminar cuenta</TooltipContent>
-                            </Tooltip>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedAccount(account);
+                                setIsDetailModalOpen(true);
+                              }}
+                              className="h-8 w-8 p-0 hover:bg-gray-100"
+                            >
+                              <Eye className="w-4 h-4 text-gray-600" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() =>
+                                router.push(`/accounts/${account._id}`)
+                              }
+                              className="h-8 w-8 p-0 hover:bg-gray-100"
+                            >
+                              <Edit className="w-4 h-4 text-gray-600" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeleteAccount(account._id)}
+                              className="h-8 w-8 p-0 hover:bg-red-50"
+                            >
+                              <Trash2 className="w-4 h-4 text-red-600" />
+                            </Button>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -1776,6 +1577,6 @@ export default function AccountsPage() {
           </DialogContent>
         </Dialog>
       </div>
-    </TooltipProvider>
+    </div>
   );
 }

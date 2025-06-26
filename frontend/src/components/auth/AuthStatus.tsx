@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -42,6 +42,18 @@ export default function AuthStatus({ user }: AuthStatusProps) {
       }
     }
   };
+
+  useEffect(() => {
+    // Verificar cookies del navegador
+    console.log("🍪 Todas las cookies:", document.cookie);
+
+    // Verificar si la cookie auth existe
+    const authCookie = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("auth="));
+
+    console.log("🔑 Cookie de auth:", authCookie);
+  }, []);
 
   if (!user) {
     return (

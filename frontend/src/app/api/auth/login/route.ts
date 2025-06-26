@@ -1,13 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
-import User from "@/models/User";
+import prisma from "@/lib/db";
 import { generateToken, setAuthCookieInResponse } from "@/lib/auth";
+import bcrypt from "bcryptjs";
 
 export async function POST(req: NextRequest) {
   try {
-    // Conectar a la base de datos
-    await connectDB();
-
     // Obtener datos del cuerpo de la solicitud
     const { email, password } = await req.json();
 
@@ -20,10 +17,12 @@ export async function POST(req: NextRequest) {
     }
 
     // Buscar usuario por email
-    const user = await User.findOne({ email });
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
 
-    // Verificar si el usuario existe
-    if (!user) {
+    // Verificar si el usuario existe y tiene contraseña
+    if (!user || !user.password) {
       return NextResponse.json(
         { error: "Credenciales inválidas" },
         { status: 401 }
@@ -31,7 +30,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Verificar contraseña
-    const isPasswordValid = await user.comparePassword(password);
+    const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return NextResponse.json(
         { error: "Credenciales inválidas" },
@@ -39,19 +38,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Generar token
-    const token = generateToken({
-      id: user._id.toString(),
+    // Generar token (AGREGAR AWAIT)
+    const token = await generateToken({
+      id: user.id,
       email: user.email,
       role: user.role,
     });
+
+    console.log("🔐 Token generado:", token);
+    console.log("🍪 Estableciendo cookie...");
 
     // Crear respuesta
     const response = NextResponse.json({
       success: true,
       token: token, // Agregar token para localStorage
       user: {
-        id: user._id,
+        id: user.id,
         name: user.name,
         email: user.email,
         role: user.role,
@@ -59,7 +61,10 @@ export async function POST(req: NextRequest) {
     });
 
     // Establecer cookie
-    return setAuthCookieInResponse(response, token);
+    const result = setAuthCookieInResponse(response, token);
+
+    console.log("✅ Cookie establecida en respuesta");
+    return result;
   } catch (error: any) {
     console.error("Error al iniciar sesión:", error);
     return NextResponse.json(

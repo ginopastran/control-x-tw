@@ -1,38 +1,88 @@
 // app/api/actions/post/route.ts
-import { connectDB } from "@/lib/mongodb";
-import XAccount from "@/models/XAccount";
-import Message from "@/models/Message";
 import { NextResponse } from "next/server";
+import prisma from "@/lib/db";
 
 // Función para postear con la API de X
-async function postToX(accessToken: string, message: string) {
-  // Esta función simula el POST — en producción usarías fetch con la API de X
-  console.log(`[SIMULADO] Posteando: "${message}" con token: ${accessToken.slice(0, 6)}...`);
-  return true;
+async function postToX(account: any, messageText: string) {
+  if (!account.ownBearerToken) {
+    throw new Error("No hay Bearer Token configurado");
+  }
+
+  const response = await fetch("https://api.twitter.com/2/tweets", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${account.ownBearerToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      text: messageText,
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(JSON.stringify(error));
+  }
+
+  return await response.json();
 }
 
 export async function POST(request: Request) {
-  await connectDB();
-  const body = await request.json();
-  const { messageId } = body;
+  try {
+    const body = await request.json();
+    const { messageId } = body;
 
-  const message = await Message.findById(messageId);
-  if (!message) return NextResponse.json({ error: "Mensaje no encontrado" }, { status: 404 });
+    const message = await prisma.message.findUnique({
+      where: { id: messageId },
+    });
 
-  const accounts = await XAccount.find({
-    labels: { $in: message.labels }
-  });
-
-  const resultados = [];
-
-  for (const account of accounts) {
-    try {
-      const resultado = await postToX(account.accessToken, message.text);
-      resultados.push({ username: account.username, status: "ok" });
-    } catch (err) {
-      resultados.push({ username: account.username, status: "error", error: err });
+    if (!message) {
+      return NextResponse.json(
+        { error: "Mensaje no encontrado" },
+        { status: 404 }
+      );
     }
-  }
 
-  return NextResponse.json({ enviados: resultados.length, resultados });
+    // Buscar cuentas que tengan alguna de las etiquetas del mensaje
+    const accounts = await prisma.xAccount.findMany({
+      where: {
+        labels: {
+          hasSome: message.labels,
+        },
+        useOwnCredentials: true,
+        credentialsVerified: true,
+      },
+    });
+
+    const resultados = [];
+
+    for (const account of accounts) {
+      try {
+        const resultado = await postToX(account, message.text);
+        resultados.push({
+          username: account.username,
+          status: "ok",
+          tweetId: resultado.data?.id,
+        });
+      } catch (err: any) {
+        resultados.push({
+          username: account.username,
+          status: "error",
+          error: err.message,
+        });
+      }
+    }
+
+    return NextResponse.json({
+      enviados: resultados.filter((r) => r.status === "ok").length,
+      errores: resultados.filter((r) => r.status === "error").length,
+      resultados,
+    });
+  } catch (error: any) {
+    console.error("Error en POST action:", error);
+    return NextResponse.json(
+      { error: "Error interno del servidor" },
+      { status: 500 }
+    );
+  }
 }

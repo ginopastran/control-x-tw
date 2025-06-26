@@ -203,15 +203,6 @@ export default function NavbarComponent({ user, loading }: NavbarProps) {
             )}
           </Button>
 
-          {/* Brand */}
-          <div className="mr-6 flex">
-            <Link href="/dashboard" className="flex items-center space-x-2">
-              <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
-                Control-X
-              </span>
-            </Link>
-          </div>
-
           {/* Desktop Navigation - Centrado */}
           <div className="hidden sm:flex items-center justify-center flex-1">
             <div className="flex items-center space-x-8 text-sm font-medium">

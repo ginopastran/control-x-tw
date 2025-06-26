@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
-import XAccount from "@/models/XAccount";
+import prisma from "@/lib/db";
 import { logError, logAction } from "@/lib/log-action";
-import { decryptCredentials } from "@/lib/crypto-nextjs";
 
 // GET - Obtener credenciales existentes (para mostrar en formulario)
 export async function GET(
@@ -12,8 +10,9 @@ export async function GET(
   try {
     const { id } = await params;
 
-    await connectDB();
-    const account = await XAccount.findById(id);
+    const account = await prisma.xAccount.findUnique({
+      where: { id },
+    });
 
     if (!account) {
       return NextResponse.json(
@@ -75,36 +74,22 @@ export async function PUT(
     const body = await req.json();
 
     const {
-      // OAuth 1.0a fields
       apiKey,
       apiSecret,
       bearerToken,
       accessToken,
       accessTokenSecret,
-      // OAuth 2.0 fields
       clientId,
       clientSecret,
       oauth2AccessToken,
       oauth2RefreshToken,
       scopes,
-      // General fields
       appName,
       developerEmail,
       preferOAuth2,
     } = body;
 
-    console.log("📝 Datos recibidos:", {
-      preferOAuth2,
-      hasApiKey: !!apiKey,
-      hasApiSecret: !!apiSecret,
-      hasClientId: !!clientId,
-      hasClientSecret: !!clientSecret,
-      hasOAuth2AccessToken: !!oauth2AccessToken,
-      hasAppName: !!appName,
-      hasDeveloperEmail: !!developerEmail,
-    });
-
-    // Validaciones mínimas - solo verificar que al menos haya alguna credencial
+    // Validaciones mínimas
     const hasOAuth1Credentials =
       apiKey || apiSecret || bearerToken || accessToken || accessTokenSecret;
     const hasOAuth2Credentials =
@@ -117,9 +102,10 @@ export async function PUT(
       );
     }
 
-    await connectDB();
+    const account = await prisma.xAccount.findUnique({
+      where: { id: accountId },
+    });
 
-    const account = await XAccount.findById(accountId);
     if (!account) {
       return NextResponse.json(
         { error: "Cuenta no encontrada" },
@@ -127,13 +113,10 @@ export async function PUT(
       );
     }
 
-    // Verificación opcional de credenciales (no bloquea si falla)
-    let verificationResult: { success: boolean; error?: string } = {
-      success: true,
-    };
+    // Verificación opcional de credenciales
+    let verificationResult = { success: true };
     let warningMessage = "";
 
-    // Solo verificar si hay credenciales suficientes para verificar
     const canVerifyOAuth2 = (clientId && clientSecret) || oauth2AccessToken;
     const canVerifyOAuth1 =
       bearerToken ||
@@ -141,7 +124,6 @@ export async function PUT(
       (accessToken && accessTokenSecret);
 
     if (canVerifyOAuth2 || canVerifyOAuth1) {
-      console.log("🔍 Intentando verificación opcional de credenciales...");
       try {
         verificationResult = await verifyTwitterCredentials({
           apiKey,
@@ -155,66 +137,52 @@ export async function PUT(
           preferOAuth2: preferOAuth2 || false,
         });
 
-        console.log("🔍 Resultado de verificación:", verificationResult);
-
         if (!verificationResult.success) {
-          warningMessage = `⚠️ Credenciales guardadas pero no pudieron ser verificadas: ${verificationResult.error}. Las credenciales se guardaron de todos modos.`;
-          console.log(
-            "⚠️ Verificación falló, pero continuando:",
-            warningMessage
-          );
-        } else {
-          console.log("✅ Credenciales verificadas exitosamente");
+          warningMessage = `⚠️ Credenciales guardadas pero no pudieron ser verificadas. Las credenciales se guardaron de todos modos.`;
         }
       } catch (error: any) {
         warningMessage = `⚠️ Error en verificación: ${error.message}. Las credenciales se guardaron de todos modos.`;
-        console.log(
-          "⚠️ Error en verificación, pero continuando:",
-          warningMessage
-        );
       }
     } else {
       warningMessage =
         "⚠️ Credenciales guardadas. Se recomienda completar todas las credenciales necesarias para verificación.";
-      console.log(
-        "ℹ️ Verificación omitida - credenciales insuficientes para verificar"
-      );
     }
 
-    // Actualizar cuenta con campos OAuth 1.0a
-    if (apiKey) account.ownApiKey = apiKey;
-    if (apiSecret) account.ownApiSecret = apiSecret;
-    if (bearerToken) account.ownBearerToken = bearerToken;
-    if (accessToken) account.ownAccessToken = accessToken;
-    if (accessTokenSecret) account.ownAccessTokenSecret = accessTokenSecret;
+    // Actualizar cuenta
+    const updateData: any = {
+      useOwnCredentials: true,
+      credentialsVerified: true,
+      appCreatedAt: new Date(),
+    };
 
-    // Actualizar cuenta con campos OAuth 2.0
-    if (clientId) account.ownClientId = clientId;
-    if (clientSecret) account.ownClientSecret = clientSecret;
-    if (oauth2AccessToken) account.ownOAuth2AccessToken = oauth2AccessToken;
-    if (oauth2RefreshToken) account.ownOAuth2RefreshToken = oauth2RefreshToken;
-    if (scopes && Array.isArray(scopes)) account.oauth2Scopes = scopes;
-
-    // Configuración general
-    if (appName) account.userAppName = appName;
-    if (developerEmail) account.userDeveloperEmail = developerEmail;
-    if (typeof preferOAuth2 === "boolean") account.preferOAuth2 = preferOAuth2;
-
-    account.appCreatedAt = new Date();
-    account.useOwnCredentials = true;
-    account.credentialsVerified = true;
+    if (apiKey) updateData.ownApiKey = apiKey;
+    if (apiSecret) updateData.ownApiSecret = apiSecret;
+    if (bearerToken) updateData.ownBearerToken = bearerToken;
+    if (accessToken) updateData.ownAccessToken = accessToken;
+    if (accessTokenSecret) updateData.ownAccessTokenSecret = accessTokenSecret;
+    if (clientId) updateData.ownClientId = clientId;
+    if (clientSecret) updateData.ownClientSecret = clientSecret;
+    if (oauth2AccessToken) updateData.ownOAuth2AccessToken = oauth2AccessToken;
+    if (oauth2RefreshToken)
+      updateData.ownOAuth2RefreshToken = oauth2RefreshToken;
+    if (appName) updateData.userAppName = appName;
+    if (developerEmail) updateData.userDeveloperEmail = developerEmail;
+    if (typeof preferOAuth2 === "boolean")
+      updateData.preferOAuth2 = preferOAuth2;
 
     // Si es OAuth 2.0 y tenemos access token, calcular expiración
     if (preferOAuth2 && oauth2AccessToken) {
-      // Por defecto, los tokens OAuth 2.0 de X expiran en 2 horas
-      account.oauth2TokenExpiresAt = new Date(Date.now() + 7200 * 1000);
+      updateData.oauth2TokenExpiresAt = new Date(Date.now() + 7200 * 1000);
     }
 
-    await account.save();
+    await prisma.xAccount.update({
+      where: { id: accountId },
+      data: updateData,
+    });
 
     const authType = preferOAuth2 ? "OAuth 2.0" : "OAuth 1.0a";
     logAction("update_credentials_success", {
-      accountId: account._id,
+      accountId: account.id,
       username: account.username,
       authType,
       appName,
@@ -227,17 +195,14 @@ export async function PUT(
       message: warningMessage || "Credenciales actualizadas exitosamente",
       warning: warningMessage ? true : false,
       credentials: {
-        // OAuth 1.0a
         hasApiKey: !!apiKey,
         hasApiSecret: !!apiSecret,
         hasBearerToken: !!bearerToken,
         hasAccessToken: !!accessToken,
         hasAccessTokenSecret: !!accessTokenSecret,
-        // OAuth 2.0
         hasClientId: !!clientId,
         hasClientSecret: !!clientSecret,
         hasOAuth2AccessToken: !!oauth2AccessToken,
-        // General
         hasAppName: !!appName,
         hasDeveloperEmail: !!developerEmail,
       },
@@ -251,7 +216,7 @@ export async function PUT(
   }
 }
 
-// DELETE - Eliminar credenciales propias y volver a compartidas
+// DELETE - Eliminar credenciales propias
 export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -259,9 +224,10 @@ export async function DELETE(
   try {
     const { id: accountId } = await params;
 
-    await connectDB();
+    const account = await prisma.xAccount.findUnique({
+      where: { id: accountId },
+    });
 
-    const account = await XAccount.findById(accountId);
     if (!account) {
       return NextResponse.json(
         { error: "Cuenta no encontrada" },
@@ -269,33 +235,31 @@ export async function DELETE(
       );
     }
 
-    // Limpiar credenciales propias OAuth 1.0a
-    account.ownApiKey = undefined;
-    account.ownApiSecret = undefined;
-    account.ownBearerToken = undefined;
-    account.ownAccessToken = undefined;
-    account.ownAccessTokenSecret = undefined;
-
-    // Limpiar credenciales propias OAuth 2.0
-    account.ownClientId = undefined;
-    account.ownClientSecret = undefined;
-    account.ownOAuth2AccessToken = undefined;
-    account.ownOAuth2RefreshToken = undefined;
-    account.oauth2TokenExpiresAt = undefined;
-    account.oauth2Scopes = [];
-
-    // Limpiar información general
-    account.userAppName = undefined;
-    account.userDeveloperEmail = undefined;
-    account.appCreatedAt = undefined;
-    account.useOwnCredentials = false;
-    account.credentialsVerified = false;
-    account.preferOAuth2 = false;
-
-    await account.save();
+    // Limpiar credenciales propias
+    await prisma.xAccount.update({
+      where: { id: accountId },
+      data: {
+        ownApiKey: null,
+        ownApiSecret: null,
+        ownBearerToken: null,
+        ownAccessToken: null,
+        ownAccessTokenSecret: null,
+        ownClientId: null,
+        ownClientSecret: null,
+        ownOAuth2AccessToken: null,
+        ownOAuth2RefreshToken: null,
+        oauth2TokenExpiresAt: null,
+        userAppName: null,
+        userDeveloperEmail: null,
+        appCreatedAt: null,
+        useOwnCredentials: false,
+        credentialsVerified: false,
+        preferOAuth2: false,
+      },
+    });
 
     logAction("own_credentials_removed", {
-      accountId: account._id,
+      accountId: account.id,
       username: account.username,
     });
 
@@ -313,246 +277,44 @@ export async function DELETE(
 }
 
 // Función para verificar credenciales con Twitter API
-async function verifyTwitterCredentials(credentials: {
-  apiKey?: string;
-  apiSecret?: string;
-  bearerToken?: string;
-  accessToken?: string;
-  accessTokenSecret?: string;
-  clientId?: string;
-  clientSecret?: string;
-  oauth2AccessToken?: string;
-  preferOAuth2: boolean;
-}): Promise<{ success: boolean; error?: string; userInfo?: any }> {
-  console.log("🔐 Verificando credenciales:", {
-    preferOAuth2: credentials.preferOAuth2,
-    hasOAuth2AccessToken: !!credentials.oauth2AccessToken,
-    hasClientId: !!credentials.clientId,
-    hasClientSecret: !!credentials.clientSecret,
-    hasBearerToken: !!credentials.bearerToken,
-    hasApiKey: !!credentials.apiKey,
-    hasApiSecret: !!credentials.apiSecret,
-  });
-
+async function verifyTwitterCredentials(
+  credentials: any
+): Promise<{ success: boolean; error?: string }> {
   try {
-    // Si prefiere OAuth 2.0 y tiene credenciales OAuth 2.0
-    if (credentials.preferOAuth2) {
-      // Verificar OAuth 2.0 Access Token si está disponible
-      if (credentials.oauth2AccessToken) {
-        console.log("🔗 Verificando OAuth 2.0 Access Token...");
-        try {
-          const response = await fetch("https://api.twitter.com/2/users/me", {
-            headers: {
-              Authorization: `Bearer ${credentials.oauth2AccessToken}`,
-              "Content-Type": "application/json",
-            },
-          });
+    if (credentials.preferOAuth2 && credentials.oauth2AccessToken) {
+      const response = await fetch("https://api.twitter.com/2/users/me", {
+        headers: {
+          Authorization: `Bearer ${credentials.oauth2AccessToken}`,
+          "Content-Type": "application/json",
+        },
+      });
 
-          console.log(
-            "📡 Respuesta de API Twitter (Access Token):",
-            response.status
-          );
-
-          if (response.ok) {
-            const userInfo = await response.json();
-            console.log(
-              "✅ OAuth 2.0 Access Token válido:",
-              userInfo.data?.username || "usuario"
-            );
-            return { success: true, userInfo };
-          } else {
-            const errorText = await response.text();
-            console.log("❌ Error de API Twitter (Access Token):", errorText);
-
-            let errorData;
-            try {
-              errorData = JSON.parse(errorText);
-            } catch {
-              errorData = { error: errorText };
-            }
-
-            return {
-              success: false,
-              error: `OAuth 2.0 token inválido: ${
-                errorData.detail ||
-                errorData.title ||
-                errorData.error ||
-                errorData.errors?.[0]?.message ||
-                "Token no válido"
-              }`,
-            };
-          }
-        } catch (networkError: any) {
-          console.log(
-            "🌐 Error de red verificando Access Token:",
-            networkError.message
-          );
-          return {
-            success: false,
-            error: `Error de conexión verificando Access Token: ${networkError.message}`,
-          };
-        }
-      }
-
-      // Si solo tenemos Client ID/Secret, verificar que sean válidos
-      // haciendo una request para obtener un Bearer Token de app
-      if (credentials.clientId && credentials.clientSecret) {
-        console.log("🔗 Verificando OAuth 2.0 Client Credentials...");
-        try {
-          const authString = Buffer.from(
-            `${credentials.clientId}:${credentials.clientSecret}`
-          ).toString("base64");
-
-          const tokenResponse = await fetch(
-            "https://api.twitter.com/oauth2/token",
-            {
-              method: "POST",
-              headers: {
-                Authorization: `Basic ${authString}`,
-                "Content-Type": "application/x-www-form-urlencoded",
-              },
-              body: "grant_type=client_credentials",
-            }
-          );
-
-          console.log(
-            "📡 Respuesta de API Twitter (Client Credentials):",
-            tokenResponse.status
-          );
-
-          if (tokenResponse.ok) {
-            const tokenData = await tokenResponse.json();
-            console.log("✅ OAuth 2.0 Client Credentials válidas");
-            return {
-              success: true,
-              userInfo: { token_type: tokenData.token_type },
-            };
-          } else {
-            const errorText = await tokenResponse.text();
-            console.log(
-              "❌ Error de API Twitter (Client Credentials):",
-              errorText
-            );
-
-            let errorData;
-            try {
-              errorData = JSON.parse(errorText);
-            } catch {
-              errorData = { error: errorText };
-            }
-
-            return {
-              success: false,
-              error: `Credenciales OAuth 2.0 inválidas: ${
-                errorData.error_description ||
-                errorData.error ||
-                errorData.detail ||
-                "Client ID o Client Secret inválidos"
-              }`,
-            };
-          }
-        } catch (networkError: any) {
-          console.log(
-            "🌐 Error de red verificando Client Credentials:",
-            networkError.message
-          );
-          return {
-            success: false,
-            error: `Error de conexión verificando credenciales: ${networkError.message}`,
-          };
-        }
+      if (response.ok) {
+        return { success: true };
+      } else {
+        const errorText = await response.text();
+        return { success: false, error: errorText };
       }
     }
 
-    // Fallback a OAuth 1.0a
-    // Verificar Bearer Token si está disponible
     if (credentials.bearerToken) {
-      console.log("🔗 Verificando Bearer Token (OAuth 1.0a)...");
-      try {
-        const response = await fetch("https://api.twitter.com/2/users/me", {
-          headers: {
-            Authorization: `Bearer ${credentials.bearerToken}`,
-            "Content-Type": "application/json",
-          },
-        });
+      const response = await fetch("https://api.twitter.com/2/users/me", {
+        headers: {
+          Authorization: `Bearer ${credentials.bearerToken}`,
+          "Content-Type": "application/json",
+        },
+      });
 
-        console.log(
-          "📡 Respuesta de API Twitter (Bearer Token):",
-          response.status
-        );
-
-        if (response.ok) {
-          const userInfo = await response.json();
-          console.log(
-            "✅ Bearer Token válido:",
-            userInfo.data?.username || "usuario"
-          );
-          return { success: true, userInfo };
-        } else {
-          const errorText = await response.text();
-          console.log("❌ Error de API Twitter (Bearer Token):", errorText);
-
-          let errorData;
-          try {
-            errorData = JSON.parse(errorText);
-          } catch {
-            errorData = { error: errorText };
-          }
-
-          return {
-            success: false,
-            error: `Bearer token inválido: ${
-              errorData.detail ||
-              errorData.title ||
-              errorData.error ||
-              "Token no válido"
-            }`,
-          };
-        }
-      } catch (networkError: any) {
-        console.log(
-          "🌐 Error de red verificando Bearer Token:",
-          networkError.message
-        );
-        return {
-          success: false,
-          error: `Error de conexión verificando Bearer Token: ${networkError.message}`,
-        };
+      if (response.ok) {
+        return { success: true };
+      } else {
+        const errorText = await response.text();
+        return { success: false, error: errorText };
       }
     }
 
-    // Si hay Access Token OAuth 1.0a, verificar con OAuth 1.0a
-    if (credentials.accessToken && credentials.accessTokenSecret) {
-      console.log(
-        "✅ OAuth 1.0a Access Token detectado - asumiendo válido (requiere implementación completa de firma OAuth)"
-      );
-      // Para OAuth 1.0a necesitaríamos implementar la firma OAuth
-      // Por simplicidad, asumimos que es válido si llegamos aquí
-      // En producción, deberías usar una librería como twitter-api-v2 para verificar
-      return { success: true, userInfo: { auth_type: "oauth1a" } };
-    }
-
-    // Si solo tenemos API Key/Secret, verificar que sean válidos
-    if (credentials.apiKey && credentials.apiSecret) {
-      console.log(
-        "✅ OAuth 1.0a API Key/Secret detectado - asumiendo válido (requiere verificación completa)"
-      );
-      // Verificar haciendo una request básica con consumer keys
-      // Por simplicidad, asumimos que es válido si llegamos aquí
-      // En producción, deberías verificar creando un Bearer token de app
-      return { success: true, userInfo: { auth_type: "oauth1a_basic" } };
-    }
-
-    console.log("❌ No se proporcionaron credenciales válidas");
-    return {
-      success: false,
-      error: "No se proporcionaron credenciales válidas",
-    };
+    return { success: true };
   } catch (error: any) {
-    console.log("💥 Error general en verificación:", error.message);
-    return {
-      success: false,
-      error: `Error en verificación: ${error.message || "Error desconocido"}`,
-    };
+    return { success: false, error: error.message };
   }
 }

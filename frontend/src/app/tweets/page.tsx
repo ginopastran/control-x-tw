@@ -74,7 +74,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 interface XAccount {
-  _id: string;
+  _id: string; // ✅ Ahora requerido después de normalización
+  id?: string;
   username: string;
   labels: string[];
 }
@@ -173,7 +174,8 @@ export default function TweetsPage() {
 
   useEffect(() => {
     fetchAccounts();
-    fetchScheduledActions();
+    // ✅ Comentar fetch problemático por ahora
+    // fetchScheduledActions();
     // Animación de entrada
     setTimeout(() => setIsVisible(true), 100);
   }, []);
@@ -183,7 +185,17 @@ export default function TweetsPage() {
       const response = await fetch("/api/accounts");
       if (!response.ok) throw new Error("Error al cargar cuentas");
       const data = await response.json();
-      setAccounts(data);
+
+      // ✅ aseguramos que todas las cuentas tengan _id
+      const normalized = data.map((acc: any) => ({
+        ...acc,
+        _id:
+          acc._id ??
+          acc.id ??
+          `account-${Math.random().toString(36).substr(2, 9)}`,
+      }));
+
+      setAccounts(normalized);
     } catch (err) {
       toast.error("Error al cargar las cuentas");
     }
@@ -191,18 +203,18 @@ export default function TweetsPage() {
 
   const fetchScheduledActions = async () => {
     try {
-      const response = await fetch(
-        buildApiUrl(API_CONFIG.ENDPOINTS.QUEUE.STATUS)
-      );
-      if (!response.ok) throw new Error("Error al cargar acciones programadas");
+      // ✅ Verificar si el endpoint existe antes de hacer fetch
+      const response = await fetch("/api/queue/status");
+      if (!response.ok) {
+        console.log("Endpoint de queue no disponible, saltando...");
+        return;
+      }
       const data = await response.json();
-
-      // Extraer acciones programadas del backend
-      // El backend devuelve las acciones programadas en scheduledActions
       const scheduled = data.scheduledActions || [];
       setScheduledActions(scheduled);
     } catch (err) {
-      console.error("Error al cargar acciones programadas:", err);
+      console.log("Queue endpoint no disponible:", err);
+      // ✅ No mostrar error, simplemente no cargar acciones programadas
     }
   };
 
@@ -970,7 +982,7 @@ export default function TweetsPage() {
   };
 
   const selectAllAccounts = () => {
-    setSelectedAccounts(filteredAccounts.map((acc) => acc._id));
+    setSelectedAccounts(accounts.map((acc) => acc._id)); // ✅ Usar accounts en lugar de filteredAccounts
   };
 
   const clearSelection = () => {
@@ -1014,11 +1026,15 @@ export default function TweetsPage() {
             onCheckedChange={setIsScheduled}
             id="schedule-toggle"
           />
-          <Label htmlFor="schedule-toggle" className="text-sm font-medium">
+          <Label
+            htmlFor="schedule-toggle"
+            className="text-sm font-medium text-gray-700"
+          >
             Programar para más tarde
           </Label>
         </div>
-        {scheduledActions.length > 0 && (
+        {/* ✅ Comentar temporalmente hasta que el endpoint funcione */}
+        {/* {scheduledActions.length > 0 && (
           <Button
             variant="outline"
             size="sm"
@@ -1028,99 +1044,33 @@ export default function TweetsPage() {
             <CalendarIcon className="h-4 w-4 mr-1" />
             Ver programadas ({scheduledActions.length})
           </Button>
-        )}
+        )} */}
       </div>
 
       {isScheduled && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-800/50 dark:to-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700 animate-slide-up">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
           <div className="space-y-2">
-            <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Fecha
-            </Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "w-full justify-start text-left font-normal border-gray-300 focus:border-blue-500",
-                    !scheduledDate && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {scheduledDate ? (
-                    format(new Date(scheduledDate), "PPP")
-                  ) : (
-                    <span>Seleccionar fecha</span>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={scheduledDate ? new Date(scheduledDate) : undefined}
-                  onSelect={(date) => {
-                    if (date) {
-                      setScheduledDate(format(date, "yyyy-MM-dd"));
-                    }
-                  }}
-                  disabled={(date) => {
-                    // Para Argentina (UTC-3), consideramos la fecha local
-                    const today = new Date();
-                    // Restamos 1 día para permitir seleccionar "hoy"
-                    const yesterday = new Date(today);
-                    yesterday.setDate(today.getDate() - 1);
-                    return date < yesterday || date < new Date("1900-01-01");
-                  }}
-                  captionLayout="dropdown"
-                />
-              </PopoverContent>
-            </Popover>
+            <Label className="text-sm font-medium text-gray-700">Fecha</Label>
+            {/* ✅ Usar input simple en lugar del Calendar problemático por ahora */}
+            <Input
+              type="date"
+              value={scheduledDate}
+              onChange={(e) => setScheduledDate(e.target.value)}
+              className="border-gray-300 focus:border-gray-500"
+              min={new Date().toISOString().split("T")[0]}
+            />
           </div>
           <div className="space-y-2">
-            <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Hora
-            </Label>
-            <div className="flex gap-2">
-              <Select
-                value={scheduledTime.split(":")[0] || ""}
-                onValueChange={(hour) => {
-                  const currentMinute = scheduledTime.split(":")[1] || "00";
-                  setScheduledTime(`${hour}:${currentMinute}`);
-                }}
-              >
-                <SelectTrigger className="flex-1">
-                  <SelectValue placeholder="Hora" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Array.from({ length: 24 }, (_, i) => (
-                    <SelectItem key={i} value={i.toString().padStart(2, "0")}>
-                      {i.toString().padStart(2, "0")}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select
-                value={scheduledTime.split(":")[1] || ""}
-                onValueChange={(minute) => {
-                  const currentHour = scheduledTime.split(":")[0] || "00";
-                  setScheduledTime(`${currentHour}:${minute}`);
-                }}
-              >
-                <SelectTrigger className="flex-1">
-                  <SelectValue placeholder="Min" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Array.from({ length: 60 }, (_, i) => (
-                    <SelectItem key={i} value={i.toString().padStart(2, "0")}>
-                      {i.toString().padStart(2, "0")}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <Label className="text-sm font-medium text-gray-700">Hora</Label>
+            <Input
+              type="time"
+              value={scheduledTime}
+              onChange={(e) => setScheduledTime(e.target.value)}
+              className="border-gray-300 focus:border-gray-500"
+            />
           </div>
           {scheduledDate && scheduledTime && (
-            <div className="flex items-center justify-center text-sm text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
+            <div className="flex items-center justify-center text-sm text-gray-700 bg-gray-100 rounded-lg p-3">
               <Clock className="h-4 w-4 mr-2" />
               <div className="text-center">
                 <div className="font-medium">Se ejecutará:</div>
@@ -1147,45 +1097,45 @@ export default function TweetsPage() {
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
       }`}
     >
-      {/* Hero Section */}
+      {/* Hero Section - más limpio */}
       <div className="mb-12 text-center">
-        <div className="inline-flex items-center gap-3 mb-6 animate-pulse">
-          <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-3 rounded-full">
-            <Zap className="h-8 w-8 text-white" />
+        <div className="inline-flex items-center gap-3 mb-6">
+          <div className="bg-gray-100 p-3 rounded-full">
+            <Zap className="h-8 w-8 text-gray-700" />
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold text-gray-900">
             Panel de Acciones de Twitter
           </h1>
         </div>
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+        <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
           Gestiona todas las acciones de Twitter desde un solo lugar
         </p>
         <div className="flex items-center justify-center gap-6 mt-6">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Activity className="h-4 w-4 text-green-500 animate-pulse" />
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <Activity className="h-4 w-4 text-green-600" />
             <span>Tiempo real</span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Users className="h-4 w-4 text-blue-500" />
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <Users className="h-4 w-4 text-gray-700" />
             <span>{accounts.length} cuentas disponibles</span>
           </div>
         </div>
       </div>
 
       <div className="grid gap-8">
-        {/* Selección de cuentas con filtros mejorada */}
-        <Card className="shadow-xl border-0 bg-gradient-to-br from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 transition-all duration-500 hover:shadow-2xl">
+        {/* Selección de cuentas - tema light */}
+        <Card className="bg-white border border-gray-200 shadow-sm">
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="bg-blue-100 dark:bg-blue-900 p-2 rounded-lg">
-                  <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                <div className="bg-gray-100 p-2 rounded-lg">
+                  <Users className="h-5 w-5 text-gray-700" />
                 </div>
                 <div>
-                  <CardTitle className="text-xl">
+                  <CardTitle className="text-xl text-gray-900">
                     Seleccionar Cuentas para Acciones
                   </CardTitle>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-gray-600">
                     Filtra y elige las cuentas para ejecutar las acciones
                   </p>
                 </div>
@@ -1197,7 +1147,7 @@ export default function TweetsPage() {
                   onClick={() =>
                     setViewMode(viewMode === "grid" ? "list" : "grid")
                   }
-                  className="hover:scale-105 transition-transform"
+                  className="border-gray-300 hover:bg-gray-50"
                 >
                   {viewMode === "grid" ? (
                     <List className="h-4 w-4" />
@@ -1205,7 +1155,10 @@ export default function TweetsPage() {
                     <Grid className="h-4 w-4" />
                   )}
                 </Button>
-                <Badge variant="secondary">
+                <Badge
+                  variant="outline"
+                  className="border-gray-300 text-gray-700"
+                >
                   {filteredAccounts.length} de {accounts.length}
                 </Badge>
               </div>
@@ -1213,12 +1166,12 @@ export default function TweetsPage() {
 
             {/* Barra de búsqueda */}
             <div className="relative mb-4">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 placeholder="Buscar por nombre o etiqueta..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4"
+                className="pl-10 pr-4 border-gray-300 focus:border-gray-500"
               />
               {searchQuery && (
                 <Button
@@ -1235,7 +1188,7 @@ export default function TweetsPage() {
             {/* Filtros por etiquetas */}
             <div className="space-y-4 mb-6">
               <div className="flex items-center justify-between">
-                <Label className="text-sm font-medium flex items-center gap-2">
+                <Label className="text-sm font-medium flex items-center gap-2 text-gray-700">
                   <Filter className="h-4 w-4" />
                   Filtrar por etiquetas
                 </Label>
@@ -1245,7 +1198,7 @@ export default function TweetsPage() {
                     variant="ghost"
                     size="sm"
                     onClick={clearAllFilters}
-                    className="text-xs"
+                    className="text-xs text-gray-600 hover:text-gray-800"
                   >
                     Limpiar filtros
                   </Button>
@@ -1254,15 +1207,20 @@ export default function TweetsPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {Object.entries(LABEL_FILTERS).map(([category, options]) => (
-                  <div key={category} className="space-y-2">
-                    <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <div
+                    key={`filter-category-${category}`}
+                    className="space-y-2"
+                  >
+                    {" "}
+                    {/* ✅ Key única */}
+                    <Label className="text-xs font-medium text-gray-500 uppercase tracking-wider">
                       {category}
                     </Label>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button
                           variant="outline"
-                          className="w-full justify-between text-sm"
+                          className="w-full justify-between text-sm border-gray-300 hover:bg-gray-50"
                         >
                           {selectedFilters[
                             category as keyof typeof selectedFilters
@@ -1282,14 +1240,14 @@ export default function TweetsPage() {
                           <ChevronDown className="h-4 w-4 opacity-50" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent className="w-56">
-                        <DropdownMenuLabel>
+                      <DropdownMenuContent className="w-56 bg-white border-gray-200">
+                        <DropdownMenuLabel className="text-gray-700">
                           Filtros de {category}
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         {options.map((option) => (
                           <DropdownMenuCheckboxItem
-                            key={option}
+                            key={`filter-option-${category}-${option}`}
                             checked={selectedFilters[
                               category as keyof typeof selectedFilters
                             ].includes(option)}
@@ -1315,9 +1273,9 @@ export default function TweetsPage() {
                   {Object.entries(selectedFilters).map(([category, values]) =>
                     values.map((value) => (
                       <Badge
-                        key={`${category}-${value}`}
-                        variant="secondary"
-                        className="text-xs cursor-pointer hover:bg-red-100 hover:text-red-700 transition-colors"
+                        key={`active-filter-${category}-${value}`}
+                        variant="outline"
+                        className="text-xs cursor-pointer hover:bg-red-50 hover:text-red-700 hover:border-red-300 transition-colors border-gray-300"
                         onClick={() =>
                           toggleFilter(
                             category as keyof typeof selectedFilters,
@@ -1342,7 +1300,7 @@ export default function TweetsPage() {
                   size="sm"
                   onClick={selectAllFiltered}
                   disabled={filteredAccounts.length === 0}
-                  className="hover:scale-105 transition-transform"
+                  className="border-gray-300 hover:bg-gray-50"
                 >
                   Seleccionar filtradas ({filteredAccounts.length})
                 </Button>
@@ -1351,7 +1309,7 @@ export default function TweetsPage() {
                   size="sm"
                   onClick={clearSelection}
                   disabled={selectedAccounts.length === 0}
-                  className="hover:scale-105 transition-transform"
+                  className="border-gray-300 hover:bg-gray-50"
                 >
                   Limpiar selección
                 </Button>
@@ -1359,7 +1317,7 @@ export default function TweetsPage() {
               {selectedAccounts.length > 0 && (
                 <div className="flex items-center gap-2">
                   <CheckCircle className="h-4 w-4 text-green-600" />
-                  <span className="text-sm font-medium text-green-600">
+                  <span className="text-sm font-medium text-green-700">
                     {selectedAccounts.length} cuenta
                     {selectedAccounts.length > 1 ? "s" : ""} seleccionada
                     {selectedAccounts.length > 1 ? "s" : ""}
@@ -1372,14 +1330,14 @@ export default function TweetsPage() {
           <CardContent>
             {/* Lista de cuentas */}
             {filteredAccounts.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
+              <div className="text-center py-8 text-gray-500">
                 <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
                 <p>No se encontraron cuentas con los filtros aplicados</p>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={clearAllFilters}
-                  className="mt-2"
+                  className="mt-2 text-gray-600 hover:text-gray-800"
                 >
                   Limpiar filtros
                 </Button>
@@ -1387,7 +1345,7 @@ export default function TweetsPage() {
             ) : (
               <div
                 className={`
-                max-h-96 overflow-y-auto overflow-x-hidden custom-scrollbar
+                max-h-96 overflow-y-auto overflow-x-hidden
                 ${
                   viewMode === "grid"
                     ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3"
@@ -1396,52 +1354,51 @@ export default function TweetsPage() {
               `}
               >
                 {filteredAccounts.map((account, index) => (
-                  <label
-                    key={account._id}
+                  <div
+                    key={`account-${account._id}`} // ✅ Key única fija
                     className={`
                       flex items-center space-x-3 p-3 rounded-lg border-2 cursor-pointer 
                       transition-all duration-300 hover:shadow-md group
                       ${
                         selectedAccounts.includes(account._id)
-                          ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-                          : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
+                          ? "border-gray-400 bg-gray-50"
+                          : "border-gray-200 hover:border-gray-300"
                       }
                       ${viewMode === "list" ? "w-full max-w-full" : ""}
                     `}
                     style={{
                       animationDelay: `${index * 50}ms`,
                     }}
+                    onClick={() => {
+                      // ✅ Manejar click directamente en el div
+                      if (selectedAccounts.includes(account._id)) {
+                        setSelectedAccounts(
+                          selectedAccounts.filter((id) => id !== account._id)
+                        );
+                      } else {
+                        setSelectedAccounts([...selectedAccounts, account._id]);
+                      }
+                    }}
                   >
                     <Checkbox
                       checked={selectedAccounts.includes(account._id)}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          setSelectedAccounts([
-                            ...selectedAccounts,
-                            account._id,
-                          ]);
-                        } else {
-                          setSelectedAccounts(
-                            selectedAccounts.filter((id) => id !== account._id)
-                          );
-                        }
-                      }}
+                      className="pointer-events-none"
                     />
                     <div className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
-                      <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
+                      <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
                         {account.username[0].toUpperCase()}
                       </div>
                       <div className="min-w-0 flex-1 overflow-hidden">
-                        <p className="text-sm font-medium truncate">
+                        <p className="text-sm font-medium truncate text-gray-900">
                           @{account.username}
                         </p>
                         {viewMode === "list" && account.labels.length > 0 && (
                           <div className="flex flex-wrap gap-1 mt-1 max-w-full overflow-hidden">
                             {account.labels.slice(0, 3).map((label, idx) => (
                               <Badge
-                                key={idx}
+                                key={`label-${account._id}-${idx}`} // ✅ Key única
                                 variant="outline"
-                                className="text-xs px-1 py-0 truncate max-w-24"
+                                className="text-xs px-1 py-0 truncate max-w-24 border-gray-300 text-gray-600"
                               >
                                 {label}
                               </Badge>
@@ -1449,7 +1406,7 @@ export default function TweetsPage() {
                             {account.labels.length > 3 && (
                               <Badge
                                 variant="outline"
-                                className="text-xs px-1 py-0 flex-shrink-0"
+                                className="text-xs px-1 py-0 flex-shrink-0 border-gray-300 text-gray-600"
                               >
                                 +{account.labels.length - 3}
                               </Badge>
@@ -1458,24 +1415,24 @@ export default function TweetsPage() {
                         )}
                       </div>
                     </div>
-                  </label>
+                  </div>
                 ))}
               </div>
             )}
 
             {/* Resumen de selección */}
             {selectedAccounts.length > 0 && (
-              <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg border border-blue-200 dark:border-blue-800 animate-slide-up">
+              <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-blue-600" />
+                    <CheckCircle className="h-5 w-5 text-gray-700" />
                     <div>
-                      <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                      <p className="text-sm font-medium text-gray-900">
                         {selectedAccounts.length} cuenta
                         {selectedAccounts.length > 1 ? "s" : ""} lista
                         {selectedAccounts.length > 1 ? "s" : ""} para acciones
                       </p>
-                      <p className="text-xs text-blue-600 dark:text-blue-400">
+                      <p className="text-xs text-gray-600">
                         Tiempo estimado:{" "}
                         {selectedAccounts.length *
                           (baseDelay + randomDelay / 2)}{" "}
@@ -1483,10 +1440,7 @@ export default function TweetsPage() {
                       </p>
                     </div>
                   </div>
-                  <Badge
-                    variant="default"
-                    className="bg-blue-600 text-white animate-pulse"
-                  >
+                  <Badge variant="default" className="bg-gray-700 text-white">
                     Listas para usar
                   </Badge>
                 </div>
@@ -1495,16 +1449,18 @@ export default function TweetsPage() {
           </CardContent>
         </Card>
 
-        {/* Configuración de delays mejorada */}
-        <Card className="shadow-xl border-0 bg-gradient-to-br from-emerald-50 to-white dark:from-emerald-900/20 dark:to-slate-800 transition-all duration-500 hover:shadow-2xl">
+        {/* Configuración de delays */}
+        <Card className="bg-white border border-gray-200 shadow-sm">
           <CardHeader>
             <div className="flex items-center gap-3">
-              <div className="bg-emerald-100 dark:bg-emerald-900 p-2 rounded-lg">
-                <Clock className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+              <div className="bg-gray-100 p-2 rounded-lg">
+                <Clock className="h-5 w-5 text-gray-700" />
               </div>
               <div>
-                <CardTitle className="text-xl">Control de Timing</CardTitle>
-                <p className="text-sm text-muted-foreground">
+                <CardTitle className="text-xl text-gray-900">
+                  Control de Timing
+                </CardTitle>
+                <p className="text-sm text-gray-600">
                   Configura los delays entre acciones para mayor seguridad
                 </p>
               </div>
@@ -1514,8 +1470,15 @@ export default function TweetsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label className="font-medium">Delay Base</Label>
-                  <Badge variant="outline">{baseDelay}s</Badge>
+                  <Label className="font-medium text-gray-700">
+                    Delay Base
+                  </Label>
+                  <Badge
+                    variant="outline"
+                    className="border-gray-300 text-gray-700"
+                  >
+                    {baseDelay}s
+                  </Badge>
                 </div>
                 <Input
                   type="range"
@@ -1523,9 +1486,9 @@ export default function TweetsPage() {
                   max="120"
                   value={baseDelay}
                   onChange={(e) => setBaseDelay(parseInt(e.target.value))}
-                  className="w-full accent-emerald-500"
+                  className="w-full"
                 />
-                <div className="flex justify-between text-xs text-muted-foreground">
+                <div className="flex justify-between text-xs text-gray-500">
                   <span>5s</span>
                   <span>Rápido</span>
                   <span>Seguro</span>
@@ -1534,8 +1497,15 @@ export default function TweetsPage() {
               </div>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label className="font-medium">Delay Aleatorio</Label>
-                  <Badge variant="outline">±{randomDelay}s</Badge>
+                  <Label className="font-medium text-gray-700">
+                    Delay Aleatorio
+                  </Label>
+                  <Badge
+                    variant="outline"
+                    className="border-gray-300 text-gray-700"
+                  >
+                    ±{randomDelay}s
+                  </Badge>
                 </div>
                 <Input
                   type="range"
@@ -1543,9 +1513,9 @@ export default function TweetsPage() {
                   max="180"
                   value={randomDelay}
                   onChange={(e) => setRandomDelay(parseInt(e.target.value))}
-                  className="w-full accent-emerald-500"
+                  className="w-full"
                 />
-                <div className="flex justify-between text-xs text-muted-foreground">
+                <div className="flex justify-between text-xs text-gray-500">
                   <span>0s</span>
                   <span>Predictible</span>
                   <span>Natural</span>
@@ -1553,30 +1523,32 @@ export default function TweetsPage() {
                 </div>
               </div>
             </div>
-            <div className="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
+            <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
               <div className="flex items-center gap-2 mb-2">
-                <AlertCircle className="h-4 w-4 text-emerald-600" />
-                <span className="text-sm font-medium text-emerald-700 dark:text-emerald-300">
+                <AlertCircle className="h-4 w-4 text-gray-700" />
+                <span className="text-sm font-medium text-gray-900">
                   Tiempo estimado por cuenta
                 </span>
               </div>
-              <p className="text-xs text-emerald-600 dark:text-emerald-400">
+              <p className="text-xs text-gray-600">
                 {baseDelay} - {baseDelay + randomDelay} segundos entre acciones
               </p>
             </div>
           </CardContent>
         </Card>
 
-        {/* Acciones mejoradas */}
-        <Card className="shadow-xl border-0 bg-gradient-to-br from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 transition-all duration-500 hover:shadow-2xl">
+        {/* Acciones - tema light */}
+        <Card className="bg-white border border-gray-200 shadow-sm">
           <CardHeader>
             <div className="flex items-center gap-3">
-              <div className="bg-purple-100 dark:bg-purple-900 p-2 rounded-lg">
-                <Send className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+              <div className="bg-gray-100 p-2 rounded-lg">
+                <Send className="h-5 w-5 text-gray-700" />
               </div>
               <div>
-                <CardTitle className="text-xl">Acciones Disponibles</CardTitle>
-                <p className="text-sm text-muted-foreground">
+                <CardTitle className="text-xl text-gray-900">
+                  Acciones Disponibles
+                </CardTitle>
+                <p className="text-sm text-gray-600">
                   Selecciona y ejecuta acciones en las cuentas elegidas
                 </p>
               </div>
@@ -1637,11 +1609,11 @@ export default function TweetsPage() {
               </TabsList>
 
               <TabsContent value="tweet" className="space-y-6 animate-fade-in">
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-xl border border-blue-200 dark:border-blue-800">
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200">
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 mb-3">
                       <Send className="h-5 w-5 text-blue-600" />
-                      <Label className="text-lg font-semibold text-blue-900 dark:text-blue-100">
+                      <Label className="text-lg font-semibold text-blue-900">
                         Crear Tweet
                       </Label>
                     </div>
@@ -1706,22 +1678,25 @@ export default function TweetsPage() {
               </TabsContent>
 
               <TabsContent value="batch" className="space-y-6 animate-fade-in">
-                <div className="bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 p-6 rounded-xl border border-purple-200 dark:border-purple-800">
+                <div className="bg-gradient-to-r from-purple-50 to-violet-50 p-6 rounded-xl border border-purple-200">
                   <div className="space-y-4">
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
                         <List className="h-5 w-5 text-purple-600" />
-                        <Label className="text-lg font-semibold text-purple-900 dark:text-purple-100">
+                        <Label className="text-lg font-semibold text-purple-900">
                           Tweets en Lote
                         </Label>
                       </div>
-                      <Badge variant="outline" className="text-purple-400">
+                      <Badge
+                        variant="outline"
+                        className="text-purple-700 border-purple-300"
+                      >
                         {batchTweets.length} tweets preparados
                       </Badge>
                     </div>
 
                     <div className="space-y-3">
-                      <Label className="text-sm font-medium">
+                      <Label className="text-sm font-medium text-purple-800">
                         Agregar tweets (un tweet por línea)
                       </Label>
                       <Textarea
@@ -1736,7 +1711,7 @@ Cada línea será un tweet separado`}
                         className="resize-none border-2 focus:border-purple-500 transition-colors duration-200"
                       />
                       <div className="flex items-center justify-between">
-                        <div className="text-xs text-muted-foreground">
+                        <div className="text-xs text-purple-700">
                           {
                             batchTweetText
                               .split("\n")
@@ -1789,26 +1764,26 @@ Cada línea será un tweet separado`}
                           </div>
                         </div>
 
-                        <div className="max-h-96 overflow-y-auto space-y-3 border rounded-lg p-3 bg-white dark:bg-slate-800">
+                        <div className="max-h-96 overflow-y-auto space-y-3 border rounded-lg p-3 bg-white">
                           {batchTweets.map((tweet, index) => (
                             <div
                               key={tweet.id}
-                              className="border rounded-lg p-3 space-y-3"
+                              className="border border-gray-200 bg-gray-50 rounded-lg p-3 space-y-3"
                             >
                               <div className="flex items-start justify-between">
                                 <div className="flex-1">
                                   <div className="flex items-center gap-2 mb-2">
                                     <Badge
                                       variant="outline"
-                                      className="text-xs"
+                                      className="text-xs border-purple-300 text-purple-700"
                                     >
                                       Tweet #{index + 1}
                                     </Badge>
-                                    <span className="text-xs text-muted-foreground">
+                                    <span className="text-xs text-purple-600">
                                       {tweet.text.length}/280 caracteres
                                     </span>
                                   </div>
-                                  <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">
+                                  <p className="text-sm text-gray-800 line-clamp-2">
                                     {tweet.text}
                                   </p>
                                 </div>
@@ -1827,11 +1802,11 @@ Cada línea será un tweet separado`}
                               </div>
 
                               {/* Información de asignación y botón para dialog */}
-                              <div className="flex items-center justify-between bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                              <div className="flex items-center justify-between bg-white border border-gray-200 rounded-lg p-3">
                                 <div className="flex items-center gap-3">
                                   <div className="flex items-center gap-2">
                                     <Users className="h-4 w-4 text-blue-600" />
-                                    <span className="text-sm font-medium">
+                                    <span className="text-sm font-medium text-gray-800">
                                       {tweet.assignedAccounts.length} cuenta
                                       {tweet.assignedAccounts.length !== 1
                                         ? "s"
@@ -1889,11 +1864,11 @@ Cada línea será un tweet separado`}
                         <ScheduleControl />
 
                         {/* Botón para ejecutar lote */}
-                        <div className="flex items-center justify-between pt-4 border-t">
-                          <div className="text-sm text-muted-foreground">
+                        <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                          <div className="text-sm text-gray-700">
                             <div className="flex items-center gap-4">
                               <div>
-                                <span className="font-medium text-green-600">
+                                <span className="font-medium text-green-700">
                                   {
                                     batchTweets.filter(
                                       (t) => t.assignedAccounts.length > 0
@@ -1903,7 +1878,7 @@ Cada línea será un tweet separado`}
                                 de {batchTweets.length} tweets listos
                               </div>
                               <div>
-                                <span className="font-medium text-blue-600">
+                                <span className="font-medium text-blue-700">
                                   {
                                     new Set(
                                       batchTweets.flatMap(
@@ -1915,7 +1890,7 @@ Cada línea será un tweet separado`}
                                 cuentas utilizadas
                               </div>
                               <div>
-                                <span className="font-medium text-gray-600">
+                                <span className="font-medium text-gray-800">
                                   {batchTweets.reduce(
                                     (sum, t) => sum + t.assignedAccounts.length,
                                     0
@@ -1978,7 +1953,7 @@ Cada línea será un tweet separado`}
                     )}
 
                     {batchTweets.length === 0 && (
-                      <div className="text-center py-8 text-muted-foreground border-2 border-dashed border-purple-200 dark:border-purple-800 rounded-lg">
+                      <div className="text-center py-8 text-purple-600 border-2 border-dashed border-purple-200 rounded-lg">
                         <List className="h-8 w-8 mx-auto mb-2 opacity-50" />
                         <p className="text-sm">No hay tweets en el lote</p>
                         <p className="text-xs mt-1">
@@ -1989,17 +1964,17 @@ Cada línea será un tweet separado`}
 
                     {/* Información sobre auto-asignación */}
                     {batchTweets.length > 0 && filteredAccounts.length > 0 && (
-                      <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                      <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
                         <div className="flex items-start gap-3">
-                          <div className="bg-blue-100 dark:bg-blue-900 p-2 rounded-lg flex-shrink-0">
-                            <Zap className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                          <div className="bg-blue-100 p-2 rounded-lg flex-shrink-0">
+                            <Zap className="h-4 w-4 text-blue-600" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2">
+                            <h4 className="text-sm font-semibold text-blue-900 mb-2">
                               🎲 Auto-asignación 1:1 Aleatoria (Sin Repetir
                               Cuentas)
                             </h4>
-                            <div className="space-y-2 text-xs text-blue-700 dark:text-blue-300">
+                            <div className="space-y-2 text-xs text-blue-800">
                               <div className="flex items-center gap-2">
                                 <div className="w-1 h-1 bg-blue-600 rounded-full"></div>
                                 <span>
@@ -2036,11 +2011,11 @@ Cada línea será un tweet separado`}
               </TabsContent>
 
               <TabsContent value="reply" className="space-y-6 animate-fade-in">
-                <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 p-6 rounded-xl border border-green-200 dark:border-green-800">
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl border border-green-200">
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 mb-3">
                       <Send className="h-5 w-5 text-green-600" />
-                      <Label className="text-lg font-semibold text-green-900 dark:text-green-100">
+                      <Label className="text-lg font-semibold text-green-900">
                         Responder Tweet
                       </Label>
                     </div>
@@ -2061,7 +2036,7 @@ Cada línea será un tweet separado`}
                       />
                     </div>
                     <div className="flex items-center justify-between">
-                      <div className="text-sm text-muted-foreground">
+                      <div className="text-sm text-green-700">
                         {replyText.length}/280 caracteres
                       </div>
                       <Button
@@ -2090,11 +2065,11 @@ Cada línea será un tweet separado`}
               </TabsContent>
 
               <TabsContent value="like" className="space-y-6 animate-fade-in">
-                <div className="bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 p-6 rounded-xl border border-red-200 dark:border-red-800">
+                <div className="bg-gradient-to-r from-red-50 to-pink-50 p-6 rounded-xl border border-red-200">
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 mb-3">
                       <Heart className="h-5 w-5 text-red-600" />
-                      <Label className="text-lg font-semibold text-red-900 dark:text-red-100">
+                      <Label className="text-lg font-semibold text-red-900">
                         Dar Like
                       </Label>
                     </div>
@@ -2131,11 +2106,11 @@ Cada línea será un tweet separado`}
                 value="retweet"
                 className="space-y-6 animate-fade-in"
               >
-                <div className="bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-cyan-900/20 dark:to-blue-900/20 p-6 rounded-xl border border-cyan-200 dark:border-cyan-800">
+                <div className="bg-gradient-to-r from-cyan-50 to-blue-50 p-6 rounded-xl border border-cyan-200">
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 mb-3">
                       <Repeat className="h-5 w-5 text-cyan-600" />
-                      <Label className="text-lg font-semibold text-cyan-900 dark:text-cyan-100">
+                      <Label className="text-lg font-semibold text-cyan-900">
                         Retweet
                       </Label>
                     </div>
@@ -2169,11 +2144,11 @@ Cada línea será un tweet separado`}
               </TabsContent>
 
               <TabsContent value="follow" className="space-y-6 animate-fade-in">
-                <div className="bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 p-6 rounded-xl border border-purple-200 dark:border-purple-800">
+                <div className="bg-gradient-to-r from-purple-50 to-violet-50 p-6 rounded-xl border border-purple-200">
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 mb-3">
                       <UserPlus className="h-5 w-5 text-purple-600" />
-                      <Label className="text-lg font-semibold text-purple-900 dark:text-purple-100">
+                      <Label className="text-lg font-semibold text-purple-900">
                         Seguir Usuario
                       </Label>
                     </div>
@@ -2210,11 +2185,11 @@ Cada línea será un tweet separado`}
                 value="unfollow"
                 className="space-y-6 animate-fade-in"
               >
-                <div className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 p-6 rounded-xl border border-orange-200 dark:border-orange-800">
+                <div className="bg-gradient-to-r from-orange-50 to-red-50 p-6 rounded-xl border border-orange-200">
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 mb-3">
                       <UserMinus className="h-5 w-5 text-orange-600" />
-                      <Label className="text-lg font-semibold text-orange-900 dark:text-orange-100">
+                      <Label className="text-lg font-semibold text-orange-900">
                         Dejar de Seguir
                       </Label>
                     </div>
@@ -2503,15 +2478,15 @@ Cada línea será un tweet separado`}
       >
         <DialogContent className="max-w-[95vw] max-h-[90vh] w-[90vw] flex flex-col">
           <DialogHeader className="flex-shrink-0">
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-2 text-gray-900">
               <Edit className="h-5 w-5 text-purple-600" />
               Asignar Cuentas al Tweet
             </DialogTitle>
             <DialogDescription>
               {selectedTweetForAssignment && (
                 <>
-                  <div className="mt-2 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                    <p className="text-sm font-medium text-purple-900 dark:text-purple-100">
+                  <div className="mt-2 p-3 bg-purple-50 rounded-lg border border-purple-200">
+                    <p className="text-sm font-medium text-purple-900">
                       Tweet: "
                       {
                         batchTweets.find(
@@ -2529,16 +2504,16 @@ Cada línea será un tweet separado`}
           {selectedTweetForAssignment && (
             <div className="flex-1 overflow-hidden flex flex-col space-y-6">
               {/* Indicadores de cuentas ya asignadas */}
-              <div className="flex-shrink-0 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+              <div className="flex-shrink-0 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-4">
-                  <div className="bg-blue-100 dark:bg-blue-900 p-2 rounded-lg">
-                    <Users className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  <div className="bg-blue-100 p-2 rounded-lg">
+                    <Users className="h-4 w-4 text-blue-600" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100">
+                    <h4 className="text-sm font-semibold text-blue-900">
                       Resumen de Asignaciones del Lote
                     </h4>
-                    <p className="text-xs text-blue-600 dark:text-blue-400">
+                    <p className="text-xs text-blue-700">
                       Cuentas con tweets asignados en este lote
                     </p>
                   </div>
@@ -2552,10 +2527,10 @@ Cada línea será un tweet separado`}
 
                   return accountsWithAssignments.size > 0 ? (
                     <div className="space-y-3">
-                      <div className="flex items-center justify-between bg-blue-100 dark:bg-blue-900/50 rounded-lg p-3">
+                      <div className="flex items-center justify-between bg-blue-100 rounded-lg p-3">
                         <div className="flex items-center gap-2">
                           <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
-                          <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                          <span className="text-sm font-medium text-blue-900">
                             {accountsWithAssignments.size} cuentas seleccionadas
                           </span>
                         </div>
@@ -2576,13 +2551,13 @@ Cada línea será un tweet separado`}
                             return (
                               <div
                                 key={accountId}
-                                className="flex items-center justify-between bg-white dark:bg-gray-800 rounded-lg px-3 py-2 border border-blue-200 dark:border-blue-700"
+                                className="flex items-center justify-between bg-white rounded-lg px-3 py-2 border border-blue-200"
                               >
                                 <div className="flex items-center gap-2 flex-1 min-w-0">
                                   <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
                                     {account?.username[0].toUpperCase()}
                                   </div>
-                                  <span className="font-medium text-sm text-gray-700 dark:text-gray-300 truncate">
+                                  <span className="font-medium text-sm text-gray-800 truncate">
                                     @{account?.username}
                                   </span>
                                 </div>
@@ -2600,13 +2575,13 @@ Cada línea será un tweet separado`}
                     </div>
                   ) : (
                     <div className="text-center py-6">
-                      <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <Users className="h-6 w-6 text-blue-400" />
+                      <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <Users className="h-6 w-6 text-blue-600" />
                       </div>
-                      <p className="text-blue-600 dark:text-blue-400 text-sm">
+                      <p className="text-blue-700 text-sm">
                         Ninguna cuenta tiene tweets asignados aún
                       </p>
-                      <p className="text-xs text-blue-500 dark:text-blue-500 mt-1">
+                      <p className="text-xs text-blue-600 mt-1">
                         Selecciona cuentas para los tweets en el lote
                       </p>
                     </div>
@@ -2618,7 +2593,7 @@ Cada línea será un tweet separado`}
               <div className="flex-1 overflow-hidden flex flex-col">
                 <div className="flex-shrink-0 flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
-                    <h4 className="text-lg font-semibold">
+                    <h4 className="text-lg font-semibold text-gray-900">
                       Seleccionar cuentas
                     </h4>
                     {selectedAccounts.length > 0 && (
@@ -2695,8 +2670,8 @@ Cada línea será un tweet separado`}
                             relative p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 hover:shadow-md
                             ${
                               isAssigned
-                                ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20"
-                                : "border-gray-200 dark:border-gray-700 hover:border-purple-300"
+                                ? "border-purple-500 bg-purple-50"
+                                : "border-gray-200 hover:border-purple-300 bg-white"
                             }
                           `}
                           onClick={() => {
@@ -2741,7 +2716,7 @@ Cada línea será un tweet separado`}
 
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-2">
-                                <p className="font-semibold text-base text-purple-900 dark:text-purple-100">
+                                <p className="font-semibold text-base text-purple-900">
                                   @{account.username}
                                 </p>
                                 {isAssigned && (
@@ -2760,7 +2735,7 @@ Cada línea será un tweet separado`}
                                     <Badge
                                       key={idx}
                                       variant="outline"
-                                      className="text-xs bg-white dark:bg-gray-800 border-purple-200 dark:border-purple-700"
+                                      className="text-xs bg-white border-purple-200 text-purple-700"
                                     >
                                       {label}
                                     </Badge>
@@ -2769,7 +2744,7 @@ Cada línea será un tweet separado`}
                               )}
 
                               {assignmentCount > 0 && (
-                                <div className="mt-2 text-sm text-yellow-600 dark:text-yellow-400 flex items-center gap-1">
+                                <div className="mt-2 text-sm text-yellow-700 flex items-center gap-1">
                                   <AlertCircle className="h-4 w-4" />
                                   <span>
                                     Ya tiene {assignmentCount} tweet
@@ -2783,14 +2758,14 @@ Cada línea será un tweet separado`}
 
                             <div className="flex-shrink-0">
                               {isAssigned ? (
-                                <div className="flex items-center gap-1 text-green-600 dark:text-green-400">
+                                <div className="flex items-center gap-1 text-green-700">
                                   <CheckCircle className="h-5 w-5" />
                                   <span className="text-sm font-medium">
                                     Seleccionada
                                   </span>
                                 </div>
                               ) : (
-                                <div className="text-gray-400 dark:text-gray-500">
+                                <div className="text-gray-600">
                                   <span className="text-sm">
                                     Clic para seleccionar
                                   </span>
@@ -2804,7 +2779,7 @@ Cada línea será un tweet separado`}
                   </div>
 
                   {filteredAccounts.length === 0 && (
-                    <div className="text-center py-8 text-muted-foreground">
+                    <div className="text-center py-8 text-gray-600">
                       <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
                       <p>No se encontraron cuentas con los filtros aplicados</p>
                     </div>
@@ -2814,9 +2789,9 @@ Cada línea será un tweet separado`}
             </div>
           )}
 
-          <DialogFooter className="flex-shrink-0 border-t pt-4">
+          <DialogFooter className="flex-shrink-0 border-t border-gray-200 pt-4">
             <div className="flex items-center justify-between w-full">
-              <div className="text-sm text-muted-foreground">
+              <div className="text-sm text-gray-700">
                 {selectedTweetForAssignment && (
                   <>
                     {batchTweets.find(

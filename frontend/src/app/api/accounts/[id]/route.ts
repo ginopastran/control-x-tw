@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
-import XAccount from "@/models/XAccount";
+import prisma from "@/lib/db";
 import { logError } from "@/lib/log-action";
+
+export const runtime = 'nodejs';
 
 // DELETE: Eliminar una cuenta de X por su ID
 export async function DELETE(
@@ -18,9 +19,9 @@ export async function DELETE(
       );
     }
 
-    await connectDB();
-
-    const deletedAccount = await XAccount.findByIdAndDelete(id);
+    const deletedAccount = await prisma.xAccount.delete({
+      where: { id: id },
+    });
 
     if (!deletedAccount) {
       return NextResponse.json(
@@ -50,9 +51,10 @@ export async function GET(
   try {
     const { id: accountId } = await params;
 
-    await connectDB();
+    const account = await prisma.xAccount.findUnique({
+      where: { id: accountId },
+    });
 
-    const account = await XAccount.findById(accountId);
     if (!account) {
       return NextResponse.json(
         { error: "Cuenta no encontrada" },
@@ -62,36 +64,30 @@ export async function GET(
 
     // Preparar respuesta sin exponer credenciales sensibles
     const accountData = {
-      _id: account._id,
+      id: account.id,
       username: account.username,
       userId: account.userId,
-      developerTag: account.developerTag,
       labels: account.labels,
       createdAt: account.createdAt,
       updatedAt: account.updatedAt,
-      useOwnCredentials: account.useOwnCredentials || false,
-      credentialsVerified: account.credentialsVerified || false,
-      preferOAuth2: account.preferOAuth2 || false,
+      useOwnCredentials: account.useOwnCredentials,
+      credentialsVerified: account.credentialsVerified,
+      preferOAuth2: account.preferOAuth2,
       userAppName: account.userAppName,
-      userDeveloperEmail: account.userDeveloperEmail,
       appCreatedAt: account.appCreatedAt,
-      hasAccessToken: !!account.accessToken,
-      hasRefreshToken: !!account.refreshToken,
 
-      // Indicadores de credenciales propias OAuth 1.0a (sin exponer los valores)
+      // Indicadores de credenciales (booleanos)
       hasOwnApiKey: !!account.ownApiKey,
       hasOwnApiSecret: !!account.ownApiSecret,
       hasOwnBearerToken: !!account.ownBearerToken,
       hasOwnAccessToken: !!account.ownAccessToken,
       hasOwnAccessTokenSecret: !!account.ownAccessTokenSecret,
-
-      // Indicadores de credenciales propias OAuth 2.0 (sin exponer los valores)
       hasOwnClientId: !!account.ownClientId,
       hasOwnClientSecret: !!account.ownClientSecret,
       hasOwnOAuth2AccessToken: !!account.ownOAuth2AccessToken,
       hasOwnOAuth2RefreshToken: !!account.ownOAuth2RefreshToken,
+
       oauth2TokenExpiresAt: account.oauth2TokenExpiresAt,
-      oauth2Scopes: account.oauth2Scopes || [],
     };
 
     return NextResponse.json({
@@ -117,7 +113,7 @@ export async function PATCH(
     const data = await req.json();
 
     // Solo permitir actualizar ciertos campos
-    const allowedFields = ["labels", "developerTag", "username"];
+    const allowedFields = ["labels", "username"];
     const updateData: Record<string, any> = {};
 
     Object.keys(data).forEach((key) => {
@@ -155,13 +151,13 @@ export async function PATCH(
       );
     }
 
-    await connectDB();
-
     // Si se está actualizando el username, verificar que no esté en uso
     if (updateData.username) {
-      const existingAccount = await XAccount.findOne({
-        username: updateData.username,
-        _id: { $ne: id }, // Excluir la cuenta actual
+      const existingAccount = await prisma.xAccount.findFirst({
+        where: {
+          username: updateData.username,
+          id: { not: id },
+        },
       });
 
       if (existingAccount) {
@@ -174,11 +170,10 @@ export async function PATCH(
       }
     }
 
-    const updatedAccount = await XAccount.findByIdAndUpdate(
-      id,
-      { $set: updateData },
-      { new: true } // Devuelve el documento actualizado
-    );
+    const updatedAccount = await prisma.xAccount.update({
+      where: { id: id },
+      data: updateData,
+    });
 
     if (!updatedAccount) {
       return NextResponse.json(

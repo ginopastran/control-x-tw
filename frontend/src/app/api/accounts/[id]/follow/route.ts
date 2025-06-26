@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
-import XAccount from "@/models/XAccount";
+import prisma from "@/lib/db";
 
 export async function POST(
   req: NextRequest,
@@ -24,8 +23,10 @@ export async function POST(
       );
     }
 
-    await connectDB();
-    const account = await XAccount.findById(id);
+    const account = await prisma.xAccount.findUnique({
+      where: { id },
+    });
+
     if (!account) {
       return NextResponse.json(
         { error: "Cuenta no encontrada" },
@@ -55,7 +56,7 @@ export async function POST(
       );
     }
 
-    // Primero obtener el ID del usuario a seguir/dejar de seguir
+    // Obtener el ID del usuario a seguir/dejar de seguir
     const userResponse = await fetch(
       `https://api.twitter.com/2/users/by/username/${username}`,
       {

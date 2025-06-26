@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
-import XAccount from "@/models/XAccount";
+import prisma from "@/lib/db";
 
 // POST: Publicar un nuevo tweet
 export async function POST(req: NextRequest) {
@@ -15,15 +14,30 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    await connectDB();
-
-    // Obtener la cuenta
-    const account = await XAccount.findById(accountId);
+    // Obtener la cuenta usando Prisma
+    const account = await prisma.xAccount.findUnique({
+      where: { id: accountId },
+    });
 
     if (!account) {
       return NextResponse.json(
         { error: "Cuenta no encontrada" },
         { status: 404 }
+      );
+    }
+
+    // Verificar credenciales
+    if (!account.useOwnCredentials || !account.credentialsVerified) {
+      return NextResponse.json(
+        { error: "Esta cuenta no tiene credenciales propias configuradas" },
+        { status: 400 }
+      );
+    }
+
+    if (!account.ownBearerToken) {
+      return NextResponse.json(
+        { error: "No se encontró Bearer Token para esta cuenta" },
+        { status: 400 }
       );
     }
 
@@ -41,8 +55,6 @@ export async function POST(req: NextRequest) {
 
     // Si hay media, agregarla
     if (media && media.length > 0) {
-      // Esta es una versión simplificada, la API de X requiere
-      // primero subir el media y obtener un ID
       tweetData.media = { media_ids: media };
     }
 
@@ -51,7 +63,7 @@ export async function POST(req: NextRequest) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${account.accessToken}`,
+        Authorization: `Bearer ${account.ownBearerToken}`,
       },
       body: JSON.stringify(tweetData),
     });

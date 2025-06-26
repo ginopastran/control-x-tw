@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
-import XAccount from "@/models/XAccount";
+import prisma from "@/lib/db";
 
 export async function POST(
   req: NextRequest,
@@ -26,8 +25,10 @@ export async function POST(
       );
     }
 
-    await connectDB();
-    const account = await XAccount.findById(id);
+    const account = await prisma.xAccount.findUnique({
+      where: { id },
+    });
+
     if (!account) {
       return NextResponse.json(
         { error: "Cuenta no encontrada" },
@@ -92,13 +93,16 @@ export async function POST(
 
     const result = await response.json();
 
-    // Actualizar en base de datos
+    // Actualizar en base de datos usando Prisma
     const updateField =
       type === "profile"
-        ? { "profileInfo.profile_image_url": result.profile_image_url_https }
-        : { "profileInfo.profile_banner_url": result.profile_banner_url };
+        ? { profileImageUrl: result.profile_image_url_https }
+        : { profileBannerUrl: result.profile_banner_url };
 
-    await XAccount.findByIdAndUpdate(id, { $set: updateField });
+    await prisma.xAccount.update({
+      where: { id },
+      data: updateField,
+    });
 
     return NextResponse.json({
       success: true,

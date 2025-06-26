@@ -1,8 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
-import XAccount from "@/models/XAccount";
-import { getValidToken } from "@/services/tokenService";
+import prisma from "@/lib/db";
 import { logError, logAction } from "@/lib/log-action";
+
+async function getValidToken(accountId: string): Promise<string | null> {
+  const account = await prisma.xAccount.findUnique({
+    where: { id: accountId },
+    include: { tokenInfo: true },
+  });
+
+  if (!account) return null;
+
+  // Usar Bearer Token si está disponible
+  if (account.ownBearerToken) {
+    return account.ownBearerToken;
+  }
+
+  // Usar OAuth 2.0 access token
+  if (account.ownOAuth2AccessToken) {
+    // Verificar si no ha expirado
+    if (
+      account.oauth2TokenExpiresAt &&
+      account.oauth2TokenExpiresAt > new Date()
+    ) {
+      return account.ownOAuth2AccessToken;
+    }
+  }
+
+  return null;
+}
 
 export async function GET(req: NextRequest) {
   try {
@@ -16,8 +41,10 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    await connectDB();
-    const account = await XAccount.findById(accountId);
+    const account = await prisma.xAccount.findUnique({
+      where: { id: accountId },
+    });
+
     if (!account) {
       return NextResponse.json(
         { error: "Cuenta no encontrada" },
@@ -28,17 +55,38 @@ export async function GET(req: NextRequest) {
     // Obtener token válido
     const accessToken = await getValidToken(accountId);
 
+    if (!accessToken) {
+      return NextResponse.json(
+        { error: "No hay token válido disponible para esta cuenta" },
+        { status: 400 }
+      );
+    }
+
     // Endpoints para verificar límites
     const endpoints = [
       {
         name: "tweets_create",
         url: "https://api.twitter.com/2/tweets",
         description: "Crear tweets",
+        method: "HEAD",
       },
       {
         name: "users_me",
         url: "https://api.twitter.com/2/users/me",
         description: "Información del usuario",
+        method: "GET",
+      },
+      {
+        name: "users_likes",
+        url: `https://api.twitter.com/2/users/${account.userId}/likes`,
+        description: "Dar likes",
+        method: "HEAD",
+      },
+      {
+        name: "users_retweets",
+        url: `https://api.twitter.com/2/users/${account.userId}/retweets`,
+        description: "Hacer retweets",
+        method: "HEAD",
       },
     ];
 
@@ -48,7 +96,7 @@ export async function GET(req: NextRequest) {
       try {
         // Hacer una solicitud HEAD o GET para obtener headers sin usar la cuota
         const response = await fetch(endpoint.url, {
-          method: endpoint.name === "users_me" ? "GET" : "HEAD",
+          method: endpoint.method,
           headers: {
             Authorization: `Bearer ${accessToken}`,
             "Content-Type": "application/json",
@@ -78,7 +126,7 @@ export async function GET(req: NextRequest) {
 
         // Obtener data de respuesta si es GET
         let responseData = null;
-        if (response.ok && endpoint.name === "users_me") {
+        if (response.ok && endpoint.method === "GET") {
           responseData = await response.json();
         }
 
@@ -89,7 +137,7 @@ export async function GET(req: NextRequest) {
           statusText: response.statusText,
           rateLimits: rateLimitHeaders,
           resetInfo,
-          responseData: endpoint.name === "users_me" ? responseData : null,
+          responseData: endpoint.method === "GET" ? responseData : null,
         });
       } catch (error: any) {
         results.push({
@@ -103,17 +151,18 @@ export async function GET(req: NextRequest) {
 
     // Información adicional de la cuenta
     const accountInfo = {
-      id: account._id,
+      id: account.id,
       username: account.username,
       userId: account.userId,
-      hasAccessToken: !!account.accessToken,
-      hasRefreshToken: !!account.refreshToken,
+      hasAccessToken: !!accessToken,
+      useOwnCredentials: account.useOwnCredentials,
+      credentialsVerified: account.credentialsVerified,
       createdAt: account.createdAt,
       updatedAt: account.updatedAt,
     };
 
     logAction("rate_limits_check", {
-      accountId: account._id,
+      accountId: account.id,
       username: account.username,
       results: results.map((r) => ({
         endpoint: r.endpoint,

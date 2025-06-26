@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
-import XAccount from "@/models/XAccount";
+import prisma from "@/lib/db";
 
 export async function GET(req: NextRequest) {
   try {
@@ -37,15 +36,15 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    await connectDB();
-
     // Construir query para verificar disponibilidad
-    const query: any = { username };
+    const whereClause: any = { username };
     if (excludeId) {
-      query._id = { $ne: excludeId };
+      whereClause.id = { not: excludeId };
     }
 
-    const existingAccount = await XAccount.findOne(query);
+    const existingAccount = await prisma.xAccount.findFirst({
+      where: whereClause,
+    });
 
     return NextResponse.json({
       available: !existingAccount,

@@ -1,23 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
-import XAccount from "@/models/XAccount";
+import prisma from "@/lib/db";
+import { TwitterApi } from "twitter-api-v2";
 
 export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string; tweetId: string }> }
 ) {
   try {
-    const { id, tweetId } = await params;
+    const { id: accountId, tweetId } = await params;
 
-    if (!tweetId) {
-      return NextResponse.json(
-        { error: "ID del tweet es requerido" },
-        { status: 400 }
-      );
-    }
+    console.log("🗑️ Eliminando tweet:", { accountId, tweetId });
 
-    await connectDB();
-    const account = await XAccount.findById(id);
+    // Buscar la cuenta
+    const account = await prisma.xAccount.findUnique({
+      where: { id: accountId },
+    });
+
     if (!account) {
       return NextResponse.json(
         { error: "Cuenta no encontrada" },
@@ -25,60 +23,100 @@ export async function DELETE(
       );
     }
 
-    // Verificar credenciales propias
-    if (!account.useOwnCredentials || !account.credentialsVerified) {
-      return NextResponse.json(
-        { error: "Esta cuenta no tiene credenciales propias configuradas" },
-        { status: 400 }
-      );
-    }
-
-    if (!account.ownBearerToken) {
-      return NextResponse.json(
-        { error: "No se encontró Bearer Token para esta cuenta" },
-        { status: 400 }
-      );
-    }
-
-    // Eliminar tweet en Twitter
-    const response = await fetch(
-      `https://api.twitter.com/2/tweets/${tweetId}`,
-      {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${account.ownBearerToken}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    if (!response.ok) {
-      const error = await response.json();
-      console.error("❌ Error eliminando tweet:", error);
+    // Verificar credenciales
+    if (!account.useOwnCredentials) {
       return NextResponse.json(
         {
-          error: error.detail || error.title || "Error al eliminar tweet",
-          message: `No se pudo eliminar el tweet ${tweetId}`,
-          details: error,
+          error:
+            "Esta cuenta no está configurada para usar credenciales propias",
         },
-        { status: response.status }
+        { status: 400 }
       );
     }
 
-    const result = await response.json();
+    let twitterClient;
 
-    return NextResponse.json({
-      success: true,
-      message: "Tweet eliminado exitosamente",
-      data: result,
-    });
-  } catch (error) {
-    console.error("Error eliminando tweet:", error);
+    // Configurar cliente según credenciales disponibles
+    if (account.ownOAuth2AccessToken) {
+      // OAuth 2.0 - Usar API v2
+      console.log("🔧 Usando API v2 con OAuth 2.0...");
+      twitterClient = new TwitterApi(account.ownOAuth2AccessToken);
+
+      // ✅ API v2: DELETE /2/tweets/{id}
+      const result = await twitterClient.v2.deleteTweet(tweetId);
+      console.log("✅ Tweet eliminado (v2):", result);
+
+      if (result.data?.deleted) {
+        return NextResponse.json({
+          success: true,
+          message: "Tweet eliminado correctamente",
+          data: result.data,
+        });
+      } else {
+        throw new Error("No se pudo eliminar el tweet");
+      }
+    } else if (
+      account.ownApiKey &&
+      account.ownApiSecret &&
+      account.ownAccessToken &&
+      account.ownAccessTokenSecret
+    ) {
+      // OAuth 1.0a - Usar API v1.1
+      console.log("🔧 Usando API v1.1 con OAuth 1.0a...");
+      twitterClient = new TwitterApi({
+        appKey: account.ownApiKey,
+        appSecret: account.ownApiSecret,
+        accessToken: account.ownAccessToken,
+        accessSecret: account.ownAccessTokenSecret,
+      });
+
+      // ✅ API v1.1: POST statuses/destroy/:id
+      const result = await twitterClient.v1.deleteTweet(tweetId);
+      console.log("✅ Tweet eliminado (v1.1):", result);
+
+      return NextResponse.json({
+        success: true,
+        message: "Tweet eliminado correctamente",
+        data: {
+          id: result.id_str,
+          deleted: true,
+        },
+      });
+    } else {
+      return NextResponse.json(
+        { error: "No hay credenciales válidas configuradas" },
+        { status: 400 }
+      );
+    }
+  } catch (error: any) {
+    console.error("❌ Error eliminando tweet:", error);
+
+    // Manejo de errores específicos de Twitter
+    if (error.code) {
+      const errorMessages: { [key: number]: string } = {
+        34: "Tweet no encontrado - Puede que ya esté eliminado",
+        63: "Usuario suspendido",
+        144: "Tweet no encontrado o no tienes permisos para eliminarlo",
+        179: "No estás autorizado para ver este tweet",
+        183: "No puedes eliminar un tweet que no es tuyo",
+      };
+
+      const message =
+        errorMessages[error.code] || `Error de Twitter: ${error.message}`;
+
+      return NextResponse.json(
+        {
+          error: message,
+          twitterError: error.code,
+        },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
       {
-        error:
-          "Error interno del servidor: " +
-          (error instanceof Error ? error.message : String(error)),
+        error: "Error interno del servidor",
+        details: error.message,
       },
       { status: 500 }
     );

@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
-import XAccount from "@/models/XAccount";
+import prisma from "@/lib/db";
 
 export async function POST(req: NextRequest) {
   try {
     const { accountId, action, text, tweetId } = await req.json();
 
-    // Validar que existe la cuenta
-    await connectDB();
-    const account = await XAccount.findById(accountId);
+    // Validar que existe la cuenta usando Prisma
+    const account = await prisma.xAccount.findUnique({
+      where: { id: accountId },
+    });
+
     if (!account) {
       return NextResponse.json(
         { error: "Cuenta no encontrada" },
@@ -16,7 +17,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Simular una pequeña delay (como si fuera a Twitter)
+    // Simular delay
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     // Simular respuesta exitosa

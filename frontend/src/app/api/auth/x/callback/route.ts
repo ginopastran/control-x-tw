@@ -1,10 +1,7 @@
 // app/api/auth/x/callback/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
-import XAccount from "@/models/XAccount";
+import prisma from "@/lib/db";
 import { logError } from "@/lib/log-action";
-import TokenInfo from "@/models/TokenInfo";
-import { decryptCredentials } from "@/lib/crypto-nextjs";
 
 export async function GET(req: NextRequest) {
   try {
@@ -25,11 +22,11 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    await connectDB();
-
-    // Buscar la cuenta que inició el proceso OAuth
-    const account = await XAccount.findOne({
-      tempOAuthTokenSecret: { $exists: true },
+    // Buscar la cuenta que inició el proceso OAuth usando Prisma
+    const account = await prisma.xAccount.findFirst({
+      where: {
+        tempOAuthTokenSecret: { not: null },
+      },
     });
 
     if (!account || !account.tempOAuthTokenSecret) {
@@ -135,17 +132,16 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Actualizar la cuenta con los tokens obtenidos
-    await XAccount.findByIdAndUpdate(account._id, {
-      $set: {
+    // Actualizar la cuenta con los tokens obtenidos usando Prisma
+    await prisma.xAccount.update({
+      where: { id: account.id },
+      data: {
         ownAccessToken: access_token,
         ownAccessTokenSecret: access_token_secret,
         userId: user_id,
         username: screen_name,
         credentialsVerified: true,
-      },
-      $unset: {
-        tempOAuthTokenSecret: 1,
+        tempOAuthTokenSecret: null, // Limpiar el token temporal
       },
     });
 
@@ -154,6 +150,7 @@ export async function GET(req: NextRequest) {
     );
   } catch (error) {
     console.error("Error en OAuth callback:", error);
+    logError("oauth_callback_error", error);
     return NextResponse.redirect(
       new URL("/accounts?error=oauth_server_error", req.url)
     );

@@ -1,83 +1,194 @@
-import { logAction, logError } from "@/lib/log-action";
-import { connectDB } from "@/lib/mongodb";
-import XAccount from "@/models/XAccount";
+import prisma from "@/lib/db";
 
-const CLIENT_ID = process.env.X_CLIENT_ID!;
-const CLIENT_SECRET = process.env.X_CLIENT_SECRET!;
+export interface RefreshResult {
+  success: boolean;
+  error?: string;
+  needsReauth?: boolean;
+}
 
 /**
- * Refresca el token de acceso usando el refresh token
- * @param accountId ID de la cuenta en la base de datos
- * @returns Objeto con éxito y mensaje o error
+ * Refresca el token de autenticación de una cuenta
  */
-export async function refreshXToken(accountId: string) {
+export async function refreshAccountAuth(
+  accountId: string
+): Promise<RefreshResult> {
   try {
-    logAction('refresh_token_start', { accountId });
-    
-    // Conectar a la base de datos
-    await connectDB();
-    
-    // Buscar la cuenta
-    const account = await XAccount.findById(accountId);
-    
-    if (!account) {
-      throw new Error("Cuenta no encontrada");
-    }
-    
-    // Verificar si tiene refresh token
-    if (!account.refreshToken) {
-      throw new Error("Esta cuenta no tiene refresh token disponible");
-    }
-    
-    // Preparar solicitud para refrescar el token
-    const tokenRequest = new URLSearchParams({
-      grant_type: "refresh_token",
-      refresh_token: account.refreshToken,
-      client_id: CLIENT_ID,
+    // Buscar la cuenta usando Prisma
+    const account = await prisma.xAccount.findUnique({
+      where: { id: accountId },
+      include: { tokenInfo: true },
     });
-    
-    // Credenciales en encabezado de autorización
-    const authHeader = `Basic ${Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString("base64")}`;
-    
-    // Realizar solicitud a la API de X
+
+    if (!account) {
+      return {
+        success: false,
+        error: "Cuenta no encontrada",
+      };
+    }
+
+    // Verificar si tiene refresh token
+    if (!account.ownOAuth2RefreshToken) {
+      return {
+        success: false,
+        error: "No hay refresh token disponible",
+        needsReauth: true,
+      };
+    }
+
+    // Verificar credenciales OAuth 2.0
+    if (!account.ownClientId || !account.ownClientSecret) {
+      return {
+        success: false,
+        error: "Credenciales OAuth 2.0 no configuradas",
+        needsReauth: true,
+      };
+    }
+
+    // Intentar refrescar el token
     const response = await fetch("https://api.twitter.com/2/oauth2/token", {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
-        "Authorization": authHeader,
+        Authorization: `Basic ${Buffer.from(
+          `${account.ownClientId}:${account.ownClientSecret}`
+        ).toString("base64")}`,
       },
-      body: tokenRequest,
+      body: new URLSearchParams({
+        grant_type: "refresh_token",
+        refresh_token: account.ownOAuth2RefreshToken,
+      }),
     });
-    
-    const data = await response.json();
-    
+
     if (!response.ok) {
-      logError('refresh_token_error', data, { statusCode: response.status });
-      throw new Error(`Error al refrescar token: ${data.error_description || data.error}`);
+      const error = await response.json();
+
+      // Marcar token como inválido
+      await prisma.tokenInfo.upsert({
+        where: { accountId },
+        update: { isValid: false },
+        create: {
+          accountId,
+          isValid: false,
+          expiresAt: new Date(),
+        },
+      });
+
+      return {
+        success: false,
+        error: error.error_description || "Error al refrescar token",
+        needsReauth: true,
+      };
     }
-    
-    // Actualizar la cuenta con el nuevo token
-    account.accessToken = data.access_token;
-    
-    // Si se recibió un nuevo refresh token, actualizarlo también
-    if (data.refresh_token) {
-      account.refreshToken = data.refresh_token;
-    }
-    
-    await account.save();
-    
-    logAction('refresh_token_success', { accountId });
-    
+
+    const tokenData = await response.json();
+
+    // Actualizar tokens en la cuenta
+    const expiresAt = new Date(Date.now() + tokenData.expires_in * 1000);
+
+    await prisma.xAccount.update({
+      where: { id: accountId },
+      data: {
+        ownOAuth2AccessToken: tokenData.access_token,
+        ownOAuth2RefreshToken:
+          tokenData.refresh_token || account.ownOAuth2RefreshToken,
+        oauth2TokenExpiresAt: expiresAt,
+      },
+    });
+
+    // Actualizar información del token
+    await prisma.tokenInfo.upsert({
+      where: { accountId },
+      update: {
+        isValid: true,
+        expiresAt: expiresAt,
+        lastRefresh: new Date(),
+      },
+      create: {
+        accountId,
+        isValid: true,
+        expiresAt: expiresAt,
+        lastRefresh: new Date(),
+      },
+    });
+
     return {
       success: true,
-      message: "Token actualizado correctamente",
     };
   } catch (error: any) {
-    logError('refresh_token_error', error);
-    
+    console.error("Error refrescando auth:", error);
     return {
       success: false,
-      error: error.message || "Error al refrescar token",
+      error: error.message || "Error interno",
     };
   }
-} 
+}
+
+/**
+ * Verifica si una cuenta necesita refresh de token
+ */
+export async function needsTokenRefresh(accountId: string): Promise<boolean> {
+  try {
+    const account = await prisma.xAccount.findUnique({
+      where: { id: accountId },
+      include: { tokenInfo: true },
+    });
+
+    if (!account || !account.tokenInfo) {
+      return true;
+    }
+
+    // Si el token no es válido
+    if (!account.tokenInfo.isValid) {
+      return true;
+    }
+
+    // Si expira en menos de 15 minutos
+    const now = new Date();
+    const expiresAt = account.tokenInfo.expiresAt;
+
+    if (expiresAt) {
+      const timeToExpiry = expiresAt.getTime() - now.getTime();
+      return timeToExpiry < 15 * 60 * 1000; // 15 minutos
+    }
+
+    return false;
+  } catch (error) {
+    console.error("Error verificando necesidad de refresh:", error);
+    return true;
+  }
+}
+
+/**
+ * Programa un refresh automático para todas las cuentas que lo necesiten
+ */
+export async function scheduleTokenRefresh(): Promise<void> {
+  try {
+    const accounts = await prisma.xAccount.findMany({
+      where: {
+        useOwnCredentials: true,
+        credentialsVerified: true,
+        ownOAuth2RefreshToken: { not: null },
+      },
+      include: { tokenInfo: true },
+    });
+
+    for (const account of accounts) {
+      const needsRefresh = await needsTokenRefresh(account.id);
+
+      if (needsRefresh) {
+        console.log(`🔄 Refrescando token para cuenta: ${account.username}`);
+        const result = await refreshAccountAuth(account.id);
+
+        if (result.success) {
+          console.log(`✅ Token refrescado para: ${account.username}`);
+        } else {
+          console.log(
+            `❌ Error refrescando token para ${account.username}: ${result.error}`
+          );
+        }
+      }
+    }
+  } catch (error) {
+    console.error("Error en refresh programado:", error);
+  }
+}

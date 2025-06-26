@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
-import XAccount from "@/models/XAccount";
+import prisma from "@/lib/db";
 
 // POST: Hacer retweet a un tweet
 export async function POST(req: NextRequest) {
@@ -15,10 +14,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    await connectDB();
-
-    // Obtener la cuenta
-    const account = await XAccount.findById(accountId);
+    // Obtener la cuenta usando Prisma
+    const account = await prisma.xAccount.findUnique({
+      where: { id: accountId },
+    });
 
     if (!account) {
       return NextResponse.json(
@@ -27,10 +26,31 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Verificar credenciales
+    if (!account.useOwnCredentials || !account.credentialsVerified) {
+      return NextResponse.json(
+        { error: "Esta cuenta no tiene credenciales propias configuradas" },
+        { status: 400 }
+      );
+    }
+
+    if (!account.ownBearerToken) {
+      return NextResponse.json(
+        { error: "No se encontró Bearer Token para esta cuenta" },
+        { status: 400 }
+      );
+    }
+
+    if (!account.userId) {
+      return NextResponse.json(
+        { error: "userId no configurado para esta cuenta" },
+        { status: 400 }
+      );
+    }
+
     // Datos para la API de X
     const payload = {
       tweet_id: tweetId,
-      user_id: account.userId,
     };
 
     console.log(
@@ -38,14 +58,17 @@ export async function POST(req: NextRequest) {
     );
 
     // Enviar a la API de X
-    const response = await fetch("https://api.twitter.com/2/retweets", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${account.accessToken}`,
-      },
-      body: JSON.stringify(payload),
-    });
+    const response = await fetch(
+      `https://api.twitter.com/2/users/${account.userId}/retweets`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${account.ownBearerToken}`,
+        },
+        body: JSON.stringify(payload),
+      }
+    );
 
     const data = await response.json();
 

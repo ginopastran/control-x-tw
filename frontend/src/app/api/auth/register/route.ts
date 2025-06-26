@@ -1,14 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
-import User from "@/models/User";
-import AuthorizedEmail from "@/models/AuthorizedEmail";
+import prisma from "@/lib/db";
 import { generateToken, setAuthCookieInResponse } from "@/lib/auth";
+import bcrypt from "bcrypt";
+import { UserRole } from "@prisma/client";
 
 export async function POST(req: NextRequest) {
   try {
-    // Conectar a la base de datos
-    await connectDB();
-
     // Obtener datos del cuerpo de la solicitud
     const { name, email, password } = await req.json();
 
@@ -21,7 +18,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Verificar si el email ya está registrado
-    const userExists = await User.findOne({ email });
+    const userExists = await prisma.user.findUnique({ where: { email } });
     if (userExists) {
       return NextResponse.json(
         { error: "El email ya está registrado" },
@@ -30,55 +27,59 @@ export async function POST(req: NextRequest) {
     }
 
     // Verificar si es el primer usuario (será SUPERADMIN)
-    const usersCount = await User.countDocuments();
-    let userRole = "ADMIN";
+    const usersCount = await prisma.user.count();
+    let userRole: UserRole = UserRole.ADMIN;
     let authorizedEmail = null;
 
     if (usersCount === 0) {
       // Primera cuenta = SUPERADMIN (sin restricciones)
-      userRole = "SUPERADMIN";
+      userRole = UserRole.SUPERADMIN;
       console.log("🔐 Creando primera cuenta como SUPERADMIN:", email);
     } else {
       // A partir de la segunda cuenta, verificar que el email esté autorizado
-      authorizedEmail = await AuthorizedEmail.findOne({
-        email: email.toLowerCase(),
-        used: false,
+      authorizedEmail = await prisma.authorizedEmail.findUnique({
+        where: { email: email.toLowerCase() },
       });
 
-      if (!authorizedEmail) {
+      // Verificar que el email exista y que no esté ya vinculado a una cuenta
+      if (!authorizedEmail || authorizedEmail.accountId) {
         return NextResponse.json(
           {
             error:
-              "Este correo electrónico no está autorizado para registrarse. Contacta al administrador para obtener autorización.",
+              "Este correo electrónico no está autorizado o ya ha sido utilizado para registrar una cuenta. Contacta al administrador.",
           },
           { status: 403 }
         );
       }
-
-      // El rol siempre será ADMIN para cuentas autorizadas
-      userRole = "ADMIN";
+      // El rol se mantiene como ADMIN por defecto
     }
 
+    // Hashear la contraseña
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     // Crear el usuario
-    const user = await User.create({
-      name,
-      email,
-      password,
-      role: userRole,
+    const user = await prisma.user.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+        role: userRole,
+      },
     });
 
-    // Si se usó un email autorizado, marcarlo como usado
+    // Si se usó un email autorizado, vincularlo al usuario creado
     if (authorizedEmail) {
-      await AuthorizedEmail.findByIdAndUpdate(authorizedEmail._id, {
-        used: true,
-        usedBy: user._id,
-        usedAt: new Date(),
+      await prisma.authorizedEmail.update({
+        where: { id: authorizedEmail.id },
+        data: {
+          accountId: user.id,
+        },
       });
     }
 
     // Generar token
-    const token = generateToken({
-      id: user._id.toString(),
+    const token = await generateToken({
+      id: user.id,
       email: user.email,
       role: user.role,
     });
@@ -88,7 +89,7 @@ export async function POST(req: NextRequest) {
       {
         success: true,
         user: {
-          id: user._id,
+          id: user.id,
           name: user.name,
           email: user.email,
           role: user.role,

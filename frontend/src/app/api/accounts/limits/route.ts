@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
-import XAccount from "@/models/XAccount";
+import prisma from "@/lib/db";
 
 interface AccountLimits {
-  _id: string;
+  id: string;
   username: string;
   labels: string[];
   dailyLimits: {
@@ -19,19 +18,15 @@ interface AccountLimits {
 // GET: Obtener límites de todas las cuentas
 export async function GET(req: NextRequest) {
   try {
-    await connectDB();
-
-    const accounts = await XAccount.find(
-      {},
-      {
-        username: 1,
-        labels: 1,
-        dailyLimits: 1,
-        status: 1,
-        lastActivity: 1,
-        createdAt: 1,
-      }
-    );
+    const accounts = await prisma.xAccount.findMany({
+      select: {
+        id: true,
+        username: true,
+        labels: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
 
     // Transformar datos para el dashboard
     const accountLimits: AccountLimits[] = accounts.map((account) => {
@@ -60,13 +55,13 @@ export async function GET(req: NextRequest) {
       };
 
       return {
-        _id: account._id.toString(),
+        id: account.id,
         username: account.username,
         labels: account.labels || [],
-        dailyLimits: account.dailyLimits || defaultLimits,
-        status: account.status || "active",
+        dailyLimits: defaultLimits,
+        status: "active" as const,
         lastActivity:
-          account.lastActivity ||
+          account.updatedAt?.toISOString() ||
           account.createdAt?.toISOString() ||
           new Date().toISOString(),
       };

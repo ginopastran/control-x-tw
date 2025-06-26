@@ -1,13 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
-import AuthorizedEmail from "@/models/AuthorizedEmail";
+import prisma from "@/lib/db";
 import { getAuthUser } from "@/lib/auth";
 
 // GET: Listar correos autorizados (solo SUPERADMIN)
 export async function GET(req: NextRequest) {
   try {
-    await connectDB();
-
     // Verificar autenticación y permisos
     const user = await getAuthUser(req);
     if (!user || user.role !== "SUPERADMIN") {
@@ -21,23 +18,21 @@ export async function GET(req: NextRequest) {
     }
 
     // Obtener todos los correos autorizados
-    const authorizedEmails = await AuthorizedEmail.find({})
-      .populate("authorizedBy", "name email")
-      .populate("usedBy", "name email")
-      .sort({ createdAt: -1 });
+    const authorizedEmails = await prisma.authorizedEmail.findMany({
+      orderBy: { createdAt: "desc" },
+      include: {
+        account: {
+          select: {
+            id: true,
+            username: true,
+          },
+        },
+      },
+    });
 
     return NextResponse.json({
       success: true,
-      authorizedEmails: authorizedEmails.map((email) => ({
-        id: email._id,
-        email: email.email,
-        authorizedBy: email.authorizedBy,
-        authorizedAt: email.authorizedAt,
-        used: email.used,
-        usedBy: email.usedBy,
-        usedAt: email.usedAt,
-        createdAt: email.createdAt,
-      })),
+      authorizedEmails: authorizedEmails,
     });
   } catch (error: any) {
     console.error("Error al obtener correos autorizados:", error);
@@ -51,8 +46,6 @@ export async function GET(req: NextRequest) {
 // POST: Agregar nuevo correo autorizado (solo SUPERADMIN)
 export async function POST(req: NextRequest) {
   try {
-    await connectDB();
-
     // Verificar autenticación y permisos
     const user = await getAuthUser(req);
     if (!user || user.role !== "SUPERADMIN") {
@@ -73,51 +66,44 @@ export async function POST(req: NextRequest) {
     }
 
     // Verificar que el email no esté ya autorizado
-    const existingAuthorized = await AuthorizedEmail.findOne({
-      email: email.toLowerCase(),
+    const existingAuthorized = await prisma.authorizedEmail.findUnique({
+      where: { email: email.toLowerCase() },
     });
 
     if (existingAuthorized) {
       return NextResponse.json(
-        { error: "Este email ya está autorizado" },
+        { error: "Este email ya está en la lista de autorizados" },
         { status: 400 }
       );
     }
 
-    // Verificar que no sea un email ya registrado
-    const User = (await import("@/models/User")).default;
-    const existingUser = await User.findOne({
-      email: email.toLowerCase(),
+    // Verificar que no sea un email ya registrado por un usuario
+    const existingUser = await prisma.user.findUnique({
+      where: { email: email.toLowerCase() },
     });
 
     if (existingUser) {
       return NextResponse.json(
-        { error: "Este email ya tiene una cuenta registrada" },
+        { error: "Este email ya tiene una cuenta de usuario registrada" },
         { status: 400 }
       );
     }
 
     // Crear email autorizado
-    const authorizedEmail = await AuthorizedEmail.create({
-      email: email.toLowerCase(),
-      authorizedBy: user.id,
+    const authorizedEmail = await prisma.authorizedEmail.create({
+      data: {
+        email: email.toLowerCase(),
+        // Nota: En el nuevo schema, no se vincula al SUPERADMIN que autoriza,
+        // ya que se asume que solo ellos pueden hacerlo.
+        // Si se necesita, se debería añadir un campo 'authorizedById' al schema.
+      },
     });
-
-    // Poblar los datos del usuario que autorizó
-    await authorizedEmail.populate("authorizedBy", "name email");
 
     return NextResponse.json(
       {
         success: true,
         message: "Email autorizado exitosamente",
-        authorizedEmail: {
-          id: authorizedEmail._id,
-          email: authorizedEmail.email,
-          authorizedBy: authorizedEmail.authorizedBy,
-          authorizedAt: authorizedEmail.authorizedAt,
-          used: authorizedEmail.used,
-          createdAt: authorizedEmail.createdAt,
-        },
+        authorizedEmail: authorizedEmail,
       },
       { status: 201 }
     );

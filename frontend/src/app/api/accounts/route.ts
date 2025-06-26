@@ -1,7 +1,9 @@
 // app/api/accounts/route.ts
-import { connectDB } from "@/lib/mongodb";
-import XAccount from "@/models/XAccount";
+import { connectDB } from "@/lib/db";
+import prisma from "@/lib/db";
 import { NextResponse, NextRequest } from "next/server";
+
+export const runtime = 'nodejs';
 
 // GET: listar todas las cuentas
 export async function GET(req: NextRequest) {
@@ -9,7 +11,9 @@ export async function GET(req: NextRequest) {
     await connectDB();
 
     // Obtener todas las cuentas de X ordenadas por fecha de creación (más recientes primero)
-    const accounts = await XAccount.find({}).sort({ createdAt: -1 }).lean();
+    const accounts = await prisma.xAccount.findMany({
+      orderBy: { createdAt: "desc" },
+    });
 
     return NextResponse.json(accounts);
   } catch (error) {
@@ -28,7 +32,9 @@ export async function POST(request: Request) {
     const body = await request.json();
 
     // Verificar que no exista una cuenta con el mismo username
-    const existingAccount = await XAccount.findOne({ username: body.username });
+    const existingAccount = await prisma.xAccount.findFirst({
+      where: { username: body.username },
+    });
     if (existingAccount) {
       return NextResponse.json(
         { error: "Ya existe una cuenta con este username" },
@@ -52,7 +58,9 @@ export async function POST(request: Request) {
       needsReauth: false,
     };
 
-    const newAccount = await XAccount.create(accountData);
+    const newAccount = await prisma.xAccount.create({
+      data: accountData,
+    });
 
     return NextResponse.json({
       success: true,

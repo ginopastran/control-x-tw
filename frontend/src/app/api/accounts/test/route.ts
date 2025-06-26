@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
-import XAccount from "@/models/XAccount";
+import prisma from "@/lib/db";
 import { getAuthUser } from "@/lib/auth";
 
 interface TestResult {
@@ -19,8 +18,6 @@ interface TestResult {
 
 export async function POST(req: NextRequest) {
   try {
-    await connectDB();
-
     // Verificar autenticación y permisos - solo SUPERADMIN
     const user = await getAuthUser(req);
     if (!user || user.role !== "SUPERADMIN") {
@@ -35,16 +32,21 @@ export async function POST(req: NextRequest) {
     // Si no se especifican IDs, testear todas las cuentas
     let accountsToTest;
     if (accountIds && accountIds.length > 0) {
-      accountsToTest = await XAccount.find({ _id: { $in: accountIds } });
+      accountsToTest = await prisma.xAccount.findMany({
+        where: { id: { in: accountIds } },
+        include: { tokenInfo: true },
+      });
     } else {
-      accountsToTest = await XAccount.find({});
+      accountsToTest = await prisma.xAccount.findMany({
+        include: { tokenInfo: true },
+      });
     }
 
     const testResults: TestResult[] = [];
 
     for (const account of accountsToTest) {
       const result: TestResult = {
-        accountId: account._id.toString(),
+        accountId: account.id,
         username: account.username,
         status: "success",
         message: "Cuenta funcionando correctamente",
@@ -74,13 +76,7 @@ export async function POST(req: NextRequest) {
 
           if (!account.tokenInfo.isValid) {
             result.status = "warning";
-            result.message = `Token inválido: ${account.tokenInfo.status}`;
-
-            if (account.tokenInfo.status === "EXPIRED") {
-              result.message = "Token expirado - necesita refresh";
-            } else if (account.tokenInfo.status === "NEEDS_REFRESH") {
-              result.message = "Token necesita ser refrescado";
-            }
+            result.message = "Token inválido";
           }
         }
 
@@ -122,12 +118,6 @@ export async function POST(req: NextRequest) {
           result.status = "error";
           result.message = "Error al conectar con la API de X";
           result.details.lastError = apiError.message;
-        }
-
-        // Verificar si necesita reautenticación
-        if (account.needsReauth) {
-          result.status = "error";
-          result.message = "Cuenta marcada para reautenticación";
         }
       } catch (error: any) {
         result.status = "error";

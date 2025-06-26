@@ -1,227 +1,267 @@
-import { connectDB } from "@/lib/mongodb";
-import TokenInfo from "@/models/TokenInfo";
-import XAccount from "@/models/XAccount";
-import { logAction, logError } from "@/lib/log-action";
+import prisma from "@/lib/db";
 
-const CLIENT_ID = process.env.X_CLIENT_ID!;
-const CLIENT_SECRET = process.env.X_CLIENT_SECRET!;
-
-// Validar variables de entorno al cargar el módulo
-if (!CLIENT_ID || !CLIENT_SECRET) {
-  console.error("❌ Variables de entorno de Twitter no configuradas:");
-  console.error("X_CLIENT_ID:", CLIENT_ID ? "✅ Configurado" : "❌ Falta");
-  console.error(
-    "X_CLIENT_SECRET:",
-    CLIENT_SECRET ? "✅ Configurado" : "❌ Falta"
-  );
-}
-
-// Tiempo antes de la expiración para refrescar el token (15 minutos)
-const REFRESH_THRESHOLD = 15 * 60 * 1000;
-
-/**
- * Obtiene un token válido para una cuenta
- * Si el token está por expirar, lo refresca automáticamente
- */
-export async function getValidToken(accountId: string): Promise<string> {
-  await connectDB();
-
-  // Buscar información del token
-  let tokenInfo = await TokenInfo.findOne({ accountId });
-
-  // Si no existe información del token, obtenerla de la cuenta
-  if (!tokenInfo) {
-    const account = await XAccount.findById(accountId);
-    if (!account || !account.accessToken || !account.refreshToken) {
-      throw new Error("Cuenta no encontrada o sin tokens válidos");
-    }
-
-    // Crear nueva información de token (asumimos 2 horas de validez)
-    tokenInfo = await TokenInfo.create({
-      accountId,
-      accessToken: account.accessToken,
-      refreshToken: account.refreshToken,
-      expiresAt: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 horas
-      lastRefresh: new Date(),
-      isValid: true,
-    });
-  }
-
-  // Si el token está marcado como inválido, verificar si necesita re-autenticación
-  if (!tokenInfo.isValid) {
-    throw new Error("La cuenta necesita re-autenticación. Token inválido.");
-  }
-
-  // Verificar si el token necesita ser refrescado
-  if (needsRefresh(tokenInfo)) {
-    try {
-      tokenInfo = await refreshToken(tokenInfo);
-    } catch (error: any) {
-      logError("token_refresh_error", error);
-
-      // Si es un error de autorización, marcar la cuenta como que necesita re-autenticación
-      if (
-        error.message.includes("Unauthorized") ||
-        error.message.includes("authorization") ||
-        error.message.includes("Invalid refresh token")
-      ) {
-        await invalidateToken(accountId);
-        throw new Error(
-          "La cuenta necesita re-autenticación. Refresh token inválido."
-        );
-      }
-
-      throw new Error("Error al refrescar el token");
-    }
-  }
-
-  return tokenInfo.accessToken;
+export interface TokenValidation {
+  isValid: boolean;
+  needsRefresh: boolean;
+  expiresAt?: Date;
+  error?: string;
 }
 
 /**
- * Verifica si un token necesita ser refrescado
+ * Verifica si una cuenta necesita reautenticación
  */
-function needsRefresh(tokenInfo: any): boolean {
-  if (!tokenInfo.isValid) return true;
-
-  const now = new Date();
-  const expiresAt = new Date(tokenInfo.expiresAt);
-
-  // Refrescar si está a 15 minutos de expirar
-  return expiresAt.getTime() - now.getTime() < REFRESH_THRESHOLD;
-}
-
-/**
- * Refresca un token usando el refresh token
- */
-async function refreshToken(tokenInfo: any) {
+export async function needsReauth(accountId: string): Promise<boolean> {
   try {
-    logAction("token_refresh_start", { accountId: tokenInfo.accountId });
+    const account = await prisma.xAccount.findUnique({
+      where: { id: accountId },
+      include: { tokenInfo: true },
+    });
 
-    // Validar variables de entorno antes de proceder
-    if (!CLIENT_ID || !CLIENT_SECRET) {
-      throw new Error(
-        "Variables de entorno X_CLIENT_ID o X_CLIENT_SECRET no configuradas"
-      );
+    if (!account) {
+      return true; // Si no existe la cuenta, necesita reauth
     }
 
-    // Validar que tenemos refresh token
-    if (!tokenInfo.refreshToken) {
-      throw new Error("No hay refresh token disponible para esta cuenta");
+    // Si no tiene credenciales verificadas
+    if (!account.credentialsVerified) {
+      return true;
     }
 
-    // Preparar solicitud para refrescar el token
-    const tokenRequest = new URLSearchParams({
-      grant_type: "refresh_token",
-      refresh_token: tokenInfo.refreshToken,
-      client_id: CLIENT_ID,
-    });
+    // Si no tiene tokens
+    if (!account.ownOAuth2AccessToken && !account.ownBearerToken) {
+      return true;
+    }
 
-    // Credenciales en encabezado de autorización
-    const authHeader = `Basic ${Buffer.from(
-      `${CLIENT_ID}:${CLIENT_SECRET}`
-    ).toString("base64")}`;
+    // Verificar información del token
+    if (account.tokenInfo) {
+      if (!account.tokenInfo.isValid) {
+        return true;
+      }
 
-    logAction("token_refresh_request", {
-      accountId: tokenInfo.accountId,
-      clientId: CLIENT_ID,
-      hasRefreshToken: !!tokenInfo.refreshToken,
-    });
-
-    // Realizar solicitud a la API de X
-    const response = await fetch("https://api.twitter.com/2/oauth2/token", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        Authorization: authHeader,
-      },
-      body: tokenRequest,
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      logError("token_refresh_api_error", {
-        status: response.status,
-        statusText: response.statusText,
-        error: data.error,
-        errorDescription: data.error_description,
-        accountId: tokenInfo.accountId,
-      });
-
-      tokenInfo.isValid = false;
-      await tokenInfo.save();
-
-      // Mejorar el mensaje de error según el código de respuesta
-      if (response.status === 401) {
-        throw new Error(
-          "Unauthorized - El refresh token ha expirado o es inválido"
-        );
-      } else if (response.status === 403) {
-        throw new Error("Forbidden - No tienes permisos para esta operación");
-      } else {
-        throw new Error(
-          `Error al refrescar token: ${data.error_description || data.error}`
-        );
+      // Si el token ha expirado
+      if (
+        account.tokenInfo.expiresAt &&
+        account.tokenInfo.expiresAt < new Date()
+      ) {
+        return true;
       }
     }
 
-    // Actualizar información del token
-    tokenInfo.accessToken = data.access_token;
-    if (data.refresh_token) {
-      tokenInfo.refreshToken = data.refresh_token;
+    // Si tiene OAuth 2.0 y ha expirado
+    if (
+      account.oauth2TokenExpiresAt &&
+      account.oauth2TokenExpiresAt < new Date()
+    ) {
+      return true;
     }
-    tokenInfo.expiresAt = new Date(Date.now() + 2 * 60 * 60 * 1000); // 2 horas
-    tokenInfo.lastRefresh = new Date();
-    tokenInfo.isValid = true;
 
-    await tokenInfo.save();
+    return false;
+  } catch (error) {
+    console.error("Error verificando reauth:", error);
+    return true; // En caso de error, asumir que necesita reauth
+  }
+}
 
-    // Actualizar también la cuenta
-    await XAccount.findByIdAndUpdate(tokenInfo.accountId, {
-      accessToken: data.access_token,
-      refreshToken: data.refresh_token || tokenInfo.refreshToken,
+/**
+ * Valida un token de acceso
+ */
+export async function validateToken(
+  accountId: string
+): Promise<TokenValidation> {
+  try {
+    const account = await prisma.xAccount.findUnique({
+      where: { id: accountId },
+      include: { tokenInfo: true },
     });
 
-    logAction("token_refresh_success", { accountId: tokenInfo.accountId });
+    if (!account) {
+      return {
+        isValid: false,
+        needsRefresh: false,
+        error: "Cuenta no encontrada",
+      };
+    }
 
-    return tokenInfo;
+    // Verificar si tiene tokens
+    const hasOAuth2Token = !!account.ownOAuth2AccessToken;
+    const hasBearerToken = !!account.ownBearerToken;
+
+    if (!hasOAuth2Token && !hasBearerToken) {
+      return {
+        isValid: false,
+        needsRefresh: false,
+        error: "No hay tokens disponibles",
+      };
+    }
+
+    // Si tiene Bearer Token, es válido (no expira)
+    if (hasBearerToken) {
+      return {
+        isValid: true,
+        needsRefresh: false,
+      };
+    }
+
+    // Verificar OAuth 2.0 token
+    if (hasOAuth2Token) {
+      const now = new Date();
+      const expiresAt = account.oauth2TokenExpiresAt;
+
+      if (!expiresAt) {
+        return {
+          isValid: true,
+          needsRefresh: false,
+        };
+      }
+
+      const timeToExpiry = expiresAt.getTime() - now.getTime();
+      const needsRefresh = timeToExpiry < 15 * 60 * 1000; // Refrescar si expira en menos de 15 minutos
+
+      if (timeToExpiry <= 0) {
+        return {
+          isValid: false,
+          needsRefresh: true,
+          expiresAt,
+          error: "Token expirado",
+        };
+      }
+
+      return {
+        isValid: true,
+        needsRefresh,
+        expiresAt,
+      };
+    }
+
+    return {
+      isValid: false,
+      needsRefresh: false,
+      error: "Configuración de tokens inválida",
+    };
+  } catch (error: any) {
+    console.error("Error validando token:", error);
+    return {
+      isValid: false,
+      needsRefresh: false,
+      error: error.message || "Error desconocido",
+    };
+  }
+}
+
+/**
+ * Marca un token como inválido
+ */
+export async function invalidateToken(accountId: string): Promise<void> {
+  try {
+    await prisma.tokenInfo.upsert({
+      where: { accountId },
+      update: {
+        isValid: false,
+        lastRefresh: new Date(),
+      },
+      create: {
+        accountId,
+        isValid: false,
+        expiresAt: new Date(), // Ya expirado
+        lastRefresh: new Date(),
+      },
+    });
+
+    // También marcar en la cuenta que necesita reautenticación
+    await prisma.xAccount.update({
+      where: { id: accountId },
+      data: {
+        credentialsVerified: false,
+      },
+    });
   } catch (error) {
-    logError("token_refresh_error", error);
+    console.error("Error invalidando token:", error);
     throw error;
   }
 }
 
 /**
- * Invalida un token
+ * Actualiza la información de un token después de un refresh exitoso
  */
-export async function invalidateToken(accountId: string) {
-  await TokenInfo.findOneAndUpdate(
-    { accountId },
-    { isValid: false },
-    { new: true }
-  );
+export async function updateTokenInfo(
+  accountId: string,
+  expiresIn: number
+): Promise<void> {
+  try {
+    const expiresAt = new Date(Date.now() + expiresIn * 1000);
+
+    await prisma.tokenInfo.upsert({
+      where: { accountId },
+      update: {
+        isValid: true,
+        expiresAt,
+        lastRefresh: new Date(),
+      },
+      create: {
+        accountId,
+        isValid: true,
+        expiresAt,
+        lastRefresh: new Date(),
+      },
+    });
+  } catch (error) {
+    console.error("Error actualizando info de token:", error);
+    throw error;
+  }
 }
 
 /**
- * Verifica si una cuenta necesita re-autenticación
+ * Obtiene estadísticas de tokens
  */
-export async function needsReauth(accountId: string): Promise<boolean> {
-  await connectDB();
+export async function getTokenStats(): Promise<{
+  total: number;
+  valid: number;
+  expired: number;
+  needRefresh: number;
+}> {
+  try {
+    const accounts = await prisma.xAccount.findMany({
+      include: { tokenInfo: true },
+    });
 
-  const tokenInfo = await TokenInfo.findOne({ accountId });
+    const now = new Date();
+    let valid = 0;
+    let expired = 0;
+    let needRefresh = 0;
 
-  if (!tokenInfo) return true;
-  if (!tokenInfo.isValid) return true;
+    for (const account of accounts) {
+      if (!account.tokenInfo) {
+        continue;
+      }
 
-  // Si el token ha expirado hace más de 1 día, probablemente necesita re-auth
-  const now = new Date();
-  const expiresAt = new Date(tokenInfo.expiresAt);
-  const dayInMs = 24 * 60 * 60 * 1000;
+      if (!account.tokenInfo.isValid) {
+        expired++;
+        continue;
+      }
 
-  if (expiresAt.getTime() - now.getTime() < -dayInMs) {
-    return true;
+      if (account.tokenInfo.expiresAt && account.tokenInfo.expiresAt < now) {
+        expired++;
+        continue;
+      }
+
+      const timeToExpiry = account.tokenInfo.expiresAt
+        ? account.tokenInfo.expiresAt.getTime() - now.getTime()
+        : null;
+
+      if (timeToExpiry && timeToExpiry < 15 * 60 * 1000) {
+        needRefresh++;
+      } else {
+        valid++;
+      }
+    }
+
+    return {
+      total: accounts.length,
+      valid,
+      expired,
+      needRefresh,
+    };
+  } catch (error) {
+    console.error("Error obteniendo estadísticas de tokens:", error);
+    return { total: 0, valid: 0, expired: 0, needRefresh: 0 };
   }
-
-  return false;
 }

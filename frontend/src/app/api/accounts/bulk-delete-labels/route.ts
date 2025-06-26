@@ -1,12 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
-import XAccount from "@/models/XAccount";
+import prisma from "@/lib/db";
 
 // POST: Eliminar etiquetas específicas de todas las cuentas
 export async function POST(req: NextRequest) {
   try {
-    await connectDB();
-
     const { labels } = await req.json();
 
     if (!labels || !Array.isArray(labels) || labels.length === 0) {
@@ -17,8 +14,17 @@ export async function POST(req: NextRequest) {
     }
 
     // Buscar todas las cuentas que tengan al menos una de las etiquetas a eliminar
-    const accountsWithLabels = await XAccount.find({
-      labels: { $in: labels },
+    const accountsWithLabels = await prisma.xAccount.findMany({
+      where: {
+        labels: {
+          hasSome: labels,
+        },
+      },
+      select: {
+        id: true,
+        username: true,
+        labels: true,
+      },
     });
 
     if (accountsWithLabels.length === 0) {
@@ -31,26 +37,26 @@ export async function POST(req: NextRequest) {
     }
 
     // Eliminar las etiquetas especificadas de todas las cuentas
-    const updateResult = await XAccount.updateMany(
-      { labels: { $in: labels } },
-      { $pullAll: { labels: labels } }
-    );
+    const updatePromises = accountsWithLabels.map((account) => {
+      const newLabels = account.labels.filter(
+        (label) => !labels.includes(label)
+      );
+      return prisma.xAccount.update({
+        where: { id: account.id },
+        data: { labels: newLabels },
+        select: { id: true, username: true, labels: true },
+      });
+    });
 
-    // Obtener las cuentas modificadas para el reporte
-    const modifiedAccounts = await XAccount.find(
-      {
-        _id: { $in: accountsWithLabels.map((acc) => acc._id) },
-      },
-      { username: 1, labels: 1 }
-    );
+    const modifiedAccounts = await Promise.all(updatePromises);
 
     return NextResponse.json({
       success: true,
-      message: `Se eliminaron ${labels.length} etiqueta(s) de ${updateResult.modifiedCount} cuenta(s)`,
+      message: `Se eliminaron ${labels.length} etiqueta(s) de ${modifiedAccounts.length} cuenta(s)`,
       deletedLabels: labels,
-      modifiedCount: updateResult.modifiedCount,
+      modifiedCount: modifiedAccounts.length,
       affectedAccounts: modifiedAccounts.map((acc) => ({
-        id: acc._id,
+        id: acc.id,
         username: acc.username,
         remainingLabels: acc.labels,
       })),

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { randomBytes, createHash } from "crypto";
-import { connectDB } from "@/lib/mongodb";
-import XAccount from "@/models/XAccount";
+import { randomBytes } from "crypto";
+import prisma from "@/lib/db";
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,8 +13,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    await connectDB();
-    const account = await XAccount.findById(accountId);
+    const account = await prisma.xAccount.findUnique({
+      where: { id: accountId },
+    });
 
     if (!account) {
       return NextResponse.json(
@@ -131,10 +131,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Guardar el token secret temporalmente (en producción usar Redis o similar)
-    // Por ahora lo guardamos en la cuenta
-    await XAccount.findByIdAndUpdate(accountId, {
-      tempOAuthTokenSecret: oauth_token_secret,
+    // Guardar el token secret temporalmente usando Prisma
+    await prisma.xAccount.update({
+      where: { id: accountId },
+      data: {
+        tempOAuthTokenSecret: oauth_token_secret,
+      },
     });
 
     // Crear URL de autorización

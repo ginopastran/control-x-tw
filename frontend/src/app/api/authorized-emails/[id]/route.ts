@@ -1,16 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
-import AuthorizedEmail from "@/models/AuthorizedEmail";
+import prisma from "@/lib/db";
 import { getAuthUser } from "@/lib/auth";
 
 // DELETE: Eliminar correo autorizado (solo SUPERADMIN y solo si no ha sido usado)
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await connectDB();
-
     // Verificar autenticación y permisos
     const user = await getAuthUser(req);
     if (!user || user.role !== "SUPERADMIN") {
@@ -23,7 +20,7 @@ export async function DELETE(
       );
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     // Verificar que el ID sea válido
     if (!id) {
@@ -33,8 +30,10 @@ export async function DELETE(
       );
     }
 
-    // Buscar el correo autorizado
-    const authorizedEmail = await AuthorizedEmail.findById(id);
+    // Buscar el correo autorizado usando Prisma
+    const authorizedEmail = await prisma.authorizedEmail.findUnique({
+      where: { id },
+    });
 
     if (!authorizedEmail) {
       return NextResponse.json(
@@ -43,19 +42,21 @@ export async function DELETE(
       );
     }
 
-    // Verificar que no haya sido usado
-    if (authorizedEmail.used) {
+    // Verificar que no haya sido usado (no tiene accountId)
+    if (authorizedEmail.accountId) {
       return NextResponse.json(
         {
           error:
-            "No se puede eliminar un correo autorizado que ya ha sido usado",
+            "No se puede eliminar un correo autorizado que ya ha sido utilizado para crear una cuenta",
         },
         { status: 400 }
       );
     }
 
     // Eliminar el correo autorizado
-    await AuthorizedEmail.findByIdAndDelete(id);
+    await prisma.authorizedEmail.delete({
+      where: { id },
+    });
 
     return NextResponse.json({
       success: true,

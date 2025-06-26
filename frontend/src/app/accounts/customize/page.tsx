@@ -66,7 +66,12 @@ import {
   Heart,
   Users,
   RefreshCw,
+  Search,
+  X,
 } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface XAccount {
   _id: string;
@@ -129,6 +134,8 @@ export default function AccountCustomize() {
     follows: 0,
     unfollows: 0,
   });
+
+  const [searchQuery, setSearchQuery] = useState("");
 
   const router = useRouter();
 
@@ -243,60 +250,37 @@ export default function AccountCustomize() {
   const updateProfile = async () => {
     if (!selectedAccount) return;
 
+    setIsUpdating(true);
     try {
-      setIsUpdating(true);
-
-      console.log(
-        "🔍 Actualizando perfil para cuenta:",
-        selectedAccount.username
-      );
       console.log("🔍 Datos a enviar:", {
         name: profileName,
         description: profileDescription,
+        accountId: selectedAccount._id,
       });
 
       const response = await fetch(
         `/api/accounts/${selectedAccount._id}/profile`,
-        getAuthenticatedFetchOptions({
+        {
           method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             name: profileName,
             description: profileDescription,
           }),
-        })
-      );
-
-      console.log(
-        "🔍 Respuesta del servidor:",
-        response.status,
-        response.statusText
-      );
-
-      if (response.ok) {
-        toast.success("Perfil actualizado exitosamente");
-        fetchAccounts(); // Refrescar datos
-      } else {
-        const error = await response.json();
-        console.error("❌ Error del servidor:", error);
-        toast.error(
-          error.error || error.message || "Error al actualizar perfil"
-        );
-
-        // Si el error es por credenciales faltantes, mostrar información específica
-        if (error.missing && error.missing.length > 0) {
-          console.error(
-            "🔑 Credenciales faltantes para @" + selectedAccount.username + ":",
-            error.missing
-          );
-          toast.error(`Credenciales faltantes: ${error.missing.join(", ")}`);
         }
+      );
+
+      const data = await response.json();
+      console.log("🔍 Respuesta del servidor:", data);
+
+      if (!response.ok) {
+        throw new Error(data.error || "Error al actualizar perfil");
       }
-    } catch (error) {
-      console.error("Error al actualizar perfil:", error);
-      toast.error("Error al actualizar perfil");
+
+      toast.success("Perfil actualizado correctamente");
+    } catch (error: any) {
+      console.error("❌ Error:", error);
+      toast.error(error.message || "Error al actualizar perfil");
     } finally {
       setIsUpdating(false);
     }
@@ -406,30 +390,66 @@ export default function AccountCustomize() {
   const deleteTweet = async (tweetId: string) => {
     if (!selectedAccount || !tweetId) return;
 
+    setIsDeletingTweets(true);
     try {
-      setIsDeletingTweets(true);
+      console.log("🗑️ Eliminando tweet:", tweetId);
+
       const response = await fetch(
         `/api/accounts/${selectedAccount._id}/tweet/${tweetId}`,
-        getAuthenticatedFetchOptions({
+        {
           method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        })
+          headers: { "Content-Type": "application/json" },
+        }
       );
 
-      if (response.ok) {
-        const data = await response.json();
-        toast.success("Tweet eliminado exitosamente");
-        setTweetIdToDelete(""); // Limpiar el campo
-        fetchAccountStats(selectedAccount._id); // Refrescar stats
-      } else {
-        const error = await response.json();
-        toast.error(error.message || "Error al eliminar tweet");
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Error al eliminar el tweet");
       }
-    } catch (error) {
-      console.error("Error al eliminar tweet:", error);
-      toast.error("Error al eliminar tweet");
+
+      toast.success("Tweet eliminado correctamente");
+      setTweetIdToDelete("");
+
+      // Actualizar estadísticas
+      await fetchAccountStats(selectedAccount._id);
+    } catch (error: any) {
+      console.error("❌ Error eliminando tweet:", error);
+      toast.error(error.message || "Error al eliminar el tweet");
+    } finally {
+      setIsDeletingTweets(false);
+    }
+  };
+
+  const deleteRetweet = async (originalTweetId: string) => {
+    if (!selectedAccount || !originalTweetId) return;
+
+    setIsDeletingTweets(true);
+    try {
+      console.log("🔄 Eliminando retweet del tweet:", originalTweetId);
+
+      const response = await fetch(
+        `/api/accounts/${selectedAccount._id}/retweet/${originalTweetId}`,
+        {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Error al eliminar el retweet");
+      }
+
+      toast.success("Retweet eliminado correctamente");
+      setTweetIdToDelete("");
+
+      // Actualizar estadísticas
+      await fetchAccountStats(selectedAccount._id);
+    } catch (error: any) {
+      console.error("❌ Error eliminando retweet:", error);
+      toast.error(error.message || "Error al eliminar el retweet");
     } finally {
       setIsDeletingTweets(false);
     }
@@ -578,446 +598,739 @@ export default function AccountCustomize() {
     );
   }
 
+  // ✅ Función para filtrar cuentas por búsqueda
+  const filteredAccounts = accounts.filter(
+    (account) =>
+      account.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      account.developerTag.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      account.labels.some((label) =>
+        label.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+  );
+
   return (
-    <div className="container mx-auto p-6 space-y-8">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            Personalizar Cuentas
-          </h1>
-          <p className="text-muted-foreground">
-            Gestiona perfiles, elimina contenido y administra seguimientos de
-            las cuentas
-          </p>
-        </div>
-        <Badge variant="destructive" className="flex items-center gap-2">
-          <Shield className="h-4 w-4" />
-          SUPERADMIN ONLY
-        </Badge>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Selector de Cuenta */}
-        <Card className="lg:col-span-1">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5" />
-              Seleccionar Cuenta
-            </CardTitle>
-            <CardDescription>
-              Elige la cuenta que deseas personalizar
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="space-y-3">
-                {[...Array(3)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="h-16 bg-muted animate-pulse rounded-lg"
-                  />
-                ))}
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto p-4 lg:p-6">
+        {/* Header más compacto */}
+        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm mb-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="bg-gray-100 p-2 rounded-lg">
+                  <User className="h-5 w-5 text-gray-700" />
+                </div>
+                <h1 className="text-2xl font-semibold text-gray-900">
+                  Personalizar Cuentas
+                </h1>
               </div>
-            ) : (
-              <div className="space-y-2">
-                {accounts.map((account) => (
-                  <div
-                    key={account._id}
-                    className={`p-3 rounded-lg border cursor-pointer transition-all hover:shadow-md ${
-                      selectedAccount?._id === account._id
-                        ? "border-primary bg-primary/5"
-                        : "border-border hover:border-primary/50"
-                    }`}
-                    onClick={() => setSelectedAccount(account)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium">@{account.username}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {account.developerTag}
-                        </p>
-                      </div>
-                      {getStatusBadge(account)}
-                    </div>
-
-                    {account.profileInfo && (
-                      <div className="mt-2 text-xs text-muted-foreground">
-                        <p>
-                          Followers:{" "}
-                          {account.profileInfo.followers_count?.toLocaleString() ||
-                            0}
-                        </p>
-                        <p>
-                          Following:{" "}
-                          {account.profileInfo.following_count?.toLocaleString() ||
-                            0}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
+              <p className="text-gray-600 text-sm">
+                Gestiona perfiles, elimina contenido y administra seguimientos
+                de las cuentas
+              </p>
+            </div>
+            {userRole === "SUPERADMIN" && (
+              <Badge variant="destructive" className="text-xs">
+                SUPERADMIN ONLY
+              </Badge>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        {/* Panel de Personalización */}
-        <div className="lg:col-span-2 space-y-6">
-          {selectedAccount ? (
-            <>
-              {/* Información de la Cuenta */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <User className="h-5 w-5" />
-                    Información de la Cuenta: @{selectedAccount.username}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="text-center">
-                      <p className="text-2xl font-bold">{actionStats.tweets}</p>
-                      <p className="text-sm text-muted-foreground">Tweets</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-2xl font-bold">
-                        {actionStats.retweets}
-                      </p>
-                      <p className="text-sm text-muted-foreground">Retweets</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-2xl font-bold">
-                        {actionStats.follows}
-                      </p>
-                      <p className="text-sm text-muted-foreground">Follows</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-2xl font-bold">
-                        {selectedAccount.profileInfo?.followers_count || 0}
-                      </p>
-                      <p className="text-sm text-muted-foreground">Followers</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Editar Perfil */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Edit className="h-5 w-5" />
-                    Editar Perfil
-                  </CardTitle>
-                  <CardDescription>
-                    Actualiza la información del perfil de Twitter
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="profileName">Nombre del Perfil</Label>
-                      <Input
-                        id="profileName"
-                        value={profileName}
-                        onChange={(e) => setProfileName(e.target.value)}
-                        placeholder="Nombre a mostrar"
-                        maxLength={50}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="profileDescription">Descripción</Label>
-                      <Textarea
-                        id="profileDescription"
-                        value={profileDescription}
-                        onChange={(e) => setProfileDescription(e.target.value)}
-                        placeholder="Biografía del perfil"
-                        maxLength={160}
-                        rows={3}
-                      />
-                    </div>
-                  </div>
-
-                  <Button
-                    onClick={updateProfile}
-                    disabled={isUpdating}
-                    className="w-full"
-                  >
-                    {isUpdating ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Actualizando...
-                      </>
-                    ) : (
-                      <>
-                        <Save className="h-4 w-4 mr-2" />
-                        Actualizar Perfil
-                      </>
-                    )}
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* Subir Imágenes */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Camera className="h-5 w-5" />
-                    Imágenes del Perfil
-                  </CardTitle>
-                  <CardDescription>
-                    Actualiza la foto de perfil y la portada
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Foto de Perfil */}
-                    <div className="space-y-2">
-                      <Label htmlFor="profileImage">Foto de Perfil</Label>
-                      <Input
-                        id="profileImage"
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) =>
-                          setProfileImage(e.target.files?.[0] || null)
-                        }
-                      />
-                      <Button
-                        onClick={() => uploadMedia("profile")}
-                        disabled={!profileImage || isUploadingMedia}
-                        variant="outline"
-                        className="w-full"
-                      >
-                        {isUploadingMedia ? (
-                          <>
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            Subiendo...
-                          </>
-                        ) : (
-                          <>
-                            <ImageIcon className="h-4 w-4 mr-2" />
-                            Subir Foto de Perfil
-                          </>
-                        )}
-                      </Button>
-                    </div>
-
-                    {/* Portada */}
-                    <div className="space-y-2">
-                      <Label htmlFor="bannerImage">Portada</Label>
-                      <Input
-                        id="bannerImage"
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) =>
-                          setBannerImage(e.target.files?.[0] || null)
-                        }
-                      />
-                      <Button
-                        onClick={() => uploadMedia("banner")}
-                        disabled={!bannerImage || isUploadingMedia}
-                        variant="outline"
-                        className="w-full"
-                      >
-                        {isUploadingMedia ? (
-                          <>
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            Subiendo...
-                          </>
-                        ) : (
-                          <>
-                            <Image className="h-4 w-4 mr-2" />
-                            Subir Portada
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Gestión de Tweets */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <MessageSquare className="h-5 w-5" />
-                    Eliminar Tweets Específicos
-                  </CardTitle>
-                  <CardDescription>
-                    Elimina un tweet o retweet específico por ID o URL
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {/* Tweet ID Input */}
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="tweetId">ID del Tweet o URL</Label>
-                      <Input
-                        id="tweetId"
-                        value={tweetIdToDelete}
-                        onChange={(e) => setTweetIdToDelete(e.target.value)}
-                        placeholder="Ej: 1234567890123456789 o https://x.com/usuario/status/1234567890123456789"
-                        className="font-mono"
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        Puedes pegar la URL completa del tweet o solo el ID
-                      </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button
-                            variant="destructive"
-                            disabled={
-                              isDeletingTweets || !tweetIdToDelete.trim()
-                            }
-                            className="w-full"
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Eliminar Tweet
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>
-                              ¿Eliminar este tweet?
-                            </AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Esta acción eliminará el tweet con ID:{" "}
-                              <code className="bg-muted px-1 py-0.5 rounded text-xs">
-                                {extractTweetId(tweetIdToDelete)}
-                              </code>
-                              <br />
-                              Esta acción no se puede deshacer.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() =>
-                                deleteTweet(extractTweetId(tweetIdToDelete))
-                              }
-                              className="bg-destructive text-destructive-foreground"
-                            >
-                              Confirmar Eliminación
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-
-                      <Button
-                        variant="outline"
-                        onClick={() => setTweetIdToDelete("")}
-                        disabled={!tweetIdToDelete.trim()}
-                      >
-                        <RefreshCw className="h-4 w-4 mr-2" />
-                        Limpiar
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Ejemplo de uso */}
-                  <div className="bg-muted p-4 rounded-lg">
-                    <h4 className="font-medium mb-2 flex items-center gap-2">
-                      <MessageSquare className="h-4 w-4" />
-                      Cómo encontrar el ID del tweet:
-                    </h4>
-                    <ul className="text-sm text-muted-foreground space-y-1">
-                      <li>• Copia la URL del tweet desde X.com</li>
-                      <li>
-                        • El ID está al final: x.com/usuario/status/[ID_AQUÍ]
-                      </li>
-                      <li>• También puedes pegar la URL completa</li>
-                    </ul>
-                  </div>
-
-                  {isDeletingTweets && (
-                    <div className="flex items-center justify-center py-4">
-                      <Loader2 className="h-6 w-6 animate-spin mr-2" />
-                      <span>Eliminando tweet...</span>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Gestión de Seguimientos */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Users className="h-5 w-5" />
-                    Gestión de Seguimientos
-                  </CardTitle>
-                  <CardDescription>
-                    Seguir y dejar de seguir usuarios
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Seguir Usuario */}
-                    <div className="space-y-2">
-                      <Label htmlFor="followUsername">Seguir Usuario</Label>
-                      <div className="flex gap-2">
-                        <Input
-                          id="followUsername"
-                          value={followUsername}
-                          onChange={(e) => setFollowUsername(e.target.value)}
-                          placeholder="username (sin @)"
-                        />
-                        <Button
-                          onClick={() => manageFollow("follow", followUsername)}
-                          disabled={!followUsername || isManagingFollows}
-                        >
-                          <UserPlus className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-
-                    {/* Dejar de Seguir */}
-                    <div className="space-y-2">
-                      <Label htmlFor="unfollowUsername">Dejar de Seguir</Label>
-                      <div className="flex gap-2">
-                        <Input
-                          id="unfollowUsername"
-                          value={unfollowUsername}
-                          onChange={(e) => setUnfollowUsername(e.target.value)}
-                          placeholder="username (sin @)"
-                        />
-                        <Button
-                          onClick={() =>
-                            manageFollow("unfollow", unfollowUsername)
-                          }
-                          disabled={!unfollowUsername || isManagingFollows}
-                          variant="destructive"
-                        >
-                          <UserMinus className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {isManagingFollows && (
-                    <div className="flex items-center justify-center py-4">
-                      <Loader2 className="h-6 w-6 animate-spin mr-2" />
-                      <span>Procesando...</span>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </>
-          ) : (
-            <Card>
-              <CardContent className="py-16 text-center">
-                <User className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-lg font-semibold mb-2">
-                  Selecciona una Cuenta
-                </h3>
-                <p className="text-muted-foreground">
-                  Elige una cuenta de la lista para comenzar a personalizarla
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          {/* Panel izquierdo - Lista de cuentas más compacta */}
+          <div className="lg:col-span-1">
+            <Card className="bg-white border border-gray-200 shadow-sm h-fit">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2 mb-3">
+                  <Users className="h-4 w-4 text-gray-700" />
+                  <CardTitle className="text-lg">Seleccionar Cuenta</CardTitle>
+                </div>
+                <p className="text-sm text-gray-600">
+                  Elige la cuenta que deseas personalizar
                 </p>
+
+                {/* ✅ Buscador de cuentas */}
+                <div className="relative mt-3">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    placeholder="Buscar cuenta..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 pr-10 border-gray-300 focus:border-gray-400 focus:ring-gray-400 text-sm"
+                  />
+                  {searchQuery && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSearchQuery("")}
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0 hover:bg-gray-100"
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  )}
+                </div>
+
+                {/* ✅ Contador de resultados */}
+                {searchQuery && (
+                  <div className="text-xs text-gray-500 mt-1">
+                    {filteredAccounts.length} de {accounts.length} cuentas
+                  </div>
+                )}
+              </CardHeader>
+
+              <CardContent className="p-0">
+                <ScrollArea className="h-[400px]">
+                  <div className="space-y-1 p-3">
+                    {filteredAccounts.length === 0 ? (
+                      <div className="text-center py-8 text-gray-500">
+                        <Search className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                        <p className="text-sm">
+                          {searchQuery
+                            ? "No se encontraron cuentas"
+                            : "No hay cuentas disponibles"}
+                        </p>
+                      </div>
+                    ) : (
+                      filteredAccounts.map((account) => (
+                        <div
+                          key={account._id}
+                          className={`
+                            flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-all duration-200
+                            ${
+                              selectedAccount?._id === account._id
+                                ? "bg-gray-100 border-2 border-gray-300"
+                                : "hover:bg-gray-50 border-2 border-transparent"
+                            }
+                          `}
+                          onClick={() => {
+                            setSelectedAccount(account);
+                            fetchAccountStats(account._id);
+                          }}
+                        >
+                          <Avatar className="w-8 h-8 border border-gray-200">
+                            <AvatarFallback className="bg-gray-100 text-gray-700 font-semibold text-sm">
+                              {account.username[0].toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-sm text-gray-900 truncate">
+                              @{account.username}
+                            </div>
+                            <div className="text-xs text-gray-500 truncate">
+                              {account.developerTag}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <div
+                              className={`w-2 h-2 rounded-full ${
+                                account.status === "active"
+                                  ? "bg-green-500"
+                                  : account.status === "suspended"
+                                  ? "bg-red-500"
+                                  : account.status === "limited"
+                                  ? "bg-yellow-500"
+                                  : "bg-gray-400"
+                              }`}
+                            />
+                            {selectedAccount?._id === account._id && (
+                              <div className="w-1 h-4 bg-gray-400 rounded-full ml-1" />
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </ScrollArea>
               </CardContent>
             </Card>
-          )}
+          </div>
+
+          {/* Panel derecho - Información de la cuenta */}
+          <div className="lg:col-span-2">
+            {selectedAccount ? (
+              <div className="space-y-4">
+                {/* Información básica más compacta */}
+                <Card className="bg-white border border-gray-200 shadow-sm">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="w-12 h-12 border border-gray-200">
+                        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
+                          {selectedAccount.username[0].toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <CardTitle className="text-xl">
+                          Información de la Cuenta: @{selectedAccount.username}
+                        </CardTitle>
+                        <p className="text-sm text-gray-600">
+                          {selectedAccount.developerTag}
+                        </p>
+                      </div>
+                    </div>
+                  </CardHeader>
+
+                  <CardContent className="pt-0">
+                    {/* Estadísticas más compactas */}
+                    <div className="grid grid-cols-4 gap-3 mb-4">
+                      {[
+                        {
+                          label: "Tweets",
+                          value: actionStats.tweets,
+                          icon: MessageSquare,
+                        },
+                        {
+                          label: "Retweets",
+                          value: actionStats.retweets,
+                          icon: Repeat,
+                        },
+                        {
+                          label: "Follows",
+                          value: actionStats.follows,
+                          icon: Users,
+                        },
+                        {
+                          label: "Followers",
+                          value:
+                            selectedAccount.profileInfo?.followers_count || 0,
+                          icon: Heart,
+                        },
+                      ].map((stat, index) => (
+                        <div
+                          key={index}
+                          className="text-center p-3 bg-gray-50 rounded-lg"
+                        >
+                          <stat.icon className="h-5 w-5 mx-auto mb-1 text-gray-600" />
+                          <div className="text-lg font-bold text-gray-900">
+                            {stat.value}
+                          </div>
+                          <div className="text-xs text-gray-600">
+                            {stat.label}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Resto de los componentes con spacing reducido */}
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                  {/* Editar Perfil */}
+                  <Card className="bg-white border border-gray-200 shadow-sm">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <Edit className="h-5 w-5 text-blue-600" />
+                        Editar Perfil
+                      </CardTitle>
+                      <p className="text-sm text-gray-600">
+                        Actualiza la información del perfil de Twitter
+                      </p>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="grid grid-cols-1 gap-3">
+                        <div>
+                          <Label
+                            htmlFor="profile-name"
+                            className="text-sm font-medium"
+                          >
+                            Nombre del Perfil
+                          </Label>
+                          <Input
+                            id="profile-name"
+                            placeholder="Nombre a mostrar"
+                            value={profileName}
+                            onChange={(e) => setProfileName(e.target.value)}
+                            className="mt-1 border-gray-300 focus:border-gray-400 text-sm"
+                          />
+                        </div>
+                        <div>
+                          <Label
+                            htmlFor="profile-bio"
+                            className="text-sm font-medium"
+                          >
+                            Descripción
+                          </Label>
+                          <Textarea
+                            id="profile-bio"
+                            placeholder="Biografía del perfil"
+                            value={profileDescription}
+                            onChange={(e) =>
+                              setProfileDescription(e.target.value)
+                            }
+                            rows={3}
+                            className="mt-1 border-gray-300 focus:border-gray-400 text-sm resize-none"
+                          />
+                        </div>
+                      </div>
+                      <Button
+                        onClick={updateProfile}
+                        disabled={isUpdating}
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm"
+                      >
+                        {isUpdating ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Actualizando...
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="h-4 w-4 mr-2" />
+                            Actualizar Perfil
+                          </>
+                        )}
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  {/* Imágenes del Perfil */}
+                  <Card className="bg-white border border-gray-200 shadow-sm">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <ImageIcon className="h-5 w-5 text-green-600" />
+                        Imágenes del Perfil
+                      </CardTitle>
+                      <p className="text-sm text-gray-600">
+                        Actualiza la foto de perfil y la portada
+                      </p>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label className="text-sm font-medium">
+                            Foto de Perfil
+                          </Label>
+                          <div className="mt-2 flex flex-col items-center gap-2">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  setProfileImage(file);
+                                }
+                              }}
+                            />
+                            <Button
+                              onClick={() => {
+                                const input = document.createElement("input");
+                                input.type = "file";
+                                input.accept = "image/*";
+                                input.onchange = (e) => {
+                                  const file = (e.target as HTMLInputElement)
+                                    ?.files?.[0];
+                                  if (file) {
+                                    setProfileImage(file);
+                                  }
+                                };
+                                input.click();
+                              }}
+                              variant="outline"
+                              size="sm"
+                              className="w-full border-gray-300 text-sm"
+                            >
+                              <Camera className="h-4 w-4 mr-2" />
+                              Elegir Imagen
+                            </Button>
+                            {profileImage && (
+                              <div className="text-xs text-gray-600 truncate w-full text-center">
+                                {profileImage.name}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <div>
+                          <Label className="text-sm font-medium">Portada</Label>
+                          <div className="mt-2 flex flex-col items-center gap-2">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  setBannerImage(file);
+                                }
+                              }}
+                            />
+                            <Button
+                              onClick={() => {
+                                const input = document.createElement("input");
+                                input.type = "file";
+                                input.accept = "image/*";
+                                input.onchange = (e) => {
+                                  const file = (e.target as HTMLInputElement)
+                                    ?.files?.[0];
+                                  if (file) {
+                                    setBannerImage(file);
+                                  }
+                                };
+                                input.click();
+                              }}
+                              variant="outline"
+                              size="sm"
+                              className="w-full border-gray-300 text-sm"
+                            >
+                              <ImageIcon className="h-4 w-4 mr-2" />
+                              Elegir Portada
+                            </Button>
+                            {bannerImage && (
+                              <div className="text-xs text-gray-600 truncate w-full text-center">
+                                {bannerImage.name}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button
+                          onClick={() => uploadMedia("profile")}
+                          disabled={!profileImage || isUploadingMedia}
+                          variant="outline"
+                          size="sm"
+                          className="border-gray-300 text-sm"
+                        >
+                          {isUploadingMedia ? (
+                            <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                          ) : (
+                            <Upload className="h-4 w-4 mr-1" />
+                          )}
+                          Subir Foto
+                        </Button>
+                        <Button
+                          onClick={() => uploadMedia("banner")}
+                          disabled={!bannerImage || isUploadingMedia}
+                          variant="outline"
+                          size="sm"
+                          className="border-gray-300 text-sm"
+                        >
+                          {isUploadingMedia ? (
+                            <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                          ) : (
+                            <Upload className="h-4 w-4 mr-1" />
+                          )}
+                          Subir Portada
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Gestión de Tweets */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <MessageSquare className="h-5 w-5" />
+                      Eliminar Contenido Específico
+                    </CardTitle>
+                    <CardDescription>
+                      Elimina tweets o retweets específicos por ID o URL
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <Tabs defaultValue="tweet" className="w-full">
+                      <TabsList className="grid w-full grid-cols-2 bg-gray-100">
+                        <TabsTrigger
+                          value="tweet"
+                          className="data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                        >
+                          <MessageSquare className="h-4 w-4 mr-2" />
+                          Eliminar Tweet
+                        </TabsTrigger>
+                        <TabsTrigger
+                          value="retweet"
+                          className="data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                        >
+                          <Repeat className="h-4 w-4 mr-2" />
+                          Eliminar Retweet
+                        </TabsTrigger>
+                      </TabsList>
+
+                      {/* Tab para eliminar Tweet */}
+                      <TabsContent value="tweet" className="space-y-4 mt-6">
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                          <div className="flex items-center gap-2 mb-2">
+                            <MessageSquare className="h-4 w-4 text-red-600" />
+                            <h4 className="font-medium text-red-900">
+                              Eliminar Tweet Propio
+                            </h4>
+                          </div>
+                          <p className="text-sm text-red-700">
+                            Solo puedes eliminar tweets que hayas publicado con
+                            esta cuenta.
+                          </p>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="tweetId">ID del Tweet o URL</Label>
+                          <Input
+                            id="tweetId"
+                            value={tweetIdToDelete}
+                            onChange={(e) => setTweetIdToDelete(e.target.value)}
+                            placeholder="Ej: 1234567890123456789 o https://x.com/usuario/status/1234567890123456789"
+                            className="font-mono"
+                          />
+                          <p className="text-xs text-muted-foreground">
+                            Puedes pegar la URL completa del tweet o solo el ID
+                          </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="destructive"
+                                disabled={
+                                  isDeletingTweets || !tweetIdToDelete.trim()
+                                }
+                                className="w-full"
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Eliminar Tweet
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>
+                                  ¿Eliminar este tweet?
+                                </AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Esta acción eliminará permanentemente el tweet
+                                  con ID:{" "}
+                                  <code className="bg-muted px-1 py-0.5 rounded text-xs">
+                                    {extractTweetId(tweetIdToDelete)}
+                                  </code>
+                                  <br />
+                                  Esta acción no se puede deshacer.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() =>
+                                    deleteTweet(extractTweetId(tweetIdToDelete))
+                                  }
+                                  className="bg-destructive text-destructive-foreground"
+                                >
+                                  Confirmar Eliminación
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+
+                          <Button
+                            variant="outline"
+                            onClick={() => setTweetIdToDelete("")}
+                            disabled={!tweetIdToDelete.trim()}
+                          >
+                            <RefreshCw className="h-4 w-4 mr-2" />
+                            Limpiar
+                          </Button>
+                        </div>
+                      </TabsContent>
+
+                      {/* Tab para eliminar Retweet */}
+                      <TabsContent value="retweet" className="space-y-4 mt-6">
+                        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Repeat className="h-4 w-4 text-orange-600" />
+                            <h4 className="font-medium text-orange-900">
+                              Eliminar Retweet
+                            </h4>
+                          </div>
+                          <p className="text-sm text-orange-700">
+                            Elimina un retweet que hayas hecho. Ingresa el ID
+                            del tweet original que retweeteaste.
+                          </p>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="retweetId">
+                            ID del Tweet Original o URL
+                          </Label>
+                          <Input
+                            id="retweetId"
+                            value={tweetIdToDelete}
+                            onChange={(e) => setTweetIdToDelete(e.target.value)}
+                            placeholder="Ej: 1234567890123456789 o https://x.com/usuario/status/1234567890123456789"
+                            className="font-mono"
+                          />
+                          <p className="text-xs text-muted-foreground">
+                            Ingresa el ID del tweet original que retweeteaste,
+                            no el ID de tu retweet
+                          </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="destructive"
+                                disabled={
+                                  isDeletingTweets || !tweetIdToDelete.trim()
+                                }
+                                className="w-full bg-orange-600 hover:bg-orange-700"
+                              >
+                                <Repeat className="h-4 w-4 mr-2" />
+                                Eliminar Retweet
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>
+                                  ¿Eliminar este retweet?
+                                </AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Esta acción eliminará tu retweet del tweet con
+                                  ID:{" "}
+                                  <code className="bg-muted px-1 py-0.5 rounded text-xs">
+                                    {extractTweetId(tweetIdToDelete)}
+                                  </code>
+                                  <br />
+                                  El tweet original no será afectado.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() =>
+                                    deleteRetweet(
+                                      extractTweetId(tweetIdToDelete)
+                                    )
+                                  }
+                                  className="bg-orange-600 text-white hover:bg-orange-700"
+                                >
+                                  Confirmar Eliminación
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+
+                          <Button
+                            variant="outline"
+                            onClick={() => setTweetIdToDelete("")}
+                            disabled={!tweetIdToDelete.trim()}
+                          >
+                            <RefreshCw className="h-4 w-4 mr-2" />
+                            Limpiar
+                          </Button>
+                        </div>
+                      </TabsContent>
+                    </Tabs>
+
+                    {/* Ejemplo de uso - común para ambos */}
+                    <div className="bg-muted p-4 rounded-lg">
+                      <h4 className="font-medium mb-2 flex items-center gap-2">
+                        <MessageSquare className="h-4 w-4" />
+                        Cómo encontrar el ID del tweet:
+                      </h4>
+                      <ul className="text-sm text-muted-foreground space-y-1">
+                        <li>• Copia la URL del tweet desde X.com</li>
+                        <li>
+                          • El ID está al final: x.com/usuario/status/[ID_AQUÍ]
+                        </li>
+                        <li>• También puedes pegar la URL completa</li>
+                        <li>
+                          • Para retweets: usa el ID del tweet original, no del
+                          retweet
+                        </li>
+                      </ul>
+                    </div>
+
+                    {isDeletingTweets && (
+                      <div className="flex items-center justify-center py-4">
+                        <Loader2 className="h-6 w-6 animate-spin mr-2" />
+                        <span>Procesando eliminación...</span>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Gestión de Seguimientos */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Users className="h-5 w-5" />
+                      Gestión de Seguimientos
+                    </CardTitle>
+                    <CardDescription>
+                      Seguir y dejar de seguir usuarios
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Seguir Usuario */}
+                      <div className="space-y-2">
+                        <Label htmlFor="followUsername">Seguir Usuario</Label>
+                        <div className="flex gap-2">
+                          <Input
+                            id="followUsername"
+                            value={followUsername}
+                            onChange={(e) => setFollowUsername(e.target.value)}
+                            placeholder="username (sin @)"
+                          />
+                          <Button
+                            onClick={() =>
+                              manageFollow("follow", followUsername)
+                            }
+                            disabled={!followUsername || isManagingFollows}
+                          >
+                            <UserPlus className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* Dejar de Seguir */}
+                      <div className="space-y-2">
+                        <Label htmlFor="unfollowUsername">
+                          Dejar de Seguir
+                        </Label>
+                        <div className="flex gap-2">
+                          <Input
+                            id="unfollowUsername"
+                            value={unfollowUsername}
+                            onChange={(e) =>
+                              setUnfollowUsername(e.target.value)
+                            }
+                            placeholder="username (sin @)"
+                          />
+                          <Button
+                            onClick={() =>
+                              manageFollow("unfollow", unfollowUsername)
+                            }
+                            disabled={!unfollowUsername || isManagingFollows}
+                            variant="destructive"
+                          >
+                            <UserMinus className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {isManagingFollows && (
+                      <div className="flex items-center justify-center py-4">
+                        <Loader2 className="h-6 w-6 animate-spin mr-2" />
+                        <span>Procesando...</span>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            ) : (
+              <Card className="bg-white border border-gray-200 shadow-sm">
+                <CardContent className="text-center py-12">
+                  <div className="bg-gray-50 p-6 rounded-full mx-auto mb-4 w-fit">
+                    <User className="h-12 w-12 text-gray-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    Selecciona una Cuenta
+                  </h3>
+                  <p className="text-gray-600 max-w-md mx-auto">
+                    Elige una cuenta de la lista para comenzar a personalizarla
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
         </div>
       </div>
     </div>

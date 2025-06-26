@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
-import User from "@/models/User";
-import { getTokenFromRequest } from "@/lib/auth";
-import { verifyToken } from "@/lib/auth";
+import prisma from "@/lib/db";
+import { getTokenFromRequest, verifyToken } from "@/lib/auth";
+
+export const runtime = "nodejs";
 
 export async function GET(req: NextRequest) {
   try {
@@ -15,18 +15,23 @@ export async function GET(req: NextRequest) {
     }
 
     // Verificar token
-    const payload = verifyToken(token);
+    const payload = await verifyToken(token);
 
     // Si el token no es válido, el usuario no está autenticado
     if (!payload) {
       return NextResponse.json({ user: null }, { status: 200 });
     }
 
-    // Conectar a la base de datos
-    await connectDB();
-
     // Buscar usuario por ID
-    const user = await User.findById(payload.id).select("-password");
+    const user = await prisma.user.findUnique({
+      where: { id: payload.id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+      },
+    });
 
     // Si no se encuentra el usuario, el token no es válido
     if (!user) {
@@ -34,17 +39,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Devolver información del usuario
-    return NextResponse.json(
-      {
-        user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-        },
-      },
-      { status: 200 }
-    );
+    return NextResponse.json({ user }, { status: 200 });
   } catch (error) {
     console.error("Error al obtener usuario actual:", error);
     return NextResponse.json(

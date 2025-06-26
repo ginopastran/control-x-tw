@@ -1,11 +1,33 @@
 # Variables de entorno para Control-X
 
-# MongoDB
-MONGODB_URI="mongodb+srv://usuario:contraseña@cluster.mongodb.net/controlxapp?retryWrites=true&w=majority"
+# Base de datos PostgreSQL (Neon)
+DATABASE_URL="postgresql://usuario:contraseña@endpoint.neon.tech:5432/database?sslmode=require"
 
-# API de X (Twitter)
-X_CLIENT_ID="TuClientID"
-X_CLIENT_SECRET="TuClientSecret"
+# JWT Secret (generar con: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))")
+JWT_SECRET="tu_jwt_secret_muy_seguro_aqui"
+
+# URL de la aplicación
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+
+# Credenciales de Twitter/X para cuentas compartidas (opcional)
+TWITTER_API_KEY="tu_api_key"
+TWITTER_API_SECRET="tu_api_secret"
+TWITTER_BEARER_TOKEN="tu_bearer_token"
+TWITTER_ACCESS_TOKEN="tu_access_token"
+TWITTER_ACCESS_TOKEN_SECRET="tu_access_token_secret"
+
+# OAuth 2.0 de Twitter/X (opcional)
+X_CLIENT_ID="tu_client_id"
+X_CLIENT_SECRET="tu_client_secret"
+
+# API Key para worker/cron jobs
+WORKER_API_KEY="tu_worker_api_key_segura"
+
+# Configuración de entorno
+NODE_ENV="development"
+
+# Configuración de Prisma
+PRISMA_GENERATE_DATAPROXY="false"
 
 # URL de la API (para callbacks de OAuth)
 # Para desarrollo local, esto no es necesario

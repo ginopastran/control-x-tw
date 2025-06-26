@@ -35,7 +35,7 @@ export default function ConditionalNavbar() {
     };
 
     fetchUser();
-  }, [pathname]); // Refetch cuando cambie la ruta
+  }, [pathname]);
 
   // Solo ocultar navbar en páginas de login y register
   const hiddenPaths = ["/login", "/register"];
@@ -46,8 +46,9 @@ export default function ConditionalNavbar() {
   }
 
   return (
-    <div className="pt-20">
+    <>
       <NavbarComponent user={user} loading={loading} />
-    </div>
+      <div className="h-16" /> {/* Spacer para la navbar fija */}
+    </>
   );
 }

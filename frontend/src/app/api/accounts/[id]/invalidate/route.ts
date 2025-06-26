@@ -1,15 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
-import { invalidateToken } from "@/services/tokenService";
+import prisma from "@/lib/db";
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await connectDB();
-
-    const accountId = params.id;
+    const { id: accountId } = await params;
 
     if (!accountId) {
       return NextResponse.json(
@@ -18,8 +15,40 @@ export async function POST(
       );
     }
 
-    // Invalidar el token
-    await invalidateToken(accountId);
+    // Verificar que la cuenta existe
+    const account = await prisma.xAccount.findUnique({
+      where: { id: accountId },
+    });
+
+    if (!account) {
+      return NextResponse.json(
+        { error: "Cuenta no encontrada" },
+        { status: 404 }
+      );
+    }
+
+    // Invalidar el token en la tabla TokenInfo
+    await prisma.tokenInfo.upsert({
+      where: { accountId },
+      update: {
+        isValid: false,
+        lastRefresh: new Date(),
+      },
+      create: {
+        accountId,
+        isValid: false,
+        expiresAt: new Date(), // Ya expirado
+        lastRefresh: new Date(),
+      },
+    });
+
+    // También marcar en la cuenta que necesita reautenticación
+    await prisma.xAccount.update({
+      where: { id: accountId },
+      data: {
+        credentialsVerified: false,
+      },
+    });
 
     return NextResponse.json({
       success: true,

@@ -1,4 +1,4 @@
-import jwt from "jsonwebtoken";
+import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -7,34 +7,41 @@ export interface TokenPayload {
   id: string;
   email: string;
   role: string;
+  [key: string]: any;
 }
 
 // Clave secreta para firmar el token
-const JWT_SECRET = process.env.JWT_SECRET || "jwt_super_secret_key_control_x";
+const JWT_SECRET = new TextEncoder().encode(
+  process.env.JWT_SECRET || "jwt_super_secret_key_control_x"
+);
 
 // Duración del token: 7 días
 const TOKEN_EXPIRATION = "7d";
 
 // Generar token JWT
-export function generateToken(payload: TokenPayload): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: TOKEN_EXPIRATION });
+export async function generateToken(payload: TokenPayload): Promise<string> {
+  return await new SignJWT(payload)
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime(TOKEN_EXPIRATION)
+    .sign(JWT_SECRET);
 }
 
 // Verificar token JWT
-export function verifyToken(token: string): TokenPayload | null {
+export async function verifyToken(token: string): Promise<TokenPayload | null> {
   try {
     // Debug: log del token (solo en desarrollo)
     if (process.env.NODE_ENV === "development") {
       console.log("Verificando token:", token ? "Token presente" : "No token");
     }
 
-    const payload = jwt.verify(token, JWT_SECRET) as TokenPayload;
+    const { payload } = await jwtVerify(token, JWT_SECRET);
 
     if (process.env.NODE_ENV === "development") {
       console.log("Token válido para usuario:", payload.email);
     }
 
-    return payload;
+    return payload as TokenPayload;
   } catch (error) {
     if (process.env.NODE_ENV === "development") {
       console.log(
@@ -55,11 +62,20 @@ export function setAuthCookieInResponse(
     name: "auth_token",
     value: token,
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: false, // Cambiar a false en desarrollo
     maxAge: 60 * 60 * 24 * 7, // 7 días en segundos
     path: "/",
     sameSite: "lax",
   });
+
+  // También establecer headers adicionales para asegurar que se guarde
+  res.headers.set(
+    "Set-Cookie",
+    `auth_token=${token}; Path=/; Max-Age=${
+      60 * 60 * 24 * 7
+    }; HttpOnly; SameSite=lax`
+  );
+
   return res;
 }
 
@@ -85,7 +101,7 @@ export async function getAuthToken(): Promise<string | undefined> {
 export async function getTokenPayload(): Promise<TokenPayload | null> {
   const token = await getAuthToken();
   if (!token) return null;
-  return verifyToken(token);
+  return await verifyToken(token);
 }
 
 // Verificar si el usuario tiene el rol requerido (solo para componentes de servidor)
@@ -113,8 +129,10 @@ export async function isAdmin(): Promise<boolean> {
 }
 
 // Obtener usuario autenticado desde una NextRequest (para API routes)
-export function getAuthUser(req: NextRequest): TokenPayload | null {
+export async function getAuthUser(
+  req: NextRequest
+): Promise<TokenPayload | null> {
   const token = getTokenFromRequest(req);
   if (!token) return null;
-  return verifyToken(token);
+  return await verifyToken(token);
 }
