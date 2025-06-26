@@ -1,50 +1,54 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
-import { getTokenFromRequest, verifyToken } from "@/lib/auth";
+import { verifyToken } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
 export async function GET(req: NextRequest) {
   try {
-    // Obtener token de la solicitud
-    const token = getTokenFromRequest(req);
+    // Debug: log todas las cookies
+    const allCookies = req.cookies.getAll();
+    console.log("🍪 Todas las cookies:", allCookies);
 
-    // Si no hay token, el usuario no está autenticado
+    // Intentar obtener token de múltiples fuentes
+    let token = req.cookies.get("auth_token")?.value;
+
+    // Debug: log del token
+    console.log("🔑 Cookie de auth:", token ? "Token presente" : "undefined");
+
+    // Si no hay token en cookies, intentar desde Authorization header
     if (!token) {
-      return NextResponse.json({ user: null }, { status: 200 });
+      const authHeader = req.headers.get("authorization");
+      if (authHeader?.startsWith("Bearer ")) {
+        token = authHeader.substring(7);
+        console.log("🔑 Token desde header Authorization");
+      }
     }
 
-    // Verificar token
+    if (!token) {
+      console.log("❌ No se encontró token en cookies ni headers");
+      return NextResponse.json({ user: null });
+    }
+
+    // ✅ VERIFICAR EL TOKEN DIRECTAMENTE (no usar getTokenPayload sin parámetros)
     const payload = await verifyToken(token);
 
-    // Si el token no es válido, el usuario no está autenticado
     if (!payload) {
-      return NextResponse.json({ user: null }, { status: 200 });
+      console.log("❌ Token inválido");
+      return NextResponse.json({ user: null });
     }
 
-    // Buscar usuario por ID
-    const user = await prisma.user.findUnique({
-      where: { id: payload.id },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
+    console.log("✅ Usuario autenticado:", payload.email);
+
+    return NextResponse.json({
+      user: {
+        id: payload.id,
+        name: payload.name || payload.email, // Fallback al email si no hay name
+        email: payload.email,
+        role: payload.role,
       },
     });
-
-    // Si no se encuentra el usuario, el token no es válido
-    if (!user) {
-      return NextResponse.json({ user: null }, { status: 200 });
-    }
-
-    // Devolver información del usuario
-    return NextResponse.json({ user }, { status: 200 });
   } catch (error) {
-    console.error("Error al obtener usuario actual:", error);
-    return NextResponse.json(
-      { error: "Error interno del servidor" },
-      { status: 500 }
-    );
+    console.error("❌ Error en /api/auth/me:", error);
+    return NextResponse.json({ user: null });
   }
 }

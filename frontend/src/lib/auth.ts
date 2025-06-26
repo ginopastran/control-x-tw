@@ -58,29 +58,36 @@ export function setAuthCookieInResponse(
   res: NextResponse,
   token: string
 ): NextResponse {
-  // Detectar si estamos en producción (Vercel)
+  // Detectar entorno según el GitHub issue
   const isProduction = process.env.NODE_ENV === "production";
-  const isVercel = process.env.VERCEL === "1";
+  const isVercel = process.env.VERCEL === "1" || process.env.VERCEL_URL;
 
-  res.cookies.set({
+  console.log("🔧 Configurando cookie:", { isProduction, isVercel });
+
+  // ✅ Configuración basada en el GitHub issue #36487
+  const cookieConfig = {
     name: "auth_token",
     value: token,
     httpOnly: true,
-    secure: isProduction || isVercel, // ✅ HTTPS en producción
-    maxAge: 60 * 60 * 24 * 7, // 7 días en segundos
+    secure: isProduction, // true en HTTPS (Vercel)
+    maxAge: 60 * 60 * 24 * 7, // 7 días
     path: "/",
-    sameSite: isProduction || isVercel ? "none" : "lax", // ✅ Crucial para Vercel
-    domain: isVercel ? undefined : undefined, // Dejar que el navegador lo maneje
-  });
+    // ✅ CRÍTICO: sameSite "None" en producción según GitHub issue
+    sameSite: isProduction ? ("none" as const) : ("lax" as const),
+  };
 
-  // Header de respaldo para asegurar compatibilidad
-  const cookieValue = `auth_token=${token}; Path=/; Max-Age=${
+  res.cookies.set(cookieConfig);
+
+  // ✅ Header de respaldo según recomendaciones del GitHub issue
+  const cookieString = `auth_token=${token}; Path=/; Max-Age=${
     60 * 60 * 24 * 7
-  }; HttpOnly; ${isProduction || isVercel ? "Secure; " : ""}SameSite=${
-    isProduction || isVercel ? "None" : "Lax"
+  }; HttpOnly${isProduction ? "; Secure" : ""}; SameSite=${
+    isProduction ? "None" : "Lax"
   }`;
 
-  res.headers.set("Set-Cookie", cookieValue);
+  res.headers.set("Set-Cookie", cookieString);
+
+  console.log("🍪 Cookie establecida:", cookieString);
 
   return res;
 }
@@ -99,8 +106,19 @@ export function getTokenFromRequest(req: NextRequest): string | null {
 
 // Obtener token de la cookie (solo para componentes de servidor)
 export async function getAuthToken(): Promise<string | undefined> {
-  const cookieStore = await cookies();
-  return cookieStore.get("auth_token")?.value;
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("auth_token")?.value;
+
+    if (process.env.NODE_ENV === "development") {
+      console.log("🔍 getAuthToken:", token ? "Token encontrado" : "No token");
+    }
+
+    return token;
+  } catch (error) {
+    console.error("Error al obtener token:", error);
+    return undefined;
+  }
 }
 
 // Obtener payload del token desde las cookies (solo para componentes de servidor)
