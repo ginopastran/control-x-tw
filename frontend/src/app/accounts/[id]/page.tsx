@@ -81,6 +81,10 @@ export default function EditAccountPage() {
   const [checkingUsername, setCheckingUsername] = useState(false);
   const [saving, setSaving] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  // Estado para cache busting de imágenes
+  const [imageUpdateTimestamp, setImageUpdateTimestamp] = useState(Date.now());
+
   const router = useRouter();
 
   useEffect(() => {
@@ -296,7 +300,7 @@ export default function EditAccountPage() {
                 <div className="flex items-center space-x-4">
                   <Avatar className="h-16 w-16">
                     <AvatarImage
-                      src={`https://unavatar.io/twitter/${account.username}`}
+                      src={`https://unavatar.io/twitter/${account.username}?v=${imageUpdateTimestamp}`}
                     />
                     <AvatarFallback>
                       {account.username?.charAt(0)?.toUpperCase() || "?"}

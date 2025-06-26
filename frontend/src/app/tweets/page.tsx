@@ -176,6 +176,9 @@ export default function TweetsPage() {
   const [scheduledActions, setScheduledActions] = useState<any[]>([]);
   const [showScheduledActions, setShowScheduledActions] = useState(false);
 
+  // Estado para cache busting de imágenes
+  const [imageUpdateTimestamp, setImageUpdateTimestamp] = useState(Date.now());
+
   useEffect(() => {
     fetchAccounts();
     // ✅ Comentar fetch problemático por ahora
@@ -1348,7 +1351,7 @@ export default function TweetsPage() {
                     <div className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
                       <Avatar className="w-8 h-8 border border-gray-200 flex-shrink-0">
                         <AvatarImage
-                          src={`https://unavatar.io/twitter/${account.username}`}
+                          src={`https://unavatar.io/twitter/${account.username}?v=${imageUpdateTimestamp}`}
                           alt={`@${account.username}`}
                         />
                         <AvatarFallback className="bg-gray-600 text-white text-sm font-semibold">
@@ -2523,7 +2526,7 @@ Cada línea será un tweet separado`}
                                 <div className="flex items-center gap-2 flex-1 min-w-0">
                                   <Avatar className="w-10 h-10 border border-gray-200">
                                     <AvatarImage
-                                      src={`https://unavatar.io/twitter/${account?.username}`}
+                                      src={`https://unavatar.io/twitter/${account?.username}?v=${imageUpdateTimestamp}`}
                                       alt={`@${account?.username}`}
                                     />
                                     <AvatarFallback className="bg-gradient-to-br from-purple-500 to-violet-600 text-white text-lg font-semibold">
@@ -2684,7 +2687,7 @@ Cada línea será un tweet separado`}
                               />
                               <Avatar className="w-10 h-10 border border-gray-200">
                                 <AvatarImage
-                                  src={`https://unavatar.io/twitter/${account.username}`}
+                                  src={`https://unavatar.io/twitter/${account.username}?v=${imageUpdateTimestamp}`}
                                   alt={`@${account.username}`}
                                 />
                                 <AvatarFallback className="bg-gradient-to-br from-purple-500 to-violet-600 text-white text-lg font-semibold">

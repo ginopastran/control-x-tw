@@ -163,6 +163,9 @@ export default function AccountsPage() {
     useState(false);
   const [isTestDialogOpen, setIsTestDialogOpen] = useState(false);
 
+  // Estado para cache busting de imágenes
+  const [imageUpdateTimestamp, setImageUpdateTimestamp] = useState(Date.now());
+
   const router = useRouter();
 
   useEffect(() => {
@@ -705,7 +708,7 @@ export default function AccountsPage() {
                           <div className="flex items-center gap-3">
                             <Avatar className="w-10 h-10 border border-gray-200">
                               <AvatarImage
-                                src={`https://unavatar.io/twitter/${account.username}`}
+                                src={`https://unavatar.io/twitter/${account.username}?v=${imageUpdateTimestamp}`}
                                 alt={`@${account.username}`}
                               />
                               <AvatarFallback className="bg-gray-100 text-gray-700 font-semibold">

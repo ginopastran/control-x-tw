@@ -116,6 +116,7 @@ export default function AccountCustomize() {
   const [isUploadingMedia, setIsUploadingMedia] = useState(false);
   const [isDeletingTweets, setIsDeletingTweets] = useState(false);
   const [isManagingFollows, setIsManagingFollows] = useState(false);
+  const [imageUpdateTimestamp, setImageUpdateTimestamp] = useState(Date.now());
 
   // Form states
   const [profileName, setProfileName] = useState("");
@@ -322,6 +323,10 @@ export default function AccountCustomize() {
             type === "profile" ? "Foto de perfil" : "Portada"
           } actualizada exitosamente`
         );
+
+        // Actualizar timestamp para forzar recarga de imágenes
+        setImageUpdateTimestamp(Date.now());
+
         fetchAccounts(); // Refrescar datos
         if (type === "profile") setProfileImage(null);
         if (type === "banner") setBannerImage(null);
@@ -679,7 +684,7 @@ export default function AccountCustomize() {
                         >
                           <Avatar className="w-8 h-8 border border-gray-200">
                             <AvatarImage
-                              src={`https://unavatar.io/twitter/${account.username}`}
+                              src={`https://unavatar.io/twitter/${account.username}?v=${imageUpdateTimestamp}`}
                               alt={`@${account.username}`}
                             />
                             <AvatarFallback className="bg-gray-100 text-gray-700 font-semibold text-sm">
@@ -729,7 +734,7 @@ export default function AccountCustomize() {
                     <div className="flex items-center gap-3">
                       <Avatar className="w-12 h-12 border border-gray-200">
                         <AvatarImage
-                          src={`https://unavatar.io/twitter/${selectedAccount.username}`}
+                          src={`https://unavatar.io/twitter/${selectedAccount.username}?v=${imageUpdateTimestamp}`}
                           alt={`@${selectedAccount.username}`}
                         />
                         <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
@@ -751,7 +756,7 @@ export default function AccountCustomize() {
                     <div className="flex items-center gap-3 mb-4 p-3 bg-gray-50 rounded-lg">
                       <Avatar className="w-10 h-10 border border-gray-200">
                         <AvatarImage
-                          src={`https://unavatar.io/twitter/${selectedAccount.username}`}
+                          src={`https://unavatar.io/twitter/${selectedAccount.username}?v=${imageUpdateTimestamp}`}
                           alt={`@${selectedAccount.username}`}
                         />
                         <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">

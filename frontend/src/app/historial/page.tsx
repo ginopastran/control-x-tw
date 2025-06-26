@@ -86,6 +86,9 @@ export default function HistorialPage() {
   const [dateRange, setDateRange] = useState<string>("7"); // días
   const [itemsPerPage] = useState(50);
 
+  // Estado para cache busting de imágenes
+  const [imageUpdateTimestamp, setImageUpdateTimestamp] = useState(Date.now());
+
   useEffect(() => {
     fetchHistory();
     fetchStats();
@@ -571,7 +574,7 @@ export default function HistorialPage() {
                             <div className="flex items-center gap-2">
                               <Avatar className="w-6 h-6 border border-gray-200">
                                 <AvatarImage
-                                  src={`https://unavatar.io/twitter/${action.username}`}
+                                  src={`https://unavatar.io/twitter/${action.username}?v=${imageUpdateTimestamp}`}
                                   alt={`@${action.username}`}
                                 />
                                 <AvatarFallback className="bg-gray-100 text-gray-700 text-xs font-semibold">
