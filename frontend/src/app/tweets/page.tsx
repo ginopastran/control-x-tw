@@ -72,6 +72,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface XAccount {
   _id: string; // ✅ Ahora requerido después de normalización
@@ -95,14 +96,10 @@ interface BatchTweet {
 
 // Filtros predefinidos basados en las etiquetas reales de las cuentas
 const LABEL_FILTERS = {
+  genero: ["varón", "mujer"],
   edad: ["14-18", "18-25", "25-65", "65+"],
-  ideologia: [
-    "anti todo pero afín",
-    "kakardo",
-    "lukardo",
-    "kukarko",
-    "peroncho tradicional",
-  ],
+  clase: ["baja", "media", "media-baja", "alta"],
+  ideologia: ["kukardo", "peroncho-tradicional", "anti-todo pero afín"],
   situacion: [
     "estudia y trabaja",
     "estudiante secundaria",
@@ -111,6 +108,7 @@ const LABEL_FILTERS = {
     "trabaja",
     "jubilado",
   ],
+  profesion: ["-", "estudiante", "trabajador", "profesional", "jubilado"],
 };
 
 export default function TweetsPage() {
@@ -142,13 +140,19 @@ export default function TweetsPage() {
   // Nuevos estados para filtros y búsqueda
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilters, setSelectedFilters] = useState<{
+    genero: string[];
     edad: string[];
+    clase: string[];
     ideologia: string[];
     situacion: string[];
+    profesion: string[];
   }>({
+    genero: [],
     edad: [],
+    clase: [],
     ideologia: [],
     situacion: [],
+    profesion: [],
   });
 
   // Estados para modo batch de tweets
@@ -374,132 +378,62 @@ export default function TweetsPage() {
         label.toLowerCase().includes(searchQuery.toLowerCase())
       );
 
-    // DEBUG: Log para entender las etiquetas
-    if (selectedFilters.ideologia.length > 0 && account.labels.length > 0) {
-      console.log(`🔍 DEBUG Account @${account.username}:`, {
-        labels: account.labels,
-        selectedFilters: selectedFilters.ideologia,
-        normalizedLabels: account.labels.map((l) => l.toLowerCase().trim()),
-      });
-    }
-
-    // Filtro por etiquetas - formato real: "Ideología: lukardo", "Situación: Estudiante secundaria"
+    // Filtro por etiquetas - formato real: "categoría:valor"
     const matchesFilters = Object.entries(selectedFilters).every(
       ([category, values]) => {
         if (values.length === 0) return true;
+
         // Para cada filtro seleccionado, debe haber al menos una coincidencia
         return values.some((filterValue) =>
           account.labels.some((label) => {
             const normalizedLabel = label.toLowerCase().trim();
             const normalizedFilter = filterValue.toLowerCase().trim();
 
-            // DEBUG: Log detallado de comparaciones
-            if (category === "ideologia" && values.length > 0) {
-              console.log(
-                `  🔍 Comparing "${normalizedLabel}" with filter "${normalizedFilter}"`
-              );
+            // Buscar etiquetas con formato "categoría:valor"
+            if (normalizedLabel.includes(":")) {
+              const [labelCategory, labelValue] = normalizedLabel
+                .split(":")
+                .map((s) => s.trim());
+
+              // Verificar si la categoría coincide
+              if (labelCategory === category.toLowerCase()) {
+                // Coincidencia exacta del valor
+                if (labelValue === normalizedFilter) {
+                  return true;
+                }
+
+                // Coincidencia parcial del valor
+                if (
+                  labelValue.includes(normalizedFilter) ||
+                  normalizedFilter.includes(labelValue)
+                ) {
+                  return true;
+                }
+
+                // Manejo especial para ideología (variaciones de kukardo, lukardo, etc.)
+                if (category === "ideologia") {
+                  const similarity = calculateSimilarity(
+                    labelValue,
+                    normalizedFilter
+                  );
+                  if (similarity >= 0.8) {
+                    return true;
+                  }
+                }
+              }
             }
 
-            // Formato real: "ideología: lukardo" -> buscar por categoría y valor
-            const categoryMappings = {
-              edad: "edad:",
-              ideologia: "ideología:",
-              situacion: "situación:",
-            };
-
-            const categoryPrefix =
-              categoryMappings[category as keyof typeof categoryMappings];
-
-            if (categoryPrefix && normalizedLabel.startsWith(categoryPrefix)) {
-              const labelValue = normalizedLabel
-                .substring(categoryPrefix.length)
-                .trim();
-
-              // Coincidencia exacta
-              if (labelValue === normalizedFilter) {
-                if (category === "ideologia" && values.length > 0) {
-                  console.log(
-                    `    ✅ Exact match! "${labelValue}" === "${normalizedFilter}"`
-                  );
-                }
-                return true;
-              }
-
-              // Coincidencia parcial
-              if (
-                labelValue.includes(normalizedFilter) ||
-                normalizedFilter.includes(labelValue)
-              ) {
-                if (category === "ideologia" && values.length > 0) {
-                  console.log(
-                    `    ✅ Partial match! "${labelValue}" includes "${normalizedFilter}"`
-                  );
-                }
-                return true;
-              }
-
-              // Coincidencia por similitud (para casos como "kukardo" vs "kukarko")
-              const similarity = calculateSimilarity(
-                labelValue,
-                normalizedFilter
-              );
-              if (similarity >= 0.7) {
-                if (category === "ideologia" && values.length > 0) {
-                  console.log(
-                    `    ✅ Similarity match! "${labelValue}" vs "${normalizedFilter}" (${(
-                      similarity * 100
-                    ).toFixed(1)}%)`
-                  );
-                }
-                return true;
-              }
-
-              if (category === "ideologia" && values.length > 0) {
-                console.log(
-                  `    ❌ No match! "${labelValue}" vs "${normalizedFilter}" (${(
-                    similarity * 100
-                  ).toFixed(1)}%)`
-                );
-              }
-
-              return false;
-            }
-
-            // También buscar coincidencias directas (para compatibilidad)
-            const directMatch = normalizedLabel.includes(normalizedFilter);
-            const similarityMatch = areStringsSimilar(
-              normalizedLabel,
-              normalizedFilter
+            // También buscar coincidencias directas (para compatibilidad con etiquetas sin formato)
+            return (
+              normalizedLabel.includes(normalizedFilter) ||
+              areStringsSimilar(normalizedLabel, normalizedFilter, 0.8)
             );
-
-            if (category === "ideologia" && values.length > 0) {
-              console.log(
-                `    🔍 Direct match: "${normalizedLabel}" includes "${normalizedFilter}" = ${directMatch}`
-              );
-              if (similarityMatch) {
-                console.log(
-                  `    ✅ Similarity direct match! "${normalizedLabel}" vs "${normalizedFilter}"`
-                );
-              }
-            }
-
-            return directMatch || similarityMatch;
           })
         );
       }
     );
 
-    const finalResult = matchesSearch && matchesFilters;
-
-    if (selectedFilters.ideologia.length > 0) {
-      console.log(`🎯 Account @${account.username} final result:`, {
-        matchesSearch,
-        matchesFilters,
-        finalResult,
-      });
-    }
-
-    return finalResult;
+    return matchesSearch && matchesFilters;
   });
 
   // Función para obtener todas las cuentas que ya tienen tweets asignados
@@ -1009,9 +943,12 @@ export default function TweetsPage() {
   // Función para limpiar todos los filtros
   const clearAllFilters = () => {
     setSelectedFilters({
+      genero: [],
       edad: [],
+      clase: [],
       ideologia: [],
       situacion: [],
+      profesion: [],
     });
     setSearchQuery("");
   };
@@ -1211,10 +1148,16 @@ export default function TweetsPage() {
                     key={`filter-category-${category}`}
                     className="space-y-2"
                   >
-                    {" "}
-                    {/* ✅ Key única */}
                     <Label className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      {category}
+                      {category === "ideologia"
+                        ? "Ideología"
+                        : category === "profesion"
+                        ? "Profesión"
+                        : category === "situacion"
+                        ? "Situación"
+                        : category === "genero"
+                        ? "Género"
+                        : category}
                     </Label>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -1236,13 +1179,32 @@ export default function TweetsPage() {
                                   ? "s"
                                   : ""
                               }`
-                            : `Seleccionar ${category}`}
+                            : `Seleccionar ${
+                                category === "ideologia"
+                                  ? "ideología"
+                                  : category === "profesion"
+                                  ? "profesión"
+                                  : category === "situacion"
+                                  ? "situación"
+                                  : category === "genero"
+                                  ? "género"
+                                  : category
+                              }`}
                           <ChevronDown className="h-4 w-4 opacity-50" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="w-56 bg-white border-gray-200">
                         <DropdownMenuLabel className="text-gray-700">
-                          Filtros de {category}
+                          Filtros de{" "}
+                          {category === "ideologia"
+                            ? "ideología"
+                            : category === "profesion"
+                            ? "profesión"
+                            : category === "situacion"
+                            ? "situación"
+                            : category === "genero"
+                            ? "género"
+                            : category}
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         {options.map((option) => (
@@ -1355,7 +1317,7 @@ export default function TweetsPage() {
               >
                 {filteredAccounts.map((account, index) => (
                   <div
-                    key={`account-${account._id}`} // ✅ Key única fija
+                    key={`account-${account._id}`}
                     className={`
                       flex items-center space-x-3 p-3 rounded-lg border-2 cursor-pointer 
                       transition-all duration-300 hover:shadow-md group
@@ -1370,7 +1332,6 @@ export default function TweetsPage() {
                       animationDelay: `${index * 50}ms`,
                     }}
                     onClick={() => {
-                      // ✅ Manejar click directamente en el div
                       if (selectedAccounts.includes(account._id)) {
                         setSelectedAccounts(
                           selectedAccounts.filter((id) => id !== account._id)
@@ -1385,9 +1346,15 @@ export default function TweetsPage() {
                       className="pointer-events-none"
                     />
                     <div className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
-                      <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
-                        {account.username[0].toUpperCase()}
-                      </div>
+                      <Avatar className="w-8 h-8 border border-gray-200 flex-shrink-0">
+                        <AvatarImage
+                          src={`https://unavatar.io/twitter/${account.username}`}
+                          alt={`@${account.username}`}
+                        />
+                        <AvatarFallback className="bg-gray-600 text-white text-sm font-semibold">
+                          {account.username[0].toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
                       <div className="min-w-0 flex-1 overflow-hidden">
                         <p className="text-sm font-medium truncate text-gray-900">
                           @{account.username}
@@ -1396,7 +1363,7 @@ export default function TweetsPage() {
                           <div className="flex flex-wrap gap-1 mt-1 max-w-full overflow-hidden">
                             {account.labels.slice(0, 3).map((label, idx) => (
                               <Badge
-                                key={`label-${account._id}-${idx}`} // ✅ Key única
+                                key={`label-${account._id}-${idx}`}
                                 variant="outline"
                                 className="text-xs px-1 py-0 truncate max-w-24 border-gray-300 text-gray-600"
                               >
@@ -2554,9 +2521,15 @@ Cada línea será un tweet separado`}
                                 className="flex items-center justify-between bg-white rounded-lg px-3 py-2 border border-blue-200"
                               >
                                 <div className="flex items-center gap-2 flex-1 min-w-0">
-                                  <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
-                                    {account?.username[0].toUpperCase()}
-                                  </div>
+                                  <Avatar className="w-10 h-10 border border-gray-200">
+                                    <AvatarImage
+                                      src={`https://unavatar.io/twitter/${account?.username}`}
+                                      alt={`@${account?.username}`}
+                                    />
+                                    <AvatarFallback className="bg-gradient-to-br from-purple-500 to-violet-600 text-white text-lg font-semibold">
+                                      {account?.username[0].toUpperCase()}
+                                    </AvatarFallback>
+                                  </Avatar>
                                   <span className="font-medium text-sm text-gray-800 truncate">
                                     @{account?.username}
                                   </span>
@@ -2709,9 +2682,15 @@ Cada línea será un tweet separado`}
                                 checked={isAssigned}
                                 className="pointer-events-none"
                               />
-                              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-violet-600 rounded-full flex items-center justify-center text-white text-lg font-semibold">
-                                {account.username[0].toUpperCase()}
-                              </div>
+                              <Avatar className="w-10 h-10 border border-gray-200">
+                                <AvatarImage
+                                  src={`https://unavatar.io/twitter/${account.username}`}
+                                  alt={`@${account.username}`}
+                                />
+                                <AvatarFallback className="bg-gradient-to-br from-purple-500 to-violet-600 text-white text-lg font-semibold">
+                                  {account.username[0].toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
                             </div>
 
                             <div className="flex-1 min-w-0">

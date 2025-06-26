@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -63,13 +63,10 @@ interface XAccount {
   oauth2Scopes: string[];
 }
 
-export default function EditAccountPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  // Usar React.use() para unwrap la Promise
-  const { id } = use(params);
+export default function EditAccountPage() {
+  // Usar useParams() en lugar de use(params)
+  const params = useParams();
+  const id = params?.id as string;
 
   const [account, setAccount] = useState<XAccount | null>(null);
   const [loading, setLoading] = useState(true);
@@ -106,7 +103,9 @@ export default function EditAccountPage({
       }
     };
 
-    fetchAccount();
+    if (id) {
+      fetchAccount();
+    }
   }, [id]);
 
   // Verificar disponibilidad del username

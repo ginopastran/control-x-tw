@@ -708,6 +708,10 @@ export default function AccountCustomize() {
                           }}
                         >
                           <Avatar className="w-8 h-8 border border-gray-200">
+                            <AvatarImage
+                              src={`https://unavatar.io/twitter/${account.username}`}
+                              alt={`@${account.username}`}
+                            />
                             <AvatarFallback className="bg-gray-100 text-gray-700 font-semibold text-sm">
                               {account.username[0].toUpperCase()}
                             </AvatarFallback>
@@ -754,6 +758,10 @@ export default function AccountCustomize() {
                   <CardHeader className="pb-3">
                     <div className="flex items-center gap-3">
                       <Avatar className="w-12 h-12 border border-gray-200">
+                        <AvatarImage
+                          src={`https://unavatar.io/twitter/${selectedAccount.username}`}
+                          alt={`@${selectedAccount.username}`}
+                        />
                         <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
                           {selectedAccount.username[0].toUpperCase()}
                         </AvatarFallback>
@@ -770,6 +778,27 @@ export default function AccountCustomize() {
                   </CardHeader>
 
                   <CardContent className="pt-0">
+                    <div className="flex items-center gap-3 mb-4 p-3 bg-gray-50 rounded-lg">
+                      <Avatar className="w-10 h-10 border border-gray-200">
+                        <AvatarImage
+                          src={`https://unavatar.io/twitter/${selectedAccount.username}`}
+                          alt={`@${selectedAccount.username}`}
+                        />
+                        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
+                          {selectedAccount.username[0].toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <div className="font-semibold text-gray-900">
+                          @{selectedAccount.username}
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          {selectedAccount.profileInfo?.name ||
+                            "Sin nombre personalizado"}
+                        </div>
+                      </div>
+                    </div>
+
                     {/* Estadísticas más compactas */}
                     <div className="grid grid-cols-4 gap-3 mb-4">
                       {[
@@ -1319,7 +1348,11 @@ export default function AccountCustomize() {
               <Card className="bg-white border border-gray-200 shadow-sm">
                 <CardContent className="text-center py-12">
                   <div className="bg-gray-50 p-6 rounded-full mx-auto mb-4 w-fit">
-                    <User className="h-12 w-12 text-gray-400" />
+                    <Avatar className="w-16 h-16">
+                      <AvatarFallback className="bg-gray-100 text-gray-400">
+                        <User className="h-8 w-8" />
+                      </AvatarFallback>
+                    </Avatar>
                   </div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">
                     Selecciona una Cuenta
