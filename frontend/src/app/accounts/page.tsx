@@ -501,6 +501,32 @@ export default function AccountsPage() {
                 <Palette className="h-4 w-4 mr-2" />
                 Personalizar
               </Button>
+              {!mutualFollowCampaign?.isRunning &&
+                debugData &&
+                debugData.accounts.filter(
+                  (acc) => acc.useOwnCredentials && acc.credentialsVerified
+                ).length >= 2 && (
+                  <Button
+                    onClick={() => setIsMutualFollowDialogOpen(true)}
+                    variant="outline"
+                    size="sm"
+                    className="border-green-200 text-green-700 hover:bg-green-50"
+                  >
+                    <Users className="h-4 w-4 mr-2" />
+                    Follow Mutuo
+                  </Button>
+                )}
+              {mutualFollowCampaign?.isRunning && (
+                <Button
+                  onClick={cancelMutualFollowCampaign}
+                  variant="outline"
+                  size="sm"
+                  className="border-red-200 text-red-700 hover:bg-red-50"
+                >
+                  <XCircle className="h-4 w-4 mr-2" />
+                  Cancelar Campaña
+                </Button>
+              )}
               <Button
                 onClick={() => setIsAddAccountModalOpen(true)}
                 className="bg-gray-900 hover:bg-gray-800 text-white"
@@ -1045,18 +1071,19 @@ export default function AccountsPage() {
           open={isMutualFollowDialogOpen}
           onOpenChange={setIsMutualFollowDialogOpen}
         >
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
             <DialogHeader>
               <div className="flex items-center gap-3 mb-4">
-                <div className="bg-green-100 dark:bg-green-900 p-3 rounded-full">
-                  <Users className="h-6 w-6 text-green-600 dark:text-green-400" />
+                <div className="bg-gradient-to-br from-green-100 to-emerald-100 p-3 rounded-full">
+                  <Users className="h-6 w-6 text-green-600" />
                 </div>
                 <div>
-                  <DialogTitle className="text-xl">
-                    Campaña de Follow Mutuo
+                  <DialogTitle className="text-xl font-bold text-gray-900">
+                    🤝 Campaña de Follow Mutuo
                   </DialogTitle>
-                  <p className="text-sm text-muted-foreground">
-                    Hacer que todas las cuentas se sigan entre ellas
+                  <p className="text-sm text-gray-600">
+                    Hacer que todas las cuentas verificadas se sigan entre ellas
+                    automáticamente
                   </p>
                 </div>
               </div>
@@ -1064,20 +1091,20 @@ export default function AccountsPage() {
 
             <div className="space-y-6">
               {/* Información de la campaña */}
-              <Card className="border-0 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
+              <Card className="border-2 border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50">
                 <CardContent className="p-6">
-                  <h4 className="font-semibold mb-4 flex items-center gap-2">
+                  <h4 className="font-bold mb-4 flex items-center gap-2 text-blue-900">
                     <BarChart3 className="h-5 w-5 text-blue-600" />
-                    Detalles de la Campaña
+                    📊 Resumen de la Campaña
                   </h4>
 
                   {debugData && (
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <span className="text-muted-foreground">
-                          Cuentas participantes:
-                        </span>
-                        <div className="font-semibold text-lg text-blue-600">
+                    <div className="grid grid-cols-2 gap-6">
+                      <div className="bg-white rounded-lg p-4 border border-blue-200">
+                        <div className="text-gray-600 text-sm mb-1">
+                          🏢 Cuentas Participantes
+                        </div>
+                        <div className="font-bold text-2xl text-blue-600">
                           {
                             debugData.accounts.filter(
                               (acc) =>
@@ -1085,12 +1112,15 @@ export default function AccountsPage() {
                             ).length
                           }
                         </div>
+                        <div className="text-xs text-gray-500">
+                          cuentas verificadas
+                        </div>
                       </div>
-                      <div>
-                        <span className="text-muted-foreground">
-                          Total de follows:
-                        </span>
-                        <div className="font-semibold text-lg text-green-600">
+                      <div className="bg-white rounded-lg p-4 border border-green-200">
+                        <div className="text-gray-600 text-sm mb-1">
+                          👥 Total de Follows
+                        </div>
+                        <div className="font-bold text-2xl text-green-600">
                           {debugData.accounts.filter(
                             (acc) =>
                               acc.useOwnCredentials && acc.credentialsVerified
@@ -1101,21 +1131,30 @@ export default function AccountsPage() {
                             ).length -
                               1)}
                         </div>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">
-                          Duración estimada:
-                        </span>
-                        <div className="font-semibold text-purple-600">
-                          5 días
+                        <div className="text-xs text-gray-500">
+                          acciones programadas
                         </div>
                       </div>
-                      <div>
-                        <span className="text-muted-foreground">
-                          Límites API:
-                        </span>
-                        <div className="font-semibold text-orange-600">
-                          50/15min
+                      <div className="bg-white rounded-lg p-4 border border-purple-200">
+                        <div className="text-gray-600 text-sm mb-1">
+                          ⏱️ Duración
+                        </div>
+                        <div className="font-bold text-2xl text-purple-600">
+                          4 días
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          distribución inteligente
+                        </div>
+                      </div>
+                      <div className="bg-white rounded-lg p-4 border border-orange-200">
+                        <div className="text-gray-600 text-sm mb-1">
+                          🔒 Límites API
+                        </div>
+                        <div className="font-bold text-lg text-orange-600">
+                          50/día
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          respeta límites de Twitter
                         </div>
                       </div>
                     </div>
@@ -1124,44 +1163,71 @@ export default function AccountsPage() {
               </Card>
 
               {/* Advertencias y consideraciones */}
-              <Card className="border-0 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20">
+              <Card className="border-2 border-yellow-200 bg-gradient-to-r from-yellow-50 to-orange-50">
                 <CardContent className="p-6">
-                  <h4 className="font-semibold mb-4 flex items-center gap-2">
+                  <h4 className="font-bold mb-4 flex items-center gap-2 text-yellow-800">
                     <AlertTriangle className="h-5 w-5 text-yellow-600" />
-                    Consideraciones Importantes
+                    ⚠️ Consideraciones Importantes
                   </h4>
 
-                  <div className="space-y-3 text-sm">
-                    <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0" />
-                      <span>
-                        <strong>Límites de Twitter:</strong> Se respetarán los
-                        límites de 400 follows por día y 50 por cada 15 minutos
-                        según la documentación oficial de Twitter API v2.
-                      </span>
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-3 bg-white p-4 rounded-lg border border-yellow-200">
+                      <div className="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="text-white text-xs font-bold">1</span>
+                      </div>
+                      <div>
+                        <div className="font-semibold text-yellow-900 mb-1">
+                          🔒 Límites de Twitter API
+                        </div>
+                        <div className="text-sm text-gray-700">
+                          Se respetan límites de 50 follows por día según
+                          Twitter API v2. Las acciones se distribuyen para
+                          evitar suspensiones.
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
-                      <span>
-                        <strong>Distribución temporal:</strong> Las acciones se
-                        distribuirán uniformemente durante 5 días con
-                        variaciones aleatorias para parecer más natural.
-                      </span>
+                    <div className="flex items-start gap-3 bg-white p-4 rounded-lg border border-blue-200">
+                      <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="text-white text-xs font-bold">2</span>
+                      </div>
+                      <div>
+                        <div className="font-semibold text-blue-900 mb-1">
+                          ⏰ Distribución Natural
+                        </div>
+                        <div className="text-sm text-gray-700">
+                          Las acciones se ejecutan durante 4 días entre 9 AM - 9
+                          PM con delays aleatorios para simular comportamiento
+                          humano.
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0" />
-                      <span>
-                        <strong>Solo cuentas verificadas:</strong> Solo
-                        participarán cuentas con credenciales propias
-                        verificadas.
-                      </span>
+                    <div className="flex items-start gap-3 bg-white p-4 rounded-lg border border-green-200">
+                      <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="text-white text-xs font-bold">3</span>
+                      </div>
+                      <div>
+                        <div className="font-semibold text-green-900 mb-1">
+                          ✅ Solo Cuentas Verificadas
+                        </div>
+                        <div className="text-sm text-gray-700">
+                          Solo participan cuentas con credenciales propias
+                          verificadas y funcionando correctamente.
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-start gap-2">
-                      <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0" />
-                      <span>
-                        <strong>No duplicados:</strong> El sistema evitará
-                        automáticamente acciones duplicadas.
-                      </span>
+                    <div className="flex items-start gap-3 bg-white p-4 rounded-lg border border-red-200">
+                      <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="text-white text-xs font-bold">4</span>
+                      </div>
+                      <div>
+                        <div className="font-semibold text-red-900 mb-1">
+                          🚫 Control de Errores
+                        </div>
+                        <div className="text-sm text-gray-700">
+                          Si las cuentas ya se siguen o hay errores menores, la
+                          campaña continúa sin interrupciones.
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -1211,28 +1277,35 @@ export default function AccountsPage() {
               )}
             </div>
 
-            <DialogFooter className="flex gap-3">
+            <DialogFooter className="flex gap-4 pt-6 border-t border-gray-200">
               <Button
                 variant="outline"
                 onClick={() => setIsMutualFollowDialogOpen(false)}
-                className="hover:scale-105 transition-transform duration-200"
+                className="flex-1 border-gray-300 hover:bg-gray-50 transition-all duration-200"
+                disabled={isStartingCampaign}
               >
-                Cancelar
+                ❌ Cancelar
               </Button>
               <Button
                 onClick={startMutualFollowCampaign}
-                disabled={isStartingCampaign}
-                className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 transition-all duration-200 hover:scale-105"
+                disabled={
+                  isStartingCampaign ||
+                  (debugData &&
+                    debugData.accounts.filter(
+                      (acc) => acc.useOwnCredentials && acc.credentialsVerified
+                    ).length < 2)
+                }
+                className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isStartingCampaign ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Iniciando...
+                    🚀 Iniciando Campaña...
                   </>
                 ) : (
                   <>
                     <Zap className="h-4 w-4 mr-2" />
-                    Iniciar Campaña
+                    🚀 ¡Iniciar Campaña de Follow Mutuo!
                   </>
                 )}
               </Button>
