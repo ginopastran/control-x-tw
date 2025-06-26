@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "next build",
+    "build": "prisma generate && next build",
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start",
@@ -13,7 +13,8 @@
     "db:studio": "npx prisma studio",
     "db:reset": "npx prisma migrate reset",
     "db:seed": "node prisma/seed.js",
-    "migrate-accounts": "npx tsc scripts/migrate-accounts.ts --outDir dist --module commonjs --target es2020 --moduleResolution node --esModuleInterop && node dist/migrate-accounts.js"
+    "migrate-accounts": "npx tsc scripts/migrate-accounts.ts --outDir dist --module commonjs --target es2020 --moduleResolution node --esModuleInterop && node dist/migrate-accounts.js",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
