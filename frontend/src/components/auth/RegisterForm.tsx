@@ -83,8 +83,8 @@ export default function RegisterForm() {
   return (
     <div className="relative">
       {/* Formulario con efecto glassmorphism */}
-      <div className="w-full p-8 bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl shadow-2xl relative z-10">
-        <h2 className="text-2xl font-bold text-center text-white mb-6">
+      <div className="w-full p-8 bg-white border border-gray-200 rounded-2xl shadow-lg relative z-10">
+        <h2 className="text-2xl font-bold text-center text-gray-900 mb-6">
           Registrarse
         </h2>
 

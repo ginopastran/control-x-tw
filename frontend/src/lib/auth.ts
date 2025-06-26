@@ -64,7 +64,7 @@ export function setAuthCookieInResponse(
 
   console.log("🔧 Configurando cookie:", { isProduction, isVercel });
 
-  // ✅ Configuración basada en el GitHub issue #36487
+  // ✅ Configuración mejorada para Vercel
   const cookieConfig = {
     name: "auth_token",
     value: token,
@@ -72,18 +72,16 @@ export function setAuthCookieInResponse(
     secure: isProduction, // true en HTTPS (Vercel)
     maxAge: 60 * 60 * 24 * 7, // 7 días
     path: "/",
-    // ✅ CRÍTICO: sameSite "None" en producción según GitHub issue
-    sameSite: isProduction ? ("none" as const) : ("lax" as const),
+    // ✅ CORREGIDO: sameSite "lax" funciona mejor en Vercel
+    sameSite: "lax" as const,
   };
 
   res.cookies.set(cookieConfig);
 
-  // ✅ Header de respaldo según recomendaciones del GitHub issue
+  // ✅ Header de respaldo compatible con Vercel
   const cookieString = `auth_token=${token}; Path=/; Max-Age=${
     60 * 60 * 24 * 7
-  }; HttpOnly${isProduction ? "; Secure" : ""}; SameSite=${
-    isProduction ? "None" : "Lax"
-  }`;
+  }; HttpOnly${isProduction ? "; Secure" : ""}; SameSite=Lax`;
 
   res.headers.set("Set-Cookie", cookieString);
 

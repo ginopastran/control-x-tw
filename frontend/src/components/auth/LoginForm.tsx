@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Input } from "../ui/input";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -28,6 +29,7 @@ export default function LoginForm() {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include", // ✅ CRÍTICO: Incluir cookies
         body: JSON.stringify(formData),
       });
 
@@ -57,14 +59,14 @@ export default function LoginForm() {
 
   return (
     <div className="relative">
-      {/* Formulario con efecto glassmorphism */}
-      <div className="w-full p-8 bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl shadow-2xl relative z-10">
-        <h2 className="text-2xl font-bold text-center text-white mb-8">
+      {/* Formulario con diseño claro */}
+      <div className="w-full p-8 bg-white border border-gray-200 rounded-2xl shadow-lg relative z-10">
+        <h2 className="text-2xl font-bold text-center text-gray-900 mb-8">
           Iniciar Sesión
         </h2>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-lg backdrop-blur-sm">
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
             <div className="flex items-center">
               <svg
                 className="w-5 h-5 mr-2"
@@ -87,21 +89,18 @@ export default function LoginForm() {
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-gray-300 mb-2"
+              className="block text-sm font-medium text-gray-700 mb-2"
             >
               Correo Electrónico
             </label>
-            <input
+            <Input
               type="email"
               id="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 
-                       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
-                       transition-all duration-200 backdrop-blur-sm
-                       hover:bg-white/15"
+              className="w-full px-4 py-3 rounded-lg "
               placeholder="tu@email.com"
             />
           </div>
@@ -110,21 +109,18 @@ export default function LoginForm() {
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-gray-300 mb-2"
+              className="block text-sm font-medium text-gray-700 mb-2"
             >
               Contraseña
             </label>
-            <input
+            <Input
               type="password"
               id="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
               required
-              className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 
-                       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
-                       transition-all duration-200 backdrop-blur-sm
-                       hover:bg-white/15"
+              className="w-full px-4 py-3 rounded-lg "
               placeholder="••••••••"
             />
           </div>
@@ -137,10 +133,10 @@ export default function LoginForm() {
               w-full py-3 px-4 rounded-lg font-medium text-white transition-all duration-200
               ${
                 loading
-                  ? "bg-gray-600 cursor-not-allowed opacity-70"
+                  ? "bg-gray-400 cursor-not-allowed opacity-70"
                   : "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 transform hover:scale-[1.02] active:scale-[0.98]"
               }
-              focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-2 focus:ring-offset-gray-900
+              focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-2 focus:ring-offset-white
               shadow-lg hover:shadow-xl
             `}
           >
@@ -173,15 +169,12 @@ export default function LoginForm() {
         </form>
 
         {/* Línea divisoria */}
-        <div className="mt-8 pt-6 border-t border-white/10">
-          <p className="text-center text-xs text-gray-400">
+        <div className="mt-8 pt-6 border-t border-gray-200">
+          <p className="text-center text-xs text-gray-500">
             Acceso seguro con autenticación JWT
           </p>
         </div>
       </div>
-
-      {/* Efectos de resplandor */}
-      <div className="absolute -inset-1 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-2xl blur-lg opacity-30 -z-10"></div>
     </div>
   );
 }

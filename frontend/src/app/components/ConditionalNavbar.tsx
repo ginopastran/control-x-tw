@@ -19,7 +19,9 @@ export default function ConditionalNavbar() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await fetch("/api/auth/me");
+        const response = await fetch("/api/auth/me", {
+          credentials: "include", // ✅ CRÍTICO: Incluir cookies
+        });
         if (response.ok) {
           const data = await response.json();
           setUser(data.user);
