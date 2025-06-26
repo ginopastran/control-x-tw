@@ -10,7 +10,8 @@ const nextConfig = {
   experimental: {
     esmExternals: true,
   },
-  serverComponentsExternalPackages: ["@prisma/client"],
+  // Remove serverComponentsExternalPackages - no longer needed in Next.js 14
+  // Prisma Client works out of the box with Next.js 14
 };
 
 module.exports = nextConfig;
