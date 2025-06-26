@@ -146,7 +146,7 @@ export default function AccountCustomize() {
     const { headers = {}, ...otherOptions } = options;
 
     // Intentar obtener token de localStorage para deploy
-    let authToken = null;
+    let authToken: string | null = null;
     if (typeof window !== "undefined") {
       authToken = localStorage.getItem("auth_token");
     }
@@ -329,36 +329,6 @@ export default function AccountCustomize() {
         const error = await response.json();
         console.error("❌ Error del servidor:", error);
         toast.error(error.error || error.message || "Error al subir imagen");
-
-        // Manejo específico de errores
-        if (error.missing && error.missing.length > 0) {
-          console.error(
-            "🔑 Credenciales faltantes para @" + selectedAccount.username + ":",
-            error.missing
-          );
-          toast.error(`Credenciales faltantes: ${error.missing.join(", ")}`);
-        } else if (error.code === 403) {
-          console.error(
-            "🚫 Error 403 - Permisos insuficientes para subir " + type
-          );
-          toast.error(
-            "Error de permisos: " +
-              (error.details ||
-                "La aplicación no tiene permisos para actualizar " +
-                  (type === "banner" ? "portadas" : "fotos de perfil"))
-          );
-        } else if (error.code === 400) {
-          console.error("⚠️ Error 400 - Imagen inválida");
-          toast.error(
-            "Imagen inválida: " +
-              (error.details || "Verifica el formato y tamaño")
-          );
-        } else if (error.code === 429) {
-          console.error("⏰ Error 429 - Rate limit");
-          toast.error(
-            "Límite excedido: " + (error.details || "Espera unos minutos")
-          );
-        }
       }
     } catch (error) {
       console.error("Error al subir imagen:", error);
