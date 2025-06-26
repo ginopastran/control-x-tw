@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { logError, logAction } from "@/lib/log-action";
 
+export const dynamic = "force-dynamic";
+
 async function getValidToken(accountId: string): Promise<string | null> {
   const account = await prisma.xAccount.findUnique({
     where: { id: accountId },

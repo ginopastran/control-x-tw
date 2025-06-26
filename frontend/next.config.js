@@ -28,6 +28,26 @@ const nextConfig = {
 
     return config;
   },
+  async headers() {
+    return [
+      {
+        source: "/api/:path*",
+        headers: [
+          {
+            key: "Access-Control-Allow-Credentials",
+            value: "true",
+          },
+          {
+            key: "Access-Control-Allow-Origin",
+            value:
+              process.env.NODE_ENV === "production"
+                ? "https://your-vercel-domain.vercel.app"
+                : "http://localhost:3000",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;

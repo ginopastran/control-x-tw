@@ -58,23 +58,29 @@ export function setAuthCookieInResponse(
   res: NextResponse,
   token: string
 ): NextResponse {
+  // Detectar si estamos en producción (Vercel)
+  const isProduction = process.env.NODE_ENV === "production";
+  const isVercel = process.env.VERCEL === "1";
+
   res.cookies.set({
     name: "auth_token",
     value: token,
     httpOnly: true,
-    secure: false, // Cambiar a false en desarrollo
+    secure: isProduction || isVercel, // ✅ HTTPS en producción
     maxAge: 60 * 60 * 24 * 7, // 7 días en segundos
     path: "/",
-    sameSite: "lax",
+    sameSite: isProduction || isVercel ? "none" : "lax", // ✅ Crucial para Vercel
+    domain: isVercel ? undefined : undefined, // Dejar que el navegador lo maneje
   });
 
-  // También establecer headers adicionales para asegurar que se guarde
-  res.headers.set(
-    "Set-Cookie",
-    `auth_token=${token}; Path=/; Max-Age=${
-      60 * 60 * 24 * 7
-    }; HttpOnly; SameSite=lax`
-  );
+  // Header de respaldo para asegurar compatibilidad
+  const cookieValue = `auth_token=${token}; Path=/; Max-Age=${
+    60 * 60 * 24 * 7
+  }; HttpOnly; ${isProduction || isVercel ? "Secure; " : ""}SameSite=${
+    isProduction || isVercel ? "None" : "Lax"
+  }`;
+
+  res.headers.set("Set-Cookie", cookieValue);
 
   return res;
 }
