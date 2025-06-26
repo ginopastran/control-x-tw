@@ -51,6 +51,7 @@
     "@tailwindcss/typography": "^0.5.10",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "autoprefixer": "^10.4.16",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.1",
@@ -67,6 +68,7 @@
     "next-auth": "^4.24.5",
     "next-themes": "^0.4.6",
     "papaparse": "^5.5.3",
+    "postcss": "^8.4.32",
     "react": "^18",
     "react-day-picker": "^9.7.0",
     "react-dom": "^18",
@@ -80,9 +82,7 @@
     "twitter-api-v2": "^1.23.2",
     "vaul": "^1.1.2",
     "ws": "^8.16.0",
-    "zod": "^3.25.67",
-    "autoprefixer": "^10.4.16",
-    "postcss": "^8.4.32"
+    "zod": "^3.25.67"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
