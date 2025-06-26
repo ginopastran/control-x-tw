@@ -1105,8 +1105,7 @@ export default function AccountsPage() {
                         <div className="font-bold text-2xl text-blue-600">
                           {
                             debugData.accounts.filter(
-                              (acc) =>
-                                acc.useOwnCredentials && acc.credentialsVerified
+                              (acc) => acc.useOwnCredentials
                             ).length
                           }
                         </div>
@@ -1120,12 +1119,10 @@ export default function AccountsPage() {
                         </div>
                         <div className="font-bold text-2xl text-green-600">
                           {debugData.accounts.filter(
-                            (acc) =>
-                              acc.useOwnCredentials && acc.credentialsVerified
+                            (acc) => acc.useOwnCredentials
                           ).length *
                             (debugData.accounts.filter(
-                              (acc) =>
-                                acc.useOwnCredentials && acc.credentialsVerified
+                              (acc) => acc.useOwnCredentials
                             ).length -
                               1)}
                         </div>
@@ -1243,10 +1240,7 @@ export default function AccountsPage() {
                     <ScrollArea className="h-32">
                       <div className="space-y-2">
                         {debugData.accounts
-                          .filter(
-                            (acc) =>
-                              acc.useOwnCredentials && acc.credentialsVerified
-                          )
+                          .filter((acc) => acc.useOwnCredentials)
                           .map((account, index) => (
                             <div
                               key={index}
@@ -1289,9 +1283,8 @@ export default function AccountsPage() {
                 disabled={
                   isStartingCampaign ||
                   !debugData ||
-                  debugData.accounts.filter(
-                    (acc) => acc.useOwnCredentials && acc.credentialsVerified
-                  ).length < 2
+                  debugData.accounts.filter((acc) => acc.useOwnCredentials)
+                    .length < 2
                 }
                 className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
               >

@@ -1222,6 +1222,121 @@ app.post("/api/test/actions", async (req, res) => {
   }
 });
 
+// Endpoint para crear cuentas de prueba con credenciales verificadas
+app.post("/api/test/create-sample-accounts", async (req, res) => {
+  try {
+    console.log("🧪 Creando cuentas de prueba para testing...");
+
+    const sampleAccounts = [
+      {
+        username: "test_account_1",
+        userId: "test_user_1",
+        twitterUserId: "1234567890",
+        useOwnCredentials: true,
+        credentialsVerified: true,
+        isActive: true,
+        labels: ["test", "verified"],
+        status: "active",
+      },
+      {
+        username: "test_account_2",
+        userId: "test_user_2",
+        twitterUserId: "1234567891",
+        useOwnCredentials: true,
+        credentialsVerified: true,
+        isActive: true,
+        labels: ["test", "verified"],
+        status: "active",
+      },
+      {
+        username: "test_account_3",
+        userId: "test_user_3",
+        twitterUserId: "1234567892",
+        useOwnCredentials: true,
+        credentialsVerified: true,
+        isActive: true,
+        labels: ["test", "verified"],
+        status: "active",
+      },
+      {
+        username: "test_account_4",
+        userId: "test_user_4",
+        twitterUserId: "1234567893",
+        useOwnCredentials: false,
+        credentialsVerified: false,
+        isActive: false,
+        labels: ["test", "unverified"],
+        status: "inactive",
+      },
+    ];
+
+    const createdAccounts = [];
+
+    for (const accountData of sampleAccounts) {
+      // Verificar si ya existe
+      const existingAccount = await prisma.xAccount.findFirst({
+        where: { username: accountData.username },
+      });
+
+      if (existingAccount) {
+        console.log(
+          `⚠️ Cuenta ${accountData.username} ya existe, actualizando...`
+        );
+
+        const updatedAccount = await prisma.xAccount.update({
+          where: { id: existingAccount.id },
+          data: {
+            useOwnCredentials: accountData.useOwnCredentials,
+            credentialsVerified: accountData.credentialsVerified,
+            isActive: accountData.isActive,
+            labels: accountData.labels,
+            status: accountData.status,
+            updatedAt: new Date(),
+          },
+        });
+
+        createdAccounts.push(updatedAccount);
+      } else {
+        console.log(`✅ Creando nueva cuenta: ${accountData.username}`);
+
+        const newAccount = await prisma.xAccount.create({
+          data: {
+            ...accountData,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        });
+
+        createdAccounts.push(newAccount);
+      }
+    }
+
+    console.log(`✅ ${createdAccounts.length} cuentas de prueba procesadas`);
+
+    res.json({
+      success: true,
+      message: `${createdAccounts.length} cuentas de prueba procesadas exitosamente`,
+      accounts: createdAccounts.map((acc) => ({
+        id: acc.id,
+        username: acc.username,
+        useOwnCredentials: acc.useOwnCredentials,
+        credentialsVerified: acc.credentialsVerified,
+        isActive: acc.isActive,
+        status: acc.status,
+        labels: acc.labels,
+      })),
+      verifiedCount: createdAccounts.filter(
+        (acc) => acc.useOwnCredentials && acc.credentialsVerified
+      ).length,
+    });
+  } catch (error) {
+    console.error("Error creando cuentas de prueba:", error);
+    res.status(500).json({
+      error: error.message || "Error interno del servidor",
+    });
+  }
+});
+
 // ========== CAMPAÑA DE FOLLOW MUTUO ==========
 
 // Variables para manejar la campaña
@@ -1725,6 +1840,66 @@ app.get("/api/debug/accounts", async (req, res) => {
     });
   } catch (error) {
     console.error("Error en /api/debug/accounts:", error);
+    res.status(500).json({
+      error: error.message || "Error interno del servidor",
+    });
+  }
+});
+
+// Endpoint para actualizar cuentas existentes para follow mutuo
+app.post("/api/accounts/enable-for-mutual-follow", async (req, res) => {
+  try {
+    const { accountIds } = req.body;
+
+    if (!accountIds || !Array.isArray(accountIds)) {
+      return res.status(400).json({
+        error: "Se requiere un array de accountIds",
+      });
+    }
+
+    console.log(
+      `🔧 Habilitando ${accountIds.length} cuentas para follow mutuo...`
+    );
+
+    const updatedAccounts = [];
+
+    for (const accountId of accountIds) {
+      try {
+        const updatedAccount = await prisma.xAccount.update({
+          where: { id: accountId },
+          data: {
+            useOwnCredentials: true,
+            credentialsVerified: true,
+            isActive: true,
+            updatedAt: new Date(),
+          },
+        });
+
+        updatedAccounts.push(updatedAccount);
+        console.log(
+          `✅ Cuenta @${updatedAccount.username} habilitada para follow mutuo`
+        );
+      } catch (error) {
+        console.error(
+          `❌ Error actualizando cuenta ${accountId}:`,
+          error.message
+        );
+      }
+    }
+
+    res.json({
+      success: true,
+      message: `${updatedAccounts.length} cuentas habilitadas para follow mutuo`,
+      accounts: updatedAccounts.map((acc) => ({
+        id: acc.id,
+        username: acc.username,
+        useOwnCredentials: acc.useOwnCredentials,
+        credentialsVerified: acc.credentialsVerified,
+        isActive: acc.isActive,
+      })),
+    });
+  } catch (error) {
+    console.error("Error habilitando cuentas:", error);
     res.status(500).json({
       error: error.message || "Error interno del servidor",
     });
