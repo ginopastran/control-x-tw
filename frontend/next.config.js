@@ -1,17 +1,16 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
   experimental: {
-    esmExternals: true,
+    serverComponentsExternalPackages: ["@prisma/client"],
   },
-  // Remove serverComponentsExternalPackages - no longer needed in Next.js 14
-  // Prisma Client works out of the box with Next.js 14
+  transpilePackages: ["lucide-react"],
+  webpack: (config) => {
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+    };
+    return config;
+  },
 };
 
 module.exports = nextConfig;
