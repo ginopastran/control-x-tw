@@ -3,7 +3,7 @@ import { connectDB } from "@/lib/db";
 import prisma from "@/lib/db";
 import { NextResponse, NextRequest } from "next/server";
 
-export const runtime = 'nodejs';
+export const runtime = "nodejs";
 
 // GET: listar todas las cuentas
 export async function GET(req: NextRequest) {
@@ -15,7 +15,13 @@ export async function GET(req: NextRequest) {
       orderBy: { createdAt: "desc" },
     });
 
-    return NextResponse.json(accounts);
+    // Transformar los datos para que usen _id en lugar de id (compatibilidad con frontend)
+    const accountsWithId = accounts.map((account) => ({
+      ...account,
+      _id: account.id,
+    }));
+
+    return NextResponse.json(accountsWithId);
   } catch (error) {
     console.error("Error al obtener cuentas:", error);
     return NextResponse.json(
@@ -43,28 +49,31 @@ export async function POST(request: Request) {
     }
 
     // Crear nueva cuenta
-    const accountData = {
-      username: body.username,
-      userId: body.userId || `manual_${body.username}_${Date.now()}`, // Generar ID si no se proporciona
-      accessToken: body.accessToken || "",
-      refreshToken: body.refreshToken || "",
-      developerTag: body.developerTag || "manual",
-      labels: body.labels || [],
-      useOwnCredentials: body.useOwnCredentials || false,
-      preferOAuth2: body.preferOAuth2 || false,
-      credentialsVerified: false,
-      hasAccessToken: !!body.accessToken,
-      hasRefreshToken: !!body.refreshToken,
-      needsReauth: false,
-    };
-
     const newAccount = await prisma.xAccount.create({
-      data: accountData,
+      data: {
+        username: body.username,
+        userId: body.userId || `manual_${body.username}_${Date.now()}`,
+        twitterUserId: null,
+        ownAccessToken: null,
+        ownOAuth2RefreshToken: null,
+        labels: [],
+        useOwnCredentials: body.useOwnCredentials || false,
+        preferOAuth2: body.preferOAuth2 || false,
+        credentialsVerified: false,
+        isActive: true,
+        status: "ACTIVE",
+      },
     });
+
+    // Transformar para compatibilidad con frontend
+    const accountWithId = {
+      ...newAccount,
+      _id: newAccount.id,
+    };
 
     return NextResponse.json({
       success: true,
-      account: newAccount,
+      account: accountWithId,
       message: "Cuenta creada exitosamente",
     });
   } catch (error) {
