@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateToken, setAuthCookieInResponse } from "@/lib/auth";
-import { db } from "@/lib/db";
+import db from "@/lib/db";
 import bcrypt from "bcryptjs";
 
 export async function POST(req: NextRequest) {
@@ -12,7 +12,11 @@ export async function POST(req: NextRequest) {
       where: { email },
     });
 
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    if (
+      !user ||
+      !user.password ||
+      !(await bcrypt.compare(password, user.password))
+    ) {
       return NextResponse.json(
         { error: "Credenciales inválidas" },
         { status: 401 }
