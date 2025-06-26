@@ -132,10 +132,15 @@ export async function POST(
       let result;
 
       if (type === "profile") {
-        // ✅ Para foto de perfil: usar updateAccountProfileImage directamente con buffer
-        console.log("👤 Actualizando foto de perfil directamente...");
+        // ✅ Para foto de perfil: usar uploadMedia y luego updateAccountProfileImage
+        const mediaUpload = await twitterClient.v1.uploadMedia(buffer, {
+          mimeType: media.type,
+          target: "tweet",
+        });
+        console.log("✅ Media subida exitosamente, ID:", mediaUpload);
 
-        result = await twitterClient.v1.updateAccountProfileImage(buffer);
+        // Actualizar foto de perfil usando el media ID
+        result = await twitterClient.v1.updateAccountProfileImage(mediaUpload);
         console.log("✅ Foto de perfil actualizada en Twitter");
       } else if (type === "banner") {
         // ✅ Para banner: usar updateAccountProfileBanner directamente con los datos de la imagen
