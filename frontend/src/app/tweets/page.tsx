@@ -188,7 +188,7 @@ export default function TweetsPage() {
 
   // Nuevo estado para el dialog de asignación
   const [assignmentDialogOpen, setAssignmentDialogOpen] = useState(false);
-  const [selectedTweetForAssignment, setSelectedTweetForAssignment] = useState<
+  const [selectedItemForAssignment, setSelectedItemForAssignment] = useState<
     string | null
   >(null);
 
@@ -466,8 +466,15 @@ export default function TweetsPage() {
   const getAccountsWithAssignments = () => {
     const accountsWithAssignments = new Map<string, number>();
 
-    batchTweets.forEach((tweet) => {
-      tweet.assignedAccounts.forEach((accountId) => {
+    const items =
+      activeBatchType === "tweets"
+        ? batchTweets
+        : activeBatchType === "follows"
+        ? batchFollows
+        : batchRetweets;
+
+    items.forEach((item) => {
+      item.assignedAccounts.forEach((accountId) => {
         accountsWithAssignments.set(
           accountId,
           (accountsWithAssignments.get(accountId) || 0) + 1
@@ -479,8 +486,8 @@ export default function TweetsPage() {
   };
 
   // Función para abrir el dialog de asignación
-  const openAssignmentDialog = (tweetId: string) => {
-    setSelectedTweetForAssignment(tweetId);
+  const openAssignmentDialog = (itemId: string) => {
+    setSelectedItemForAssignment(itemId);
     setAssignmentDialogOpen(true);
   };
 
@@ -501,17 +508,26 @@ export default function TweetsPage() {
   };
 
   // Función para asignar cuentas a un tweet específico
-  const handleAssignAccountsToTweet = (
-    tweetId: string,
-    accountIds: string[]
-  ) => {
-    setBatchTweets((prev) =>
-      prev.map((tweet) =>
-        tweet.id === tweetId
-          ? { ...tweet, assignedAccounts: accountIds }
-          : tweet
-      )
-    );
+  const handleAssignAccountsToItem = (itemId: string, accountIds: string[]) => {
+    if (activeBatchType === "tweets") {
+      setBatchTweets((prev) =>
+        prev.map((item) =>
+          item.id === itemId ? { ...item, assignedAccounts: accountIds } : item
+        )
+      );
+    } else if (activeBatchType === "follows") {
+      setBatchFollows((prev) =>
+        prev.map((item) =>
+          item.id === itemId ? { ...item, assignedAccounts: accountIds } : item
+        )
+      );
+    } else if (activeBatchType === "retweets") {
+      setBatchRetweets((prev) =>
+        prev.map((item) =>
+          item.id === itemId ? { ...item, assignedAccounts: accountIds } : item
+        )
+      );
+    }
   };
 
   // Función para shuffle de array nativo (sin dependencias externas)
@@ -1056,19 +1072,18 @@ export default function TweetsPage() {
 
   // Función para extraer username de URL de perfil
   const extractUsernameFromUrl = (url: string): string | null => {
+    const trimmedUrl = url.trim();
     try {
-      const urlObj = new URL(url.trim());
+      const urlObj = new URL(trimmedUrl);
       if (urlObj.hostname === "twitter.com" || urlObj.hostname === "x.com") {
-        const pathParts = urlObj.pathname.split("/").filter((p) => p);
-        if (pathParts.length > 0 && !pathParts[0].startsWith("@")) {
-          return pathParts[0];
+        const pathParts = urlObj.pathname.split("/").filter(Boolean);
+        if (pathParts.length > 0) {
+          return pathParts[0].replace(/^@/, "");
         }
       }
-      // Si no es URL, asumir que es username directo
-      return url.replace("@", "").trim();
+      return trimmedUrl.replace(/^@+/, "");
     } catch {
-      // Si no es URL válida, asumir que es username
-      return url.replace("@", "").trim();
+      return trimmedUrl.replace(/^@+/, "");
     }
   };
 
@@ -2547,6 +2562,17 @@ Puedes usar URLs completas o solo usernames`}
                                         </div>
                                       )}
                                     </div>
+                                    <Button
+                                      onClick={() =>
+                                        openAssignmentDialog(follow.id)
+                                      }
+                                      size="sm"
+                                      variant="outline"
+                                      className="hover:bg-blue-50 hover:border-blue-300 transition-all duration-200"
+                                    >
+                                      <Edit className="h-4 w-4 mr-1" />
+                                      Asignar cuentas
+                                    </Button>
                                   </div>
                                 </div>
                               ))}
@@ -2783,6 +2809,17 @@ Pega las URLs de los tweets que quieres retwitear`}
                                         </div>
                                       )}
                                     </div>
+                                    <Button
+                                      onClick={() =>
+                                        openAssignmentDialog(retweet.id)
+                                      }
+                                      size="sm"
+                                      variant="outline"
+                                      className="hover:bg-blue-50 hover:border-blue-300 transition-all duration-200"
+                                    >
+                                      <Edit className="h-4 w-4 mr-1" />
+                                      Asignar cuentas
+                                    </Button>
                                   </div>
                                 </div>
                               ))}
@@ -3333,20 +3370,36 @@ Pega las URLs de los tweets que quieres retwitear`}
           <DialogHeader className="flex-shrink-0">
             <DialogTitle className="flex items-center gap-2 text-gray-900">
               <Edit className="h-5 w-5 text-purple-600" />
-              Asignar Cuentas al Tweet
+              Asignar Cuentas al{" "}
+              {activeBatchType === "tweets"
+                ? "Tweet"
+                : activeBatchType === "follows"
+                ? "Follow"
+                : "Retweet"}
             </DialogTitle>
             <DialogDescription>
-              {selectedTweetForAssignment && (
+              {selectedItemForAssignment && (
                 <>
                   <div className="mt-2 p-3 bg-purple-50 rounded-lg border border-purple-200">
                     <p className="text-sm font-medium text-purple-900">
-                      Tweet: "
-                      {
-                        batchTweets.find(
-                          (t) => t.id === selectedTweetForAssignment
-                        )?.text
-                      }
-                      "
+                      {activeBatchType === "tweets" &&
+                        `Tweet: "${
+                          batchTweets.find(
+                            (t) => t.id === selectedItemForAssignment
+                          )?.text
+                        }"`}
+                      {activeBatchType === "follows" &&
+                        `Seguir a: @${
+                          batchFollows.find(
+                            (f) => f.id === selectedItemForAssignment
+                          )?.username
+                        }`}
+                      {activeBatchType === "retweets" &&
+                        `Retweet de: ${
+                          batchRetweets.find(
+                            (r) => r.id === selectedItemForAssignment
+                          )?.tweetId
+                        }`}
                     </p>
                   </div>
                 </>
@@ -3354,7 +3407,7 @@ Pega las URLs de los tweets que quieres retwitear`}
             </DialogDescription>
           </DialogHeader>
 
-          {selectedTweetForAssignment && (
+          {selectedItemForAssignment && (
             <div className="flex-1 overflow-hidden flex flex-col space-y-6">
               {/* Indicadores de cuentas ya asignadas */}
               <div className="flex-shrink-0 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
@@ -3469,9 +3522,9 @@ Pega las URLs de los tweets que quieres retwitear`}
                       size="sm"
                       variant="outline"
                       onClick={() => {
-                        if (selectedTweetForAssignment) {
-                          handleAssignAccountsToTweet(
-                            selectedTweetForAssignment,
+                        if (selectedItemForAssignment) {
+                          handleAssignAccountsToItem(
+                            selectedItemForAssignment,
                             selectedAccounts.length > 0
                               ? selectedAccounts
                               : filteredAccounts.map((a) => a._id)
@@ -3492,9 +3545,9 @@ Pega las URLs de los tweets que quieres retwitear`}
                       size="sm"
                       variant="outline"
                       onClick={() => {
-                        if (selectedTweetForAssignment) {
-                          handleAssignAccountsToTweet(
-                            selectedTweetForAssignment,
+                        if (selectedItemForAssignment) {
+                          handleAssignAccountsToItem(
+                            selectedItemForAssignment,
                             []
                           );
                         }
@@ -3515,9 +3568,16 @@ Pega las URLs de los tweets que quieres retwitear`}
                         )
                       : filteredAccounts
                     ).map((account) => {
+                      const currentBatch =
+                        activeBatchType === "tweets"
+                          ? batchTweets
+                          : activeBatchType === "follows"
+                          ? batchFollows
+                          : batchRetweets;
+
                       const isAssigned =
-                        batchTweets
-                          .find((t) => t.id === selectedTweetForAssignment)
+                        currentBatch
+                          .find((item) => item.id === selectedItemForAssignment)
                           ?.assignedAccounts.includes(account._id) || false;
                       const assignmentCount =
                         getAccountsWithAssignments().get(account._id) || 0;
@@ -3534,21 +3594,21 @@ Pega las URLs de los tweets que quieres retwitear`}
                             }
                           `}
                           onClick={() => {
-                            if (selectedTweetForAssignment) {
-                              const currentTweet = batchTweets.find(
-                                (t) => t.id === selectedTweetForAssignment
+                            if (selectedItemForAssignment) {
+                              const currentItem = currentBatch.find(
+                                (item) => item.id === selectedItemForAssignment
                               );
-                              if (currentTweet) {
+                              if (currentItem) {
                                 const updatedAccounts = isAssigned
-                                  ? currentTweet.assignedAccounts.filter(
+                                  ? currentItem.assignedAccounts.filter(
                                       (id) => id !== account._id
                                     )
                                   : [
-                                      ...currentTweet.assignedAccounts,
+                                      ...currentItem.assignedAccounts,
                                       account._id,
                                     ];
-                                handleAssignAccountsToTweet(
-                                  selectedTweetForAssignment,
+                                handleAssignAccountsToItem(
+                                  selectedItemForAssignment,
                                   updatedAccounts
                                 );
                               }
@@ -3657,11 +3717,19 @@ Pega las URLs de los tweets que quieres retwitear`}
           <DialogFooter className="flex-shrink-0 border-t border-gray-200 pt-4">
             <div className="flex items-center justify-between w-full">
               <div className="text-sm text-gray-700">
-                {selectedTweetForAssignment && (
+                {selectedItemForAssignment && (
                   <>
-                    {batchTweets.find(
-                      (t) => t.id === selectedTweetForAssignment
-                    )?.assignedAccounts.length || 0}{" "}
+                    {
+                      (
+                        (activeBatchType === "tweets"
+                          ? batchTweets
+                          : activeBatchType === "follows"
+                          ? batchFollows
+                          : batchRetweets
+                        ).find((item) => item.id === selectedItemForAssignment)
+                          ?.assignedAccounts || []
+                      ).length
+                    }{" "}
                     cuenta(s) asignada(s)
                   </>
                 )}
