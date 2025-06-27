@@ -164,6 +164,18 @@ class QueueService {
     }
   }
 
+  // Nuevo: Actualizar acción en BD
+  async updateActionInDb(actionId, updateData) {
+    try {
+      await this.prisma.queuedAction.update({
+        where: { actionId: actionId },
+        data: updateData,
+      });
+    } catch (error) {
+      console.error(`[QUEUE] Error actualizando acción ${actionId}:`, error);
+    }
+  }
+
   // Nuevo: Marcar acción como fallida
   async markActionAsFailed(actionId, errorMessage) {
     await this.prisma.queuedAction.update({
@@ -391,27 +403,63 @@ class QueueService {
           // Ejecutar la acción
           const result = await this.executeAction(action);
 
-          if (result.success) {
-            // Marcar como completada
-            action.status = "completed";
-            action.completedAt = new Date();
-            await this.updateActionInDb(action.id, {
-              status: "COMPLETED",
-              completedAt: action.completedAt,
-              result: result.data,
-            });
+          // Manejar diferentes formatos de respuesta
+          if (result && typeof result === "object") {
+            if (result.success === true) {
+              // Marcar como completada
+              action.status = "completed";
+              action.completedAt = new Date();
+              await this.updateActionInDb(action.id, {
+                status: "COMPLETED",
+                completedAt: action.completedAt,
+                result: result.data,
+              });
 
-            console.log(`✅ Acción ${action.id} completada exitosamente`);
+              console.log(`✅ Acción ${action.id} completada exitosamente`);
+            } else if (result.success === false) {
+              // Acción reprogramada o falló
+              if (result.data && result.data.stage === "ID_LOOKUP_COMPLETED") {
+                console.log(
+                  `🔄 Acción ${action.id} reprogramada para lookup de ID`
+                );
+                // No remover de la cola, ya se reprogramó
+                continue;
+              } else {
+                // Marcar como fallida
+                action.status = "failed";
+                action.error =
+                  result.error || result.data?.note || "Error desconocido";
+                await this.updateActionInDb(action.id, {
+                  status: "FAILED",
+                  error: action.error,
+                });
+
+                console.log(`❌ Acción ${action.id} falló: ${action.error}`);
+              }
+            } else {
+              // Formato legacy - asumir éxito si no hay campo success
+              action.status = "completed";
+              action.completedAt = new Date();
+              await this.updateActionInDb(action.id, {
+                status: "COMPLETED",
+                completedAt: action.completedAt,
+                result: result,
+              });
+
+              console.log(
+                `✅ Acción ${action.id} completada exitosamente (formato legacy)`
+              );
+            }
           } else {
-            // Marcar como fallida
+            // Resultado inesperado
             action.status = "failed";
-            action.error = result.error;
+            action.error = "Resultado inesperado de la acción";
             await this.updateActionInDb(action.id, {
               status: "FAILED",
-              error: result.error,
+              error: action.error,
             });
 
-            console.log(`❌ Acción ${action.id} falló: ${result.error}`);
+            console.log(`❌ Acción ${action.id} falló: resultado inesperado`);
           }
 
           // Remover de la cola en memoria
@@ -514,10 +562,13 @@ class QueueService {
       console.log(`✅ Tweet publicado exitosamente: ${result.id}`);
 
       return {
-        tweetId: result.id,
-        text: result.text,
-        url: `https://twitter.com/i/web/status/${result.id}`,
-        timestamp: new Date().toISOString(),
+        success: true,
+        data: {
+          tweetId: result.id,
+          text: result.text,
+          url: `https://twitter.com/i/web/status/${result.id}`,
+          timestamp: new Date().toISOString(),
+        },
       };
     } catch (error) {
       this.twitterService.handleTwitterError(error, "tweet");
@@ -542,11 +593,14 @@ class QueueService {
       console.log(`✅ Reply publicado exitosamente: ${result.id}`);
 
       return {
-        tweetId: result.id,
-        text: result.text,
-        replyToTweetId: action.tweetId,
-        url: `https://twitter.com/i/web/status/${result.id}`,
-        timestamp: new Date().toISOString(),
+        success: true,
+        data: {
+          tweetId: result.id,
+          text: result.text,
+          replyToTweetId: action.tweetId,
+          url: `https://twitter.com/i/web/status/${result.id}`,
+          timestamp: new Date().toISOString(),
+        },
       };
     } catch (error) {
       this.twitterService.handleTwitterError(error, "reply");
@@ -577,10 +631,13 @@ class QueueService {
       );
 
       return {
-        likedTweetId: action.tweetId,
-        liked: result.data.liked,
-        userId: actingUserId,
-        timestamp: new Date().toISOString(),
+        success: true,
+        data: {
+          likedTweetId: action.tweetId,
+          liked: result.data.liked,
+          userId: actingUserId,
+          timestamp: new Date().toISOString(),
+        },
       };
     } catch (error) {
       this.twitterService.handleTwitterError(error, "like");
@@ -611,10 +668,13 @@ class QueueService {
       );
 
       return {
-        retweetedTweetId: action.tweetId,
-        retweeted: result.data.retweeted,
-        userId: actingUserId,
-        timestamp: new Date().toISOString(),
+        success: true,
+        data: {
+          retweetedTweetId: action.tweetId,
+          retweeted: result.data.retweeted,
+          userId: actingUserId,
+          timestamp: new Date().toISOString(),
+        },
       };
     } catch (error) {
       this.twitterService.handleTwitterError(error, "retweet");
@@ -641,12 +701,12 @@ class QueueService {
 
       const client = await this.twitterService.getTwitterClient(action.account);
 
-      // --- LÓGICA DE DOS PASOS ---
+      // --- OPTIMIZACIÓN: BUSCAR TARGET EN BD PRIMERO ---
       if (!targetUserId) {
         console.log(
-          `[FOLLOW_STEP_1] No hay targetUserId para @${targetUsername}. Buscando...`
+          `[FOLLOW_OPTIMIZATION] Buscando @${targetUsername} en base de datos local...`
         );
-        // Optimización: Buscar primero en nuestra BD
+
         const localAccount = await this.prisma.xAccount.findUnique({
           where: { username: targetUsername },
         });
@@ -654,46 +714,116 @@ class QueueService {
         if (localAccount && (localAccount.userId || localAccount.twitterId)) {
           targetUserId = localAccount.userId || localAccount.twitterId;
           console.log(
-            `[FOLLOW_STEP_1] ID encontrado en BD local: ${targetUserId}`
+            `✅ [FOLLOW_OPTIMIZATION] @${targetUsername} encontrado en BD local con ID: ${targetUserId}`
           );
-        } else {
-          // Si no está en BD, buscar en la API y reprogramar
           console.log(
-            `[FOLLOW_STEP_1] No encontrado en BD. Buscando en API de Twitter...`
+            `🚀 [FOLLOW_OPTIMIZATION] Ambas cuentas están en BD, ejecutando follow inmediatamente (sin delay API)`
           );
-          // Actualizamos el tracker aquí porque esta llamada consume un request
+
+          // EJECUTAR INMEDIATAMENTE - No necesitamos delay porque no consumimos API para obtener IDs
+          const result = await client.v2.follow(actingUserId, targetUserId);
+
+          console.log(
+            `✅ Follow ejecutado exitosamente (BD→BD): @${action.account.username} → ${targetUserId} (@${targetUsername})`
+          );
+
+          return {
+            success: true,
+            data: {
+              targetUserId: targetUserId,
+              targetUsername: targetUsername,
+              followerUsername: action.account.username,
+              following: result.data.following,
+              userId: actingUserId,
+              timestamp: new Date().toISOString(),
+              optimized: true,
+              note: "Follow entre cuentas de BD - sin delay API",
+            },
+          };
+        } else {
+          // Target NO está en BD - necesitamos buscar en API
+          console.log(
+            `⚠️ [FOLLOW_API_LOOKUP] @${targetUsername} NO encontrado en BD. Buscando en API de Twitter...`
+          );
+
+          // Actualizamos el tracker porque esta llamada consume un request
           await this.updateRateLimitTracker(action.accountId, "get_user_id");
           targetUserId = await this.getUserIdFromUsername(
             client,
             targetUsername
           );
 
-          // REPROGRAMAR LA ACCIÓN PARA DENTRO DE 15 MINUTOS
+          console.log(
+            `✅ [FOLLOW_API_LOOKUP] ID obtenido de API: ${targetUserId} para @${targetUsername}`
+          );
+
+          // REPROGRAMAR LA ACCIÓN PARA DENTRO DE 16 MINUTOS
           const retryTime = new Date(Date.now() + this.RATE_LIMIT_WINDOW);
-          action.targetUserId = targetUserId; // Guardar el ID encontrado
+
+          // Actualizar la acción en BD con el ID encontrado
+          await this.prisma.queuedAction.update({
+            where: { actionId: action.id },
+            data: {
+              targetUserId: targetUserId,
+              estimatedStartTime: retryTime,
+              status: "QUEUED",
+            },
+          });
+
+          // Actualizar la acción en memoria
+          action.targetUserId = targetUserId;
           action.estimatedStartTime = retryTime.toISOString();
           action.status = "QUEUED";
-          action.error = null; // Limpiar cualquier error previo
-          action.result = {
-            note: `User ID for @${targetUsername} found (${targetUserId}). Rescheduling follow action.`,
-          };
+          action.error = null;
 
-          this.actionQueue.unshift(action); // Devolver a la cola
+          // Devolver a la cola con prioridad
+          this.actionQueue.unshift(action);
+
           console.log(
-            `[FOLLOW_STEP_1] Acción ${
+            `⏰ [FOLLOW_API_LOOKUP] Acción ${
               action.id
-            } reprogramada para seguir a ${targetUserId} a las ${retryTime.toISOString()}`
+            } reprogramada para ${retryTime.toISOString()}`
           );
-          await this.addToHistory(action);
-          // Devolvemos un resultado intermedio, la acción no ha terminado
-          return action.result;
+          console.log(
+            `📝 [FOLLOW_API_LOOKUP] ID ${targetUserId} guardado, esperando 16 minutos para ejecutar follow`
+          );
+
+          // Actualizar historial con estado intermedio
+          await this.addToHistory({
+            ...action,
+            status: "QUEUED",
+            success: false,
+            result: {
+              note: `User ID for @${targetUsername} found (${targetUserId}). Rescheduling follow action for ${retryTime.toISOString()}`,
+              stage: "ID_LOOKUP_COMPLETED",
+              targetUserId: targetUserId,
+            },
+          });
+
+          // Devolver resultado intermedio
+          return {
+            success: false,
+            data: {
+              stage: "ID_LOOKUP_COMPLETED",
+              targetUserId: targetUserId,
+              targetUsername: targetUsername,
+              rescheduledFor: retryTime.toISOString(),
+              note: `User ID found, follow rescheduled for 16 minutes later`,
+            },
+          };
         }
+      } else {
+        // Ya tenemos targetUserId - ejecutar directamente
+        console.log(
+          `✅ [FOLLOW_DIRECT] targetUserId ya disponible: ${targetUserId}, ejecutando follow...`
+        );
       }
 
-      // --- PASO 2: EJECUTAR EL FOLLOW ---
+      // --- EJECUTAR EL FOLLOW CON ID DISPONIBLE ---
       console.log(
-        `[FOLLOW_STEP_2] Ejecutando follow para ${targetUserId} (@${targetUsername})`
+        `🚀 [FOLLOW_EXECUTE] Ejecutando follow: ${actingUserId} → ${targetUserId} (@${targetUsername})`
       );
+
       const result = await client.v2.follow(actingUserId, targetUserId);
 
       console.log(
@@ -701,12 +831,15 @@ class QueueService {
       );
 
       return {
-        targetUserId: targetUserId,
-        targetUsername: targetUsername,
-        followerUsername: action.account.username,
-        following: result.data.following,
-        userId: actingUserId,
-        timestamp: new Date().toISOString(),
+        success: true,
+        data: {
+          targetUserId: targetUserId,
+          targetUsername: targetUsername,
+          followerUsername: action.account.username,
+          following: result.data.following,
+          userId: actingUserId,
+          timestamp: new Date().toISOString(),
+        },
       };
     } catch (error) {
       // Manejo especial para errores de follow
@@ -725,13 +858,16 @@ class QueueService {
         );
 
         return {
-          targetUserId: targetUserId,
-          targetUsername: targetUsername,
-          followerUsername: action.account.username,
-          following: true, // Ya se está siguiendo
-          userId: action.account.userId,
-          timestamp: new Date().toISOString(),
-          note: "Ya se estaba siguiendo esta cuenta",
+          success: true,
+          data: {
+            targetUserId: targetUserId,
+            targetUsername: targetUsername,
+            followerUsername: action.account.username,
+            following: true, // Ya se está siguiendo
+            userId: actingUserId,
+            timestamp: new Date().toISOString(),
+            note: "Ya se estaba siguiendo esta cuenta",
+          },
         };
       }
 
@@ -771,12 +907,15 @@ class QueueService {
       );
 
       return {
-        targetUserId: targetUserId,
-        targetUsername: targetUsername,
-        followerUsername: action.account.username,
-        following: result.data.following, // Debería ser false
-        userId: actingUserId,
-        timestamp: new Date().toISOString(),
+        success: true,
+        data: {
+          targetUserId: targetUserId,
+          targetUsername: targetUsername,
+          followerUsername: action.account.username,
+          following: result.data.following, // Debería ser false
+          userId: actingUserId,
+          timestamp: new Date().toISOString(),
+        },
       };
     } catch (error) {
       this.twitterService.handleTwitterError(error, "unfollow");

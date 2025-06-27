@@ -14,6 +14,7 @@ function createQueueRoutes(queueService, prisma) {
         text,
         tweetId,
         targetUserId,
+        targetUsername,
         scheduledTime,
         // Nuevos campos para distribución aleatoria
         useRandomDistribution,
@@ -95,6 +96,7 @@ function createQueueRoutes(queueService, prisma) {
             text,
             tweetId,
             targetUserId,
+            targetUsername,
             account: account,
             accountUsername: account.username,
             accountLabels: account.labels || [],
