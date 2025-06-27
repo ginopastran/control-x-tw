@@ -11,6 +11,10 @@ class QueueService {
     this.lastActionTimes = {};
     this.MAX_HISTORY_SIZE = 100;
     this.userIdCache = new Map(); // Cache para IDs de usuario
+
+    // Nuevo: Tracker para rate limits
+    this.rateLimitTracker = new Map(); // accountId -> { actionType: timestamp }
+    this.RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 minutos en ms
   }
 
   generateActionId() {
@@ -251,33 +255,65 @@ class QueueService {
       return;
     }
 
-    // 🔥 BUSCAR LA PRIMERA ACCIÓN LISTA PARA EJECUTAR
-    const now = new Date();
-    const readyActionIndex = this.actionQueue.findIndex((action) => {
+    const now = Date.now();
+    let readyAction = null;
+    let readyActionIndex = -1;
+
+    // Buscar una acción que esté lista y no viole el rate limit
+    for (let i = 0; i < this.actionQueue.length; i++) {
+      const action = this.actionQueue[i];
       const executeTime = new Date(
         action.estimatedStartTime || action.scheduledTime
-      );
-      return executeTime <= now;
-    });
+      ).getTime();
 
-    if (readyActionIndex === -1) {
+      if (executeTime > now) {
+        continue; // Aún no es su turno
+      }
+
+      // Chequeo de Rate Limit
+      const accountLimits = this.rateLimitTracker.get(action.accountId);
+      const lastActionTime = accountLimits
+        ? accountLimits.get(action.action)
+        : 0;
+
+      if (lastActionTime && now - lastActionTime < this.RATE_LIMIT_WINDOW) {
+        // Violación de rate limit, posponer
+        const newStartTime = new Date(lastActionTime + this.RATE_LIMIT_WINDOW);
+        console.log(
+          `[RATE_LIMIT] Posponiendo acción ${action.id} para ${
+            action.account.username
+          }. Nueva hora: ${newStartTime.toISOString()}`
+        );
+        action.estimatedStartTime = newStartTime.toISOString();
+        action.status = "QUEUED"; // Asegurar que sigue en cola
+        await this.addToHistory(action);
+        continue; // Pasar a la siguiente acción en la cola
+      }
+
+      // Encontramos una acción lista
+      readyAction = action;
+      readyActionIndex = i;
+      break;
+    }
+
+    if (!readyAction) {
       // No hay acciones listas para ejecutar
       return;
     }
 
-    // Extraer la acción lista
+    // Extraer la acción lista de la cola
     const action = this.actionQueue.splice(readyActionIndex, 1)[0];
-    if (!action) return;
-
     console.log(
       `[QUEUE] Processing action ${action.id} for @${action.account.username}`
     );
 
-    // 🔥 AHORA SÍ PASA A RUNNING (sin delay adicional)
     this.runningActions.add(action);
     action.status = "RUNNING";
     action.startedAt = new Date().toISOString();
     await this.addToHistory(action);
+
+    // Actualizar el tracker ANTES de ejecutar la acción
+    this.updateRateLimitTracker(action.accountId, action.action);
 
     try {
       console.log(`[QUEUE] Executing action ${action.id} via executeAction...`);
@@ -287,37 +323,61 @@ class QueueService {
       action.result = result;
       console.log(`✅ [QUEUE] Action ${action.id} successful.`);
     } catch (err) {
-      const errorStr = err.message?.toLowerCase() || "";
+      // Manejo de error mejorado
+      const twitterError = err.twitterError || err;
+      const errorCode = twitterError.code || twitterError.status;
+      const errorStr = (twitterError.message || "").toLowerCase();
 
-      // 🔧 Manejo especial para follows duplicados
-      if (
+      // Caso 1: Error de "Too Many Requests" (429)
+      if (errorCode === 429) {
+        const retryTime = new Date(Date.now() + this.RATE_LIMIT_WINDOW);
+        console.log(
+          `[RATE_LIMIT] Error 429 detectado para acción ${
+            action.id
+          }. Reintentando a las ${retryTime.toISOString()}`
+        );
+
+        // Actualizar el tracker con la hora actual para forzar la espera
+        this.updateRateLimitTracker(action.accountId, action.action);
+
+        // Devolver la acción a la cola con nueva hora de inicio
+        action.status = "QUEUED";
+        action.estimatedStartTime = retryTime.toISOString();
+        action.error = `Rate limit hit. Retrying after 15 min. Original error: ${err.message}`;
+        this.actionQueue.unshift(action); // Ponerla al principio para que sea re-evaluada pronto
+      }
+      // Caso 2: Follow duplicado (considerado éxito)
+      else if (
         action.action === "follow" &&
-        (errorStr.includes("already") ||
-          errorStr.includes("following") ||
-          errorStr.includes("duplicate") ||
+        (errorStr.includes("already following") ||
+          errorStr.includes("you are already following this user") ||
           err.code === "AlreadyFollowing" ||
-          err.status === 403)
+          errorCode === 403) // 403 a veces significa "ya sigues a este usuario"
       ) {
         console.log(
           `⚠️ [QUEUE] Follow duplicado considerado como éxito para ${action.id}`
         );
-
         action.status = "COMPLETED";
         action.success = true;
         action.result = { note: "Ya se estaba siguiendo esta cuenta" };
-      } else {
+      }
+      // Caso 3: Otros errores
+      else {
         console.error(`❌ [QUEUE] Action ${action.id} failed:`, err.message);
         action.status = "FAILED";
         action.success = false;
         action.error = err.message;
-        action.errorCode = err.twitterError ? String(err.twitterError) : null;
+        action.errorCode = String(errorCode || "UNKNOWN");
       }
     } finally {
       console.log(
         `[QUEUE] Finalizing action ${action.id}, preparing to save final state.`
       );
       action.completedAt = new Date().toISOString();
-      await this.addToHistory(action); // Guardar estado final (COMPLETED o FAILED)
+      // Solo guardar en historial si no fue re-encolada
+      if (action.status !== "QUEUED") {
+        await this.addToHistory(action);
+      }
       this.runningActions.delete(action);
       console.log(
         `[QUEUE] Finalized and removed action ${action.id} from running set.`
@@ -472,7 +532,7 @@ class QueueService {
   async executeFollow(action) {
     const rawTarget = action.targetUsername || action.targetUserId;
     const targetUsername = (rawTarget || "").replace(/^@+/, "").trim();
-    let targetUserId; // Se declara aquí para que esté disponible en el bloque catch
+    let targetUserId = action.targetUserId; // Usar si ya existe en la acción
 
     try {
       console.log(
@@ -488,10 +548,59 @@ class QueueService {
 
       const client = await this.twitterService.getTwitterClient(action.account);
 
-      // 🔥 OBTENER ID DEL USUARIO A SEGUIR (con cache)
-      targetUserId = await this.getUserIdFromUsername(client, targetUsername);
+      // --- LÓGICA DE DOS PASOS ---
+      if (!targetUserId) {
+        console.log(
+          `[FOLLOW_STEP_1] No hay targetUserId para @${targetUsername}. Buscando...`
+        );
+        // Optimización: Buscar primero en nuestra BD
+        const localAccount = await this.prisma.xAccount.findUnique({
+          where: { username: targetUsername },
+        });
 
-      // 🔥 USAR API v2 para follows
+        if (localAccount && (localAccount.userId || localAccount.twitterId)) {
+          targetUserId = localAccount.userId || localAccount.twitterId;
+          console.log(
+            `[FOLLOW_STEP_1] ID encontrado en BD local: ${targetUserId}`
+          );
+        } else {
+          // Si no está en BD, buscar en la API y reprogramar
+          console.log(
+            `[FOLLOW_STEP_1] No encontrado en BD. Buscando en API de Twitter...`
+          );
+          // Actualizamos el tracker aquí porque esta llamada consume un request
+          this.updateRateLimitTracker(action.accountId, "get_user_id");
+          targetUserId = await this.getUserIdFromUsername(
+            client,
+            targetUsername
+          );
+
+          // REPROGRAMAR LA ACCIÓN PARA DENTRO DE 15 MINUTOS
+          const retryTime = new Date(Date.now() + this.RATE_LIMIT_WINDOW);
+          action.targetUserId = targetUserId; // Guardar el ID encontrado
+          action.estimatedStartTime = retryTime.toISOString();
+          action.status = "QUEUED";
+          action.error = null; // Limpiar cualquier error previo
+          action.result = {
+            note: `User ID for @${targetUsername} found (${targetUserId}). Rescheduling follow action.`,
+          };
+
+          this.actionQueue.unshift(action); // Devolver a la cola
+          console.log(
+            `[FOLLOW_STEP_1] Acción ${
+              action.id
+            } reprogramada para seguir a ${targetUserId} a las ${retryTime.toISOString()}`
+          );
+          await this.addToHistory(action);
+          // Devolvemos un resultado intermedio, la acción no ha terminado
+          return action.result;
+        }
+      }
+
+      // --- PASO 2: EJECUTAR EL FOLLOW ---
+      console.log(
+        `[FOLLOW_STEP_2] Ejecutando follow para ${targetUserId} (@${targetUsername})`
+      );
       const result = await client.v2.follow(actingUserId, targetUserId);
 
       console.log(
@@ -507,7 +616,7 @@ class QueueService {
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
-      // 🔧 Manejo especial para errores de follow
+      // Manejo especial para errores de follow
       const errorStr = error.message?.toLowerCase() || "";
 
       // Si ya se está siguiendo a esa cuenta, considerarlo como éxito
@@ -618,6 +727,17 @@ class QueueService {
         scheduled: this.scheduledActions.length,
       },
     };
+  }
+
+  // Nuevo: Helper para actualizar el tracker de rate limits
+  updateRateLimitTracker(accountId, actionType) {
+    if (!this.rateLimitTracker.has(accountId)) {
+      this.rateLimitTracker.set(accountId, new Map());
+    }
+    this.rateLimitTracker.get(accountId).set(actionType, Date.now());
+    console.log(
+      `[RATE_LIMIT] Tracker actualizado para ${accountId}, acción ${actionType}`
+    );
   }
 }
 
