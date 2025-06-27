@@ -61,9 +61,9 @@ export default function EmailsAdminPage() {
     try {
       setLoading(true);
 
-      const [authResponse, suggResponse] = await Promise.all([
-        fetch("/api/admin/authorized-emails"),
-        fetch("/api/admin/email-suggestions"),
+      const [authResponse /*, suggResponse*/] = await Promise.all([
+        fetch("/api/authorized-emails"),
+        // fetch("/api/admin/email-suggestions"), // FIXME: This endpoint does not exist.
       ]);
 
       if (authResponse.ok) {
@@ -71,10 +71,10 @@ export default function EmailsAdminPage() {
         setAuthorizedEmails(authData.emails || []);
       }
 
-      if (suggResponse.ok) {
-        const suggData = await suggResponse.json();
-        setEmailSuggestions(suggData.suggestions || []);
-      }
+      // if (suggResponse.ok) {
+      //   const suggData = await suggResponse.json();
+      //   setEmailSuggestions(suggData.suggestions || []);
+      // }
     } catch (err) {
       setError("Error al cargar los datos");
       console.error(err);
@@ -90,7 +90,7 @@ export default function EmailsAdminPage() {
       setAdding(true);
       setError("");
 
-      const response = await fetch("/api/admin/authorized-emails", {
+      const response = await fetch("/api/authorized-emails", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -117,7 +117,7 @@ export default function EmailsAdminPage() {
     if (!confirm("¿Estás seguro que deseas eliminar este email?")) return;
 
     try {
-      const response = await fetch(`/api/admin/authorized-emails/${emailId}`, {
+      const response = await fetch(`/api/authorized-emails/${emailId}`, {
         method: "DELETE",
       });
 
@@ -267,7 +267,7 @@ export default function EmailsAdminPage() {
           <CardContent>
             {emailSuggestions.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
-                No hay sugerencias de emails
+                Funcionalidad de sugerencias no disponible temporalmente.
               </div>
             ) : (
               <Table>

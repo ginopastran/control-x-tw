@@ -10,6 +10,7 @@ class QueueService {
     this.scheduledActions = [];
     this.lastActionTimes = {};
     this.MAX_HISTORY_SIZE = 100;
+    this.userIdCache = new Map(); // Cache para IDs de usuario
   }
 
   generateActionId() {
@@ -72,6 +73,49 @@ class QueueService {
     });
 
     console.log(`[HISTORY] Successfully upserted action: ${actionInfo.id}`);
+  }
+
+  async getUserIdFromUsername(client, username) {
+    const cleanedUsername = (username || "").replace(/^@+/, "").trim();
+    if (!cleanedUsername) {
+      throw new Error("El username no es válido o está vacío.");
+    }
+
+    if (this.userIdCache.has(cleanedUsername)) {
+      console.log(
+        `[CACHE] HIT: User ID para @${cleanedUsername} encontrado en cache.`
+      );
+      return this.userIdCache.get(cleanedUsername);
+    }
+
+    console.log(
+      `[CACHE] MISS: Buscando User ID para @${cleanedUsername} via API.`
+    );
+    try {
+      const { data: targetUser } = await client.v2.userByUsername(
+        cleanedUsername
+      );
+      if (!targetUser) {
+        throw new Error(
+          `Usuario de Twitter @${cleanedUsername} no encontrado.`
+        );
+      }
+      this.userIdCache.set(cleanedUsername, targetUser.id);
+      return targetUser.id;
+    } catch (userLookupError) {
+      console.error(
+        `Error buscando al usuario @${cleanedUsername}:`,
+        userLookupError.message
+      );
+      if (userLookupError.code === 429) {
+        throw new Error(
+          `Límite de tasa de API excedido al buscar @${cleanedUsername}. Intenta de nuevo más tarde.`
+        );
+      }
+      throw new Error(
+        `No se pudo encontrar el usuario de Twitter @${cleanedUsername}. Verifica que el nombre de usuario es correcto.`
+      );
+    }
   }
 
   addScheduledAction(actionObj) {
@@ -418,42 +462,24 @@ class QueueService {
   }
 
   async executeFollow(action) {
+    const rawTarget = action.targetUsername || action.targetUserId;
+    const targetUsername = (rawTarget || "").replace(/^@+/, "").trim();
+    let targetUserId; // Se declara aquí para que esté disponible en el bloque catch
+
     try {
-      const rawTarget = action.targetUsername || action.targetUserId;
       console.log(
-        `👥 Ejecutando follow: @${action.account.username} → @${rawTarget}`
+        `👥 Ejecutando follow: @${action.account.username} → @${targetUsername}`
       );
 
       const client = await this.twitterService.getTwitterClient(action.account);
 
-      const targetUsername = (rawTarget || "").replace(/^@/, "").trim();
-      if (!targetUsername) {
-        throw new Error("El username a seguir no es válido o está vacío.");
-      }
+      // 🔥 OBTENER ID DEL USUARIO A SEGUIR (con cache)
+      targetUserId = await this.getUserIdFromUsername(client, targetUsername);
 
-      let targetUserId;
-      try {
-        const { data: targetUser } = await client.v2.userByUsername(
-          targetUsername
-        );
-        if (!targetUser) {
-          throw new Error(
-            `Usuario de Twitter @${targetUsername} no encontrado.`
-          );
-        }
-        targetUserId = targetUser.id;
-      } catch (userLookupError) {
-        console.error(
-          `Error buscando al usuario @${targetUsername}:`,
-          userLookupError
-        );
-        throw new Error(
-          `No se pudo encontrar el usuario de Twitter @${targetUsername}. Verifica que el nombre de usuario es correcto.`
-        );
-      }
-
+      // 🔥 Obtener el ID del usuario autenticado para API v2
       const { data: currentUser } = await client.v2.me();
 
+      // 🔥 USAR API v2 para follows
       const result = await client.v2.follow(currentUser.id, targetUserId);
 
       console.log(
@@ -481,7 +507,7 @@ class QueueService {
         error.status === 403
       ) {
         console.log(
-          `⚠️ Follow ya existente: @${action.account.username} → ${targetUserId} (considerado como éxito)`
+          `⚠️ Follow ya existente: @${action.account.username} → ${targetUsername} (considerado como éxito)`
         );
 
         return {
@@ -502,44 +528,24 @@ class QueueService {
   }
 
   async executeUnfollow(action) {
+    const rawTarget = action.targetUsername || action.targetUserId;
+    const targetUsername = (rawTarget || "").replace(/^@+/, "").trim();
+    let targetUserId;
+
     try {
-      const rawTarget = action.targetUsername || action.targetUserId;
       console.log(
-        `👥❌ Ejecutando unfollow: @${action.account.username} → @${rawTarget}`
+        `👥❌ Ejecutando unfollow: @${action.account.username} → @${targetUsername}`
       );
 
       const client = await this.twitterService.getTwitterClient(action.account);
 
-      const targetUsername = (rawTarget || "").replace(/^@/, "").trim();
-      if (!targetUsername) {
-        throw new Error(
-          "El username a dejar de seguir no es válido o está vacío."
-        );
-      }
+      // 🔥 OBTENER ID DEL USUARIO A DEJAR DE SEGUIR (con cache)
+      targetUserId = await this.getUserIdFromUsername(client, targetUsername);
 
-      let targetUserId;
-      try {
-        const { data: targetUser } = await client.v2.userByUsername(
-          targetUsername
-        );
-        if (!targetUser) {
-          throw new Error(
-            `Usuario de Twitter @${targetUsername} no encontrado.`
-          );
-        }
-        targetUserId = targetUser.id;
-      } catch (userLookupError) {
-        console.error(
-          `Error buscando al usuario @${targetUsername}:`,
-          userLookupError
-        );
-        throw new Error(
-          `No se pudo encontrar el usuario de Twitter @${targetUsername}. Verifica que el nombre de usuario es correcto.`
-        );
-      }
-
+      // 🔥 Obtener el ID del usuario autenticado para API v2
       const { data: currentUser } = await client.v2.me();
 
+      // 🔥 USAR API v2 para unfollows
       const result = await client.v2.unfollow(currentUser.id, targetUserId);
 
       console.log(
