@@ -241,12 +241,13 @@ model QueuedAction {
     baseDelay   Int?
     randomDelay Int?
     actualDelay Int?
+    minDelay    Int? @default(960000) // 16 minutos en ms por defecto
 
     // Metadata
     batchId       String?
     accountLabels String[]
 
-    // Nuevos campos para distribución aleatoria
+    // Campos para distribución aleatoria
     useRandomDistribution Boolean @default(false)
     distributionConfig    Json? // Guarda configuración de distribución
 

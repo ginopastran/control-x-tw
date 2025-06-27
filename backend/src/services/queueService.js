@@ -197,178 +197,284 @@ class QueueService {
 
   // Modificar: addActionsToQueue para incluir accountLabels
   async addActionsToQueue(actions) {
-    for (const actionObj of actions) {
-      // Asegurar que tenemos accountLabels
-      if (!actionObj.accountLabels && actionObj.account) {
-        actionObj.accountLabels = actionObj.account.labels || [];
-      }
+    console.log(`📥 Agregando ${actions.length} acciones a la cola`);
 
-      // Asegurar que tenemos accountUsername
-      if (!actionObj.accountUsername && actionObj.account) {
-        actionObj.accountUsername = actionObj.account.username;
-      }
+    const processedActions = [];
+    const now = new Date();
+    const minDelayMs = 16 * 60 * 1000; // 16 minutos en milisegundos
 
-      // Persistir en BD
-      await this.persistActionToDb(actionObj);
+    for (let i = 0; i < actions.length; i++) {
+      const action = actions[i];
+      let scheduledTime = now;
 
-      // Agregar a memoria
-      if (actionObj.scheduledTime) {
-        this.scheduledActions.push(actionObj);
-      } else {
+      try {
+        if (
+          action.useRandomDistribution &&
+          action.distributionTimes &&
+          action.distributionTimes[i]
+        ) {
+          // Usar tiempo de distribución aleatoria
+          scheduledTime = new Date(action.distributionTimes[i]);
+
+          // APLICAR DELAY MÍNIMO DE 16 MINUTOS
+          const minTimeForThisAction = new Date(now.getTime() + i * minDelayMs);
+          if (scheduledTime < minTimeForThisAction) {
+            scheduledTime = minTimeForThisAction;
+            console.log(
+              `⏰ Aplicando delay mínimo de ${
+                16 * (i + 1)
+              } minutos para acción ${i + 1}`
+            );
+          }
+        } else {
+          // Usar delays normales + delay mínimo
+          const baseDelay = action.baseDelay || 30000;
+          const randomDelay = action.randomDelay || 60000;
+          const calculatedDelay = baseDelay + Math.random() * randomDelay;
+
+          // Aplicar delay mínimo de 16 minutos por acción
+          const totalDelay = Math.max(calculatedDelay, i * minDelayMs);
+          scheduledTime = new Date(now.getTime() + totalDelay);
+        }
+
+        const actionObj = {
+          id: this.generateActionId(),
+          accountId: action.accountId,
+          action: action.action,
+          text: action.text,
+          tweetId: action.tweetId,
+          targetUserId: action.targetUserId,
+          targetUsername: action.targetUsername,
+          status: "queued",
+          priority: action.priority || 0,
+          scheduledTime: scheduledTime,
+          estimatedStartTime: scheduledTime,
+          baseDelay: action.baseDelay,
+          randomDelay: action.randomDelay,
+          actualDelay: scheduledTime.getTime() - now.getTime(),
+          batchId: action.batchId,
+          accountLabels: action.accountLabels || [],
+          useRandomDistribution: action.useRandomDistribution || false,
+          distributionConfig: action.distributionConfig || null,
+          createdAt: now,
+        };
+
+        // Persistir en base de datos
+        await this.persistActionToDb(actionObj);
+
+        // Agregar a memoria
         this.actionQueue.push(actionObj);
-      }
+        processedActions.push(actionObj);
 
-      // Guardar en historial
-      await this.addToHistory(actionObj);
+        console.log(
+          `✅ Acción ${
+            actionObj.id
+          } programada para: ${scheduledTime.toLocaleString("es-ES")}`
+        );
+      } catch (error) {
+        console.error(`❌ Error procesando acción ${i + 1}:`, error.message);
+        throw error;
+      }
     }
+
+    // Ordenar cola por tiempo programado
+    this.actionQueue.sort(
+      (a, b) => new Date(a.scheduledTime) - new Date(b.scheduledTime)
+    );
+
+    console.log(
+      `🎯 ${processedActions.length} acciones agregadas exitosamente`
+    );
+    console.log(
+      `📊 Cola actual: ${this.actionQueue.length} acciones pendientes`
+    );
+
+    if (processedActions.length > 0) {
+      const firstAction = processedActions[0];
+      const lastAction = processedActions[processedActions.length - 1];
+      console.log(
+        `⏰ Rango de ejecución: ${firstAction.scheduledTime.toLocaleString(
+          "es-ES"
+        )} - ${lastAction.scheduledTime.toLocaleString("es-ES")}`
+      );
+    }
+
+    return {
+      success: true,
+      message: `${processedActions.length} acciones agregadas a la cola`,
+      actions: processedActions.map((action) => ({
+        id: action.id,
+        accountId: action.accountId,
+        action: action.action,
+        scheduledTime: action.scheduledTime,
+        estimatedStartTime: action.estimatedStartTime,
+        actualDelay: action.actualDelay,
+        useRandomDistribution: action.useRandomDistribution,
+      })),
+    };
   }
 
   // Modificar: processQueue para actualizar BD
   async processQueue() {
-    console.log(
-      `[QUEUE] Tick - Queue: ${this.actionQueue.length}, Scheduled: ${this.scheduledActions.length}, Running: ${this.runningActions.size}`
-    );
-
-    if (this.actionQueue.length === 0 || this.runningActions.size >= 3) {
+    if (this.isProcessing) {
       return;
     }
 
-    const now = Date.now();
-    let readyAction = null;
-    let readyActionIndex = -1;
-
-    // Buscar una acción que esté lista y no viole el rate limit
-    for (let i = 0; i < this.actionQueue.length; i++) {
-      const action = this.actionQueue[i];
-      const executeTime = new Date(
-        action.estimatedStartTime || action.scheduledTime
-      ).getTime();
-
-      if (executeTime > now) {
-        continue; // Aún no es su turno
-      }
-
-      // Chequeo de Rate Limit
-      const accountLimits = this.rateLimitTracker.get(action.accountId);
-      const lastActionTime = accountLimits
-        ? accountLimits.get(action.action)
-        : 0;
-
-      if (lastActionTime && now - lastActionTime < this.RATE_LIMIT_WINDOW) {
-        // Violación de rate limit, posponer
-        const newStartTime = new Date(lastActionTime + this.RATE_LIMIT_WINDOW);
-        console.log(
-          `[RATE_LIMIT] Posponiendo acción ${action.id} para ${
-            action.account.username
-          }. Nueva hora: ${newStartTime.toISOString()}`
-        );
-        action.estimatedStartTime = newStartTime.toISOString();
-        action.status = "QUEUED"; // Asegurar que sigue en cola
-        await this.addToHistory(action);
-        continue; // Pasar a la siguiente acción en la cola
-      }
-
-      // Encontramos una acción lista
-      readyAction = action;
-      readyActionIndex = i;
-      break;
-    }
-
-    if (!readyAction) {
-      // No hay acciones listas para ejecutar
-      return;
-    }
-
-    // Extraer la acción lista de la cola
-    const action = this.actionQueue.splice(readyActionIndex, 1)[0];
-
-    this.runningActions.add(action);
-    action.status = "RUNNING";
-    action.startedAt = new Date().toISOString();
-
-    // Persistir cambio de estado en BD
-    await this.persistActionToDb(action);
-    await this.addToHistory(action);
-
-    // Actualizar el tracker ANTES de ejecutar la acción
-    await this.updateRateLimitTracker(action.accountId, action.action);
+    this.isProcessing = true;
+    const now = new Date();
+    const minDelayMs = 16 * 60 * 1000; // 16 minutos en milisegundos
 
     try {
-      console.log(`[QUEUE] Executing action ${action.id} via executeAction...`);
-      const result = await this.executeAction(action);
-      action.status = "COMPLETED";
-      action.success = true;
-      action.result = result;
+      // Obtener acciones listas para ejecutar
+      const readyActions = this.actionQueue.filter((action) => {
+        const isReady =
+          action.status === "queued" && new Date(action.scheduledTime) <= now;
 
-      // Remover de BD ya que se completó
-      await this.removeActionFromDb(action.id);
-    } catch (err) {
-      // Manejo de error mejorado
-      const twitterError = err.twitterError || err;
-      const errorCode = twitterError.code || twitterError.status;
-      const errorStr = (twitterError.message || "").toLowerCase();
+        // VERIFICAR DELAY MÍNIMO DESDE LA ÚLTIMA ACCIÓN DE LA MISMA CUENTA
+        if (isReady) {
+          const lastActionTime = this.rateLimitTracker.get(action.accountId);
+          if (lastActionTime) {
+            const timeSinceLastAction =
+              now.getTime() - lastActionTime.getTime();
+            if (timeSinceLastAction < minDelayMs) {
+              console.log(
+                `⏰ Cuenta ${action.accountId} debe esperar ${Math.ceil(
+                  (minDelayMs - timeSinceLastAction) / 60000
+                )} minutos más`
+              );
+              return false;
+            }
+          }
+        }
 
-      // Caso 1: Error de "Too Many Requests" (429)
-      if (errorCode === 429) {
-        const retryTime = new Date(Date.now() + this.RATE_LIMIT_WINDOW);
-        console.log(
-          `[RATE_LIMIT] Error 429 detectado para acción ${
-            action.id
-          }. Reintentando a las ${retryTime.toISOString()}`
-        );
+        return isReady;
+      });
 
-        // Actualizar el tracker con la hora actual para forzar la espera
-        await this.updateRateLimitTracker(action.accountId, action.action);
-
-        // Devolver la acción a la cola con nueva hora de inicio
-        action.status = "QUEUED";
-        action.estimatedStartTime = retryTime.toISOString();
-        action.error = `Rate limit hit. Retrying after 15 min. Original error: ${err.message}`;
-        this.actionQueue.unshift(action); // Ponerla al principio para que sea re-evaluada pronto
-      }
-      // Caso 2: Follow duplicado (considerado éxito)
-      else if (
-        action.action === "follow" &&
-        (errorStr.includes("already following") ||
-          errorStr.includes("you are already following this user") ||
-          err.code === "AlreadyFollowing" ||
-          errorCode === 403) // 403 a veces significa "ya sigues a este usuario"
-      ) {
-        console.log(
-          `⚠️ [QUEUE] Follow duplicado considerado como éxito para ${action.id}`
-        );
-        action.status = "COMPLETED";
-        action.success = true;
-        action.result = { note: "Ya se estaba siguiendo esta cuenta" };
-      }
-      // Caso 3: Otros errores
-      else {
-        console.error(`❌ [QUEUE] Action ${action.id} failed:`, err.message);
-        action.status = "FAILED";
-        action.success = false;
-        action.error = err.message;
-        action.errorCode = String(errorCode || "UNKNOWN");
+      if (readyActions.length === 0) {
+        return;
       }
 
-      // Si la acción se re-encola, persistir el cambio
-      if (action.status === "QUEUED") {
-        await this.persistActionToDb(action);
-      } else {
-        // Si falló definitivamente, remover de BD
-        await this.removeActionFromDb(action.id);
+      console.log(`🚀 Procesando ${readyActions.length} acciones listas`);
+
+      // Procesar acciones una por una con delay mínimo
+      for (const action of readyActions) {
+        try {
+          // Verificar nuevamente el delay mínimo antes de ejecutar
+          const lastActionTime = this.rateLimitTracker.get(action.accountId);
+          if (lastActionTime) {
+            const timeSinceLastAction =
+              now.getTime() - lastActionTime.getTime();
+            if (timeSinceLastAction < minDelayMs) {
+              console.log(
+                `⏰ Saltando acción ${action.id} - delay mínimo no cumplido`
+              );
+              continue;
+            }
+          }
+
+          // Marcar como ejecutándose
+          action.status = "running";
+          action.startedAt = new Date();
+          await this.updateActionInDb(action.id, {
+            status: "RUNNING",
+            startedAt: action.startedAt,
+          });
+
+          // Actualizar rate limit tracker ANTES de ejecutar
+          this.rateLimitTracker.set(action.accountId, new Date());
+          await this.updateRateLimitTracker(action.accountId, action.action);
+
+          console.log(
+            `🔄 Ejecutando acción ${action.id} (${action.action}) para cuenta ${action.accountId}`
+          );
+
+          // Ejecutar la acción
+          const result = await this.executeAction(action);
+
+          if (result.success) {
+            // Marcar como completada
+            action.status = "completed";
+            action.completedAt = new Date();
+            await this.updateActionInDb(action.id, {
+              status: "COMPLETED",
+              completedAt: action.completedAt,
+              result: result.data,
+            });
+
+            console.log(`✅ Acción ${action.id} completada exitosamente`);
+          } else {
+            // Marcar como fallida
+            action.status = "failed";
+            action.error = result.error;
+            await this.updateActionInDb(action.id, {
+              status: "FAILED",
+              error: result.error,
+            });
+
+            console.log(`❌ Acción ${action.id} falló: ${result.error}`);
+          }
+
+          // Remover de la cola en memoria
+          const index = this.actionQueue.findIndex((a) => a.id === action.id);
+          if (index !== -1) {
+            this.actionQueue.splice(index, 1);
+          }
+
+          // Agregar al historial
+          await this.addToHistory({
+            actionId: action.id,
+            accountId: action.accountId,
+            username: action.accountId, // Se podría mejorar obteniendo el username real
+            accountLabels: action.accountLabels,
+            action: action.action,
+            text: action.text,
+            tweetId: action.tweetId,
+            targetUserId: action.targetUserId,
+            status: this.mapQueueStatusToActionStatus(action.status),
+            success: action.status === "completed",
+            createdAt: action.createdAt,
+            startedAt: action.startedAt,
+            completedAt: action.completedAt,
+            baseDelay: action.baseDelay,
+            randomDelay: action.randomDelay,
+            actualDelay: action.actualDelay,
+            result: result.data || null,
+            error: action.error,
+            batchId: action.batchId,
+          });
+
+          // DELAY MÍNIMO ENTRE ACCIONES (incluso si son de cuentas diferentes)
+          if (readyActions.indexOf(action) < readyActions.length - 1) {
+            console.log(
+              `⏰ Esperando 16 minutos antes de la siguiente acción...`
+            );
+            await new Promise((resolve) => setTimeout(resolve, minDelayMs));
+          }
+        } catch (error) {
+          console.error(
+            `❌ Error ejecutando acción ${action.id}:`,
+            error.message
+          );
+
+          // Marcar como fallida
+          action.status = "failed";
+          action.error = error.message;
+          await this.updateActionInDb(action.id, {
+            status: "FAILED",
+            error: error.message,
+          });
+
+          // Remover de la cola
+          const index = this.actionQueue.findIndex((a) => a.id === action.id);
+          if (index !== -1) {
+            this.actionQueue.splice(index, 1);
+          }
+        }
       }
+    } catch (error) {
+      console.error("❌ Error en processQueue:", error.message);
     } finally {
-      console.log(
-        `[QUEUE] Finalizing action ${action.id}, preparing to save final state.`
-      );
-      action.completedAt = new Date().toISOString();
-      if (action.status !== "QUEUED") {
-        await this.addToHistory(action);
-      }
-      this.runningActions.delete(action);
-      console.log(
-        `[QUEUE] Finalized and removed action ${action.id} from running set.`
-      );
+      this.isProcessing = false;
     }
   }
 

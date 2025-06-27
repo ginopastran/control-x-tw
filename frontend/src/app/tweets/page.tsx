@@ -754,7 +754,7 @@ export default function TweetsPage() {
     return value * multipliers[unit as keyof typeof multipliers];
   };
 
-  // Función para generar tiempos aleatorios distribuidos
+  // Función para generar tiempos aleatorios distribuidos con delay mínimo
   const generateRandomDistributionTimes = (count: number) => {
     if (!useRandomDistribution) return [];
 
@@ -763,16 +763,22 @@ export default function TweetsPage() {
       distributionUnit
     );
     const now = Date.now();
+    const minDelayMs = 16 * 60 * 1000; // 16 minutos en milisegundos
     const times: string[] = [];
 
     for (let i = 0; i < count; i++) {
       // Generar tiempo aleatorio entre ahora y el máximo configurado
       const randomDelay = Math.random() * maxTimeMs;
-      const scheduledTime = new Date(now + randomDelay);
+
+      // Aplicar delay mínimo de 16 minutos por acción
+      const baseTimeWithMinDelay = now + i * minDelayMs; // 16min * índice
+      const finalTime = Math.max(baseTimeWithMinDelay, now + randomDelay);
+
+      const scheduledTime = new Date(finalTime);
       times.push(scheduledTime.toISOString());
     }
 
-    // Ordenar los tiempos para mejor visualización (opcional)
+    // Ordenar los tiempos para asegurar secuencia correcta
     times.sort();
 
     return times;
@@ -2000,6 +2006,37 @@ export default function TweetsPage() {
                   </div>
                 </div>
 
+                {/* NUEVA INFORMACIÓN SOBRE DELAY MÍNIMO */}
+                <div className="p-3 bg-gradient-to-r from-orange-100 to-red-100 rounded-lg border border-orange-200">
+                  <div className="flex items-start gap-2">
+                    <AlertCircle className="h-4 w-4 text-orange-600 mt-0.5 flex-shrink-0" />
+                    <div className="text-xs text-orange-800">
+                      <p className="font-medium mb-1">
+                        ⏰ Delay Mínimo de Seguridad:
+                      </p>
+                      <ul className="space-y-1 list-disc list-inside">
+                        <li>
+                          <strong>16 minutos</strong> mínimo entre cada acción
+                        </li>
+                        <li>
+                          Evita errores 429 (Too Many Requests) de Twitter
+                        </li>
+                        <li>Se aplica automáticamente a todas las acciones</li>
+                        {selectedAccounts.length > 1 && (
+                          <li>
+                            Con {selectedAccounts.length} acciones: tiempo
+                            mínimo total de{" "}
+                            <strong>
+                              {Math.ceil((selectedAccounts.length * 16) / 60)}{" "}
+                              horas
+                            </strong>
+                          </li>
+                        )}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="p-3 bg-gradient-to-r from-purple-100 to-blue-100 rounded-lg border border-purple-200">
                   <div className="flex items-start gap-2">
                     <AlertCircle className="h-4 w-4 text-purple-600 mt-0.5 flex-shrink-0" />
@@ -2011,10 +2048,16 @@ export default function TweetsPage() {
                           dentro del rango
                         </li>
                         <li>
+                          <strong>NUEVO:</strong> Respeta un mínimo de 16
+                          minutos entre acciones
+                        </li>
+                        <li>
                           No hay delays secuenciales - todas son independientes
                         </li>
                         <li>Ideal para simular actividad natural y orgánica</li>
-                        <li>Evita patrones detectables en las acciones</li>
+                        <li>
+                          Evita patrones detectables y errores de rate limiting
+                        </li>
                       </ul>
                     </div>
                   </div>
