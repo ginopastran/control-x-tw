@@ -94,6 +94,21 @@ interface BatchTweet {
   assignedAccounts: string[];
 }
 
+// Agregar nuevas interfaces para los otros tipos de lotes
+interface BatchFollow {
+  id: string;
+  username: string;
+  profileUrl: string;
+  assignedAccounts: string[];
+}
+
+interface BatchRetweet {
+  id: string;
+  tweetUrl: string;
+  tweetId: string;
+  assignedAccounts: string[];
+}
+
 // Filtros predefinidos basados en las etiquetas reales de las cuentas
 const LABEL_FILTERS = {
   genero: ["varón", "mujer"],
@@ -159,6 +174,17 @@ export default function TweetsPage() {
   const [batchMode, setBatchMode] = useState(false);
   const [batchTweets, setBatchTweets] = useState<BatchTweet[]>([]);
   const [batchTweetText, setBatchTweetText] = useState("");
+
+  // Nuevos estados para lotes de follows y retweets
+  const [batchFollows, setBatchFollows] = useState<BatchFollow[]>([]);
+  const [batchFollowText, setBatchFollowText] = useState("");
+  const [batchRetweets, setBatchRetweets] = useState<BatchRetweet[]>([]);
+  const [batchRetweetText, setBatchRetweetText] = useState("");
+
+  // Estado para el tipo de lote activo
+  const [activeBatchType, setActiveBatchType] = useState<
+    "tweets" | "follows" | "retweets"
+  >("tweets");
 
   // Nuevo estado para el dialog de asignación
   const [assignmentDialogOpen, setAssignmentDialogOpen] = useState(false);
@@ -1028,6 +1054,342 @@ export default function TweetsPage() {
     </div>
   );
 
+  // Función para extraer username de URL de perfil
+  const extractUsernameFromUrl = (url: string): string | null => {
+    try {
+      const urlObj = new URL(url.trim());
+      if (urlObj.hostname === "twitter.com" || urlObj.hostname === "x.com") {
+        const pathParts = urlObj.pathname.split("/").filter((p) => p);
+        if (pathParts.length > 0 && !pathParts[0].startsWith("@")) {
+          return pathParts[0];
+        }
+      }
+      // Si no es URL, asumir que es username directo
+      return url.replace("@", "").trim();
+    } catch {
+      // Si no es URL válida, asumir que es username
+      return url.replace("@", "").trim();
+    }
+  };
+
+  // Función para agregar follows en lote
+  const handleBatchFollowAdd = () => {
+    if (!batchFollowText.trim()) return;
+
+    const lines = batchFollowText.split("\n").filter((line) => line.trim());
+    const newFollows: BatchFollow[] = [];
+
+    lines.forEach((line, index) => {
+      const username = extractUsernameFromUrl(line);
+      if (username) {
+        newFollows.push({
+          id: `batch-follow-${Date.now()}-${index}`,
+          username,
+          profileUrl: line.trim(),
+          assignedAccounts: [],
+        });
+      }
+    });
+
+    setBatchFollows((prev) => [...prev, ...newFollows]);
+    setBatchFollowText("");
+    toast.success(`${newFollows.length} cuentas agregadas al lote de follows`);
+  };
+
+  // Función para agregar retweets en lote
+  const handleBatchRetweetAdd = () => {
+    if (!batchRetweetText.trim()) return;
+
+    const lines = batchRetweetText.split("\n").filter((line) => line.trim());
+    const newRetweets: BatchRetweet[] = [];
+
+    lines.forEach((line, index) => {
+      const tweetId = extractTweetId(line.trim());
+      if (tweetId) {
+        newRetweets.push({
+          id: `batch-retweet-${Date.now()}-${index}`,
+          tweetUrl: line.trim(),
+          tweetId,
+          assignedAccounts: [],
+        });
+      }
+    });
+
+    setBatchRetweets((prev) => [...prev, ...newRetweets]);
+    setBatchRetweetText("");
+    toast.success(`${newRetweets.length} retweets agregados al lote`);
+  };
+
+  // Función para auto-asignar follows
+  const handleAutoAssignFollows = () => {
+    if (batchFollows.length === 0) {
+      toast.error("No hay follows en el lote para asignar");
+      return;
+    }
+
+    if (filteredAccounts.length === 0) {
+      toast.error("No hay cuentas filtradas disponibles");
+      return;
+    }
+
+    const updatedFollows = [...batchFollows];
+    updatedFollows.forEach((follow, index) => {
+      updatedFollows[index] = { ...follow, assignedAccounts: [] };
+    });
+
+    const shuffledFollows = shuffleArray([...updatedFollows]);
+    const shuffledAccounts = shuffleArray([...filteredAccounts]);
+    const maxAssignments = Math.min(
+      shuffledFollows.length,
+      shuffledAccounts.length
+    );
+
+    for (let i = 0; i < maxAssignments; i++) {
+      const followToAssign = shuffledFollows[i];
+      const accountToAssign = shuffledAccounts[i];
+      const originalIndex = updatedFollows.findIndex(
+        (f) => f.id === followToAssign.id
+      );
+      updatedFollows[originalIndex] = {
+        ...followToAssign,
+        assignedAccounts: [accountToAssign._id],
+      };
+    }
+
+    setBatchFollows(updatedFollows);
+
+    const totalAssigned = maxAssignments;
+    const unassignedFollows = updatedFollows.length - totalAssigned;
+
+    let message = `🎲 Auto-asignación ALEATORIA 1:1 completada: ${totalAssigned} follows asignados`;
+    if (unassignedFollows > 0) {
+      message += `, ${unassignedFollows} follows sin asignar`;
+    }
+
+    toast.success(message);
+  };
+
+  // Función para auto-asignar retweets
+  const handleAutoAssignRetweets = () => {
+    if (batchRetweets.length === 0) {
+      toast.error("No hay retweets en el lote para asignar");
+      return;
+    }
+
+    if (filteredAccounts.length === 0) {
+      toast.error("No hay cuentas filtradas disponibles");
+      return;
+    }
+
+    const updatedRetweets = [...batchRetweets];
+    updatedRetweets.forEach((retweet, index) => {
+      updatedRetweets[index] = { ...retweet, assignedAccounts: [] };
+    });
+
+    const shuffledRetweets = shuffleArray([...updatedRetweets]);
+    const shuffledAccounts = shuffleArray([...filteredAccounts]);
+    const maxAssignments = Math.min(
+      shuffledRetweets.length,
+      shuffledAccounts.length
+    );
+
+    for (let i = 0; i < maxAssignments; i++) {
+      const retweetToAssign = shuffledRetweets[i];
+      const accountToAssign = shuffledAccounts[i];
+      const originalIndex = updatedRetweets.findIndex(
+        (r) => r.id === retweetToAssign.id
+      );
+      updatedRetweets[originalIndex] = {
+        ...retweetToAssign,
+        assignedAccounts: [accountToAssign._id],
+      };
+    }
+
+    setBatchRetweets(updatedRetweets);
+
+    const totalAssigned = maxAssignments;
+    const unassignedRetweets = updatedRetweets.length - totalAssigned;
+
+    let message = `🎲 Auto-asignación ALEATORIA 1:1 completada: ${totalAssigned} retweets asignados`;
+    if (unassignedRetweets > 0) {
+      message += `, ${unassignedRetweets} retweets sin asignar`;
+    }
+
+    toast.success(message);
+  };
+
+  // Función para ejecutar follows en lote
+  const handleBatchFollowExecute = async () => {
+    const followsToExecute = batchFollows.filter(
+      (follow) => follow.assignedAccounts.length > 0
+    );
+
+    if (followsToExecute.length === 0) {
+      toast.error("Asigna al menos una cuenta a cada follow");
+      return;
+    }
+
+    setLoading(true);
+    setActionResults([]);
+
+    let successCount = 0;
+    let errorCount = 0;
+
+    try {
+      for (const follow of followsToExecute) {
+        try {
+          const actionData = {
+            action: "follow",
+            accountIds: follow.assignedAccounts,
+            targetUserId: follow.username,
+            baseDelay: baseDelay * 1000,
+            randomDelay: randomDelay * 1000,
+          };
+
+          const response = await fetch(
+            buildApiUrl(API_CONFIG.ENDPOINTS.QUEUE.ADD),
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(actionData),
+            }
+          );
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `Error ${response.status}`);
+          }
+
+          const result = await response.json();
+          successCount++;
+
+          setActionResults((prev) => [
+            ...prev,
+            {
+              account: "Sistema",
+              success: true,
+              message: `Follow a @${follow.username} enviado a ${follow.assignedAccounts.length} cuentas`,
+            },
+          ]);
+        } catch (error: any) {
+          errorCount++;
+          setActionResults((prev) => [
+            ...prev,
+            {
+              account: "Sistema",
+              success: false,
+              message: `Error en follow a @${follow.username}: ${error.message}`,
+            },
+          ]);
+        }
+
+        if (followsToExecute.indexOf(follow) < followsToExecute.length - 1) {
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
+      }
+
+      if (successCount > 0) {
+        toast.success(`${successCount} lotes de follows enviados exitosamente`);
+        setBatchFollows([]);
+      }
+
+      if (errorCount > 0) {
+        toast.error(`${errorCount} lotes fallaron`);
+      }
+    } catch (error: any) {
+      toast.error("Error ejecutando los lotes de follows");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Función para ejecutar retweets en lote
+  const handleBatchRetweetExecute = async () => {
+    const retweetsToExecute = batchRetweets.filter(
+      (retweet) => retweet.assignedAccounts.length > 0
+    );
+
+    if (retweetsToExecute.length === 0) {
+      toast.error("Asigna al menos una cuenta a cada retweet");
+      return;
+    }
+
+    setLoading(true);
+    setActionResults([]);
+
+    let successCount = 0;
+    let errorCount = 0;
+
+    try {
+      for (const retweet of retweetsToExecute) {
+        try {
+          const actionData = {
+            action: "retweet",
+            accountIds: retweet.assignedAccounts,
+            tweetId: retweet.tweetId,
+            baseDelay: baseDelay * 1000,
+            randomDelay: randomDelay * 1000,
+          };
+
+          const response = await fetch(
+            buildApiUrl(API_CONFIG.ENDPOINTS.QUEUE.ADD),
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(actionData),
+            }
+          );
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `Error ${response.status}`);
+          }
+
+          const result = await response.json();
+          successCount++;
+
+          setActionResults((prev) => [
+            ...prev,
+            {
+              account: "Sistema",
+              success: true,
+              message: `Retweet enviado a ${retweet.assignedAccounts.length} cuentas`,
+            },
+          ]);
+        } catch (error: any) {
+          errorCount++;
+          setActionResults((prev) => [
+            ...prev,
+            {
+              account: "Sistema",
+              success: false,
+              message: `Error en retweet: ${error.message}`,
+            },
+          ]);
+        }
+
+        if (retweetsToExecute.indexOf(retweet) < retweetsToExecute.length - 1) {
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
+      }
+
+      if (successCount > 0) {
+        toast.success(
+          `${successCount} lotes de retweets enviados exitosamente`
+        );
+        setBatchRetweets([]);
+      }
+
+      if (errorCount > 0) {
+        toast.error(`${errorCount} lotes fallaron`);
+      }
+    } catch (error: any) {
+      toast.error("Error ejecutando los lotes de retweets");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div
       className={`max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 transition-all duration-1000 ${
@@ -1647,332 +2009,856 @@ export default function TweetsPage() {
               <TabsContent value="batch" className="space-y-6 animate-fade-in">
                 <div className="bg-gradient-to-r from-purple-50 to-violet-50 p-6 rounded-xl border border-purple-200">
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center justify-between mb-6">
                       <div className="flex items-center gap-2">
                         <List className="h-5 w-5 text-purple-600" />
                         <Label className="text-lg font-semibold text-purple-900">
-                          Tweets en Lote
+                          Acciones en Lote
                         </Label>
                       </div>
-                      <Badge
-                        variant="outline"
-                        className="text-purple-700 border-purple-300"
-                      >
-                        {batchTweets.length} tweets preparados
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        <Badge
+                          variant="outline"
+                          className="text-purple-700 border-purple-300"
+                        >
+                          {activeBatchType === "tweets" &&
+                            `${batchTweets.length} tweets`}
+                          {activeBatchType === "follows" &&
+                            `${batchFollows.length} follows`}
+                          {activeBatchType === "retweets" &&
+                            `${batchRetweets.length} retweets`}
+                        </Badge>
+                      </div>
                     </div>
 
-                    <div className="space-y-3">
-                      <Label className="text-sm font-medium text-purple-800">
-                        Agregar tweets (un tweet por línea)
-                      </Label>
-                      <Textarea
-                        placeholder={`Primer tweet aquí...
+                    {/* Subtabs para tipos de lote */}
+                    <Tabs
+                      value={activeBatchType}
+                      onValueChange={(value) =>
+                        setActiveBatchType(value as any)
+                      }
+                      className="space-y-4"
+                    >
+                      <TabsList className="grid w-full grid-cols-3 bg-muted/50 p-1 rounded-xl">
+                        <TabsTrigger
+                          value="tweets"
+                          className="data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all duration-200"
+                        >
+                          <Send className="h-4 w-4 mr-1" />
+                          Tweets
+                        </TabsTrigger>
+                        <TabsTrigger
+                          value="follows"
+                          className="data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all duration-200"
+                        >
+                          <UserPlus className="h-4 w-4 mr-1" />
+                          Follows
+                        </TabsTrigger>
+                        <TabsTrigger
+                          value="retweets"
+                          className="data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all duration-200"
+                        >
+                          <Repeat className="h-4 w-4 mr-1" />
+                          Retweets
+                        </TabsTrigger>
+                      </TabsList>
+
+                      {/* Tab de Tweets (existente) */}
+                      <TabsContent value="tweets" className="space-y-4">
+                        <div className="space-y-3">
+                          <Label className="text-sm font-medium text-purple-800">
+                            Agregar tweets (un tweet por línea)
+                          </Label>
+                          <Textarea
+                            placeholder={`Primer tweet aquí...
 Segundo tweet aquí...
 Tercer tweet aquí...
 
 Cada línea será un tweet separado`}
-                        value={batchTweetText}
-                        onChange={(e) => setBatchTweetText(e.target.value)}
-                        rows={6}
-                        className="resize-none border-2 focus:border-purple-500 transition-colors duration-200"
-                      />
-                      <div className="flex items-center justify-between">
-                        <div className="text-xs text-purple-700">
-                          {
-                            batchTweetText
-                              .split("\n")
-                              .filter((line) => line.trim()).length
-                          }{" "}
-                          tweets detectados
-                        </div>
-                        <Button
-                          onClick={handleBatchTweetAdd}
-                          disabled={!batchTweetText.trim()}
-                          size="sm"
-                          className="bg-purple-600 hover:bg-purple-700 text-white cursor-pointer"
-                        >
-                          <Plus className="h-4 w-4 mr-1" />
-                          Agregar al Lote
-                        </Button>
-                      </div>
-                    </div>
-
-                    {/* Lista de tweets en el lote */}
-                    {batchTweets.length > 0 && (
-                      <div className="mt-6 space-y-4">
-                        <div className="flex items-center justify-between">
-                          <Label className="text-sm font-medium">
-                            Tweets en el lote
-                          </Label>
-                          <div className="flex gap-2">
+                            value={batchTweetText}
+                            onChange={(e) => setBatchTweetText(e.target.value)}
+                            rows={6}
+                            className="resize-none border-2 focus:border-purple-500 transition-colors duration-200"
+                          />
+                          <div className="flex items-center justify-between">
+                            <div className="text-xs text-purple-700">
+                              {
+                                batchTweetText
+                                  .split("\n")
+                                  .filter((line) => line.trim()).length
+                              }{" "}
+                              tweets detectados
+                            </div>
                             <Button
-                              onClick={handleAutoAssignTweets}
-                              variant="default"
+                              onClick={handleBatchTweetAdd}
+                              disabled={!batchTweetText.trim()}
                               size="sm"
-                              disabled={
-                                batchTweets.length === 0 ||
-                                filteredAccounts.length === 0
-                              }
-                              className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+                              className="bg-purple-600 hover:bg-purple-700 text-white"
                             >
-                              <Zap className="h-4 w-4 mr-1" />
-                              🎲 Auto-asignar 1:1 Aleatorio
-                            </Button>
-                            <Button
-                              onClick={() => setBatchTweets([])}
-                              variant="ghost"
-                              size="sm"
-                              className="text-red-600 hover:text-red-700"
-                            >
-                              <X className="h-4 w-4 mr-1" />
-                              Limpiar lote
+                              <Plus className="h-4 w-4 mr-1" />
+                              Agregar al Lote
                             </Button>
                           </div>
                         </div>
 
-                        <div className="max-h-96 overflow-y-auto space-y-3 border rounded-lg p-3 bg-white">
-                          {batchTweets.map((tweet, index) => (
-                            <div
-                              key={tweet.id}
-                              className="border border-gray-200 bg-gray-50 rounded-lg p-3 space-y-3"
-                            >
-                              <div className="flex items-start justify-between">
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2 mb-2">
-                                    <Badge
-                                      variant="outline"
-                                      className="text-xs border-purple-300 text-purple-700"
-                                    >
-                                      Tweet #{index + 1}
-                                    </Badge>
-                                    <span className="text-xs text-purple-600">
-                                      {tweet.text.length}/280 caracteres
-                                    </span>
-                                  </div>
-                                  <p className="text-sm text-gray-800 line-clamp-2">
-                                    {tweet.text}
-                                  </p>
-                                </div>
+                        {/* Lista de tweets */}
+                        {batchTweets.length > 0 && (
+                          <div className="mt-6 space-y-4">
+                            <div className="flex items-center justify-between">
+                              <Label className="text-sm font-medium">
+                                Tweets en el lote
+                              </Label>
+                              <div className="flex gap-2">
                                 <Button
-                                  onClick={() =>
-                                    setBatchTweets((prev) =>
-                                      prev.filter((t) => t.id !== tweet.id)
-                                    )
+                                  onClick={handleAutoAssignTweets}
+                                  variant="default"
+                                  size="sm"
+                                  disabled={
+                                    batchTweets.length === 0 ||
+                                    filteredAccounts.length === 0
                                   }
+                                  className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+                                >
+                                  <Zap className="h-4 w-4 mr-1" />
+                                  🎲 Auto-asignar 1:1 Aleatorio
+                                </Button>
+                                <Button
+                                  onClick={() => setBatchTweets([])}
                                   variant="ghost"
                                   size="sm"
-                                  className="text-red-600 hover:text-red-700 ml-2"
+                                  className="text-red-600 hover:text-red-700"
                                 >
-                                  <X className="h-4 w-4" />
+                                  <X className="h-4 w-4 mr-1" />
+                                  Limpiar lote
                                 </Button>
                               </div>
+                            </div>
 
-                              {/* Información de asignación y botón para dialog */}
-                              <div className="flex items-center justify-between bg-white border border-gray-200 rounded-lg p-3">
-                                <div className="flex items-center gap-3">
-                                  <div className="flex items-center gap-2">
-                                    <Users className="h-4 w-4 text-blue-600" />
-                                    <span className="text-sm font-medium text-gray-800">
-                                      {tweet.assignedAccounts.length} cuenta
-                                      {tweet.assignedAccounts.length !== 1
-                                        ? "s"
-                                        : ""}{" "}
-                                      asignada
-                                      {tweet.assignedAccounts.length !== 1
-                                        ? "s"
-                                        : ""}
-                                    </span>
+                            <div className="max-h-96 overflow-y-auto space-y-3 border rounded-lg p-3 bg-white">
+                              {batchTweets.map((tweet, index) => (
+                                <div
+                                  key={tweet.id}
+                                  className="border border-gray-200 bg-gray-50 rounded-lg p-3 space-y-3"
+                                >
+                                  <div className="flex items-start justify-between">
+                                    <div className="flex-1">
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <Badge
+                                          variant="outline"
+                                          className="text-xs border-purple-300 text-purple-700"
+                                        >
+                                          Tweet #{index + 1}
+                                        </Badge>
+                                        <span className="text-xs text-purple-600">
+                                          {tweet.text.length}/280 caracteres
+                                        </span>
+                                      </div>
+                                      <p className="text-sm text-gray-800 line-clamp-2">
+                                        {tweet.text}
+                                      </p>
+                                    </div>
+                                    <Button
+                                      onClick={() =>
+                                        setBatchTweets((prev) =>
+                                          prev.filter((t) => t.id !== tweet.id)
+                                        )
+                                      }
+                                      variant="ghost"
+                                      size="sm"
+                                      className="text-red-600 hover:text-red-700 ml-2"
+                                    >
+                                      <X className="h-4 w-4" />
+                                    </Button>
                                   </div>
-                                  {tweet.assignedAccounts.length > 0 && (
-                                    <div className="flex gap-1 max-w-48 overflow-hidden">
-                                      {tweet.assignedAccounts
-                                        .slice(0, 3)
-                                        .map((accountId) => {
-                                          const account = accounts.find(
-                                            (a) => a._id === accountId
-                                          );
-                                          return (
+
+                                  {/* Información de asignación y botón para dialog */}
+                                  <div className="flex items-center justify-between bg-white border border-gray-200 rounded-lg p-3">
+                                    <div className="flex items-center gap-3">
+                                      <div className="flex items-center gap-2">
+                                        <Users className="h-4 w-4 text-blue-600" />
+                                        <span className="text-sm font-medium text-gray-800">
+                                          {tweet.assignedAccounts.length} cuenta
+                                          {tweet.assignedAccounts.length !== 1
+                                            ? "s"
+                                            : ""}{" "}
+                                          asignada
+                                          {tweet.assignedAccounts.length !== 1
+                                            ? "s"
+                                            : ""}
+                                        </span>
+                                      </div>
+                                      {tweet.assignedAccounts.length > 0 && (
+                                        <div className="flex gap-1 max-w-48 overflow-hidden">
+                                          {tweet.assignedAccounts
+                                            .slice(0, 3)
+                                            .map((accountId) => {
+                                              const account = accounts.find(
+                                                (a) => a._id === accountId
+                                              );
+                                              return (
+                                                <Badge
+                                                  key={accountId}
+                                                  variant="secondary"
+                                                  className="text-xs"
+                                                >
+                                                  @{account?.username}
+                                                </Badge>
+                                              );
+                                            })}
+                                          {tweet.assignedAccounts.length >
+                                            3 && (
                                             <Badge
-                                              key={accountId}
                                               variant="secondary"
                                               className="text-xs"
                                             >
-                                              @{account?.username}
+                                              +
+                                              {tweet.assignedAccounts.length -
+                                                3}
                                             </Badge>
-                                          );
-                                        })}
-                                      {tweet.assignedAccounts.length > 3 && (
-                                        <Badge
-                                          variant="secondary"
-                                          className="text-xs"
-                                        >
-                                          +{tweet.assignedAccounts.length - 3}
-                                        </Badge>
+                                          )}
+                                        </div>
                                       )}
                                     </div>
-                                  )}
+                                    <Button
+                                      onClick={() =>
+                                        openAssignmentDialog(tweet.id)
+                                      }
+                                      size="sm"
+                                      variant="outline"
+                                      className="hover:bg-blue-50 hover:border-blue-300 transition-all duration-200"
+                                    >
+                                      <Edit className="h-4 w-4 mr-1" />
+                                      Asignar cuentas
+                                    </Button>
+                                  </div>
                                 </div>
+                              ))}
+                            </div>
+
+                            {/* Controles de programación para lote */}
+                            <ScheduleControl />
+
+                            {/* Botón para ejecutar lote */}
+                            <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                              <div className="text-sm text-gray-700">
+                                <div className="flex items-center gap-4">
+                                  <div>
+                                    <span className="font-medium text-green-700">
+                                      {
+                                        batchTweets.filter(
+                                          (t) => t.assignedAccounts.length > 0
+                                        ).length
+                                      }
+                                    </span>{" "}
+                                    de {batchTweets.length} tweets listos
+                                  </div>
+                                  <div>
+                                    <span className="font-medium text-blue-700">
+                                      {
+                                        new Set(
+                                          batchTweets.flatMap(
+                                            (t) => t.assignedAccounts
+                                          )
+                                        ).size
+                                      }
+                                    </span>{" "}
+                                    cuentas utilizadas
+                                  </div>
+                                  <div>
+                                    <span className="font-medium text-gray-800">
+                                      {batchTweets.reduce(
+                                        (sum, t) =>
+                                          sum + t.assignedAccounts.length,
+                                        0
+                                      )}
+                                    </span>{" "}
+                                    asignaciones totales
+                                  </div>
+                                </div>
+                              </div>
+                              <Button
+                                onClick={async () => {
+                                  if (isScheduled) {
+                                    // Programar lote
+                                    const tweetsToSchedule = batchTweets.filter(
+                                      (tweet) =>
+                                        tweet.assignedAccounts.length > 0
+                                    );
+                                    let successCount = 0;
+                                    for (const tweet of tweetsToSchedule) {
+                                      const success = await scheduleAction(
+                                        "tweet",
+                                        {
+                                          text: tweet.text,
+                                          accountIds: tweet.assignedAccounts,
+                                        }
+                                      );
+                                      if (success) successCount++;
+                                    }
+                                    if (successCount > 0) {
+                                      setBatchTweets([]);
+                                      toast.success(
+                                        `${successCount} tweets programados exitosamente`
+                                      );
+                                    }
+                                  } else {
+                                    // Ejecutar inmediatamente
+                                    handleBatchTweetExecute();
+                                  }
+                                }}
+                                disabled={
+                                  loading ||
+                                  batchTweets.filter(
+                                    (t) => t.assignedAccounts.length > 0
+                                  ).length === 0 ||
+                                  (isScheduled &&
+                                    (!scheduledDate || !scheduledTime))
+                                }
+                                className="bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 transition-all duration-200 hover:scale-105 text-white cursor-pointer"
+                              >
+                                {loading ? (
+                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                ) : isScheduled ? (
+                                  <CalendarIcon className="h-4 w-4 mr-2" />
+                                ) : (
+                                  <Send className="h-4 w-4 mr-2" />
+                                )}
+                                {isScheduled
+                                  ? "Programar Lote"
+                                  : "Ejecutar Lote"}
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+
+                        {batchTweets.length === 0 && (
+                          <div className="text-center py-8 text-purple-600 border-2 border-dashed border-purple-200 rounded-lg">
+                            <List className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                            <p className="text-sm">No hay tweets en el lote</p>
+                            <p className="text-xs mt-1">
+                              Agrega algunos tweets arriba para comenzar
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Información sobre auto-asignación */}
+                        {batchTweets.length > 0 &&
+                          filteredAccounts.length > 0 && (
+                            <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+                              <div className="flex items-start gap-3">
+                                <div className="bg-blue-100 p-2 rounded-lg flex-shrink-0">
+                                  <Zap className="h-4 w-4 text-blue-600" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <h4 className="text-sm font-semibold text-blue-900 mb-2">
+                                    🎲 Auto-asignación 1:1 Aleatoria (Sin
+                                    Repetir Cuentas)
+                                  </h4>
+                                  <div className="space-y-2 text-xs text-blue-800">
+                                    <div className="flex items-center gap-2">
+                                      <div className="w-1 h-1 bg-blue-600 rounded-full"></div>
+                                      <span>
+                                        🎲 Selecciona tweets y cuentas
+                                        ALEATORIAMENTE
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <div className="w-1 h-1 bg-blue-600 rounded-full"></div>
+                                      <span>
+                                        🚫 SIN REPETIR cuentas (1 cuenta = máx 1
+                                        tweet)
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <div className="w-1 h-1 bg-blue-600 rounded-full"></div>
+                                      <span>
+                                        📊 {batchTweets.length} tweets
+                                        disponibles, {filteredAccounts.length}{" "}
+                                        cuentas → Solo se asignarán{" "}
+                                        {Math.min(
+                                          batchTweets.length,
+                                          filteredAccounts.length
+                                        )}{" "}
+                                        tweets
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                      </TabsContent>
+
+                      {/* Tab de Follows */}
+                      <TabsContent value="follows" className="space-y-4">
+                        <div className="space-y-3">
+                          <Label className="text-sm font-medium text-purple-800">
+                            Agregar cuentas a seguir (una cuenta por línea)
+                          </Label>
+                          <Textarea
+                            placeholder={`https://twitter.com/usuario1
+https://x.com/usuario2
+@usuario3
+usuario4
+
+Puedes usar URLs completas o solo usernames`}
+                            value={batchFollowText}
+                            onChange={(e) => setBatchFollowText(e.target.value)}
+                            rows={6}
+                            className="resize-none border-2 focus:border-purple-500 transition-colors duration-200"
+                          />
+                          <div className="flex items-center justify-between">
+                            <div className="text-xs text-purple-700">
+                              {
+                                batchFollowText
+                                  .split("\n")
+                                  .filter((line) => line.trim()).length
+                              }{" "}
+                              cuentas detectadas
+                            </div>
+                            <Button
+                              onClick={handleBatchFollowAdd}
+                              disabled={!batchFollowText.trim()}
+                              size="sm"
+                              className="bg-purple-600 hover:bg-purple-700 text-white"
+                            >
+                              <Plus className="h-4 w-4 mr-1" />
+                              Agregar al Lote
+                            </Button>
+                          </div>
+                        </div>
+
+                        {/* Lista de follows */}
+                        {batchFollows.length > 0 && (
+                          <div className="mt-6 space-y-4">
+                            <div className="flex items-center justify-between">
+                              <Label className="text-sm font-medium">
+                                Cuentas a seguir en el lote
+                              </Label>
+                              <div className="flex gap-2">
                                 <Button
-                                  onClick={() => openAssignmentDialog(tweet.id)}
+                                  onClick={handleAutoAssignFollows}
+                                  variant="default"
                                   size="sm"
-                                  variant="outline"
-                                  className="hover:bg-blue-50 hover:border-blue-300 transition-all duration-200"
+                                  disabled={
+                                    batchFollows.length === 0 ||
+                                    filteredAccounts.length === 0
+                                  }
+                                  className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
                                 >
-                                  <Edit className="h-4 w-4 mr-1" />
-                                  Asignar cuentas
+                                  <Zap className="h-4 w-4 mr-1" />
+                                  🎲 Auto-asignar 1:1 Aleatorio
+                                </Button>
+                                <Button
+                                  onClick={() => setBatchFollows([])}
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-red-600 hover:text-red-700"
+                                >
+                                  <X className="h-4 w-4 mr-1" />
+                                  Limpiar lote
                                 </Button>
                               </div>
                             </div>
-                          ))}
-                        </div>
 
-                        {/* Controles de programación para lote */}
-                        <ScheduleControl />
+                            <div className="max-h-96 overflow-y-auto space-y-3 border rounded-lg p-3 bg-white">
+                              {batchFollows.map((follow, index) => (
+                                <div
+                                  key={follow.id}
+                                  className="border border-gray-200 bg-gray-50 rounded-lg p-3 space-y-3"
+                                >
+                                  <div className="flex items-start justify-between">
+                                    <div className="flex-1">
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <Badge
+                                          variant="outline"
+                                          className="text-xs border-purple-300 text-purple-700"
+                                        >
+                                          Follow #{index + 1}
+                                        </Badge>
+                                        <UserPlus className="h-4 w-4 text-green-600" />
+                                      </div>
+                                      <p className="text-sm font-medium text-gray-800">
+                                        @{follow.username}
+                                      </p>
+                                      <p className="text-xs text-gray-600">
+                                        {follow.profileUrl}
+                                      </p>
+                                    </div>
+                                    <Button
+                                      onClick={() =>
+                                        setBatchFollows((prev) =>
+                                          prev.filter((f) => f.id !== follow.id)
+                                        )
+                                      }
+                                      variant="ghost"
+                                      size="sm"
+                                      className="text-red-600 hover:text-red-700 ml-2"
+                                    >
+                                      <X className="h-4 w-4" />
+                                    </Button>
+                                  </div>
 
-                        {/* Botón para ejecutar lote */}
-                        <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                          <div className="text-sm text-gray-700">
-                            <div className="flex items-center gap-4">
-                              <div>
-                                <span className="font-medium text-green-700">
-                                  {
-                                    batchTweets.filter(
-                                      (t) => t.assignedAccounts.length > 0
-                                    ).length
+                                  <div className="flex items-center justify-between bg-white border border-gray-200 rounded-lg p-3">
+                                    <div className="flex items-center gap-3">
+                                      <div className="flex items-center gap-2">
+                                        <Users className="h-4 w-4 text-blue-600" />
+                                        <span className="text-sm font-medium text-gray-800">
+                                          {follow.assignedAccounts.length}{" "}
+                                          cuenta
+                                          {follow.assignedAccounts.length !== 1
+                                            ? "s"
+                                            : ""}{" "}
+                                          asignada
+                                          {follow.assignedAccounts.length !== 1
+                                            ? "s"
+                                            : ""}
+                                        </span>
+                                      </div>
+                                      {follow.assignedAccounts.length > 0 && (
+                                        <div className="flex gap-1 max-w-48 overflow-hidden">
+                                          {follow.assignedAccounts
+                                            .slice(0, 3)
+                                            .map((accountId) => {
+                                              const account = accounts.find(
+                                                (a) => a._id === accountId
+                                              );
+                                              return (
+                                                <Badge
+                                                  key={accountId}
+                                                  variant="secondary"
+                                                  className="text-xs"
+                                                >
+                                                  @{account?.username}
+                                                </Badge>
+                                              );
+                                            })}
+                                          {follow.assignedAccounts.length >
+                                            3 && (
+                                            <Badge
+                                              variant="secondary"
+                                              className="text-xs"
+                                            >
+                                              +
+                                              {follow.assignedAccounts.length -
+                                                3}
+                                            </Badge>
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+
+                            <ScheduleControl />
+
+                            <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                              <div className="text-sm text-gray-700">
+                                <div className="flex items-center gap-4">
+                                  <div>
+                                    <span className="font-medium text-green-700">
+                                      {
+                                        batchFollows.filter(
+                                          (f) => f.assignedAccounts.length > 0
+                                        ).length
+                                      }
+                                    </span>{" "}
+                                    de {batchFollows.length} follows listos
+                                  </div>
+                                  <div>
+                                    <span className="font-medium text-blue-700">
+                                      {
+                                        new Set(
+                                          batchFollows.flatMap(
+                                            (f) => f.assignedAccounts
+                                          )
+                                        ).size
+                                      }
+                                    </span>{" "}
+                                    cuentas utilizadas
+                                  </div>
+                                </div>
+                              </div>
+                              <Button
+                                onClick={async () => {
+                                  if (isScheduled) {
+                                    // Implementar programación para follows
+                                  } else {
+                                    handleBatchFollowExecute();
                                   }
-                                </span>{" "}
-                                de {batchTweets.length} tweets listos
-                              </div>
-                              <div>
-                                <span className="font-medium text-blue-700">
-                                  {
-                                    new Set(
-                                      batchTweets.flatMap(
-                                        (t) => t.assignedAccounts
-                                      )
-                                    ).size
-                                  }
-                                </span>{" "}
-                                cuentas utilizadas
-                              </div>
-                              <div>
-                                <span className="font-medium text-gray-800">
-                                  {batchTweets.reduce(
-                                    (sum, t) => sum + t.assignedAccounts.length,
-                                    0
-                                  )}
-                                </span>{" "}
-                                asignaciones totales
-                              </div>
+                                }}
+                                disabled={
+                                  loading ||
+                                  batchFollows.filter(
+                                    (f) => f.assignedAccounts.length > 0
+                                  ).length === 0
+                                }
+                                className="bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 transition-all duration-200 hover:scale-105 text-white"
+                              >
+                                {loading ? (
+                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                ) : (
+                                  <UserPlus className="h-4 w-4 mr-2" />
+                                )}
+                                {isScheduled
+                                  ? "Programar Follows"
+                                  : "Ejecutar Follows"}
+                              </Button>
                             </div>
                           </div>
-                          <Button
-                            onClick={async () => {
-                              if (isScheduled) {
-                                // Programar lote
-                                const tweetsToSchedule = batchTweets.filter(
-                                  (tweet) => tweet.assignedAccounts.length > 0
-                                );
-                                let successCount = 0;
-                                for (const tweet of tweetsToSchedule) {
-                                  const success = await scheduleAction(
-                                    "tweet",
-                                    {
-                                      text: tweet.text,
-                                      accountIds: tweet.assignedAccounts,
-                                    }
-                                  );
-                                  if (success) successCount++;
-                                }
-                                if (successCount > 0) {
-                                  setBatchTweets([]);
-                                  toast.success(
-                                    `${successCount} tweets programados exitosamente`
-                                  );
-                                }
-                              } else {
-                                // Ejecutar inmediatamente
-                                handleBatchTweetExecute();
-                              }
-                            }}
-                            disabled={
-                              loading ||
-                              batchTweets.filter(
-                                (t) => t.assignedAccounts.length > 0
-                              ).length === 0 ||
-                              (isScheduled &&
-                                (!scheduledDate || !scheduledTime))
+                        )}
+
+                        {batchFollows.length === 0 && (
+                          <div className="text-center py-8 text-purple-600 border-2 border-dashed border-purple-200 rounded-lg">
+                            <UserPlus className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                            <p className="text-sm">No hay follows en el lote</p>
+                            <p className="text-xs mt-1">
+                              Agrega algunas cuentas arriba para comenzar
+                            </p>
+                          </div>
+                        )}
+                      </TabsContent>
+
+                      {/* Tab de Retweets */}
+                      <TabsContent value="retweets" className="space-y-4">
+                        <div className="space-y-3">
+                          <Label className="text-sm font-medium text-purple-800">
+                            Agregar tweets para retweet (una URL por línea)
+                          </Label>
+                          <Textarea
+                            placeholder={`https://twitter.com/usuario1/status/123456789
+https://x.com/usuario2/status/987654321
+https://twitter.com/usuario3/status/555666777
+
+Pega las URLs de los tweets que quieres retwitear`}
+                            value={batchRetweetText}
+                            onChange={(e) =>
+                              setBatchRetweetText(e.target.value)
                             }
-                            className="bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 transition-all duration-200 hover:scale-105 text-white cursor-pointer"
-                          >
-                            {loading ? (
-                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            ) : isScheduled ? (
-                              <CalendarIcon className="h-4 w-4 mr-2" />
-                            ) : (
-                              <Send className="h-4 w-4 mr-2" />
-                            )}
-                            {isScheduled ? "Programar Lote" : "Ejecutar Lote"}
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-
-                    {batchTweets.length === 0 && (
-                      <div className="text-center py-8 text-purple-600 border-2 border-dashed border-purple-200 rounded-lg">
-                        <List className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                        <p className="text-sm">No hay tweets en el lote</p>
-                        <p className="text-xs mt-1">
-                          Agrega algunos tweets arriba para comenzar
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Información sobre auto-asignación */}
-                    {batchTweets.length > 0 && filteredAccounts.length > 0 && (
-                      <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
-                        <div className="flex items-start gap-3">
-                          <div className="bg-blue-100 p-2 rounded-lg flex-shrink-0">
-                            <Zap className="h-4 w-4 text-blue-600" />
+                            rows={6}
+                            className="resize-none border-2 focus:border-purple-500 transition-colors duration-200"
+                          />
+                          <div className="flex items-center justify-between">
+                            <div className="text-xs text-purple-700">
+                              {
+                                batchRetweetText
+                                  .split("\n")
+                                  .filter((line) => extractTweetId(line.trim()))
+                                  .length
+                              }{" "}
+                              tweets válidos detectados
+                            </div>
+                            <Button
+                              onClick={handleBatchRetweetAdd}
+                              disabled={!batchRetweetText.trim()}
+                              size="sm"
+                              className="bg-purple-600 hover:bg-purple-700 text-white"
+                            >
+                              <Plus className="h-4 w-4 mr-1" />
+                              Agregar al Lote
+                            </Button>
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <h4 className="text-sm font-semibold text-blue-900 mb-2">
-                              🎲 Auto-asignación 1:1 Aleatoria (Sin Repetir
-                              Cuentas)
-                            </h4>
-                            <div className="space-y-2 text-xs text-blue-800">
-                              <div className="flex items-center gap-2">
-                                <div className="w-1 h-1 bg-blue-600 rounded-full"></div>
-                                <span>
-                                  🎲 Selecciona tweets y cuentas ALEATORIAMENTE
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <div className="w-1 h-1 bg-blue-600 rounded-full"></div>
-                                <span>
-                                  🚫 SIN REPETIR cuentas (1 cuenta = máx 1
-                                  tweet)
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <div className="w-1 h-1 bg-blue-600 rounded-full"></div>
-                                <span>
-                                  📊 {batchTweets.length} tweets disponibles,{" "}
-                                  {filteredAccounts.length} cuentas → Solo se
-                                  asignarán{" "}
-                                  {Math.min(
-                                    batchTweets.length,
-                                    filteredAccounts.length
-                                  )}{" "}
-                                  tweets
-                                </span>
+                        </div>
+
+                        {/* Lista de retweets */}
+                        {batchRetweets.length > 0 && (
+                          <div className="mt-6 space-y-4">
+                            <div className="flex items-center justify-between">
+                              <Label className="text-sm font-medium">
+                                Retweets en el lote
+                              </Label>
+                              <div className="flex gap-2">
+                                <Button
+                                  onClick={handleAutoAssignRetweets}
+                                  variant="default"
+                                  size="sm"
+                                  disabled={
+                                    batchRetweets.length === 0 ||
+                                    filteredAccounts.length === 0
+                                  }
+                                  className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+                                >
+                                  <Zap className="h-4 w-4 mr-1" />
+                                  🎲 Auto-asignar 1:1 Aleatorio
+                                </Button>
+                                <Button
+                                  onClick={() => setBatchRetweets([])}
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-red-600 hover:text-red-700"
+                                >
+                                  <X className="h-4 w-4 mr-1" />
+                                  Limpiar lote
+                                </Button>
                               </div>
                             </div>
+
+                            <div className="max-h-96 overflow-y-auto space-y-3 border rounded-lg p-3 bg-white">
+                              {batchRetweets.map((retweet, index) => (
+                                <div
+                                  key={retweet.id}
+                                  className="border border-gray-200 bg-gray-50 rounded-lg p-3 space-y-3"
+                                >
+                                  <div className="flex items-start justify-between">
+                                    <div className="flex-1">
+                                      <div className="flex items-center gap-2 mb-2">
+                                        <Badge
+                                          variant="outline"
+                                          className="text-xs border-purple-300 text-purple-700"
+                                        >
+                                          Retweet #{index + 1}
+                                        </Badge>
+                                        <Repeat className="h-4 w-4 text-cyan-600" />
+                                      </div>
+                                      <p className="text-sm font-medium text-gray-800">
+                                        Tweet ID: {retweet.tweetId}
+                                      </p>
+                                      <p className="text-xs text-gray-600 truncate">
+                                        {retweet.tweetUrl}
+                                      </p>
+                                    </div>
+                                    <Button
+                                      onClick={() =>
+                                        setBatchRetweets((prev) =>
+                                          prev.filter(
+                                            (r) => r.id !== retweet.id
+                                          )
+                                        )
+                                      }
+                                      variant="ghost"
+                                      size="sm"
+                                      className="text-red-600 hover:text-red-700 ml-2"
+                                    >
+                                      <X className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+
+                                  <div className="flex items-center justify-between bg-white border border-gray-200 rounded-lg p-3">
+                                    <div className="flex items-center gap-3">
+                                      <div className="flex items-center gap-2">
+                                        <Users className="h-4 w-4 text-blue-600" />
+                                        <span className="text-sm font-medium text-gray-800">
+                                          {retweet.assignedAccounts.length}{" "}
+                                          cuenta
+                                          {retweet.assignedAccounts.length !== 1
+                                            ? "s"
+                                            : ""}{" "}
+                                          asignada
+                                          {retweet.assignedAccounts.length !== 1
+                                            ? "s"
+                                            : ""}
+                                        </span>
+                                      </div>
+                                      {retweet.assignedAccounts.length > 0 && (
+                                        <div className="flex gap-1 max-w-48 overflow-hidden">
+                                          {retweet.assignedAccounts
+                                            .slice(0, 3)
+                                            .map((accountId) => {
+                                              const account = accounts.find(
+                                                (a) => a._id === accountId
+                                              );
+                                              return (
+                                                <Badge
+                                                  key={accountId}
+                                                  variant="secondary"
+                                                  className="text-xs"
+                                                >
+                                                  @{account?.username}
+                                                </Badge>
+                                              );
+                                            })}
+                                          {retweet.assignedAccounts.length >
+                                            3 && (
+                                            <Badge
+                                              variant="secondary"
+                                              className="text-xs"
+                                            >
+                                              +
+                                              {retweet.assignedAccounts.length -
+                                                3}
+                                            </Badge>
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+
+                            <ScheduleControl />
+
+                            <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                              <div className="text-sm text-gray-700">
+                                <div className="flex items-center gap-4">
+                                  <div>
+                                    <span className="font-medium text-green-700">
+                                      {
+                                        batchRetweets.filter(
+                                          (r) => r.assignedAccounts.length > 0
+                                        ).length
+                                      }
+                                    </span>{" "}
+                                    de {batchRetweets.length} retweets listos
+                                  </div>
+                                  <div>
+                                    <span className="font-medium text-blue-700">
+                                      {
+                                        new Set(
+                                          batchRetweets.flatMap(
+                                            (r) => r.assignedAccounts
+                                          )
+                                        ).size
+                                      }
+                                    </span>{" "}
+                                    cuentas utilizadas
+                                  </div>
+                                </div>
+                              </div>
+                              <Button
+                                onClick={async () => {
+                                  if (isScheduled) {
+                                    // Implementar programación para retweets
+                                  } else {
+                                    handleBatchRetweetExecute();
+                                  }
+                                }}
+                                disabled={
+                                  loading ||
+                                  batchRetweets.filter(
+                                    (r) => r.assignedAccounts.length > 0
+                                  ).length === 0
+                                }
+                                className="bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 transition-all duration-200 hover:scale-105 text-white"
+                              >
+                                {loading ? (
+                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                ) : (
+                                  <Repeat className="h-4 w-4 mr-2" />
+                                )}
+                                {isScheduled
+                                  ? "Programar Retweets"
+                                  : "Ejecutar Retweets"}
+                              </Button>
+                            </div>
                           </div>
-                        </div>
-                      </div>
-                    )}
+                        )}
+
+                        {batchRetweets.length === 0 && (
+                          <div className="text-center py-8 text-purple-600 border-2 border-dashed border-purple-200 rounded-lg">
+                            <Repeat className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                            <p className="text-sm">
+                              No hay retweets en el lote
+                            </p>
+                            <p className="text-xs mt-1">
+                              Agrega algunas URLs de tweets arriba para comenzar
+                            </p>
+                          </div>
+                        )}
+                      </TabsContent>
+                    </Tabs>
                   </div>
                 </div>
               </TabsContent>

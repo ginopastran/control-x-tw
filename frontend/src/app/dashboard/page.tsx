@@ -662,10 +662,10 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">
-                    Completadas
+                    Completadas Hoy
                   </p>
                   <p className="text-xl font-semibold text-gray-900 mt-1">
-                    {realtimeMetrics?.totalActionsToday || 0}
+                    {queueStatus.stats?.completedToday || 0}
                   </p>
                 </div>
                 <div className="bg-green-50 p-2 rounded-md">
@@ -836,56 +836,63 @@ export default function Dashboard() {
               <TabsContent value="history" className="mt-4">
                 {queueStatus.history?.length > 0 ? (
                   <div className="space-y-2">
-                    {queueStatus.history.map((action, index) => (
-                      <div
-                        key={index}
-                        className={`flex items-center justify-between p-3 border rounded-md ${
-                          action.status === "COMPLETED"
-                            ? "border-green-200 bg-green-50"
-                            : "border-red-200 bg-red-50"
-                        }`}
-                      >
-                        <div className="flex items-center space-x-2">
-                          {action.status === "COMPLETED" ? (
-                            <CheckCircle2 className="h-3 w-3 text-green-600" />
-                          ) : (
-                            <AlertTriangle className="h-3 w-3 text-red-600" />
-                          )}
-                          <div>
-                            <p className="text-sm font-medium text-gray-900">
-                              @{action.username}
-                            </p>
-                            <p className="text-xs text-gray-600">
-                              {getActionDescription(action)}
-                            </p>
-                            {action.error && (
-                              <p className="text-xs text-red-600">
-                                Error: {action.error}
-                              </p>
+                    {queueStatus.history
+                      .filter(
+                        (action) =>
+                          // Solo mostrar acciones realmente ejecutadas (no programadas)
+                          action.status === "COMPLETED" ||
+                          action.status === "FAILED"
+                      )
+                      .map((action, index) => (
+                        <div
+                          key={index}
+                          className={`flex items-center justify-between p-3 border rounded-md ${
+                            action.status === "COMPLETED"
+                              ? "border-green-200 bg-green-50"
+                              : "border-red-200 bg-red-50"
+                          }`}
+                        >
+                          <div className="flex items-center space-x-2">
+                            {action.status === "COMPLETED" ? (
+                              <CheckCircle2 className="h-3 w-3 text-green-600" />
+                            ) : (
+                              <AlertTriangle className="h-3 w-3 text-red-600" />
                             )}
+                            <div>
+                              <p className="text-sm font-medium text-gray-900">
+                                @{action.username}
+                              </p>
+                              <p className="text-xs text-gray-600">
+                                {getActionDescription(action)}
+                              </p>
+                              {action.error && (
+                                <p className="text-xs text-red-600">
+                                  Error: {action.error}
+                                </p>
+                              )}
+                            </div>
+                            <Badge
+                              variant={
+                                action.status === "COMPLETED"
+                                  ? "default"
+                                  : "destructive"
+                              }
+                              className="text-xs"
+                            >
+                              {action.action}
+                            </Badge>
                           </div>
-                          <Badge
-                            variant={
-                              action.status === "COMPLETED"
-                                ? "default"
-                                : "destructive"
-                            }
-                            className="text-xs"
-                          >
-                            {action.action}
-                          </Badge>
+                          <div className="text-xs text-gray-500">
+                            {formatRelativeTime(action.completedAt)}
+                          </div>
                         </div>
-                        <div className="text-xs text-gray-500">
-                          {formatRelativeTime(action.completedAt)}
-                        </div>
-                      </div>
-                    ))}
+                      ))}
                   </div>
                 ) : (
                   <div className="text-center py-8">
                     <BarChart3 className="h-8 w-8 text-gray-300 mx-auto mb-2" />
                     <p className="text-sm text-gray-500">
-                      No hay historial disponible
+                      No hay historial de acciones ejecutadas
                     </p>
                   </div>
                 )}

@@ -81,7 +81,7 @@ export default function HistorialPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [selectedAction, setSelectedAction] = useState<string>("all");
-  const [selectedStatus, setSelectedStatus] = useState<string>("all");
+  const [selectedStatus, setSelectedStatus] = useState<string>("executed"); // Por defecto mostrar solo ejecutadas
   const [selectedAccount, setSelectedAccount] = useState<string>("all");
   const [dateRange, setDateRange] = useState<string>("7"); // días
   const [itemsPerPage] = useState(50);
@@ -108,8 +108,28 @@ export default function HistorialPage() {
       if (!response.ok) throw new Error("Error al cargar historial");
 
       const data = await response.json();
-      setActions(data.actions);
-      setTotalPages(Math.ceil(data.total / itemsPerPage));
+
+      // Filtrar acciones según el estado seleccionado
+      let filteredActions = data.actions;
+
+      if (selectedStatus === "executed") {
+        // Solo mostrar acciones que realmente se ejecutaron (completadas o fallidas)
+        filteredActions = data.actions.filter(
+          (action: HistoryAction) =>
+            action.status === "COMPLETED" || action.status === "FAILED"
+        );
+      } else if (selectedStatus === "scheduled") {
+        // Solo mostrar acciones programadas
+        filteredActions = data.actions.filter(
+          (action: HistoryAction) =>
+            action.status === "SCHEDULED" || action.status === "PENDING"
+        );
+      }
+
+      setActions(filteredActions);
+      setTotalPages(
+        Math.ceil((filteredActions.length || data.total) / itemsPerPage)
+      );
     } catch (err) {
       toast.error("Error al cargar el historial");
       console.error(err);
@@ -213,6 +233,14 @@ export default function HistorialPage() {
         </Badge>
       );
     }
+    if (status === "SCHEDULED" || status === "PENDING") {
+      return (
+        <Badge variant="outline" className="border-purple-500 text-purple-600">
+          <CalendarIcon className="w-3 h-3 mr-1" />
+          Programada
+        </Badge>
+      );
+    }
     // Por defecto, se asume QUEUED
     return (
       <Badge variant="outline">
@@ -261,6 +289,11 @@ export default function HistorialPage() {
                 Registro detallado de todas las acciones ejecutadas en el
                 sistema
               </p>
+              <div className="mt-2 text-sm text-blue-600 bg-blue-50 border border-blue-200 rounded-lg p-2">
+                💡 <strong>Tip:</strong> Por defecto se muestran solo acciones
+                ejecutadas. Usa el filtro "Estado" para ver acciones programadas
+                o cambiar la vista.
+              </div>
             </div>
             <div className="flex gap-3">
               <Button
@@ -453,6 +486,8 @@ export default function HistorialPage() {
                     <SelectItem value="failed">❌ Fallidas</SelectItem>
                     <SelectItem value="running">🔄 Ejecutando</SelectItem>
                     <SelectItem value="cancelled">⏹️ Canceladas</SelectItem>
+                    <SelectItem value="scheduled">📅 Programadas</SelectItem>
+                    <SelectItem value="executed">⚡ Solo Ejecutadas</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -662,6 +697,12 @@ export default function HistorialPage() {
                                 title={action.error}
                               >
                                 {action.error}
+                              </div>
+                            )}
+                            {(action.status === "SCHEDULED" ||
+                              action.status === "PENDING") && (
+                              <div className="text-xs text-purple-600">
+                                🔮 Acción pendiente de ejecución
                               </div>
                             )}
                           </div>
