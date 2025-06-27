@@ -15,6 +15,10 @@ function createQueueRoutes(queueService, prisma) {
         tweetId,
         targetUserId,
         scheduledTime,
+        // Nuevos campos para distribución aleatoria
+        useRandomDistribution,
+        distributionTimes,
+        distributionConfig,
       } = req.body;
 
       if (!action) {
@@ -44,24 +48,43 @@ function createQueueRoutes(queueService, prisma) {
       }
 
       console.log(
-        `[QUEUE] Recibida petición para añadir acciones. BaseDelay: ${baseDelay}ms, RandomDelay: ${randomDelay}ms`
+        `[QUEUE] Recibida petición para añadir acciones. ${
+          useRandomDistribution
+            ? `Distribución aleatoria: ${distributionConfig?.value} ${distributionConfig?.unit}`
+            : `BaseDelay: ${baseDelay}ms, RandomDelay: ${randomDelay}ms`
+        }`
       );
 
-      const actions = accounts.map((account) => {
+      const actions = accounts.map((account, index) => {
         try {
-          // 🔥 CALCULAR TIEMPO DE EJECUCIÓN BASADO EN DELAYS REALES
-          const actualBaseDelay = baseDelay || 30000; // milisegundos
-          const actualRandomDelay = randomDelay || 0; // milisegundos
+          let estimatedStartTime;
+          let actualBaseDelay = baseDelay || 30000;
+          let actualRandomDelay = randomDelay || 0;
 
-          const totalDelay =
-            actualBaseDelay + Math.random() * actualRandomDelay;
+          if (
+            useRandomDistribution &&
+            distributionTimes &&
+            distributionTimes[index]
+          ) {
+            // Usar tiempo de distribución aleatoria
+            estimatedStartTime = distributionTimes[index];
+            actualBaseDelay = 0; // No usar delays normales
+            actualRandomDelay = 0;
 
-          const estimatedStartTime =
-            scheduledTime || new Date(Date.now() + totalDelay).toISOString();
+            console.log(
+              `[QUEUE] Acción para @${account.username} programada ALEATORIAMENTE para: ${estimatedStartTime}`
+            );
+          } else {
+            // Usar sistema de delays normal
+            const totalDelay =
+              actualBaseDelay + Math.random() * actualRandomDelay;
+            estimatedStartTime =
+              scheduledTime || new Date(Date.now() + totalDelay).toISOString();
 
-          console.log(
-            `[QUEUE] Acción para @${account.username} programada para: ${estimatedStartTime} (Delay total: ${totalDelay}ms)`
-          );
+            console.log(
+              `[QUEUE] Acción para @${account.username} programada SECUENCIALMENTE para: ${estimatedStartTime} (Delay total: ${totalDelay}ms)`
+            );
+          }
 
           // Crear objeto de acción
           const actionObj = {
@@ -84,6 +107,9 @@ function createQueueRoutes(queueService, prisma) {
               .toString(36)
               .substr(2, 6)}`,
             scheduledTime,
+            // Metadatos de distribución aleatoria
+            useRandomDistribution: useRandomDistribution || false,
+            distributionConfig: distributionConfig || null,
           };
 
           return actionObj;
@@ -95,11 +121,15 @@ function createQueueRoutes(queueService, prisma) {
 
       await queueService.addActionsToQueue(actions.filter((a) => a !== null));
 
+      const message = useRandomDistribution
+        ? `${actions.length} acciones distribuidas aleatoriamente en ${distributionConfig?.value} ${distributionConfig?.unit}`
+        : `${actions.length} acciones ${
+            scheduledTime ? "programadas" : "añadidas a la cola"
+          } exitosamente`;
+
       res.json({
         success: true,
-        message: `${actions.length} acciones ${
-          scheduledTime ? "programadas" : "añadidas a la cola"
-        } exitosamente`,
+        message,
         actions: actions.map((a) => ({
           id: a.id,
           accountId: a.accountId,
@@ -107,8 +137,21 @@ function createQueueRoutes(queueService, prisma) {
           action: a.action,
           status: a.status,
           estimatedStartTime: a.estimatedStartTime,
+          useRandomDistribution: a.useRandomDistribution,
         })),
         batchId: actions[0].batchId,
+        distributionInfo: useRandomDistribution
+          ? {
+              config: distributionConfig,
+              totalActions: actions.length,
+              timeRange: {
+                start: new Date().toISOString(),
+                end: new Date(
+                  Date.now() + (distributionConfig?.maxTimeMs || 0)
+                ).toISOString(),
+              },
+            }
+          : null,
       });
     } catch (error) {
       console.error("Error en /api/queue/add:", error);

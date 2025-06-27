@@ -246,12 +246,17 @@ model QueuedAction {
     batchId       String?
     accountLabels String[]
 
+    // Nuevos campos para distribución aleatoria
+    useRandomDistribution Boolean @default(false)
+    distributionConfig    Json? // Guarda configuración de distribución
+
     // Relación con la cuenta
     account XAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
 
     @@index([status, estimatedStartTime])
     @@index([scheduledTime])
     @@index([accountId, action])
+    @@index([useRandomDistribution])
     @@map("queued_actions")
 }
 

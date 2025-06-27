@@ -202,6 +202,13 @@ export default function TweetsPage() {
   const [scheduledActions, setScheduledActions] = useState<any[]>([]);
   const [showScheduledActions, setShowScheduledActions] = useState(false);
 
+  // Nuevos estados para distribución temporal aleatoria
+  const [useRandomDistribution, setUseRandomDistribution] = useState(false);
+  const [distributionValue, setDistributionValue] = useState(24);
+  const [distributionUnit, setDistributionUnit] = useState<
+    "minutes" | "hours" | "days"
+  >("hours");
+
   useEffect(() => {
     fetchAccounts();
     // ✅ Comentar fetch problemático por ahora
@@ -737,6 +744,41 @@ export default function TweetsPage() {
     }
   };
 
+  // Función para convertir unidades a milisegundos
+  const convertToMilliseconds = (value: number, unit: string) => {
+    const multipliers = {
+      minutes: 60 * 1000,
+      hours: 60 * 60 * 1000,
+      days: 24 * 60 * 60 * 1000,
+    };
+    return value * multipliers[unit as keyof typeof multipliers];
+  };
+
+  // Función para generar tiempos aleatorios distribuidos
+  const generateRandomDistributionTimes = (count: number) => {
+    if (!useRandomDistribution) return [];
+
+    const maxTimeMs = convertToMilliseconds(
+      distributionValue,
+      distributionUnit
+    );
+    const now = Date.now();
+    const times: string[] = [];
+
+    for (let i = 0; i < count; i++) {
+      // Generar tiempo aleatorio entre ahora y el máximo configurado
+      const randomDelay = Math.random() * maxTimeMs;
+      const scheduledTime = new Date(now + randomDelay);
+      times.push(scheduledTime.toISOString());
+    }
+
+    // Ordenar los tiempos para mejor visualización (opcional)
+    times.sort();
+
+    return times;
+  };
+
+  // Modificar executeAction para incluir distribución aleatoria
   const executeAction = async (actionType: string, data: any) => {
     if (selectedAccounts.length === 0) {
       toast.error("Selecciona al menos una cuenta");
@@ -747,16 +789,41 @@ export default function TweetsPage() {
     setActionResults([]);
 
     try {
-      // Preparar datos de la acción para el sistema de cola
-      const actionData = {
-        action: actionType,
-        accountIds: selectedAccounts,
-        baseDelay: baseDelay * 1000, // Convertir a milliseconds
-        randomDelay: randomDelay * 1000, // Convertir a milliseconds
-        ...data,
-      };
+      let actionData;
 
-      // Enviar al sistema de colas usando el endpoint correcto
+      if (useRandomDistribution) {
+        // Generar tiempos aleatorios para cada cuenta
+        const randomTimes = generateRandomDistributionTimes(
+          selectedAccounts.length
+        );
+
+        actionData = {
+          action: actionType,
+          accountIds: selectedAccounts,
+          useRandomDistribution: true,
+          distributionTimes: randomTimes,
+          distributionConfig: {
+            value: distributionValue,
+            unit: distributionUnit,
+            maxTimeMs: convertToMilliseconds(
+              distributionValue,
+              distributionUnit
+            ),
+          },
+          ...data,
+        };
+      } else {
+        // Usar delays normales
+        actionData = {
+          action: actionType,
+          accountIds: selectedAccounts,
+          baseDelay: baseDelay * 1000,
+          randomDelay: randomDelay * 1000,
+          useRandomDistribution: false,
+          ...data,
+        };
+      }
+
       const response = await fetch(
         buildApiUrl(API_CONFIG.ENDPOINTS.QUEUE.ADD),
         {
@@ -776,18 +843,36 @@ export default function TweetsPage() {
       const result = await response.json();
       console.log(`✅ Acción ${actionType} añadida a la cola:`, result);
 
-      setActionResults([
-        {
-          account: "Sistema",
-          success: true,
-          message: result.message,
-          details: `${result.actions.length} acciones añadidas a la cola`,
-        },
-      ]);
+      if (useRandomDistribution) {
+        setActionResults([
+          {
+            account: "Sistema",
+            success: true,
+            message: `${result.actions.length} acciones distribuidas aleatoriamente en ${distributionValue} ${distributionUnit}`,
+            details: `Rango: ${new Date().toLocaleString()} - ${new Date(
+              Date.now() +
+                convertToMilliseconds(distributionValue, distributionUnit)
+            ).toLocaleString()}`,
+          },
+        ]);
 
-      toast.success(
-        `Acciones enviadas al sistema de colas: ${result.actions.length} acciones programadas`
-      );
+        toast.success(
+          `Acciones distribuidas aleatoriamente en ${distributionValue} ${distributionUnit}: ${result.actions.length} acciones programadas`
+        );
+      } else {
+        setActionResults([
+          {
+            account: "Sistema",
+            success: true,
+            message: result.message,
+            details: `${result.actions.length} acciones añadidas a la cola`,
+          },
+        ]);
+
+        toast.success(
+          `Acciones enviadas al sistema de colas: ${result.actions.length} acciones programadas`
+        );
+      }
 
       // Limpiar formulario
       setTweetText("");
@@ -995,7 +1080,7 @@ export default function TweetsPage() {
     setSearchQuery("");
   };
 
-  // Componente para el control de programación
+  // Componente para el control de programación actualizado
   const ScheduleControl = () => (
     <div className="border-t mt-4 pt-4 space-y-4">
       <div className="flex items-center justify-between">
@@ -1012,25 +1097,12 @@ export default function TweetsPage() {
             Programar para más tarde
           </Label>
         </div>
-        {/* ✅ Comentar temporalmente hasta que el endpoint funcione */}
-        {/* {scheduledActions.length > 0 && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowScheduledActions(!showScheduledActions)}
-            className="text-xs"
-          >
-            <CalendarIcon className="h-4 w-4 mr-1" />
-            Ver programadas ({scheduledActions.length})
-          </Button>
-        )} */}
       </div>
 
       {isScheduled && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
           <div className="space-y-2">
             <Label className="text-sm font-medium text-gray-700">Fecha</Label>
-            {/* ✅ Usar input simple en lugar del Calendar problemático por ahora */}
             <Input
               type="date"
               value={scheduledDate}
@@ -1811,73 +1883,217 @@ export default function TweetsPage() {
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <Label className="font-medium text-gray-700">
-                    Delay Base
+            {/* Switch para activar distribución aleatoria */}
+            <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="flex items-center gap-3">
+                <div className="bg-blue-100 p-2 rounded-lg">
+                  <Zap className="h-4 w-4 text-blue-600" />
+                </div>
+                <div>
+                  <Label className="text-sm font-semibold text-blue-900">
+                    🎲 Distribución Temporal Aleatoria
                   </Label>
-                  <Badge
-                    variant="outline"
-                    className="border-gray-300 text-gray-700"
-                  >
-                    {baseDelay}s
-                  </Badge>
-                </div>
-                <Input
-                  type="range"
-                  min="5"
-                  max="120"
-                  value={baseDelay}
-                  onChange={(e) => setBaseDelay(parseInt(e.target.value))}
-                  className="w-full"
-                />
-                <div className="flex justify-between text-xs text-gray-500">
-                  <span>5s</span>
-                  <span>Rápido</span>
-                  <span>Seguro</span>
-                  <span>120s</span>
+                  <p className="text-xs text-blue-700 mt-1">
+                    Distribuye las acciones aleatoriamente dentro del rango de
+                    tiempo especificado
+                  </p>
                 </div>
               </div>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <Label className="font-medium text-gray-700">
-                    Delay Aleatorio
+              <Switch
+                checked={useRandomDistribution}
+                onCheckedChange={setUseRandomDistribution}
+                id="random-distribution-toggle"
+              />
+            </div>
+
+            {useRandomDistribution ? (
+              // Configuración de distribución aleatoria
+              <div className="space-y-4 p-4 bg-purple-50 rounded-lg border border-purple-200">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="bg-purple-100 p-2 rounded-lg">
+                    <CalendarIcon className="h-4 w-4 text-purple-600" />
+                  </div>
+                  <Label className="text-sm font-semibold text-purple-900">
+                    Configuración de Distribución Aleatoria
                   </Label>
-                  <Badge
-                    variant="outline"
-                    className="border-gray-300 text-gray-700"
-                  >
-                    ±{randomDelay}s
-                  </Badge>
                 </div>
-                <Input
-                  type="range"
-                  min="0"
-                  max="180"
-                  value={randomDelay}
-                  onChange={(e) => setRandomDelay(parseInt(e.target.value))}
-                  className="w-full"
-                />
-                <div className="flex justify-between text-xs text-gray-500">
-                  <span>0s</span>
-                  <span>Predictible</span>
-                  <span>Natural</span>
-                  <span>180s</span>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    <Label className="text-sm font-medium text-purple-800">
+                      Rango de Tiempo
+                    </Label>
+                    <div className="flex gap-2">
+                      <Input
+                        type="number"
+                        min="1"
+                        max="365"
+                        value={distributionValue}
+                        onChange={(e) =>
+                          setDistributionValue(parseInt(e.target.value) || 1)
+                        }
+                        className="flex-1 border-purple-300 focus:border-purple-500"
+                        placeholder="24"
+                      />
+                      <Select
+                        value={distributionUnit}
+                        onValueChange={(value: any) =>
+                          setDistributionUnit(value)
+                        }
+                      >
+                        <SelectTrigger className="w-32 border-purple-300 focus:border-purple-500">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="minutes">Minutos</SelectItem>
+                          <SelectItem value="hours">Horas</SelectItem>
+                          <SelectItem value="days">Días</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="text-xs text-purple-600">
+                      Las acciones se ejecutarán en momentos aleatorios dentro
+                      de {distributionValue} {distributionUnit}
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label className="text-sm font-medium text-purple-800">
+                      Vista Previa del Rango
+                    </Label>
+                    <div className="p-3 bg-white rounded-lg border border-purple-200">
+                      <div className="text-xs text-purple-700">
+                        <div className="flex items-center gap-1 mb-1">
+                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                          <span>
+                            Inicio:{" "}
+                            {new Date().toLocaleString("es-ES", {
+                              dateStyle: "short",
+                              timeStyle: "short",
+                            })}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                          <span>
+                            Fin:{" "}
+                            {new Date(
+                              Date.now() +
+                                convertToMilliseconds(
+                                  distributionValue,
+                                  distributionUnit
+                                )
+                            ).toLocaleString("es-ES", {
+                              dateStyle: "short",
+                              timeStyle: "short",
+                            })}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    {selectedAccounts.length > 0 && (
+                      <div className="text-xs text-purple-600 bg-purple-100 p-2 rounded">
+                        📊 {selectedAccounts.length} acciones se distribuirán
+                        aleatoriamente en este rango
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="p-3 bg-gradient-to-r from-purple-100 to-blue-100 rounded-lg border border-purple-200">
+                  <div className="flex items-start gap-2">
+                    <AlertCircle className="h-4 w-4 text-purple-600 mt-0.5 flex-shrink-0" />
+                    <div className="text-xs text-purple-800">
+                      <p className="font-medium mb-1">💡 Cómo funciona:</p>
+                      <ul className="space-y-1 list-disc list-inside">
+                        <li>
+                          Cada acción se programa para un momento aleatorio
+                          dentro del rango
+                        </li>
+                        <li>
+                          No hay delays secuenciales - todas son independientes
+                        </li>
+                        <li>Ideal para simular actividad natural y orgánica</li>
+                        <li>Evita patrones detectables en las acciones</li>
+                      </ul>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <div className="flex items-center gap-2 mb-2">
-                <AlertCircle className="h-4 w-4 text-gray-700" />
-                <span className="text-sm font-medium text-gray-900">
-                  Tiempo estimado por cuenta
-                </span>
+            ) : (
+              // Configuración de delays normales (código existente)
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="font-medium text-gray-700">
+                      Delay Base
+                    </Label>
+                    <Badge
+                      variant="outline"
+                      className="border-gray-300 text-gray-700"
+                    >
+                      {baseDelay}s
+                    </Badge>
+                  </div>
+                  <Input
+                    type="range"
+                    min="5"
+                    max="120"
+                    value={baseDelay}
+                    onChange={(e) => setBaseDelay(parseInt(e.target.value))}
+                    className="w-full"
+                  />
+                  <div className="flex justify-between text-xs text-gray-500">
+                    <span>5s</span>
+                    <span>Rápido</span>
+                    <span>Seguro</span>
+                    <span>120s</span>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="font-medium text-gray-700">
+                      Delay Aleatorio
+                    </Label>
+                    <Badge
+                      variant="outline"
+                      className="border-gray-300 text-gray-700"
+                    >
+                      ±{randomDelay}s
+                    </Badge>
+                  </div>
+                  <Input
+                    type="range"
+                    min="0"
+                    max="180"
+                    value={randomDelay}
+                    onChange={(e) => setRandomDelay(parseInt(e.target.value))}
+                    className="w-full"
+                  />
+                  <div className="flex justify-between text-xs text-gray-500">
+                    <span>0s</span>
+                    <span>Predictible</span>
+                    <span>Natural</span>
+                    <span>180s</span>
+                  </div>
+                </div>
               </div>
-              <p className="text-xs text-gray-600">
-                {baseDelay} - {baseDelay + randomDelay} segundos entre acciones
-              </p>
-            </div>
+            )}
+
+            {!useRandomDistribution && (
+              <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <AlertCircle className="h-4 w-4 text-gray-700" />
+                  <span className="text-sm font-medium text-gray-900">
+                    Tiempo estimado por cuenta
+                  </span>
+                </div>
+                <p className="text-xs text-gray-600">
+                  {baseDelay} - {baseDelay + randomDelay} segundos entre
+                  acciones
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
 

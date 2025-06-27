@@ -102,6 +102,8 @@ class QueueService {
       accountLabels: dbAction.accountLabels || [],
       username: dbAction.account.username,
       accountUsername: dbAction.account.username,
+      useRandomDistribution: dbAction.useRandomDistribution || false,
+      distributionConfig: dbAction.distributionConfig || null,
     };
   }
 
@@ -117,6 +119,8 @@ class QueueService {
             : null,
           startedAt: action.startedAt ? new Date(action.startedAt) : null,
           actualDelay: action.actualDelay,
+          useRandomDistribution: action.useRandomDistribution || false,
+          distributionConfig: action.distributionConfig || null,
         },
         create: {
           actionId: action.id,
@@ -139,6 +143,8 @@ class QueueService {
           actualDelay: action.actualDelay,
           batchId: action.batchId,
           accountLabels: action.accountLabels || [],
+          useRandomDistribution: action.useRandomDistribution || false,
+          distributionConfig: action.distributionConfig || null,
         },
       });
     } catch (error) {
