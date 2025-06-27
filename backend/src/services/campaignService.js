@@ -11,21 +11,67 @@ class CampaignService {
 
   async createMutualFollowActions() {
     try {
-      console.log("🔍 Buscando cuentas verificadas para la campaña...");
+      console.log("🔍 Buscando cuentas con credenciales para la campaña...");
 
+      // Buscar cuentas que tengan credenciales configuradas (sin importar credentialsVerified)
       const accounts = await this.prisma.xAccount.findMany({
         where: {
-          useOwnCredentials: true,
-          credentialsVerified: true,
-          isActive: true,
+          AND: [
+            { isActive: { not: false } }, // isActive no es false (puede ser true o null)
+            {
+              OR: [
+                // OAuth 1.0a credentials
+                {
+                  AND: [
+                    { ownApiKey: { not: null } },
+                    { ownApiSecret: { not: null } },
+                    { ownAccessToken: { not: null } },
+                    { ownAccessTokenSecret: { not: null } },
+                  ],
+                },
+                // OAuth 2.0 credentials
+                {
+                  AND: [
+                    { ownClientId: { not: null } },
+                    { ownClientSecret: { not: null } },
+                    { ownOAuth2AccessToken: { not: null } },
+                  ],
+                },
+              ],
+            },
+          ],
         },
       });
 
-      console.log(`📊 Encontradas ${accounts.length} cuentas verificadas`);
+      console.log(
+        `📊 Encontradas ${accounts.length} cuentas con credenciales configuradas`
+      );
+
+      // Log detallado de las cuentas encontradas para debug
+      accounts.forEach((account, index) => {
+        const hasOAuth1 = !!(
+          account.ownApiKey &&
+          account.ownApiSecret &&
+          account.ownAccessToken &&
+          account.ownAccessTokenSecret
+        );
+        const hasOAuth2 = !!(
+          account.ownClientId &&
+          account.ownClientSecret &&
+          account.ownOAuth2AccessToken
+        );
+        console.log(
+          `  ${index + 1}. @${
+            account.username
+          } - OAuth1: ${hasOAuth1}, OAuth2: ${hasOAuth2}, Active: ${
+            account.isActive
+          }`
+        );
+      });
 
       if (accounts.length < 2) {
         throw new Error(
-          `Se necesitan al menos 2 cuentas verificadas para la campaña. Solo se encontraron ${accounts.length} cuentas.`
+          `Se necesitan al menos 2 cuentas con credenciales para la campaña. Solo se encontraron ${accounts.length} cuentas. Verifique que las cuentas tengan sus credenciales OAuth configuradas.`
         );
       }
 

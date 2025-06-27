@@ -208,11 +208,31 @@ class QueueService {
       action.result = result;
       console.log(`✅ [QUEUE] Action ${action.id} successful.`);
     } catch (err) {
-      console.error(`❌ [QUEUE] Action ${action.id} failed:`, err.message);
-      action.status = "FAILED";
-      action.success = false;
-      action.error = err.message;
-      action.errorCode = err.twitterError ? String(err.twitterError) : null;
+      const errorStr = err.message?.toLowerCase() || "";
+
+      // 🔧 Manejo especial para follows duplicados
+      if (
+        action.action === "follow" &&
+        (errorStr.includes("already") ||
+          errorStr.includes("following") ||
+          errorStr.includes("duplicate") ||
+          err.code === "AlreadyFollowing" ||
+          err.status === 403)
+      ) {
+        console.log(
+          `⚠️ [QUEUE] Follow duplicado considerado como éxito para ${action.id}`
+        );
+
+        action.status = "COMPLETED";
+        action.success = true;
+        action.result = { note: "Ya se estaba siguiendo esta cuenta" };
+      } else {
+        console.error(`❌ [QUEUE] Action ${action.id} failed:`, err.message);
+        action.status = "FAILED";
+        action.success = false;
+        action.error = err.message;
+        action.errorCode = err.twitterError ? String(err.twitterError) : null;
+      }
     } finally {
       console.log(
         `[QUEUE] Finalizing action ${action.id}, preparing to save final state.`
@@ -394,6 +414,33 @@ class QueueService {
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
+      // 🔧 Manejo especial para errores de follow
+      const errorStr = error.message?.toLowerCase() || "";
+
+      // Si ya se está siguiendo a esa cuenta, considerarlo como éxito
+      if (
+        errorStr.includes("already") ||
+        errorStr.includes("following") ||
+        errorStr.includes("duplicate") ||
+        error.code === "AlreadyFollowing" ||
+        error.status === 403
+      ) {
+        console.log(
+          `⚠️ Follow ya existente: @${action.account.username} → ${action.targetUserId} (considerado como éxito)`
+        );
+
+        return {
+          targetUserId: action.targetUserId,
+          targetUsername: action.targetUsername,
+          followerUsername: action.account.username,
+          following: true, // Ya se está siguiendo
+          userId: action.account.userId,
+          timestamp: new Date().toISOString(),
+          note: "Ya se estaba siguiendo esta cuenta",
+        };
+      }
+
+      // Para otros errores, usar el manejo normal
       this.twitterService.handleTwitterError(error, "follow");
       throw error;
     }
