@@ -6,13 +6,20 @@ function createHistoryRoutes(historyService, prisma) {
   // Obtener historial con filtros
   router.get("/", async (req, res) => {
     try {
+      console.log("📋 Request to /api/history with filters:", req.query);
       const filters = req.query;
       const result = await historyService.getHistory(filters);
+      console.log(
+        `✅ History response: ${result.actions.length} actions found`
+      );
       res.json(result);
     } catch (error) {
-      console.error("Error en /api/history:", error);
+      console.error("❌ Error en /api/history:", error);
+      console.error("🔍 Error details:", error.stack);
       res.status(500).json({
         error: error.message || "Error interno del servidor",
+        details:
+          process.env.NODE_ENV === "development" ? error.stack : undefined,
       });
     }
   });

@@ -153,6 +153,39 @@ class QueueService {
     return canceledCount;
   }
 
+  async clearAllQueuedAndScheduledActions() {
+    let canceledCount = 0;
+
+    // 1. Copiar y vaciar las colas para evitar problemas de concurrencia
+    const scheduledToCancel = [...this.scheduledActions];
+    const queuedToCancel = [...this.actionQueue];
+    this.scheduledActions = [];
+    this.actionQueue = [];
+
+    // 2. Marcar todas como canceladas en el historial
+    const allToCancel = [...scheduledToCancel, ...queuedToCancel];
+
+    for (const action of allToCancel) {
+      try {
+        action.status = "CANCELLED";
+        action.completedAt = new Date().toISOString();
+        action.error = "Cancelada masivamente por el administrador.";
+        await this.addToHistory(action);
+        canceledCount++;
+      } catch (historyError) {
+        console.error(
+          `Error al actualizar el historial para la acción cancelada ${action.id}:`,
+          historyError
+        );
+      }
+    }
+
+    console.log(
+      `🧹 Se cancelaron y limpiaron ${canceledCount} acciones de las colas.`
+    );
+    return canceledCount;
+  }
+
   processScheduledActions() {
     const now = new Date();
     const readyActions = this.scheduledActions.filter(
@@ -177,7 +210,9 @@ class QueueService {
     // 🔥 BUSCAR LA PRIMERA ACCIÓN LISTA PARA EJECUTAR
     const now = new Date();
     const readyActionIndex = this.actionQueue.findIndex((action) => {
-      const executeTime = new Date(action.estimatedStartTime);
+      const executeTime = new Date(
+        action.estimatedStartTime || action.scheduledTime
+      );
       return executeTime <= now;
     });
 
@@ -493,7 +528,7 @@ class QueueService {
         text: a.text,
         status: a.status,
         createdAt: a.createdAt,
-        estimatedStartTime: a.estimatedStartTime,
+        estimatedStartTime: a.estimatedStartTime || a.scheduledTime,
       })),
       running: Array.from(this.runningActions).map((a) => ({
         id: a.id,

@@ -209,6 +209,26 @@ function createQueueRoutes(queueService, prisma) {
     }
   });
 
+  // CANCELAR TODAS LAS ACCIONES
+  router.delete("/all", async (req, res) => {
+    try {
+      console.log("🔥 Recibida solicitud para cancelar TODAS las acciones...");
+      const canceledCount =
+        await queueService.clearAllQueuedAndScheduledActions();
+      res.json({
+        success: true,
+        message: `Se cancelaron ${canceledCount} acciones de las colas.`,
+        canceledCount,
+      });
+    } catch (error) {
+      console.error("Error cancelando todas las acciones:", error);
+      res.status(500).json({
+        success: false,
+        error: "Error interno del servidor al cancelar acciones.",
+      });
+    }
+  });
+
   return router;
 }
 

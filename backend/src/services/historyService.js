@@ -34,7 +34,27 @@ class HistoryService {
 
     // Filtro por estado
     if (status !== "all") {
-      where.status = status.toUpperCase();
+      // Mapear estados del frontend a estados válidos
+      const statusMap = {
+        completed: "COMPLETED",
+        failed: "FAILED",
+        running: "RUNNING",
+        cancelled: "CANCELLED",
+        scheduled: "QUEUED",
+        queued: "QUEUED",
+        executed: undefined, // Manejado por filtro especial
+      };
+
+      if (status === "executed") {
+        // Para "executed", buscar solo COMPLETED y FAILED
+        where.status = { in: ["COMPLETED", "FAILED"] };
+      } else {
+        const mappedStatus =
+          statusMap[status.toLowerCase()] || status.toUpperCase();
+        if (mappedStatus) {
+          where.status = mappedStatus;
+        }
+      }
     }
 
     // Filtro por cuenta

@@ -191,6 +191,11 @@ export default function Dashboard() {
   const [historyPerPage] = useState(10);
   const [totalHistoryItems, setTotalHistoryItems] = useState(0);
 
+  // Estados para paginación de colas
+  const [scheduledPage, setScheduledPage] = useState(1);
+  const [queuedPage, setQueuedPage] = useState(1);
+  const [itemsPerPage] = useState(10);
+
   // Agregar variables calculadas que faltaban
   const totalActiveAccounts = accountLimits.filter(
     (account) => account.status === "active"
@@ -261,6 +266,24 @@ export default function Dashboard() {
 
     return () => clearInterval(interval);
   }, [historyPage]);
+
+  const paginatedScheduled = queueStatus.scheduled?.slice(
+    (scheduledPage - 1) * itemsPerPage,
+    scheduledPage * itemsPerPage
+  );
+
+  const totalScheduledPages = queueStatus.scheduled
+    ? Math.ceil(queueStatus.scheduled.length / itemsPerPage)
+    : 1;
+
+  const paginatedQueued = queueStatus.queue?.slice(
+    (queuedPage - 1) * itemsPerPage,
+    queuedPage * itemsPerPage
+  );
+
+  const totalQueuedPages = queueStatus.queue
+    ? Math.ceil(queueStatus.queue.length / itemsPerPage)
+    : 1;
 
   const filteredAccounts = accountLimits.filter(
     (account: AccountLimits) =>
@@ -740,9 +763,9 @@ export default function Dashboard() {
               </TabsContent>
 
               <TabsContent value="scheduled" className="mt-4">
-                {queueStatus.scheduled?.length > 0 ? (
+                {paginatedScheduled?.length > 0 ? (
                   <div className="space-y-2">
-                    {queueStatus.scheduled.map((action, index) => (
+                    {paginatedScheduled.map((action, index) => (
                       <div
                         key={index}
                         className="flex items-center justify-between p-3 border border-purple-200 rounded-md bg-purple-50"
@@ -775,6 +798,37 @@ export default function Dashboard() {
                         </Button>
                       </div>
                     ))}
+                    {totalScheduledPages > 1 && (
+                      <div className="flex items-center justify-between pt-4">
+                        <span className="text-sm text-gray-600">
+                          Página {scheduledPage} de {totalScheduledPages}
+                        </span>
+                        <div className="flex items-center space-x-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              setScheduledPage((p) => Math.max(1, p - 1))
+                            }
+                            disabled={scheduledPage <= 1}
+                          >
+                            Anterior
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              setScheduledPage((p) =>
+                                Math.min(totalScheduledPages, p + 1)
+                              )
+                            }
+                            disabled={scheduledPage >= totalScheduledPages}
+                          >
+                            Siguiente
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="text-center py-8">
@@ -787,9 +841,9 @@ export default function Dashboard() {
               </TabsContent>
 
               <TabsContent value="queue" className="mt-4">
-                {queueStatus.queue?.length > 0 ? (
+                {paginatedQueued?.length > 0 ? (
                   <div className="space-y-2">
-                    {queueStatus.queue.map((action, index) => (
+                    {paginatedQueued.map((action, index) => (
                       <div
                         key={index}
                         className="flex items-center justify-between p-3 border border-blue-200 rounded-md bg-blue-50"
@@ -822,6 +876,37 @@ export default function Dashboard() {
                         </Button>
                       </div>
                     ))}
+                    {totalQueuedPages > 1 && (
+                      <div className="flex items-center justify-between pt-4">
+                        <span className="text-sm text-gray-600">
+                          Página {queuedPage} de {totalQueuedPages}
+                        </span>
+                        <div className="flex items-center space-x-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              setQueuedPage((p) => Math.max(1, p - 1))
+                            }
+                            disabled={queuedPage <= 1}
+                          >
+                            Anterior
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              setQueuedPage((p) =>
+                                Math.min(totalQueuedPages, p + 1)
+                              )
+                            }
+                            disabled={queuedPage >= totalQueuedPages}
+                          >
+                            Siguiente
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="text-center py-8">

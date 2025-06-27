@@ -119,10 +119,9 @@ export default function HistorialPage() {
             action.status === "COMPLETED" || action.status === "FAILED"
         );
       } else if (selectedStatus === "scheduled") {
-        // Solo mostrar acciones programadas
+        // Solo mostrar acciones programadas (en cola)
         filteredActions = data.actions.filter(
-          (action: HistoryAction) =>
-            action.status === "SCHEDULED" || action.status === "PENDING"
+          (action: HistoryAction) => action.status === "QUEUED"
         );
       }
 
@@ -233,11 +232,11 @@ export default function HistorialPage() {
         </Badge>
       );
     }
-    if (status === "SCHEDULED" || status === "PENDING") {
+    if (status === "QUEUED") {
       return (
         <Badge variant="outline" className="border-purple-500 text-purple-600">
           <CalendarIcon className="w-3 h-3 mr-1" />
-          Programada
+          En Cola
         </Badge>
       );
     }
@@ -486,7 +485,7 @@ export default function HistorialPage() {
                     <SelectItem value="failed">❌ Fallidas</SelectItem>
                     <SelectItem value="running">🔄 Ejecutando</SelectItem>
                     <SelectItem value="cancelled">⏹️ Canceladas</SelectItem>
-                    <SelectItem value="scheduled">📅 Programadas</SelectItem>
+                    <SelectItem value="scheduled">📅 En Cola</SelectItem>
                     <SelectItem value="executed">⚡ Solo Ejecutadas</SelectItem>
                   </SelectContent>
                 </Select>
@@ -699,10 +698,9 @@ export default function HistorialPage() {
                                 {action.error}
                               </div>
                             )}
-                            {(action.status === "SCHEDULED" ||
-                              action.status === "PENDING") && (
+                            {action.status === "QUEUED" && (
                               <div className="text-xs text-purple-600">
-                                🔮 Acción pendiente de ejecución
+                                🔮 Acción en cola de ejecución
                               </div>
                             )}
                           </div>

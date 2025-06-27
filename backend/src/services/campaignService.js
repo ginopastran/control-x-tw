@@ -83,6 +83,7 @@ class CampaignService {
         for (const target of accounts) {
           if (follower.id !== target.id) {
             followActions.push({
+              follower,
               followerId: follower.id,
               followerUsername: follower.username,
               targetId: target.id,
@@ -156,7 +157,7 @@ class CampaignService {
           accountId: action.followerId,
           action: "follow",
           targetUserId: action.targetUserId,
-          account: { username: action.followerUsername },
+          account: action.follower,
           accountUsername: action.followerUsername,
           accountLabels: [],
           createdAt: new Date().toISOString(),
