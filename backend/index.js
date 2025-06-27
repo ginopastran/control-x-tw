@@ -189,39 +189,85 @@ app.use(
 // ========== RUTAS DE CAMPAÑA ==========
 app.get("/api/mutual-follow-campaign", async (req, res) => {
   try {
+    console.log(
+      "📡 GET /api/mutual-follow-campaign - Obteniendo estado de campaña"
+    );
     const status = await campaignService.getCampaignStatus();
+    console.log("✅ Estado de campaña obtenido:", status);
+
+    // Asegurar que siempre devolvemos un JSON válido
+    res.setHeader("Content-Type", "application/json");
     res.json(status);
   } catch (error) {
-    console.error("Error obteniendo estado de campaña:", error);
-    res.status(500).json({ error: error.message });
+    console.error("❌ Error obteniendo estado de campaña:", error);
+    res.setHeader("Content-Type", "application/json");
+    res.status(500).json({
+      error: error.message || "Error interno del servidor",
+      isRunning: false,
+      campaign: null,
+    });
   }
 });
 
 app.post("/api/mutual-follow-campaign", async (req, res) => {
   try {
+    console.log("🚀 POST /api/mutual-follow-campaign - Iniciando campaña");
+    console.log("📋 Body recibido:", req.body);
+
     const campaign = await campaignService.startMutualFollowCampaign();
-    res.json({
+
+    const response = {
       success: true,
-      message: `Campaña iniciada con ${campaign.progress.total} acciones programadas`,
+      message: `Campaña de follow mutuo iniciada con ${campaign.progress.total} acciones programadas durante 5 días`,
       campaign,
-    });
+      stats: {
+        totalAccounts: campaign.accounts,
+        totalActions: campaign.progress.total,
+        durationDays: campaign.durationDays || 5,
+        dailyLimit: campaign.dailyLimit || 40,
+      },
+    };
+
+    console.log("✅ Campaña iniciada exitosamente:", response);
+
+    res.setHeader("Content-Type", "application/json");
+    res.json(response);
   } catch (error) {
-    console.error("Error iniciando campaña:", error);
-    res.status(500).json({ error: error.message });
+    console.error("❌ Error iniciando campaña:", error);
+    res.setHeader("Content-Type", "application/json");
+    res.status(500).json({
+      success: false,
+      error: error.message || "Error interno del servidor",
+      details:
+        "Verifique que haya al menos 2 cuentas con credenciales verificadas",
+    });
   }
 });
 
 app.delete("/api/mutual-follow-campaign", async (req, res) => {
   try {
+    console.log("🛑 DELETE /api/mutual-follow-campaign - Cancelando campaña");
+
     const result = await campaignService.cancelCampaign();
-    res.json({
+
+    const response = {
       success: true,
-      message: "Campaña cancelada exitosamente",
+      message: "Campaña de follow mutuo cancelada exitosamente",
       canceledActions: result.canceledActions,
-    });
+      timestamp: new Date().toISOString(),
+    };
+
+    console.log("✅ Campaña cancelada exitosamente:", response);
+
+    res.setHeader("Content-Type", "application/json");
+    res.json(response);
   } catch (error) {
-    console.error("Error cancelando campaña:", error);
-    res.status(500).json({ error: error.message });
+    console.error("❌ Error cancelando campaña:", error);
+    res.setHeader("Content-Type", "application/json");
+    res.status(500).json({
+      success: false,
+      error: error.message || "Error interno del servidor",
+    });
   }
 });
 

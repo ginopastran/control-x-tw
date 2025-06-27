@@ -245,54 +245,142 @@ export default function AccountsPage() {
   const startMutualFollowCampaign = async () => {
     try {
       setIsStartingCampaign(true);
+      console.log("🚀 Iniciando campaña de follow mutuo desde frontend...");
+
       const response = await fetch("/api/mutual-follow-campaign", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        body: JSON.stringify({}),
       });
 
-      const data = await response.json();
+      console.log(`📊 Response status: ${response.status}`);
 
-      if (response.ok) {
+      let data;
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        console.error("❌ Error parsing JSON response:", parseError);
+        throw new Error("La respuesta del servidor no es válida");
+      }
+
+      console.log("📋 Response data:", data);
+
+      if (response.ok && data.success) {
         setMutualFollowCampaign(data.campaign);
         setIsMutualFollowDialogOpen(false);
-        // Mostrar notificación de éxito
-        alert(
-          `Campaña iniciada exitosamente! Se ejecutarán ${data.campaign.progress.total} acciones de follow distribuidas en 5 días.`
-        );
+
+        // Mostrar notificación de éxito con más detalles
+        const message = `🎉 ¡Campaña de Follow Mutuo Iniciada Exitosamente!
+
+📊 Estadísticas:
+• ${data.stats?.totalAccounts || 0} cuentas participantes
+• ${data.stats?.totalActions || 0} acciones programadas
+• Duración: ${data.stats?.durationDays || 5} días
+• Límite diario: ${data.stats?.dailyLimit || 40} acciones/día
+
+⏰ Las acciones se ejecutarán automáticamente de 6:00 AM a 8:00 PM durante los próximos ${
+          data.stats?.durationDays || 5
+        } días.`;
+
+        alert(message);
+
+        // Actualizar estado periódicamente
+        const interval = setInterval(fetchMutualFollowCampaignStatus, 30000);
+        setTimeout(() => clearInterval(interval), 5 * 24 * 60 * 60 * 1000); // 5 días
       } else {
-        throw new Error(data.error || "Error al iniciar campaña");
+        const errorMessage =
+          data.error || data.details || "Error desconocido al iniciar campaña";
+        console.error("❌ Error del servidor:", errorMessage);
+        throw new Error(errorMessage);
       }
-    } catch (err) {
-      console.error("Error al iniciar campaña:", err);
-      alert("Error al iniciar la campaña. Intente nuevamente.");
+    } catch (err: any) {
+      console.error("❌ Error al iniciar campaña:", err);
+
+      let errorMessage = "Error al iniciar la campaña. ";
+
+      if (err.message?.includes("al menos 2 cuentas")) {
+        errorMessage +=
+          "Se necesitan al menos 2 cuentas con credenciales verificadas.";
+      } else if (err.message?.includes("respuesta del servidor")) {
+        errorMessage +=
+          "El servidor no está respondiendo correctamente. Verifique la conexión.";
+      } else {
+        errorMessage += err.message || "Intente nuevamente en unos momentos.";
+      }
+
+      alert(errorMessage);
     } finally {
       setIsStartingCampaign(false);
     }
   };
 
   const cancelMutualFollowCampaign = async () => {
-    if (
-      confirm("¿Estás seguro que deseas cancelar la campaña de follow mutuo?")
-    ) {
+    const confirmMessage = `🛑 ¿Cancelar Campaña de Follow Mutuo?
+
+¿Estás seguro que deseas cancelar la campaña actual?
+
+⚠️ Esto detendrá todas las acciones programadas pendientes.
+✅ Las acciones ya ejecutadas no se revierten.
+
+¿Continuar con la cancelación?`;
+
+    if (confirm(confirmMessage)) {
       try {
+        console.log("🛑 Cancelando campaña de follow mutuo...");
+
         const response = await fetch("/api/mutual-follow-campaign", {
           method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
         });
 
-        if (response.ok) {
-          const data = await response.json();
-          setMutualFollowCampaign(null);
-          alert(
-            `Campaña cancelada. ${
-              data.canceledActions || 0
-            } acciones pendientes fueron removidas.`
-          );
+        console.log(`📊 Cancel response status: ${response.status}`);
+
+        let data;
+        try {
+          data = await response.json();
+        } catch (parseError) {
+          console.error("❌ Error parsing cancel response:", parseError);
+          throw new Error("La respuesta del servidor no es válida");
         }
-      } catch (err) {
-        console.error("Error al cancelar campaña:", err);
-        alert("Error al cancelar la campaña.");
+
+        console.log("📋 Cancel response data:", data);
+
+        if (response.ok && data.success) {
+          setMutualFollowCampaign(null);
+
+          const successMessage = `✅ Campaña Cancelada Exitosamente
+
+📊 Resumen:
+• ${data.canceledActions || 0} acciones pendientes fueron removidas
+• Fecha de cancelación: ${new Date(data.timestamp || Date.now()).toLocaleString(
+            "es-ES"
+          )}
+
+ℹ️ Las acciones ya ejecutadas permanecen sin cambios.`;
+
+          alert(successMessage);
+        } else {
+          const errorMessage =
+            data.error || "Error desconocido al cancelar campaña";
+          console.error("❌ Error del servidor:", errorMessage);
+          throw new Error(errorMessage);
+        }
+      } catch (err: any) {
+        console.error("❌ Error al cancelar campaña:", err);
+
+        let errorMessage = "Error al cancelar la campaña. ";
+
+        if (err.message?.includes("respuesta del servidor")) {
+          errorMessage += "El servidor no está respondiendo correctamente.";
+        } else {
+          errorMessage += err.message || "Intente nuevamente.";
+        }
+
+        alert(errorMessage);
       }
     }
   };
