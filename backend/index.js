@@ -271,20 +271,30 @@ app.delete("/api/mutual-follow-campaign", async (req, res) => {
   }
 });
 
-// ========== PROCESADOR DE COLA ==========
-setInterval(() => {
-  queueService.processScheduledActions();
-  queueService.processQueue();
-}, 10000);
+// Esperar a que se inicialice desde la BD antes de empezar el procesamiento
+async function startServer() {
+  try {
+    // Inicializar el queue service desde la base de datos
+    await queueService.initializeFromDatabase();
 
-queueService.processQueue();
+    // Iniciar el procesamiento de la cola
+    setInterval(() => {
+      queueService.processScheduledActions();
+      queueService.processQueue();
+    }, 5000);
 
-// ========== INICIAR SERVIDOR ==========
-app.listen(PORT, () => {
-  console.log(
-    `🚀 Servidor funcionando en puerto ${PORT} con Prisma + PostgreSQL + Neon`
-  );
-});
+    // Iniciar el servidor
+    app.listen(PORT, () => {
+      console.log(`🚀 Servidor ejecutándose en puerto ${PORT}`);
+      console.log(`📊 Estado inicial de la cola restaurado desde BD`);
+    });
+  } catch (error) {
+    console.error("Error iniciando el servidor:", error);
+    process.exit(1);
+  }
+}
+
+startServer();
 
 // Cerrar conexión de Prisma al terminar
 process.on("beforeExit", async () => {

@@ -82,6 +82,7 @@ model XAccount {
     authorizedEmails AuthorizedEmail[]
     scheduledActions ScheduledAction[]
     messages         Message[]
+    QueuedAction     QueuedAction[]
 
     @@map("x_accounts")
 }
@@ -214,6 +215,57 @@ model TokenInfo {
     @@map("token_info")
 }
 
+model QueuedAction {
+    id        String @id @default(cuid())
+    actionId  String @unique // El ID original de la acción
+    accountId String
+    action    String // tweet, reply, like, etc.
+
+    // Datos de la acción
+    text           String?
+    tweetId        String?
+    targetUserId   String?
+    targetUsername String?
+
+    // Estado y timing
+    status   QueueStatus @default(QUEUED)
+    priority Int         @default(0)
+
+    // Timing
+    createdAt          DateTime  @default(now())
+    scheduledTime      DateTime?
+    estimatedStartTime DateTime?
+    startedAt          DateTime?
+
+    // Delays
+    baseDelay   Int?
+    randomDelay Int?
+    actualDelay Int?
+
+    // Metadata
+    batchId       String?
+    accountLabels String[]
+
+    // Relación con la cuenta
+    account XAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+    @@index([status, estimatedStartTime])
+    @@index([scheduledTime])
+    @@index([accountId, action])
+    @@map("queued_actions")
+}
+
+model RateLimitTracker {
+    id         String   @id @default(cuid())
+    accountId  String
+    actionType String
+    lastUsed   DateTime @default(now())
+
+    @@unique([accountId, actionType])
+    @@index([accountId])
+    @@map("rate_limit_tracker")
+}
+
 // Enums
 enum UserRole {
     USER
@@ -246,6 +298,15 @@ enum MessageType {
 enum ScheduledActionStatus {
     PENDING
     EXECUTING
+    COMPLETED
+    FAILED
+    CANCELLED
+}
+
+enum QueueStatus {
+    QUEUED
+    SCHEDULED
+    RUNNING
     COMPLETED
     FAILED
     CANCELLED
