@@ -2610,7 +2610,28 @@ Puedes usar URLs completas o solo usernames`}
                               <Button
                                 onClick={async () => {
                                   if (isScheduled) {
-                                    // Implementar programación para follows
+                                    const followsToSchedule =
+                                      batchFollows.filter(
+                                        (follow) =>
+                                          follow.assignedAccounts.length > 0
+                                      );
+                                    let successCount = 0;
+                                    for (const follow of followsToSchedule) {
+                                      const success = await scheduleAction(
+                                        "follow",
+                                        {
+                                          targetUserId: follow.username,
+                                          accountIds: follow.assignedAccounts,
+                                        }
+                                      );
+                                      if (success) successCount++;
+                                    }
+                                    if (successCount > 0) {
+                                      setBatchFollows([]);
+                                      toast.success(
+                                        `${successCount} follows programados exitosamente`
+                                      );
+                                    }
                                   } else {
                                     handleBatchFollowExecute();
                                   }
@@ -2619,7 +2640,9 @@ Puedes usar URLs completas o solo usernames`}
                                   loading ||
                                   batchFollows.filter(
                                     (f) => f.assignedAccounts.length > 0
-                                  ).length === 0
+                                  ).length === 0 ||
+                                  (isScheduled &&
+                                    (!scheduledDate || !scheduledTime))
                                 }
                                 className="bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 transition-all duration-200 hover:scale-105 text-white"
                               >
@@ -2857,7 +2880,28 @@ Pega las URLs de los tweets que quieres retwitear`}
                               <Button
                                 onClick={async () => {
                                   if (isScheduled) {
-                                    // Implementar programación para retweets
+                                    const retweetsToSchedule =
+                                      batchRetweets.filter(
+                                        (retweet) =>
+                                          retweet.assignedAccounts.length > 0
+                                      );
+                                    let successCount = 0;
+                                    for (const retweet of retweetsToSchedule) {
+                                      const success = await scheduleAction(
+                                        "retweet",
+                                        {
+                                          tweetId: retweet.tweetId,
+                                          accountIds: retweet.assignedAccounts,
+                                        }
+                                      );
+                                      if (success) successCount++;
+                                    }
+                                    if (successCount > 0) {
+                                      setBatchRetweets([]);
+                                      toast.success(
+                                        `${successCount} retweets programados exitosamente`
+                                      );
+                                    }
                                   } else {
                                     handleBatchRetweetExecute();
                                   }
@@ -2866,7 +2910,9 @@ Pega las URLs de los tweets que quieres retwitear`}
                                   loading ||
                                   batchRetweets.filter(
                                     (r) => r.assignedAccounts.length > 0
-                                  ).length === 0
+                                  ).length === 0 ||
+                                  (isScheduled &&
+                                    (!scheduledDate || !scheduledTime))
                                 }
                                 className="bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 transition-all duration-200 hover:scale-105 text-white"
                               >

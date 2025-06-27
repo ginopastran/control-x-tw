@@ -60,6 +60,7 @@ model XAccount {
 
     // Información del perfil
     profileInfo Json?
+    twitterId   String? @unique
 
     // Métricas
     metrics Json?

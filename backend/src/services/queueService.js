@@ -407,13 +407,17 @@ class QueueService {
         `❤️ Ejecutando like para @${action.account.username} → ${action.tweetId}`
       );
 
+      const actingUserId = action.account.twitterId || action.account.userId;
+      if (!actingUserId) {
+        throw new Error(
+          `La cuenta @${action.account.username} no tiene su Twitter ID configurado en la base de datos.`
+        );
+      }
+
       const client = await this.twitterService.getTwitterClient(action.account);
 
-      // 🔥 Obtener el ID del usuario autenticado para API v2
-      const { data: currentUser } = await client.v2.me();
-
       // 🔥 USAR API v2 para likes
-      const result = await client.v2.like(currentUser.id, action.tweetId);
+      const result = await client.v2.like(actingUserId, action.tweetId);
 
       console.log(
         `✅ Like ejecutado exitosamente para tweet ${action.tweetId}`
@@ -422,7 +426,7 @@ class QueueService {
       return {
         likedTweetId: action.tweetId,
         liked: result.data.liked,
-        userId: currentUser.id,
+        userId: actingUserId,
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
@@ -437,13 +441,17 @@ class QueueService {
         `🔄 Ejecutando retweet para @${action.account.username} → ${action.tweetId}`
       );
 
+      const actingUserId = action.account.twitterId || action.account.userId;
+      if (!actingUserId) {
+        throw new Error(
+          `La cuenta @${action.account.username} no tiene su Twitter ID configurado en la base de datos.`
+        );
+      }
+
       const client = await this.twitterService.getTwitterClient(action.account);
 
-      // 🔥 Obtener el ID del usuario autenticado para API v2
-      const { data: currentUser } = await client.v2.me();
-
       // 🔥 USAR API v2 para retweets
-      const result = await client.v2.retweet(currentUser.id, action.tweetId);
+      const result = await client.v2.retweet(actingUserId, action.tweetId);
 
       console.log(
         `✅ Retweet ejecutado exitosamente para tweet ${action.tweetId}`
@@ -452,7 +460,7 @@ class QueueService {
       return {
         retweetedTweetId: action.tweetId,
         retweeted: result.data.retweeted,
-        userId: currentUser.id,
+        userId: actingUserId,
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
@@ -471,16 +479,20 @@ class QueueService {
         `👥 Ejecutando follow: @${action.account.username} → @${targetUsername}`
       );
 
+      const actingUserId = action.account.twitterId || action.account.userId;
+      if (!actingUserId) {
+        throw new Error(
+          `La cuenta @${action.account.username} no tiene su Twitter ID configurado en la base de datos.`
+        );
+      }
+
       const client = await this.twitterService.getTwitterClient(action.account);
 
       // 🔥 OBTENER ID DEL USUARIO A SEGUIR (con cache)
       targetUserId = await this.getUserIdFromUsername(client, targetUsername);
 
-      // 🔥 Obtener el ID del usuario autenticado para API v2
-      const { data: currentUser } = await client.v2.me();
-
       // 🔥 USAR API v2 para follows
-      const result = await client.v2.follow(currentUser.id, targetUserId);
+      const result = await client.v2.follow(actingUserId, targetUserId);
 
       console.log(
         `✅ Follow ejecutado exitosamente: @${action.account.username} → ${targetUserId} (@${targetUsername})`
@@ -491,7 +503,7 @@ class QueueService {
         targetUsername: targetUsername,
         followerUsername: action.account.username,
         following: result.data.following,
-        userId: currentUser.id,
+        userId: actingUserId,
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
@@ -537,16 +549,20 @@ class QueueService {
         `👥❌ Ejecutando unfollow: @${action.account.username} → @${targetUsername}`
       );
 
+      const actingUserId = action.account.twitterId || action.account.userId;
+      if (!actingUserId) {
+        throw new Error(
+          `La cuenta @${action.account.username} no tiene su Twitter ID configurado en la base de datos.`
+        );
+      }
+
       const client = await this.twitterService.getTwitterClient(action.account);
 
       // 🔥 OBTENER ID DEL USUARIO A DEJAR DE SEGUIR (con cache)
       targetUserId = await this.getUserIdFromUsername(client, targetUsername);
 
-      // 🔥 Obtener el ID del usuario autenticado para API v2
-      const { data: currentUser } = await client.v2.me();
-
       // 🔥 USAR API v2 para unfollows
-      const result = await client.v2.unfollow(currentUser.id, targetUserId);
+      const result = await client.v2.unfollow(actingUserId, targetUserId);
 
       console.log(
         `✅ Unfollow ejecutado exitosamente: @${action.account.username} → ${targetUserId} (@${targetUsername})`
@@ -557,7 +573,7 @@ class QueueService {
         targetUsername: targetUsername,
         followerUsername: action.account.username,
         following: result.data.following, // Debería ser false
-        userId: currentUser.id,
+        userId: actingUserId,
         timestamp: new Date().toISOString(),
       };
     } catch (error) {

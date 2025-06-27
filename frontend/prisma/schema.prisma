@@ -60,6 +60,7 @@ model XAccount {
 
     // Información del perfil
     profileInfo Json?
+    twitterId   String? @unique
 
     // Métricas
     metrics Json?
@@ -81,7 +82,6 @@ model XAccount {
     authorizedEmails AuthorizedEmail[]
     scheduledActions ScheduledAction[]
     messages         Message[]
-    tokenInfo        TokenInfo?
 
     @@map("x_accounts")
 }
@@ -154,62 +154,62 @@ model AuthorizedEmail {
 }
 
 model DeveloperAccount {
-    id           String   @id @default(cuid())
-    name         String
-    apiKey       String?
-    apiSecret    String?
-    bearerToken  String?
-    clientId     String?
-    clientSecret String?
-    labels       String[] @default([])
-    createdAt    DateTime @default(now())
-    updatedAt    DateTime @updatedAt
+    id          String   @id @default(cuid())
+    email       String   @unique
+    username    String   @unique
+    apiKey      String?
+    apiSecret   String?
+    bearerToken String?
+    isActive    Boolean  @default(true)
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
 
     @@map("developer_accounts")
 }
 
 model Message {
-    id         String    @id @default(cuid())
-    text       String
-    type       String    @default("tweet")
-    labels     String[]  @default([])
-    createdAt  DateTime  @default(now())
-    updatedAt  DateTime  @updatedAt
-    XAccount   XAccount? @relation(fields: [xAccountId], references: [id])
-    xAccountId String?
+    id        String      @id @default(cuid())
+    content   String
+    type      MessageType @default(INFO)
+    accountId String?
+    account   XAccount?   @relation(fields: [accountId], references: [id], onDelete: SetNull)
+    isRead    Boolean     @default(false)
+    createdAt DateTime    @default(now())
+    updatedAt DateTime    @updatedAt
 
     @@map("messages")
 }
 
 model ScheduledAction {
-    id           String    @id @default(cuid())
-    accountId    String
-    type         String // "tweet", "reply", "like", "retweet"
-    text         String?
-    tweetId      String?
-    scheduledFor DateTime
-    status       String    @default("pending") // "pending", "processing", "completed", "failed"
-    result       Json?
-    error        String?
-    executedAt   DateTime?
-    createdAt    DateTime  @default(now())
-    updatedAt    DateTime  @updatedAt
+    id          String                @id @default(cuid())
+    accountId   String
+    account     XAccount              @relation(fields: [accountId], references: [id], onDelete: Cascade)
+    action      String
+    content     Json?
+    scheduledAt DateTime
+    status      ScheduledActionStatus @default(PENDING)
+    executeAt   DateTime?
+    executedAt  DateTime?
+    result      Json?
+    error       String?
+    createdAt   DateTime              @default(now())
+    updatedAt   DateTime              @updatedAt
 
-    account XAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
-
+    @@index([scheduledAt])
+    @@index([status])
     @@map("scheduled_actions")
 }
 
 model TokenInfo {
-    id          String    @id @default(cuid())
-    accountId   String    @unique
-    isValid     Boolean   @default(true)
-    expiresAt   DateTime
-    lastRefresh DateTime?
-    createdAt   DateTime  @default(now())
-    updatedAt   DateTime  @updatedAt
-
-    account XAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+    id           String    @id @default(cuid())
+    accountId    String    @unique
+    accessToken  String
+    refreshToken String?
+    tokenType    String    @default("Bearer")
+    expiresAt    DateTime?
+    scope        String?
+    createdAt    DateTime  @default(now())
+    updatedAt    DateTime  @updatedAt
 
     @@map("token_info")
 }

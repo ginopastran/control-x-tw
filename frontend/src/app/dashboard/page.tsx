@@ -1062,9 +1062,14 @@ export default function Dashboard() {
                     >
                       <TableCell className="py-2">
                         <div>
-                          <p className="text-sm font-medium text-gray-900">
+                          <a
+                            href={`https://twitter.com/${account.username}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm font-medium text-blue-600 hover:underline"
+                          >
                             @{account.username}
-                          </p>
+                          </a>
                           {renderAccountLabels(account.labels)}
                         </div>
                       </TableCell>
