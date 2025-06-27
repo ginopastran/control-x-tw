@@ -161,7 +161,7 @@ class CampaignService {
           accountLabels: [],
           createdAt: new Date().toISOString(),
           scheduledTime: scheduledTime.toISOString(),
-          status: "SCHEDULED",
+          status: "QUEUED",
           baseDelay: 45000, // 45 segundos base
           randomDelay: 90000, // +/- 90 segundos aleatorio (muy conservador)
           batchId: campaignId,
@@ -259,7 +259,7 @@ class CampaignService {
           this.prisma.actionHistory.count({
             where: {
               batchId: this.mutualFollowCampaign.campaignId,
-              status: { in: ["SCHEDULED", "QUEUED", "RUNNING"] },
+              status: { in: ["QUEUED", "RUNNING"] },
             },
           }),
         ]);
