@@ -47,20 +47,32 @@ function createQueueRoutes(queueService, prisma) {
         `[QUEUE] Recibida petición para añadir acciones. BaseDelay: ${baseDelay}ms, RandomDelay: ${randomDelay}ms`
       );
 
+      // 🎲 Aleatorizar las cuentas para que las acciones se intercalen
+      accounts.sort(() => Math.random() - 0.5);
+
+      let cumulativeDelay = 0; // Iniciar el delay acumulativo
+
       const actions = accounts.map((account) => {
         try {
           // 🔥 CALCULAR TIEMPO DE EJECUCIÓN BASADO EN DELAYS REALES
           const actualBaseDelay = baseDelay || 30000; // milisegundos
           const actualRandomDelay = randomDelay || 0; // milisegundos
 
-          const totalDelay =
+          // Acumular el delay para esta acción
+          cumulativeDelay +=
             actualBaseDelay + Math.random() * actualRandomDelay;
 
-          const estimatedStartTime =
-            scheduledTime || new Date(Date.now() + totalDelay).toISOString();
+          // Si el usuario especifica una hora, las acciones se programan a partir de esa hora.
+          // Si no, se programan a partir de ahora. El delay acumulado las espaciará.
+          const startTime = scheduledTime
+            ? new Date(scheduledTime)
+            : new Date();
+          const finalScheduledTime = new Date(
+            startTime.getTime() + cumulativeDelay
+          ).toISOString();
 
           console.log(
-            `[QUEUE] Acción para @${account.username} programada para: ${estimatedStartTime} (Delay total: ${totalDelay}ms)`
+            `[QUEUE] Acción para @${account.username} programada para: ${finalScheduledTime} (Delay acumulado: ${cumulativeDelay}ms)`
           );
 
           // Crear objeto de acción
@@ -76,14 +88,14 @@ function createQueueRoutes(queueService, prisma) {
             accountUsername: account.username,
             accountLabels: account.labels || [],
             createdAt: new Date().toISOString(),
-            estimatedStartTime,
+            estimatedStartTime: finalScheduledTime, // Usar el tiempo calculado
             status: "QUEUED",
             baseDelay: actualBaseDelay,
             randomDelay: actualRandomDelay,
             batchId: `batch_${Date.now()}_${Math.random()
               .toString(36)
               .substr(2, 6)}`,
-            scheduledTime,
+            scheduledTime: finalScheduledTime, // Todas las acciones ahora son "programadas"
           };
 
           return actionObj;

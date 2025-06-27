@@ -1,3 +1,10 @@
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+
 class CampaignService {
   constructor(prisma, queueService) {
     this.prisma = prisma;
@@ -96,6 +103,12 @@ class CampaignService {
       }
 
       console.log(`🎯 Generadas ${followActions.length} acciones de follow`);
+
+      // 🎲 ¡Añadir aleatoriedad!
+      console.log(
+        "🎲 Mezclando acciones para distribuir la carga entre cuentas..."
+      );
+      shuffleArray(followActions);
 
       return {
         actions: followActions,

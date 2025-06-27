@@ -187,15 +187,29 @@ class QueueService {
   }
 
   processScheduledActions() {
+    // Si ya hay algo en la cola principal o ejecutándose, no añadir más por ahora.
+    if (this.actionQueue.length > 0 || this.runningActions.size > 0) {
+      return;
+    }
+
     const now = new Date();
-    const readyActions = this.scheduledActions.filter(
+
+    // Ordenar las acciones para encontrar la más próxima a ejecutar
+    this.scheduledActions.sort(
+      (a, b) => new Date(a.scheduledTime) - new Date(b.scheduledTime)
+    );
+
+    const readyActionIndex = this.scheduledActions.findIndex(
       (action) => new Date(action.scheduledTime) <= now
     );
 
-    for (const action of readyActions) {
-      const index = this.scheduledActions.indexOf(action);
-      this.scheduledActions.splice(index, 1);
-      this.actionQueue.push(action);
+    if (readyActionIndex !== -1) {
+      // Mover solo UNA acción (la más próxima) a la cola principal
+      const [readyAction] = this.scheduledActions.splice(readyActionIndex, 1);
+      this.actionQueue.push(readyAction);
+      console.log(
+        `[SCHEDULER] Moved action ${readyAction.id} for @${readyAction.accountUsername} to the main queue.`
+      );
     }
   }
 
@@ -244,6 +258,33 @@ class QueueService {
       console.log(`✅ [QUEUE] Action ${action.id} successful.`);
     } catch (err) {
       const errorStr = err.message?.toLowerCase() || "";
+
+      // 🔧 Manejo especial para Rate Limits (error 429)
+      if (err.code === 429 && err.rateLimit) {
+        const resetTimestamp = err.rateLimit.reset * 1000;
+        const now = Date.now();
+        // Esperar hasta el reseteo + 15 segundos de margen, o al menos 1 minuto si el reseteo ya pasó.
+        const retryAfterMs =
+          resetTimestamp > now ? resetTimestamp - now + 15000 : 60000;
+        const newScheduledTime = new Date(now + retryAfterMs);
+
+        console.warn(
+          `[QUEUE] Rate limit hit for action ${
+            action.id
+          }. Retrying at ${newScheduledTime.toISOString()}`
+        );
+
+        // Re-programar la acción en lugar de marcarla como fallida
+        action.status = "QUEUED";
+        action.scheduledTime = newScheduledTime.toISOString();
+        action.estimatedStartTime = newScheduledTime.toISOString();
+        action.error = `Rate limit hit. Re-scheduled for ${newScheduledTime.toISOString()}`;
+
+        this.scheduledActions.push(action);
+        await this.addToHistory(action);
+        this.runningActions.delete(action); // Quitar de "en ejecución"
+        return; // Salir para evitar el bloque "finally"
+      }
 
       // 🔧 Manejo especial para follows duplicados
       if (
