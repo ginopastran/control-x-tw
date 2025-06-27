@@ -94,10 +94,10 @@ interface RunningAction {
 interface HistoryAction {
   id: string;
   action: string;
-  accountUsername: string;
+  username: string;
   accountLabels?: string[];
   text: string;
-  status: "completed" | "failed" | "cancelled";
+  status: string;
   completedAt: string;
   error?: string;
 }
@@ -676,77 +676,223 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        {/* Estado de actividad compacto */}
-        {(queueStatus.queue?.length > 0 ||
-          queueStatus.running?.length > 0 ||
-          queueStatus.scheduled?.length > 0) && (
-          <Card className="border border-gray-200 shadow-sm bg-white">
-            <CardHeader className="border-b border-gray-100 py-3">
-              <CardTitle className="text-base font-medium text-gray-900">
-                Estado de Actividad
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-4">
-              <Tabs defaultValue="running" className="w-full">
-                <TabsList className="grid w-full grid-cols-4 bg-gray-100">
-                  <TabsTrigger value="running" className="text-xs">
-                    Ejecutándose ({queueStatus.running?.length || 0})
-                  </TabsTrigger>
-                  <TabsTrigger value="scheduled" className="text-xs">
-                    Programadas ({queueStatus.scheduled?.length || 0})
-                  </TabsTrigger>
-                  <TabsTrigger value="queue" className="text-xs">
-                    En Cola ({queueStatus.queue?.length || 0})
-                  </TabsTrigger>
-                  <TabsTrigger value="history" className="text-xs">
-                    Historial
-                  </TabsTrigger>
-                </TabsList>
+        {/* Estado de actividad compacto - SIEMPRE VISIBLE */}
+        <Card className="border border-gray-200 shadow-sm bg-white">
+          <CardHeader className="border-b border-gray-100 py-3">
+            <CardTitle className="text-base font-medium text-gray-900">
+              Estado de Actividad
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
+            <Tabs defaultValue="running" className="w-full">
+              <TabsList className="grid w-full grid-cols-4 bg-gray-100">
+                <TabsTrigger value="running" className="text-xs">
+                  Ejecutándose ({queueStatus.running?.length || 0})
+                </TabsTrigger>
+                <TabsTrigger value="scheduled" className="text-xs">
+                  Programadas ({queueStatus.scheduled?.length || 0})
+                </TabsTrigger>
+                <TabsTrigger value="queue" className="text-xs">
+                  En Cola ({queueStatus.queue?.length || 0})
+                </TabsTrigger>
+                <TabsTrigger value="history" className="text-xs">
+                  Historial
+                </TabsTrigger>
+              </TabsList>
 
-                {/* Tab contents with compact styling */}
-                <TabsContent value="running" className="mt-4">
-                  {queueStatus.running?.length > 0 ? (
-                    <div className="space-y-2">
-                      {queueStatus.running.map((action, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center justify-between p-3 border border-orange-200 rounded-md bg-orange-50"
-                        >
-                          <div className="flex items-center space-x-2">
-                            <Activity className="h-3 w-3 text-orange-600 animate-pulse" />
-                            <div>
-                              <p className="text-sm font-medium text-gray-900">
-                                @{action.accountUsername}
-                              </p>
-                              <p className="text-xs text-gray-600">
-                                {getActionDescription(action)}
-                              </p>
-                            </div>
-                            <Badge variant="secondary" className="text-xs">
-                              {action.action}
-                            </Badge>
+              {/* Tab contents with compact styling */}
+              <TabsContent value="running" className="mt-4">
+                {queueStatus.running?.length > 0 ? (
+                  <div className="space-y-2">
+                    {queueStatus.running.map((action, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between p-3 border border-orange-200 rounded-md bg-orange-50"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <Activity className="h-3 w-3 text-orange-600 animate-pulse" />
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">
+                              @{action.accountUsername}
+                            </p>
+                            <p className="text-xs text-gray-600">
+                              {getActionDescription(action)}
+                            </p>
                           </div>
-                          <div className="text-xs text-gray-500">
-                            {formatTime(action.startedAt)}
-                          </div>
+                          <Badge variant="secondary" className="text-xs">
+                            {action.action}
+                          </Badge>
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <Activity className="h-8 w-8 text-gray-300 mx-auto mb-2" />
-                      <p className="text-sm text-gray-500">
-                        No hay acciones ejecutándose
-                      </p>
-                    </div>
-                  )}
-                </TabsContent>
+                        <div className="text-xs text-gray-500">
+                          {formatTime(action.startedAt)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Activity className="h-8 w-8 text-gray-300 mx-auto mb-2" />
+                    <p className="text-sm text-gray-500">
+                      No hay acciones ejecutándose
+                    </p>
+                  </div>
+                )}
+              </TabsContent>
 
-                {/* ... other tab contents with similar compact styling ... */}
-              </Tabs>
-            </CardContent>
-          </Card>
-        )}
+              <TabsContent value="scheduled" className="mt-4">
+                {queueStatus.scheduled?.length > 0 ? (
+                  <div className="space-y-2">
+                    {queueStatus.scheduled.map((action, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between p-3 border border-purple-200 rounded-md bg-purple-50"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <Clock className="h-3 w-3 text-purple-600" />
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">
+                              @{action.accountUsername}
+                            </p>
+                            <p className="text-xs text-gray-600">
+                              {getActionDescription(action)}
+                            </p>
+                            <p className="text-xs text-purple-600">
+                              Programada para:{" "}
+                              {formatRelativeTime(action.scheduledTime)}
+                            </p>
+                          </div>
+                          <Badge variant="secondary" className="text-xs">
+                            {action.action}
+                          </Badge>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => cancelAction(action.id)}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          Cancelar
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Clock className="h-8 w-8 text-gray-300 mx-auto mb-2" />
+                    <p className="text-sm text-gray-500">
+                      No hay acciones programadas
+                    </p>
+                  </div>
+                )}
+              </TabsContent>
+
+              <TabsContent value="queue" className="mt-4">
+                {queueStatus.queue?.length > 0 ? (
+                  <div className="space-y-2">
+                    {queueStatus.queue.map((action, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between p-3 border border-blue-200 rounded-md bg-blue-50"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <Clock className="h-3 w-3 text-blue-600" />
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">
+                              @{action.accountUsername}
+                            </p>
+                            <p className="text-xs text-gray-600">
+                              {getActionDescription(action)}
+                            </p>
+                            <p className="text-xs text-blue-600">
+                              Ejecutará en:{" "}
+                              {formatRelativeTime(action.estimatedStartTime)}
+                            </p>
+                          </div>
+                          <Badge variant="secondary" className="text-xs">
+                            {action.action}
+                          </Badge>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => cancelAction(action.id)}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          Cancelar
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Clock className="h-8 w-8 text-gray-300 mx-auto mb-2" />
+                    <p className="text-sm text-gray-500">
+                      No hay acciones en cola
+                    </p>
+                  </div>
+                )}
+              </TabsContent>
+
+              <TabsContent value="history" className="mt-4">
+                {queueStatus.history?.length > 0 ? (
+                  <div className="space-y-2">
+                    {queueStatus.history.map((action, index) => (
+                      <div
+                        key={index}
+                        className={`flex items-center justify-between p-3 border rounded-md ${
+                          action.status === "COMPLETED"
+                            ? "border-green-200 bg-green-50"
+                            : "border-red-200 bg-red-50"
+                        }`}
+                      >
+                        <div className="flex items-center space-x-2">
+                          {action.status === "COMPLETED" ? (
+                            <CheckCircle2 className="h-3 w-3 text-green-600" />
+                          ) : (
+                            <AlertTriangle className="h-3 w-3 text-red-600" />
+                          )}
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">
+                              @{action.username}
+                            </p>
+                            <p className="text-xs text-gray-600">
+                              {getActionDescription(action)}
+                            </p>
+                            {action.error && (
+                              <p className="text-xs text-red-600">
+                                Error: {action.error}
+                              </p>
+                            )}
+                          </div>
+                          <Badge
+                            variant={
+                              action.status === "COMPLETED"
+                                ? "default"
+                                : "destructive"
+                            }
+                            className="text-xs"
+                          >
+                            {action.action}
+                          </Badge>
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {formatRelativeTime(action.completedAt)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <BarChart3 className="h-8 w-8 text-gray-300 mx-auto mb-2" />
+                    <p className="text-sm text-gray-500">
+                      No hay historial disponible
+                    </p>
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
 
         {/* Estadísticas generales compactas */}
         <div className="grid grid-cols-4 gap-3">

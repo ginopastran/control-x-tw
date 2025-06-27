@@ -2,10 +2,11 @@ const { PrismaClient } = require("@prisma/client");
 
 // Configuración de Prisma para PostgreSQL/Neon
 const prisma = new PrismaClient({
+  // 🔥 LOGGING SIMPLIFICADO - Solo errores críticos
   log:
     process.env.NODE_ENV === "development"
-      ? ["query", "info", "warn", "error"]
-      : ["error"],
+      ? ["error"] // Solo errores en desarrollo
+      : [], // Sin logs en producción
   datasources: {
     db: {
       url: process.env.DATABASE_URL,

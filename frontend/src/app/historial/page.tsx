@@ -181,42 +181,45 @@ export default function HistorialPage() {
   };
 
   const getStatusBadge = (status: string, success: boolean) => {
-    if (status === "completed" && success) {
+    if (status === "COMPLETED") {
       return (
         <Badge variant="default" className="bg-green-600 text-white">
           <CheckCircle2 className="w-3 h-3 mr-1" />
           Exitosa
         </Badge>
       );
-    } else if (status === "completed" && !success) {
+    }
+    if (status === "FAILED") {
       return (
         <Badge variant="destructive">
           <XCircle className="w-3 h-3 mr-1" />
           Falló
         </Badge>
       );
-    } else if (status === "running") {
+    }
+    if (status === "RUNNING") {
       return (
         <Badge variant="secondary" className="bg-blue-600 text-white">
           <Activity className="w-3 h-3 mr-1 animate-pulse" />
           Ejecutando
         </Badge>
       );
-    } else if (status === "cancelled") {
+    }
+    if (status === "CANCELLED") {
       return (
         <Badge variant="outline" className="border-orange-500 text-orange-600">
           <AlertTriangle className="w-3 h-3 mr-1" />
           Cancelada
         </Badge>
       );
-    } else {
-      return (
-        <Badge variant="outline">
-          <Clock className="w-3 h-3 mr-1" />
-          En Cola
-        </Badge>
-      );
     }
+    // Por defecto, se asume QUEUED
+    return (
+      <Badge variant="outline">
+        <Clock className="w-3 h-3 mr-1" />
+        En Cola
+      </Badge>
+    );
   };
 
   const formatRelativeTime = (dateString: string) => {
@@ -289,7 +292,7 @@ export default function HistorialPage() {
         </div>
 
         {/* Estadísticas limpias */}
-        {stats && (
+        {stats && typeof stats.total === "number" && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Card className="bg-white border border-gray-200 shadow-sm">
               <CardHeader className="pb-3">
