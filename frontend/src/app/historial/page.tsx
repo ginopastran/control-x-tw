@@ -58,6 +58,7 @@ interface HistoryAction {
   text?: string;
   tweetId?: string;
   targetUserId?: string;
+  targetUsername?: string;
   status: string;
   success: boolean;
   createdAt: string;
@@ -672,11 +673,23 @@ export default function HistorialPage() {
                               Tweet: {action.tweetId}
                             </div>
                           )}
-                          {action.targetUserId && (
+                          {(action.action === "follow" ||
+                            action.action === "unfollow") && (
                             <div className="text-xs text-gray-500">
-                              Usuario: {action.targetUserId}
+                              {action.targetUsername
+                                ? `Target: @${action.targetUsername}`
+                                : action.targetUserId
+                                ? `Target ID: ${action.targetUserId}`
+                                : "Target: No especificado"}
                             </div>
                           )}
+                          {action.targetUserId &&
+                            action.action !== "follow" &&
+                            action.action !== "unfollow" && (
+                              <div className="text-xs text-gray-500">
+                                Usuario: {action.targetUserId}
+                              </div>
+                            )}
                           {action.batchId && (
                             <Badge
                               variant="outline"

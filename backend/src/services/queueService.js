@@ -23,75 +23,116 @@ class QueueService {
   // Nuevo: Inicializar estado desde la base de datos
   async initializeFromDatabase() {
     try {
-      console.log("[QUEUE] Inicializando estado desde la base de datos...");
+      console.log("🔄 Inicializando cola desde la base de datos...");
 
-      // 1. Cargar acciones pendientes
-      const queuedActions = await this.prisma.queuedAction.findMany({
+      // Cargar acciones en cola desde la BD
+      const queuedFromDb = await this.prisma.queuedAction.findMany({
         where: {
-          status: {
-            in: ["QUEUED", "SCHEDULED", "RUNNING"],
-          },
+          status: "QUEUED",
         },
         include: {
           account: true,
         },
-        orderBy: [
-          { priority: "desc" },
-          { estimatedStartTime: "asc" },
-          { createdAt: "asc" },
-        ],
+        orderBy: {
+          estimatedStartTime: "asc",
+        },
       });
 
-      // 2. Restaurar acciones en memoria
-      for (const dbAction of queuedActions) {
-        const memoryAction = this.convertDbActionToMemoryAction(dbAction);
+      // Cargar acciones programadas desde la BD
+      const scheduledFromDb = await this.prisma.queuedAction.findMany({
+        where: {
+          status: "SCHEDULED",
+        },
+        include: {
+          account: true,
+        },
+        orderBy: {
+          scheduledTime: "asc",
+        },
+      });
 
-        if (dbAction.status === "SCHEDULED") {
-          this.scheduledActions.push(memoryAction);
-        } else if (dbAction.status === "RUNNING") {
-          // Las acciones que estaban corriendo se marcan como fallidas
-          // porque el proceso se reinició
-          await this.markActionAsFailed(
-            dbAction.actionId,
-            "Process restarted during execution"
+      // Cargar acciones en ejecución desde la BD
+      const runningFromDb = await this.prisma.queuedAction.findMany({
+        where: {
+          status: "RUNNING",
+        },
+        include: {
+          account: true,
+        },
+      });
+
+      // Convertir y cargar en memoria
+      this.actionQueue = queuedFromDb.map((dbAction) =>
+        this.convertDbActionToMemoryAction(dbAction)
+      );
+      this.scheduledActions = scheduledFromDb.map((dbAction) =>
+        this.convertDbActionToMemoryAction(dbAction)
+      );
+
+      // Para acciones en ejecución, usar Set
+      this.runningActions = new Set(
+        runningFromDb.map((dbAction) =>
+          this.convertDbActionToMemoryAction(dbAction)
+        )
+      );
+
+      // 🔍 LOGGING ESPECÍFICO PARA FOLLOWS AL INICIALIZAR
+      const followActions = [
+        ...queuedFromDb,
+        ...scheduledFromDb,
+        ...runningFromDb,
+      ].filter((action) => action.action === "follow");
+
+      if (followActions.length > 0) {
+        console.log(
+          `[QUEUE_DEBUG] ${followActions.length} acciones follow cargadas desde BD:`
+        );
+        followActions.forEach((action, index) => {
+          console.log(
+            `  ${index + 1}. ID: ${action.actionId}, Target: @${
+              action.targetUsername
+            } (ID: ${action.targetUserId}), Status: ${action.status}`
           );
-        } else {
-          this.actionQueue.push(memoryAction);
-        }
-      }
-
-      // 3. Cargar rate limit tracker
-      const rateLimits = await this.prisma.rateLimitTracker.findMany();
-      for (const limit of rateLimits) {
-        if (!this.rateLimitTracker.has(limit.accountId)) {
-          this.rateLimitTracker.set(limit.accountId, new Map());
-        }
-        this.rateLimitTracker
-          .get(limit.accountId)
-          .set(limit.actionType, limit.lastUsed.getTime());
+        });
       }
 
       console.log(
-        `[QUEUE] Estado restaurado: ${this.actionQueue.length} en cola, ${this.scheduledActions.length} programadas, ${rateLimits.length} rate limits`
+        `✅ Cola inicializada: ${this.actionQueue.length} en cola, ${this.scheduledActions.length} programadas, ${this.runningActions.size} ejecutándose`
       );
+
+      return {
+        queue: this.actionQueue.length,
+        scheduled: this.scheduledActions.length,
+        running: this.runningActions.size,
+      };
     } catch (error) {
-      console.error("[QUEUE] Error inicializando desde BD:", error);
+      console.error("❌ Error inicializando cola desde BD:", error);
+      throw error;
     }
   }
 
   // Nuevo: Convertir acción de BD a formato de memoria
   convertDbActionToMemoryAction(dbAction) {
-    return {
+    // 🔥 ARREGLAR: Mapear status de BD (enum) a memoria (lowercase)
+    const statusMapping = {
+      QUEUED: "queued",
+      SCHEDULED: "scheduled",
+      RUNNING: "running",
+      COMPLETED: "completed",
+      FAILED: "failed",
+      CANCELLED: "cancelled",
+    };
+
+    const memoryAction = {
       id: dbAction.actionId,
       accountId: dbAction.accountId,
-      account: dbAction.account,
       action: dbAction.action,
       text: dbAction.text,
       tweetId: dbAction.tweetId,
       targetUserId: dbAction.targetUserId,
       targetUsername: dbAction.targetUsername,
-      status: dbAction.status,
-      createdAt: dbAction.createdAt.toISOString(),
+      status: statusMapping[dbAction.status] || dbAction.status.toLowerCase(),
+      priority: dbAction.priority || 0,
       scheduledTime: dbAction.scheduledTime?.toISOString(),
       estimatedStartTime: dbAction.estimatedStartTime?.toISOString(),
       startedAt: dbAction.startedAt?.toISOString(),
@@ -100,20 +141,57 @@ class QueueService {
       actualDelay: dbAction.actualDelay,
       batchId: dbAction.batchId,
       accountLabels: dbAction.accountLabels || [],
-      username: dbAction.account.username,
-      accountUsername: dbAction.account.username,
       useRandomDistribution: dbAction.useRandomDistribution || false,
-      distributionConfig: dbAction.distributionConfig || null,
+      distributionConfig: dbAction.distributionConfig,
+      createdAt: dbAction.createdAt?.toISOString(),
+      account: dbAction.account, // Incluir datos de la cuenta si están disponibles
     };
+
+    // 🔍 LOGGING ESPECÍFICO PARA FOLLOWS AL CONVERTIR DE BD
+    if (dbAction.action === "follow") {
+      console.log(`[QUEUE_DEBUG] Convirtiendo acción follow de BD a memoria:`, {
+        actionId: memoryAction.id,
+        accountId: memoryAction.accountId,
+        targetUserId: memoryAction.targetUserId,
+        targetUsername: memoryAction.targetUsername,
+        status: `${dbAction.status} → ${memoryAction.status}`,
+        scheduledTime: memoryAction.scheduledTime,
+      });
+    }
+
+    return memoryAction;
   }
 
   // Nuevo: Persistir acción en BD
   async persistActionToDb(action) {
     try {
+      // 🔍 LOGGING ESPECÍFICO PARA FOLLOWS AL PERSISTIR
+      if (action.action === "follow") {
+        console.log(`[QUEUE_DEBUG] Persistiendo acción follow en BD:`, {
+          actionId: action.id,
+          accountId: action.accountId,
+          targetUserId: action.targetUserId,
+          targetUsername: action.targetUsername,
+          status: action.status,
+        });
+      }
+
+      // 🔥 ARREGLAR: Mapear status a valores válidos del enum
+      const statusMapping = {
+        queued: "QUEUED",
+        scheduled: "SCHEDULED",
+        running: "RUNNING",
+        completed: "COMPLETED",
+        failed: "FAILED",
+        cancelled: "CANCELLED",
+      };
+
+      const dbStatus = statusMapping[action.status.toLowerCase()] || "QUEUED";
+
       await this.prisma.queuedAction.upsert({
         where: { actionId: action.id },
         update: {
-          status: action.status,
+          status: dbStatus,
           estimatedStartTime: action.estimatedStartTime
             ? new Date(action.estimatedStartTime)
             : null,
@@ -121,6 +199,9 @@ class QueueService {
           actualDelay: action.actualDelay,
           useRandomDistribution: action.useRandomDistribution || false,
           distributionConfig: action.distributionConfig || null,
+          // Asegurar que se actualicen también estos campos
+          targetUserId: action.targetUserId,
+          targetUsername: action.targetUsername,
         },
         create: {
           actionId: action.id,
@@ -130,7 +211,7 @@ class QueueService {
           tweetId: action.tweetId,
           targetUserId: action.targetUserId,
           targetUsername: action.targetUsername,
-          status: action.status,
+          status: dbStatus,
           scheduledTime: action.scheduledTime
             ? new Date(action.scheduledTime)
             : null,
@@ -147,8 +228,23 @@ class QueueService {
           distributionConfig: action.distributionConfig || null,
         },
       });
+
+      // 🔍 VERIFICAR QUE SE GUARDÓ CORRECTAMENTE
+      if (action.action === "follow") {
+        const savedAction = await this.prisma.queuedAction.findUnique({
+          where: { actionId: action.id },
+          select: {
+            actionId: true,
+            targetUserId: true,
+            targetUsername: true,
+            status: true,
+          },
+        });
+        console.log(`[QUEUE_DEBUG] Acción follow guardada en BD:`, savedAction);
+      }
     } catch (error) {
       console.error(`[QUEUE] Error persistiendo acción ${action.id}:`, error);
+      throw error; // Re-lanzar el error para que no continúe el proceso si falla
     }
   }
 
@@ -167,10 +263,97 @@ class QueueService {
   // Nuevo: Actualizar acción en BD
   async updateActionInDb(actionId, updateData) {
     try {
+      // 🔥 ARREGLAR: Mapear status a valores válidos del enum
+      const statusMapping = {
+        queued: "QUEUED",
+        scheduled: "SCHEDULED",
+        running: "RUNNING",
+        completed: "COMPLETED",
+        failed: "FAILED",
+        cancelled: "CANCELLED",
+      };
+
+      // 🔥 ARREGLAR: Remover campos que no existen en el schema QueuedAction
+      const allowedFields = {
+        status: updateData.status
+          ? statusMapping[updateData.status.toLowerCase()] || updateData.status
+          : undefined,
+        estimatedStartTime: updateData.estimatedStartTime,
+        startedAt: updateData.startedAt,
+        actualDelay: updateData.actualDelay,
+        useRandomDistribution: updateData.useRandomDistribution,
+        distributionConfig: updateData.distributionConfig,
+        targetUserId: updateData.targetUserId,
+        targetUsername: updateData.targetUsername,
+        scheduledTime: updateData.scheduledTime,
+        baseDelay: updateData.baseDelay,
+        randomDelay: updateData.randomDelay,
+        batchId: updateData.batchId,
+        accountLabels: updateData.accountLabels,
+        priority: updateData.priority,
+      };
+
+      // Filtrar solo campos definidos y válidos
+      const filteredData = {};
+      Object.keys(allowedFields).forEach((key) => {
+        if (allowedFields[key] !== undefined) {
+          filteredData[key] = allowedFields[key];
+        }
+      });
+
+      // Solo actualizar si hay campos válidos
+      if (Object.keys(filteredData).length === 0) {
+        console.log(
+          `[QUEUE] No hay campos válidos para actualizar en acción ${actionId}`
+        );
+        return;
+      }
+
+      // 🔥 VERIFICAR SI LA ACCIÓN EXISTE ANTES DE ACTUALIZAR
+      const existingAction = await this.prisma.queuedAction.findUnique({
+        where: { actionId: actionId },
+      });
+
+      if (!existingAction) {
+        console.log(
+          `[QUEUE] Acción ${actionId} no existe en BD, saltando actualización`
+        );
+        return;
+      }
+
       await this.prisma.queuedAction.update({
         where: { actionId: actionId },
-        data: updateData,
+        data: filteredData,
       });
+
+      if (updateData.error) {
+        // Obtener datos de la acción para referencias correctas
+        const actionForHistory = existingAction;
+
+        await this.prisma.actionHistory.upsert({
+          where: { actionId: actionId },
+          update: {
+            error: updateData.error,
+            status: filteredData.status || "FAILED",
+            success: false,
+            completedAt: new Date(),
+          },
+          create: {
+            actionId: actionId,
+            accountId: actionForHistory.accountId,
+            username:
+              actionForHistory.accountUsername ||
+              (actionForHistory.account && actionForHistory.account.username) ||
+              "unknown",
+            action: actionForHistory.action || "unknown",
+            status: filteredData.status || "FAILED",
+            success: false,
+            error: updateData.error,
+            createdAt: actionForHistory.createdAt || new Date(),
+            completedAt: new Date(),
+          },
+        });
+      }
     } catch (error) {
       console.error(`[QUEUE] Error actualizando acción ${actionId}:`, error);
     }
@@ -211,13 +394,55 @@ class QueueService {
   async addActionsToQueue(actions) {
     console.log(`📥 Agregando ${actions.length} acciones a la cola`);
 
+    // 🔍 LOGGING DETALLADO PARA DEBUGGEAR
+    actions.forEach((action, index) => {
+      if (action.action === "follow") {
+        console.log(
+          `[QUEUE_DEBUG] Acción follow #${index + 1} antes de procesar:`,
+          {
+            actionId: action.id,
+            accountId: action.accountId,
+            targetUserId: action.targetUserId,
+            targetUsername: action.targetUsername,
+            accountUsername: action.accountUsername,
+          }
+        );
+      }
+    });
+
     const processedActions = [];
     const now = new Date();
     const minDelayMs = 16 * 60 * 1000; // 16 minutos en milisegundos
 
+    // 🗺️  Map que indica la siguiente hora disponible para cada cuenta
+    //     (considera acciones YA existentes + último uso ejecutado)
+    const nextAvailableTime = new Map();
+
+    const computeNextAvailable = (accountId) => {
+      if (nextAvailableTime.has(accountId))
+        return nextAvailableTime.get(accountId);
+
+      let latest = this.rateLimitTracker.get(accountId) || new Date(0);
+
+      // Acciones ya en cola/memoria
+      const pendingTimes = [...this.actionQueue, ...this.scheduledActions]
+        .filter((a) => a.accountId === accountId)
+        .map((a) => new Date(a.scheduledTime || a.estimatedStartTime));
+
+      pendingTimes.forEach((t) => {
+        if (t > latest) latest = t;
+      });
+
+      nextAvailableTime.set(accountId, latest);
+      return latest;
+    };
+
     for (let i = 0; i < actions.length; i++) {
       const action = actions[i];
-      let scheduledTime = now;
+      // Respetar scheduledTime si ya viene definido (p.ej., delay de 16 min tras lookup)
+      let scheduledTime = action.scheduledTime
+        ? new Date(action.scheduledTime)
+        : now;
 
       try {
         if (
@@ -227,7 +452,6 @@ class QueueService {
         ) {
           // Usar tiempo de distribución aleatoria
           scheduledTime = new Date(action.distributionTimes[i]);
-
           // APLICAR DELAY MÍNIMO DE 16 MINUTOS
           const minTimeForThisAction = new Date(now.getTime() + i * minDelayMs);
           if (scheduledTime < minTimeForThisAction) {
@@ -238,15 +462,40 @@ class QueueService {
               } minutos para acción ${i + 1}`
             );
           }
-        } else {
+        } else if (!action.scheduledTime) {
           // Usar delays normales + delay mínimo
-          const baseDelay = action.baseDelay || 30000;
-          const randomDelay = action.randomDelay || 60000;
+          const baseDelay =
+            action.baseDelay !== undefined ? action.baseDelay : 30000;
+          const randomDelay =
+            action.randomDelay !== undefined ? action.randomDelay : 60000;
           const calculatedDelay = baseDelay + Math.random() * randomDelay;
 
           // Aplicar delay mínimo de 16 minutos por acción
           const totalDelay = Math.max(calculatedDelay, i * minDelayMs);
           scheduledTime = new Date(now.getTime() + totalDelay);
+        }
+        // Si venía scheduledTime pero es antes de now, al menos cumplir delay mínimo
+        if (action.scheduledTime && scheduledTime < now) {
+          scheduledTime = new Date(now.getTime() + minDelayMs);
+        }
+
+        // 🛡️  Ajustar para respetar delay mínimo con acciones previas de LA MISMA CUENTA (incluso de lotes anteriores)
+        const latestForAccount = computeNextAvailable(action.accountId);
+        const earliestAllowed = new Date(
+          latestForAccount.getTime() + minDelayMs
+        );
+        if (scheduledTime < earliestAllowed) {
+          console.log(
+            `⏰ Ajustando tiempo para cuenta ${
+              action.accountId
+            } (delay mínimo global). Antes: ${scheduledTime.toISOString()}, nuevo: ${earliestAllowed.toISOString()}`
+          );
+          scheduledTime = earliestAllowed;
+          // actualizar el mapa para siguientes acciones del mismo lote
+          nextAvailableTime.set(action.accountId, scheduledTime);
+        } else {
+          // registrar tiempo también
+          nextAvailableTime.set(action.accountId, scheduledTime);
         }
 
         const actionObj = {
@@ -270,6 +519,20 @@ class QueueService {
           distributionConfig: action.distributionConfig || null,
           createdAt: now,
         };
+
+        // 🔍 LOGGING ESPECÍFICO PARA FOLLOWS DESPUÉS DE PROCESAR
+        if (action.action === "follow") {
+          console.log(
+            `[QUEUE_DEBUG] Acción follow #${i + 1} después de procesar:`,
+            {
+              actionId: actionObj.id,
+              accountId: actionObj.accountId,
+              targetUserId: actionObj.targetUserId,
+              targetUsername: actionObj.targetUsername,
+              scheduledTime: actionObj.scheduledTime.toISOString(),
+            }
+          );
+        }
 
         // Persistir en base de datos
         await this.persistActionToDb(actionObj);
@@ -472,7 +735,10 @@ class QueueService {
           await this.addToHistory({
             actionId: action.id,
             accountId: action.accountId,
-            username: action.accountId, // Se podría mejorar obteniendo el username real
+            username:
+              action.accountUsername ||
+              (action.account && action.account.username) ||
+              "unknown",
             accountLabels: action.accountLabels,
             action: action.action,
             text: action.text,
@@ -527,6 +793,37 @@ class QueueService {
   }
 
   async executeAction(action) {
+    // 🔥 ARREGLAR: Asegurar que la acción tenga los datos de la cuenta
+    if (!action.account && action.accountId) {
+      console.log(
+        `[QUEUE] Cargando datos de cuenta para ${action.accountId}...`
+      );
+      try {
+        const account = await this.prisma.xAccount.findUnique({
+          where: { id: action.accountId },
+        });
+
+        if (!account) {
+          throw new Error(
+            `Cuenta ${action.accountId} no encontrada en la base de datos`
+          );
+        }
+
+        action.account = account;
+        console.log(
+          `✅ [QUEUE] Cuenta cargada: @${account.username} (ID: ${account.id})`
+        );
+      } catch (error) {
+        console.error(
+          `❌ [QUEUE] Error cargando cuenta ${action.accountId}:`,
+          error
+        );
+        throw new Error(
+          `No se pudo cargar la cuenta ${action.accountId}: ${error.message}`
+        );
+      }
+    }
+
     switch (action.action) {
       case "tweet":
         return this.executeTweet(action);
@@ -614,7 +911,10 @@ class QueueService {
         `❤️ Ejecutando like para @${action.account.username} → ${action.tweetId}`
       );
 
-      const actingUserId = action.account.twitterId || action.account.userId;
+      const actingUserId =
+        action.account.twitterId ||
+        action.account.twitterUserId ||
+        action.account.userId;
       if (!actingUserId) {
         throw new Error(
           `La cuenta @${action.account.username} no tiene su Twitter ID configurado en la base de datos.`
@@ -651,7 +951,10 @@ class QueueService {
         `🔄 Ejecutando retweet para @${action.account.username} → ${action.tweetId}`
       );
 
-      const actingUserId = action.account.twitterId || action.account.userId;
+      const actingUserId =
+        action.account.twitterId ||
+        action.account.twitterUserId ||
+        action.account.userId;
       if (!actingUserId) {
         throw new Error(
           `La cuenta @${action.account.username} no tiene su Twitter ID configurado en la base de datos.`
@@ -683,162 +986,88 @@ class QueueService {
   }
 
   async executeFollow(action) {
-    const rawTarget = action.targetUsername || action.targetUserId;
-    const targetUsername = (rawTarget || "").replace(/^@+/, "").trim();
-    let targetUserId = action.targetUserId; // Usar si ya existe en la acción
+    // 🔥 VALIDACIONES TEMPRANAS - MÁS SIMPLES PORQUE targetUserId YA ESTÁ RESUELTO
+
+    // 1. Validar que existe la cuenta
+    if (!action.account || !action.account.username) {
+      const errorMsg = `❌ [FOLLOW_VALIDATION] account no está definido o no tiene username`;
+      console.error(errorMsg);
+      throw new Error("La cuenta de origen no está correctamente configurada");
+    }
+
+    // 2. Validar ID de la cuenta que ejecuta la acción
+    const actingUserId =
+      action.account.twitterId ||
+      action.account.twitterUserId ||
+      action.account.userId;
+    if (!actingUserId) {
+      const errorMsg = `❌ [FOLLOW_VALIDATION] La cuenta @${action.account.username} no tiene su Twitter ID configurado`;
+      console.error(errorMsg);
+      throw new Error(
+        `La cuenta @${action.account.username} no tiene su Twitter ID configurado en la base de datos.`
+      );
+    }
+
+    // 3. Validar que tenemos targetUserId (debería estar resuelto ya)
+    if (!action.targetUserId) {
+      const errorMsg = `❌ [FOLLOW_VALIDATION] targetUserId no está resuelto. Esto indica un error en el proceso de resolución temprana.`;
+      console.error(errorMsg, {
+        actionId: action.id,
+        targetUsername: action.targetUsername,
+        targetUserId: action.targetUserId,
+      });
+      throw new Error(
+        "❌ ERROR INTERNO: targetUserId no fue resuelto correctamente en el proceso de creación"
+      );
+    }
+
+    // 4. Validar que no intente seguirse a sí mismo
+    if (
+      action.targetUsername &&
+      action.targetUsername.toLowerCase() ===
+        action.account.username.toLowerCase()
+    ) {
+      const errorMsg = `❌ [FOLLOW_VALIDATION] Intento de auto-follow detectado: @${action.account.username} → @${action.targetUsername}`;
+      console.error(errorMsg);
+      throw new Error(
+        "❌ VALIDACIÓN FALLIDA: Una cuenta no puede seguirse a sí misma"
+      );
+    }
+
+    console.log(`✅ [FOLLOW_VALIDATION] Validaciones pasadas - targetUserId ya resuelto:
+      - Cuenta origen: @${action.account.username} (ID: ${actingUserId})
+      - Target: @${action.targetUsername} (ID: ${action.targetUserId})
+      - Fuente: Resuelto en endpoint /add
+    `);
 
     try {
       console.log(
-        `👥 Ejecutando follow: @${action.account.username} → @${targetUsername}`
+        `👥 Ejecutando follow: @${action.account.username} → @${action.targetUsername} (ID: ${action.targetUserId})`
       );
-
-      const actingUserId = action.account.twitterId || action.account.userId;
-      if (!actingUserId) {
-        throw new Error(
-          `La cuenta @${action.account.username} no tiene su Twitter ID configurado en la base de datos.`
-        );
-      }
 
       const client = await this.twitterService.getTwitterClient(action.account);
 
-      // --- OPTIMIZACIÓN: BUSCAR TARGET EN BD PRIMERO ---
-      if (!targetUserId) {
-        console.log(
-          `[FOLLOW_OPTIMIZATION] Buscando @${targetUsername} en base de datos local...`
-        );
-
-        const localAccount = await this.prisma.xAccount.findUnique({
-          where: { username: targetUsername },
-        });
-
-        if (localAccount && (localAccount.userId || localAccount.twitterId)) {
-          targetUserId = localAccount.userId || localAccount.twitterId;
-          console.log(
-            `✅ [FOLLOW_OPTIMIZATION] @${targetUsername} encontrado en BD local con ID: ${targetUserId}`
-          );
-          console.log(
-            `🚀 [FOLLOW_OPTIMIZATION] Ambas cuentas están en BD, ejecutando follow inmediatamente (sin delay API)`
-          );
-
-          // EJECUTAR INMEDIATAMENTE - No necesitamos delay porque no consumimos API para obtener IDs
-          const result = await client.v2.follow(actingUserId, targetUserId);
-
-          console.log(
-            `✅ Follow ejecutado exitosamente (BD→BD): @${action.account.username} → ${targetUserId} (@${targetUsername})`
-          );
-
-          return {
-            success: true,
-            data: {
-              targetUserId: targetUserId,
-              targetUsername: targetUsername,
-              followerUsername: action.account.username,
-              following: result.data.following,
-              userId: actingUserId,
-              timestamp: new Date().toISOString(),
-              optimized: true,
-              note: "Follow entre cuentas de BD - sin delay API",
-            },
-          };
-        } else {
-          // Target NO está en BD - necesitamos buscar en API
-          console.log(
-            `⚠️ [FOLLOW_API_LOOKUP] @${targetUsername} NO encontrado en BD. Buscando en API de Twitter...`
-          );
-
-          // Actualizamos el tracker porque esta llamada consume un request
-          await this.updateRateLimitTracker(action.accountId, "get_user_id");
-          targetUserId = await this.getUserIdFromUsername(
-            client,
-            targetUsername
-          );
-
-          console.log(
-            `✅ [FOLLOW_API_LOOKUP] ID obtenido de API: ${targetUserId} para @${targetUsername}`
-          );
-
-          // REPROGRAMAR LA ACCIÓN PARA DENTRO DE 16 MINUTOS
-          const retryTime = new Date(Date.now() + this.RATE_LIMIT_WINDOW);
-
-          // Actualizar la acción en BD con el ID encontrado
-          await this.prisma.queuedAction.update({
-            where: { actionId: action.id },
-            data: {
-              targetUserId: targetUserId,
-              estimatedStartTime: retryTime,
-              status: "QUEUED",
-            },
-          });
-
-          // Actualizar la acción en memoria
-          action.targetUserId = targetUserId;
-          action.estimatedStartTime = retryTime.toISOString();
-          action.status = "QUEUED";
-          action.error = null;
-
-          // Devolver a la cola con prioridad
-          this.actionQueue.unshift(action);
-
-          console.log(
-            `⏰ [FOLLOW_API_LOOKUP] Acción ${
-              action.id
-            } reprogramada para ${retryTime.toISOString()}`
-          );
-          console.log(
-            `📝 [FOLLOW_API_LOOKUP] ID ${targetUserId} guardado, esperando 16 minutos para ejecutar follow`
-          );
-
-          // Actualizar historial con estado intermedio
-          await this.addToHistory({
-            ...action,
-            status: "QUEUED",
-            success: false,
-            result: {
-              note: `User ID for @${targetUsername} found (${targetUserId}). Rescheduling follow action for ${retryTime.toISOString()}`,
-              stage: "ID_LOOKUP_COMPLETED",
-              targetUserId: targetUserId,
-            },
-          });
-
-          // Devolver resultado intermedio
-          return {
-            success: false,
-            data: {
-              stage: "ID_LOOKUP_COMPLETED",
-              targetUserId: targetUserId,
-              targetUsername: targetUsername,
-              rescheduledFor: retryTime.toISOString(),
-              note: `User ID found, follow rescheduled for 16 minutes later`,
-            },
-          };
-        }
-      } else {
-        // Ya tenemos targetUserId - ejecutar directamente
-        console.log(
-          `✅ [FOLLOW_DIRECT] targetUserId ya disponible: ${targetUserId}, ejecutando follow...`
-        );
-      }
-
-      // --- EJECUTAR EL FOLLOW CON ID DISPONIBLE ---
+      // --- EJECUTAR EL FOLLOW DIRECTAMENTE (SIN BÚSQUEDAS) ---
       console.log(
-        `🚀 [FOLLOW_EXECUTE] Ejecutando follow: ${actingUserId} → ${targetUserId} (@${targetUsername})`
+        `🚀 [FOLLOW_EXECUTE] Ejecutando follow directo: ${actingUserId} → ${action.targetUserId} (@${action.targetUsername})`
       );
 
-      const result = await client.v2.follow(actingUserId, targetUserId);
+      const result = await client.v2.follow(actingUserId, action.targetUserId);
 
       console.log(
-        `✅ Follow ejecutado exitosamente: @${action.account.username} → ${targetUserId} (@${targetUsername})`
+        `✅ Follow ejecutado exitosamente: @${action.account.username} → ${action.targetUserId} (@${action.targetUsername})`
       );
 
       return {
         success: true,
         data: {
-          targetUserId: targetUserId,
-          targetUsername: targetUsername,
+          targetUserId: action.targetUserId,
+          targetUsername: action.targetUsername,
           followerUsername: action.account.username,
           following: result.data.following,
           userId: actingUserId,
           timestamp: new Date().toISOString(),
+          note: "Follow ejecutado con targetUserId pre-resuelto",
         },
       };
     } catch (error) {
@@ -854,14 +1083,14 @@ class QueueService {
         error.status === 403
       ) {
         console.log(
-          `⚠️ Follow ya existente: @${action.account.username} → ${targetUsername} (considerado como éxito)`
+          `⚠️ Follow ya existente: @${action.account.username} → ${action.targetUsername} (considerado como éxito)`
         );
 
         return {
           success: true,
           data: {
-            targetUserId: targetUserId,
-            targetUsername: targetUsername,
+            targetUserId: action.targetUserId,
+            targetUsername: action.targetUsername,
             followerUsername: action.account.username,
             following: true, // Ya se está siguiendo
             userId: actingUserId,
@@ -887,7 +1116,10 @@ class QueueService {
         `👥❌ Ejecutando unfollow: @${action.account.username} → @${targetUsername}`
       );
 
-      const actingUserId = action.account.twitterId || action.account.userId;
+      const actingUserId =
+        action.account.twitterId ||
+        action.account.twitterUserId ||
+        action.account.userId;
       if (!actingUserId) {
         throw new Error(
           `La cuenta @${action.account.username} no tiene su Twitter ID configurado en la base de datos.`
@@ -1082,11 +1314,20 @@ class QueueService {
     if (actionInfo.completedAt)
       updateData.completedAt = new Date(actionInfo.completedAt);
 
+    const historyActionId = actionInfo.actionId || actionInfo.id;
+    if (!historyActionId) {
+      console.error(
+        "❌ addToHistory: actionId/id faltante en actionInfo",
+        actionInfo
+      );
+      return;
+    }
+
     await this.prisma.actionHistory.upsert({
-      where: { actionId: actionInfo.id },
+      where: { actionId: historyActionId },
       update: updateData,
       create: {
-        actionId: actionInfo.id,
+        actionId: historyActionId,
         ...updateData,
         createdAt: actionInfo.createdAt
           ? new Date(actionInfo.createdAt)
@@ -1097,26 +1338,30 @@ class QueueService {
 
   // Nuevo: Mapear estados de QueueStatus a ActionStatus
   mapQueueStatusToActionStatus(queueStatus) {
+    if (!queueStatus) return "FAILED"; // fallback seguro
+
+    // Aceptar valores en minúsculas o mixtos
+    const normalized = queueStatus.toString().toUpperCase();
+
     const mapping = {
       QUEUED: "QUEUED",
-      SCHEDULED: "QUEUED",
+      SCHEDULED: "QUEUED", // Programada se considera aún en cola
       RUNNING: "RUNNING",
       COMPLETED: "COMPLETED",
       FAILED: "FAILED",
       CANCELLED: "CANCELLED",
     };
-    return mapping[queueStatus] || queueStatus;
+
+    return mapping[normalized] || "FAILED";
   }
 
   // Nuevo: Helper para actualizar el tracker de rate limits
   async updateRateLimitTracker(accountId, actionType) {
-    const now = Date.now();
+    const now = new Date();
 
-    // Actualizar en memoria
-    if (!this.rateLimitTracker.has(accountId)) {
-      this.rateLimitTracker.set(accountId, new Map());
-    }
-    this.rateLimitTracker.get(accountId).set(actionType, now);
+    // ARREGLAR: Mantener consistencia en rateLimitTracker
+    // Usar Date directamente en lugar de Map anidado para simplificar
+    this.rateLimitTracker.set(accountId, now);
 
     // Persistir en BD
     try {
@@ -1128,12 +1373,12 @@ class QueueService {
           },
         },
         update: {
-          lastUsed: new Date(now),
+          lastUsed: now,
         },
         create: {
           accountId: accountId,
           actionType: actionType,
-          lastUsed: new Date(now),
+          lastUsed: now,
         },
       });
     } catch (error) {
@@ -1225,7 +1470,10 @@ class QueueService {
           create: {
             actionId: id,
             accountId: dbAction.accountId,
-            username: dbAction.account.username,
+            username:
+              dbAction.accountUsername ||
+              (dbAction.account && dbAction.account.username) ||
+              "unknown",
             accountLabels:
               dbAction.accountLabels || dbAction.account.labels || [],
             action: dbAction.action,
@@ -1359,7 +1607,10 @@ class QueueService {
               create: {
                 actionId: action.actionId,
                 accountId: action.accountId,
-                username: action.account.username,
+                username:
+                  action.accountUsername ||
+                  (action.account && action.account.username) ||
+                  "unknown",
                 accountLabels:
                   action.accountLabels || action.account.labels || [],
                 action: action.action,

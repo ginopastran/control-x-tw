@@ -97,14 +97,14 @@ function createAdditionalRoutes(
   router.get("/metrics/realtime", async (req, res) => {
     try {
       const todayMetrics = await historyService.getRealTimeMetrics();
-      const queueStatus = queueService.getQueueStatus();
+      const queueStatus = await queueService.getQueueStatus();
 
       const metrics = {
         ...todayMetrics,
         realtime: {
-          queueLength: queueStatus.stats.queueLength,
-          runningActions: queueStatus.stats.runningCount,
-          scheduledActions: queueStatus.stats.scheduled,
+          queueLength: queueStatus?.stats?.queueLength || 0,
+          runningActions: queueStatus?.stats?.runningCount || 0,
+          scheduledActions: queueStatus?.stats?.scheduled || 0,
         },
       };
 
@@ -113,6 +113,12 @@ function createAdditionalRoutes(
       console.error("Error obteniendo métricas en tiempo real:", error);
       res.status(500).json({
         error: error.message || "Error interno del servidor",
+        // Devolver métricas vacías en caso de error
+        realtime: {
+          queueLength: 0,
+          runningActions: 0,
+          scheduledActions: 0,
+        },
       });
     }
   });

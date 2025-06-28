@@ -297,14 +297,46 @@ export default function TweetsPage() {
         userTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       });
 
-      const scheduleData = {
-        action: actionType,
-        accountIds: selectedAccounts,
-        scheduledTime: localDateTime.toISOString(),
-        baseDelay: baseDelay * 1000,
-        randomDelay: randomDelay * 1000,
-        ...actionData,
-      };
+      let scheduleData: any;
+
+      if (useRandomDistribution) {
+        const randomTimes = generateRandomDistributionTimes(
+          selectedAccounts.length
+        );
+
+        scheduleData = {
+          action: actionType,
+          accountIds: selectedAccounts,
+          useRandomDistribution: true,
+          distributionTimes: randomTimes,
+          distributionConfig: {
+            value: distributionValue,
+            unit: distributionUnit,
+            maxTimeMs: convertToMilliseconds(
+              distributionValue,
+              distributionUnit
+            ),
+          },
+          // La hora programada del conjunto se usa como límite máximo, pero cada acción tiene su propio distributionTime
+          scheduledTime: localDateTime.toISOString(),
+          ...actionData,
+        };
+      } else {
+        scheduleData = {
+          action: actionType,
+          accountIds: selectedAccounts,
+          scheduledTime: localDateTime.toISOString(),
+          baseDelay: baseDelay * 1000,
+          randomDelay: randomDelay * 1000,
+          useRandomDistribution: false,
+          ...actionData,
+        };
+      }
+
+      console.log(
+        "[FRONTEND][SCHEDULE_ACTION] Enviando scheduleData:",
+        scheduleData
+      );
 
       // Usar la ruta del backend que ya existe
       const response = await fetch(
@@ -799,14 +831,45 @@ export default function TweetsPage() {
     try {
       for (const tweet of tweetsToExecute) {
         try {
-          // Preparar datos de la acción para el sistema de cola
-          const actionData = {
-            action: "tweet",
-            accountIds: tweet.assignedAccounts,
-            text: tweet.text,
-            baseDelay: baseDelay * 1000, // Convertir a milliseconds
-            randomDelay: randomDelay * 1000, // Convertir a milliseconds
-          };
+          // 📋 Construir payload con soporte de distribución aleatoria
+          let actionData: any;
+
+          if (useRandomDistribution) {
+            const randomTimes = generateRandomDistributionTimes(
+              tweet.assignedAccounts.length
+            );
+
+            actionData = {
+              action: "tweet",
+              accountIds: tweet.assignedAccounts,
+              text: tweet.text,
+              useRandomDistribution: true,
+              distributionTimes: randomTimes,
+              distributionConfig: {
+                value: distributionValue,
+                unit: distributionUnit,
+                maxTimeMs: convertToMilliseconds(
+                  distributionValue,
+                  distributionUnit
+                ),
+              },
+            };
+          } else {
+            actionData = {
+              action: "tweet",
+              accountIds: tweet.assignedAccounts,
+              text: tweet.text,
+              baseDelay: baseDelay * 1000, // ms
+              randomDelay: randomDelay * 1000, // ms
+              useRandomDistribution: false,
+            };
+          }
+
+          // 🛠️ LOG DETALLADO
+          console.log(
+            "[FRONTEND][BATCH_TWEET] Enviando actionData:",
+            actionData
+          );
 
           // Enviar al sistema de colas usando el endpoint correcto
           const response = await fetch(
@@ -1496,13 +1559,43 @@ export default function TweetsPage() {
     try {
       for (const follow of followsToExecute) {
         try {
-          const actionData = {
-            action: "follow",
-            accountIds: follow.assignedAccounts,
-            targetUsername: follow.username,
-            baseDelay: baseDelay * 1000,
-            randomDelay: randomDelay * 1000,
-          };
+          // 📋 Construir payload con distribución aleatoria cuando corresponda
+          let actionData: any;
+          if (useRandomDistribution) {
+            const randomTimes = generateRandomDistributionTimes(
+              follow.assignedAccounts.length
+            );
+
+            actionData = {
+              action: "follow",
+              accountIds: follow.assignedAccounts,
+              targetUsername: follow.username,
+              useRandomDistribution: true,
+              distributionTimes: randomTimes,
+              distributionConfig: {
+                value: distributionValue,
+                unit: distributionUnit,
+                maxTimeMs: convertToMilliseconds(
+                  distributionValue,
+                  distributionUnit
+                ),
+              },
+            };
+          } else {
+            actionData = {
+              action: "follow",
+              accountIds: follow.assignedAccounts,
+              targetUsername: follow.username,
+              baseDelay: baseDelay * 1000,
+              randomDelay: randomDelay * 1000,
+              useRandomDistribution: false,
+            };
+          }
+
+          console.log(
+            "[FRONTEND][BATCH_FOLLOW] Enviando actionData:",
+            actionData
+          );
 
           const response = await fetch(
             buildApiUrl(API_CONFIG.ENDPOINTS.QUEUE.ADD),
@@ -1581,13 +1674,42 @@ export default function TweetsPage() {
     try {
       for (const retweet of retweetsToExecute) {
         try {
-          const actionData = {
-            action: "retweet",
-            accountIds: retweet.assignedAccounts,
-            tweetId: retweet.tweetId,
-            baseDelay: baseDelay * 1000,
-            randomDelay: randomDelay * 1000,
-          };
+          let actionData: any;
+          if (useRandomDistribution) {
+            const randomTimes = generateRandomDistributionTimes(
+              retweet.assignedAccounts.length
+            );
+
+            actionData = {
+              action: "retweet",
+              accountIds: retweet.assignedAccounts,
+              tweetId: retweet.tweetId,
+              useRandomDistribution: true,
+              distributionTimes: randomTimes,
+              distributionConfig: {
+                value: distributionValue,
+                unit: distributionUnit,
+                maxTimeMs: convertToMilliseconds(
+                  distributionValue,
+                  distributionUnit
+                ),
+              },
+            };
+          } else {
+            actionData = {
+              action: "retweet",
+              accountIds: retweet.assignedAccounts,
+              tweetId: retweet.tweetId,
+              baseDelay: baseDelay * 1000,
+              randomDelay: randomDelay * 1000,
+              useRandomDistribution: false,
+            };
+          }
+
+          console.log(
+            "[FRONTEND][BATCH_RETWEET] Enviando actionData:",
+            actionData
+          );
 
           const response = await fetch(
             buildApiUrl(API_CONFIG.ENDPOINTS.QUEUE.ADD),
@@ -2992,7 +3114,7 @@ Puedes usar URLs completas o solo usernames`}
                                       const success = await scheduleAction(
                                         "follow",
                                         {
-                                          targetUserId: follow.username,
+                                          targetUsername: follow.username,
                                           accountIds: follow.assignedAccounts,
                                         }
                                       );
@@ -3548,7 +3670,7 @@ Pega las URLs de los tweets que quieres retwitear`}
 
         {/* Resultados mejorados */}
         {actionResults.length > 0 && (
-          <Card className="shadow-xl border-0 bg-gradient-to-br from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 animate-slide-up">
+          <Card className="shadow-md border border-gray-200 bg-white animate-slide-up">
             <CardHeader>
               <div className="flex items-center gap-3">
                 <div className="bg-green-100 dark:bg-green-900 p-2 rounded-lg">
@@ -3569,10 +3691,10 @@ Pega las URLs de los tweets que quieres retwitear`}
                 {actionResults.map((result, index) => (
                   <div
                     key={index}
-                    className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all duration-300 hover:shadow-md ${
+                    className={`flex items-center justify-between p-4 rounded-lg border transition-all duration-300 hover:shadow-sm ${
                       result.success
-                        ? "border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20"
-                        : "border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20"
+                        ? "border-green-200 bg-green-50"
+                        : "border-red-200 bg-red-50"
                     }`}
                     style={{
                       animationDelay: `${index * 100}ms`,

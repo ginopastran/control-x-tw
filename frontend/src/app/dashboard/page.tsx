@@ -73,22 +73,30 @@ interface QueueStatus {
 
 interface QueueAction {
   id: string;
-  action: string;
+  accountId: string;
   accountUsername: string;
   accountLabels?: string[];
+  action: string;
   text: string;
+  tweetId?: string;
+  targetUserId?: string;
+  targetUsername?: string;
+  status: string;
   createdAt: string;
   estimatedStartTime: string;
 }
 
 interface RunningAction {
   id: string;
-  action: string;
+  accountId: string;
   accountUsername: string;
   accountLabels?: string[];
+  action: string;
   text: string;
+  tweetId?: string;
+  targetUserId?: string;
+  status: string;
   startedAt: string;
-  progress: number;
 }
 
 interface HistoryAction {
@@ -104,11 +112,16 @@ interface HistoryAction {
 
 interface ScheduledAction {
   id: string;
-  action: string;
+  accountId: string;
   accountUsername: string;
   accountLabels?: string[];
+  action: string;
   text: string;
+  tweetId?: string;
+  targetUserId?: string;
+  targetUsername?: string;
   scheduledTime: string;
+  status: string;
   createdAt: string;
   baseDelay: number;
   randomDelay: number;
@@ -511,13 +524,23 @@ export default function Dashboard() {
             }"`
           : "Responder a tweet";
       case "follow":
-        return action.targetUserId
-          ? `Seguir a @${action.targetUserId}`
-          : "Seguir usuario";
+        // Priorizar targetUsername sobre targetUserId
+        if (action.targetUsername) {
+          return `Seguir a @${action.targetUsername}`;
+        } else if (action.targetUserId) {
+          return `Seguir a ID: ${action.targetUserId}`;
+        } else {
+          return "Seguir usuario";
+        }
       case "unfollow":
-        return action.targetUserId
-          ? `Dejar de seguir a @${action.targetUserId}`
-          : "Dejar de seguir";
+        // Priorizar targetUsername sobre targetUserId
+        if (action.targetUsername) {
+          return `Dejar de seguir a @${action.targetUsername}`;
+        } else if (action.targetUserId) {
+          return `Dejar de seguir ID: ${action.targetUserId}`;
+        } else {
+          return "Dejar de seguir";
+        }
       case "dm":
         return action.text
           ? `Mensaje directo: "${action.text.substring(0, 40)}..."`

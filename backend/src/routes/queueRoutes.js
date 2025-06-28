@@ -22,6 +22,24 @@ function createQueueRoutes(queueService, prisma) {
         distributionConfig,
       } = req.body;
 
+      // Variable mutable para la hora final programada. Inicialmente la que llega en body.
+      let localScheduledTime = scheduledTime;
+
+      // 🔥 LOGGING DETALLADO PARA DEBUGGEAR
+      console.log(`[QUEUE_DEBUG] Datos recibidos en /add:`, {
+        action,
+        accountIds: accountIds?.length
+          ? `[${accountIds.length} cuentas]`
+          : accountIds,
+        targetUserId,
+        targetUsername,
+        text: text ? `"${text.substring(0, 50)}..."` : text,
+        tweetId,
+        scheduledTime,
+        useRandomDistribution,
+      });
+
+      // 🔥 VALIDACIONES TEMPRANAS
       if (!action) {
         return res.status(400).json({ error: "action es requerido" });
       }
@@ -34,6 +52,125 @@ function createQueueRoutes(queueService, prisma) {
         return res
           .status(400)
           .json({ error: "accountIds es requerido y debe ser un array" });
+      }
+
+      // 🔥 VALIDACIÓN ESPECÍFICA PARA FOLLOWS
+      if (action === "follow") {
+        if (!targetUserId && !targetUsername) {
+          console.error(
+            `❌ [QUEUE_VALIDATION] Acción follow sin target válido:`,
+            {
+              action,
+              targetUserId,
+              targetUsername,
+              bodyCompleto: req.body,
+            }
+          );
+          return res.status(400).json({
+            error:
+              "Para acciones de follow se requiere targetUserId o targetUsername",
+            details: {
+              received: { targetUserId, targetUsername },
+              requirement:
+                "Debe especificar al menos uno: targetUserId (ID numérico) o targetUsername (sin @)",
+            },
+          });
+        }
+
+        // Validar formato de targetUsername si está presente
+        if (targetUsername) {
+          const cleanedUsername = (targetUsername || "")
+            .replace(/^@+/, "")
+            .trim();
+          if (cleanedUsername.length === 0) {
+            console.error(`❌ [QUEUE_VALIDATION] targetUsername inválido:`, {
+              original: targetUsername,
+              cleaned: cleanedUsername,
+            });
+            return res.status(400).json({
+              error: "targetUsername no puede estar vacío",
+              details: {
+                received: targetUsername,
+                requirement: "Debe ser un username válido sin @ al inicio",
+              },
+            });
+          }
+          console.log(
+            `✅ [QUEUE_VALIDATION] targetUsername válido: "${targetUsername}" → "${cleanedUsername}"`
+          );
+        }
+
+        // Validar formato de targetUserId si está presente
+        if (targetUserId) {
+          if (typeof targetUserId === "string" && !/^\d+$/.test(targetUserId)) {
+            // Es un string pero no numérico - probablemente es un username
+            console.log(
+              `⚠️ [QUEUE_VALIDATION] targetUserId parece ser username: "${targetUserId}"`
+            );
+            if (!targetUsername) {
+              console.log(
+                `🔄 [QUEUE_VALIDATION] Moviendo targetUserId a targetUsername`
+              );
+              // Mover a targetUsername y limpiar targetUserId
+              req.body.targetUsername = targetUserId;
+              req.body.targetUserId = null;
+            }
+          }
+        }
+
+        // 🔥 NUEVA LÓGICA: BÚSQUEDA TEMPRANA DE targetUserId
+        console.log(
+          `🔍 [FOLLOW_EARLY_LOOKUP] Iniciando búsqueda temprana para: ${
+            req.body.targetUsername || req.body.targetUserId
+          }`
+        );
+
+        try {
+          const resolvedTargetData = await resolveTargetUserId(
+            req.body.targetUsername,
+            req.body.targetUserId,
+            prisma,
+            accountIds[0] // Usar la primera cuenta para acceso a API si es necesario
+          );
+
+          // Actualizar los datos con lo que se resolvió
+          req.body.targetUserId = resolvedTargetData.targetUserId;
+          req.body.targetUsername = resolvedTargetData.targetUsername;
+
+          // Si se usó la API, programar con delay
+          if (resolvedTargetData.usedApi) {
+            const delayMinutes = 16;
+            req.body.scheduledTime = new Date(
+              Date.now() + delayMinutes * 60 * 1000
+            ).toISOString();
+            console.log(
+              `⏰ [FOLLOW_EARLY_LOOKUP] Acción programada para ${delayMinutes} minutos después debido a API lookup`
+            );
+          }
+
+          // ⚠️  IMPORTANTE: actualizar la variable local global
+          localScheduledTime = req.body.scheduledTime;
+
+          console.log(`✅ [FOLLOW_EARLY_LOOKUP] Target resuelto:`, {
+            targetUserId: resolvedTargetData.targetUserId,
+            targetUsername: resolvedTargetData.targetUsername,
+            source: resolvedTargetData.source,
+            usedApi: resolvedTargetData.usedApi,
+            scheduledTime: req.body.scheduledTime,
+          });
+        } catch (lookupError) {
+          console.error(
+            `❌ [FOLLOW_EARLY_LOOKUP] Error resolviendo target:`,
+            lookupError.message
+          );
+          return res.status(400).json({
+            error: `Error resolviendo usuario objetivo: ${lookupError.message}`,
+            details: {
+              targetUsername: req.body.targetUsername,
+              targetUserId: req.body.targetUserId,
+            },
+          });
+        }
       }
 
       const accounts = await prisma.xAccount.findMany({
@@ -80,7 +217,8 @@ function createQueueRoutes(queueService, prisma) {
             const totalDelay =
               actualBaseDelay + Math.random() * actualRandomDelay;
             estimatedStartTime =
-              scheduledTime || new Date(Date.now() + totalDelay).toISOString();
+              localScheduledTime ||
+              new Date(Date.now() + totalDelay).toISOString();
 
             console.log(
               `[QUEUE] Acción para @${account.username} programada SECUENCIALMENTE para: ${estimatedStartTime} (Delay total: ${totalDelay}ms)`
@@ -95,8 +233,8 @@ function createQueueRoutes(queueService, prisma) {
             action,
             text,
             tweetId,
-            targetUserId,
-            targetUsername,
+            targetUserId: req.body.targetUserId, // Usar el valor actualizado
+            targetUsername: req.body.targetUsername, // Usar el valor actualizado
             account: account,
             accountUsername: account.username,
             accountLabels: account.labels || [],
@@ -108,11 +246,25 @@ function createQueueRoutes(queueService, prisma) {
             batchId: `batch_${Date.now()}_${Math.random()
               .toString(36)
               .substr(2, 6)}`,
-            scheduledTime,
+            scheduledTime: localScheduledTime,
             // Metadatos de distribución aleatoria
             useRandomDistribution: useRandomDistribution || false,
             distributionConfig: distributionConfig || null,
+            distributionTimes: distributionTimes || [],
           };
+
+          // 🔍 LOGGING ESPECÍFICO PARA FOLLOWS
+          if (action === "follow") {
+            console.log(
+              `[QUEUE_DEBUG] Acción follow creada para @${account.username}:`,
+              {
+                actionId: actionObj.id,
+                targetUserId: actionObj.targetUserId,
+                targetUsername: actionObj.targetUsername,
+                estimatedStartTime: actionObj.estimatedStartTime,
+              }
+            );
+          }
 
           return actionObj;
         } catch (error) {
@@ -126,7 +278,7 @@ function createQueueRoutes(queueService, prisma) {
       const message = useRandomDistribution
         ? `${actions.length} acciones distribuidas aleatoriamente en ${distributionConfig?.value} ${distributionConfig?.unit}`
         : `${actions.length} acciones ${
-            scheduledTime ? "programadas" : "añadidas a la cola"
+            localScheduledTime ? "programadas" : "añadidas a la cola"
           } exitosamente`;
 
       res.json({
@@ -358,6 +510,180 @@ function createQueueRoutes(queueService, prisma) {
   });
 
   return router;
+}
+
+// 🔥 NUEVA FUNCIÓN: Resolver targetUserId con búsqueda optimizada
+async function resolveTargetUserId(
+  targetUsername,
+  targetUserId,
+  prisma,
+  fallbackAccountId
+) {
+  let resolvedTargetUserId = targetUserId;
+  let resolvedTargetUsername = targetUsername;
+  let source = "parameter";
+  let usedApi = false;
+
+  console.log(`🔍 [RESOLVE_TARGET] Iniciando resolución:`, {
+    targetUsername,
+    targetUserId,
+    fallbackAccountId,
+  });
+
+  // Limpiar targetUsername si existe
+  if (targetUsername) {
+    resolvedTargetUsername = (targetUsername || "").replace(/^@+/, "").trim();
+  }
+
+  // Si ya tenemos targetUserId numérico válido, usar eso
+  if (
+    resolvedTargetUserId &&
+    typeof resolvedTargetUserId === "string" &&
+    /^\d+$/.test(resolvedTargetUserId)
+  ) {
+    console.log(
+      `✅ [RESOLVE_TARGET] targetUserId ya es válido: ${resolvedTargetUserId}`
+    );
+    return {
+      targetUserId: resolvedTargetUserId,
+      targetUsername: resolvedTargetUsername,
+      source: "parameter",
+      usedApi: false,
+    };
+  }
+
+  // Si tenemos targetUsername, buscar en BD local primero
+  if (resolvedTargetUsername) {
+    console.log(
+      `🔍 [RESOLVE_TARGET] Buscando @${resolvedTargetUsername} en BD local...`
+    );
+
+    try {
+      const localAccount = await prisma.xAccount.findUnique({
+        where: { username: resolvedTargetUsername },
+        select: {
+          id: true,
+          username: true,
+          userId: true,
+          twitterId: true,
+        },
+      });
+
+      if (localAccount && (localAccount.userId || localAccount.twitterId)) {
+        resolvedTargetUserId = localAccount.userId || localAccount.twitterId;
+        console.log(`✅ [RESOLVE_TARGET] Usuario encontrado en BD local:`, {
+          username: localAccount.username,
+          userId: resolvedTargetUserId,
+          source: "local_database",
+        });
+
+        return {
+          targetUserId: resolvedTargetUserId,
+          targetUsername: resolvedTargetUsername,
+          source: "local_database",
+          usedApi: false,
+        };
+      } else {
+        console.log(
+          `⚠️ [RESOLVE_TARGET] @${resolvedTargetUsername} NO encontrado en BD local. Buscando en API...`
+        );
+      }
+    } catch (dbError) {
+      console.error(
+        `❌ [RESOLVE_TARGET] Error en búsqueda de BD:`,
+        dbError.message
+      );
+      // Continuar con API lookup
+    }
+  }
+
+  // Si no encontramos en BD local, usar API de Twitter
+  if (resolvedTargetUsername && fallbackAccountId) {
+    console.log(
+      `🌐 [RESOLVE_TARGET] Buscando @${resolvedTargetUsername} en API de Twitter...`
+    );
+
+    try {
+      // Obtener cuenta para acceso a API
+      const fallbackAccount = await prisma.xAccount.findUnique({
+        where: { id: fallbackAccountId },
+        select: {
+          id: true,
+          username: true,
+          ownApiKey: true,
+          ownApiSecret: true,
+          ownAccessToken: true,
+          ownAccessTokenSecret: true,
+          ownOAuth2AccessToken: true,
+        },
+      });
+
+      if (!fallbackAccount) {
+        throw new Error(
+          `Cuenta ${fallbackAccountId} no encontrada para acceso a API`
+        );
+      }
+
+      // Crear cliente de Twitter
+      const TwitterService = require("../services/twitterService");
+      const twitterService = new TwitterService(prisma);
+      const client = await twitterService.getTwitterClient(fallbackAccount);
+
+      // Buscar usuario en API
+      console.log(
+        `🔍 [RESOLVE_TARGET] Consultando API de Twitter para @${resolvedTargetUsername}...`
+      );
+      const { data: targetUser } = await client.v2.userByUsername(
+        resolvedTargetUsername
+      );
+
+      if (!targetUser) {
+        throw new Error(
+          `Usuario @${resolvedTargetUsername} no encontrado en Twitter`
+        );
+      }
+
+      resolvedTargetUserId = targetUser.id;
+      usedApi = true;
+      source = "twitter_api";
+
+      console.log(`✅ [RESOLVE_TARGET] Usuario encontrado en API de Twitter:`, {
+        username: targetUser.username,
+        userId: resolvedTargetUserId,
+        name: targetUser.name,
+        source: "twitter_api",
+      });
+
+      return {
+        targetUserId: resolvedTargetUserId,
+        targetUsername: resolvedTargetUsername,
+        source: "twitter_api",
+        usedApi: true,
+      };
+    } catch (apiError) {
+      console.error(
+        `❌ [RESOLVE_TARGET] Error en API de Twitter:`,
+        apiError.message
+      );
+
+      // Manejo específico de errores
+      if (apiError.code === 429) {
+        throw new Error(`Límite de API excedido. Intenta más tarde.`);
+      }
+      if (apiError.status === 404 || apiError.message.includes("not found")) {
+        throw new Error(
+          `Usuario @${resolvedTargetUsername} no existe en Twitter`
+        );
+      }
+
+      throw new Error(`Error consultando API de Twitter: ${apiError.message}`);
+    }
+  }
+
+  // Si llegamos aquí, no se pudo resolver
+  throw new Error(
+    `No se pudo resolver el usuario objetivo. Proporciona un targetUsername válido o targetUserId numérico.`
+  );
 }
 
 module.exports = createQueueRoutes;
