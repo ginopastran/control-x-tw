@@ -77,22 +77,84 @@ function createHistoryRoutes(historyService, prisma) {
       ]);
 
       // Formatear respuesta
-      const formattedActions = actions.map((action) => ({
-        _id: action.id,
-        actionId: action.actionId,
-        username: action.username,
-        accountLabels: action.accountLabels || action.account?.labels || [],
-        action: action.action,
-        text: action.text,
-        tweetId: action.tweetId,
-        targetUserId: action.targetUserId,
-        status: action.status,
-        success: action.success,
-        createdAt: action.createdAt.toISOString(),
-        completedAt: action.completedAt?.toISOString(),
-        error: action.error,
-        batchId: action.batchId,
-      }));
+      const formattedActions = actions.map((action) => {
+        // Extraer información de result si existe
+        const resultData = action.result || {};
+
+        // Construir descripción mejorada
+        const getDescription = () => {
+          switch (action.action) {
+            case "tweet": {
+              if (action.text)
+                return action.text.length > 120
+                  ? `${action.text.substring(0, 117)}...`
+                  : action.text;
+              if (resultData.tweetId || resultData.postedTweetId) {
+                const id = resultData.tweetId || resultData.postedTweetId;
+                return `Tweet publicado (ID: ${id})`;
+              }
+              return "Publicar nuevo tweet";
+            }
+            case "retweet": {
+              const rtId = action.tweetId || resultData.retweetedTweetId;
+              return rtId ? `Retweet del tweet ID: ${rtId}` : "Hacer retweet";
+            }
+            case "like": {
+              const likeId = action.tweetId || resultData.likedTweetId;
+              return likeId
+                ? `Like al tweet ID: ${likeId}`
+                : "Dar like a tweet";
+            }
+            case "reply": {
+              if (action.text) {
+                return `Responder: \"${
+                  action.text.length > 80
+                    ? action.text.substring(0, 77) + "..."
+                    : action.text
+                }\"`;
+              }
+              return "Responder a tweet";
+            }
+            case "follow": {
+              const username =
+                action.targetUsername || resultData.targetUsername;
+              const userId = action.targetUserId || resultData.targetUserId;
+              if (username) return `Seguir a @${username}`;
+              if (userId) return `Seguir a ID: ${userId}`;
+              return "Seguir usuario";
+            }
+            case "unfollow": {
+              const username =
+                action.targetUsername || resultData.targetUsername;
+              const userId = action.targetUserId || resultData.targetUserId;
+              if (username) return `Dejar de seguir a @${username}`;
+              if (userId) return `Dejar de seguir ID: ${userId}`;
+              return "Dejar de seguir";
+            }
+            default:
+              return action.text || "Acción personalizada";
+          }
+        };
+
+        return {
+          _id: action.id,
+          actionId: action.actionId,
+          username: action.username,
+          accountLabels: action.accountLabels || action.account?.labels || [],
+          action: action.action,
+          text: getDescription(),
+          tweetId:
+            action.tweetId || resultData.retweetedTweetId || resultData.tweetId,
+          targetUserId: action.targetUserId || resultData.targetUserId,
+          targetUsername: action.targetUsername || resultData.targetUsername,
+          status: action.status,
+          success: action.success,
+          createdAt: action.createdAt.toISOString(),
+          completedAt: action.completedAt?.toISOString(),
+          error: action.error,
+          batchId: action.batchId,
+        };
+      });
 
       res.json({
         actions: formattedActions,

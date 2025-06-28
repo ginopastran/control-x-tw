@@ -616,9 +616,14 @@ export default function HistorialPage() {
                                   {action.username[0].toUpperCase()}
                                 </AvatarFallback>
                               </Avatar>
-                              <span className="font-medium text-gray-900">
+                              <a
+                                href={`https://twitter.com/${action.username}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="font-medium text-blue-600 hover:underline"
+                              >
                                 @{action.username}
-                              </span>
+                              </a>
                             </div>
                             {action.accountLabels.length > 0 && (
                               <div className="flex flex-wrap gap-1">
@@ -676,20 +681,25 @@ export default function HistorialPage() {
                           {(action.action === "follow" ||
                             action.action === "unfollow") && (
                             <div className="text-xs text-gray-500">
-                              {action.targetUsername
-                                ? `Target: @${action.targetUsername}`
-                                : action.targetUserId
-                                ? `Target ID: ${action.targetUserId}`
-                                : "Target: No especificado"}
+                              {action.targetUsername ? (
+                                <>
+                                  Target:{" "}
+                                  <a
+                                    href={`https://twitter.com/${action.targetUsername}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-600 hover:underline"
+                                  >
+                                    @{action.targetUsername}
+                                  </a>
+                                </>
+                              ) : action.targetUserId ? (
+                                <>Target ID: {action.targetUserId}</>
+                              ) : (
+                                "Target: No especificado"
+                              )}
                             </div>
                           )}
-                          {action.targetUserId &&
-                            action.action !== "follow" &&
-                            action.action !== "unfollow" && (
-                              <div className="text-xs text-gray-500">
-                                Usuario: {action.targetUserId}
-                              </div>
-                            )}
                           {action.batchId && (
                             <Badge
                               variant="outline"

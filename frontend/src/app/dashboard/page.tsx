@@ -759,7 +759,14 @@ export default function Dashboard() {
                           <Activity className="h-3 w-3 text-orange-600 animate-pulse" />
                           <div>
                             <p className="text-sm font-medium text-gray-900">
-                              @{action.accountUsername}
+                              <a
+                                href={`https://twitter.com/${action.accountUsername}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="hover:underline text-blue-600"
+                              >
+                                @{action.accountUsername}
+                              </a>
                             </p>
                             <p className="text-xs text-gray-600">
                               {getActionDescription(action)}
@@ -797,7 +804,14 @@ export default function Dashboard() {
                           <Clock className="h-3 w-3 text-purple-600" />
                           <div>
                             <p className="text-sm font-medium text-gray-900">
-                              @{action.accountUsername}
+                              <a
+                                href={`https://twitter.com/${action.accountUsername}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="hover:underline text-blue-600"
+                              >
+                                @{action.accountUsername}
+                              </a>
                             </p>
                             <p className="text-xs text-gray-600">
                               {getActionDescription(action)}
@@ -875,7 +889,14 @@ export default function Dashboard() {
                           <Clock className="h-3 w-3 text-blue-600" />
                           <div>
                             <p className="text-sm font-medium text-gray-900">
-                              @{action.accountUsername}
+                              <a
+                                href={`https://twitter.com/${action.accountUsername}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="hover:underline text-blue-600"
+                              >
+                                @{action.accountUsername}
+                              </a>
                             </p>
                             <p className="text-xs text-gray-600">
                               {getActionDescription(action)}
@@ -968,7 +989,14 @@ export default function Dashboard() {
                             )}
                             <div>
                               <p className="text-sm font-medium text-gray-900">
-                                @{action.username}
+                                <a
+                                  href={`https://twitter.com/${action.username}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="hover:underline text-blue-600"
+                                >
+                                  @{action.username}
+                                </a>
                               </p>
                               <p className="text-xs text-gray-600">
                                 {getActionDescription(action)}

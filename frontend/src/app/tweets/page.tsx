@@ -216,10 +216,14 @@ export default function TweetsPage() {
     "minutes" | "hours" | "days"
   >("hours");
 
+  // Mapa username -> acciones pendientes (en cola o programadas)
+  const [pendingCounts, setPendingCounts] = useState<Record<string, number>>(
+    {}
+  );
+
   useEffect(() => {
     fetchAccounts();
-    // ✅ Comentar fetch problemático por ahora
-    // fetchScheduledActions();
+    fetchScheduledActions();
     // Animación de entrada
     setTimeout(() => setIsVisible(true), 100);
   }, []);
@@ -247,15 +251,29 @@ export default function TweetsPage() {
 
   const fetchScheduledActions = async () => {
     try {
-      // ✅ Verificar si el endpoint existe antes de hacer fetch
-      const response = await fetch("/api/queue/status");
+      // Realizar la petición al backend usando helper buildApiUrl
+      const response = await fetch(
+        buildApiUrl(API_CONFIG.ENDPOINTS.QUEUE.STATUS)
+      );
       if (!response.ok) {
         console.log("Endpoint de queue no disponible, saltando...");
         return;
       }
       const data = await response.json();
-      const scheduled = data.scheduledActions || [];
+      const scheduled = data.scheduled || data.scheduledActions || [];
+      const queue = data.queue || [];
+      const allPending = [...scheduled, ...queue];
+
+      // Calcular conteo por username
+      const counts: Record<string, number> = {};
+      allPending.forEach((act: any) => {
+        const username = act.accountUsername || act.username;
+        if (!username) return;
+        counts[username] = (counts[username] || 0) + 1;
+      });
+
       setScheduledActions(scheduled);
+      setPendingCounts(counts);
     } catch (err) {
       console.log("Queue endpoint no disponible:", err);
       // ✅ No mostrar error, simplemente no cargar acciones programadas
@@ -1087,6 +1105,7 @@ export default function TweetsPage() {
         toast.success(
           `Acciones distribuidas aleatoriamente en ${distributionValue} ${distributionUnit}: ${result.actions.length} acciones programadas`
         );
+        await fetchScheduledActions();
       } else {
         setActionResults([
           {
@@ -1100,6 +1119,7 @@ export default function TweetsPage() {
         toast.success(
           `Acciones enviadas al sistema de colas: ${result.actions.length} acciones programadas`
         );
+        await fetchScheduledActions();
       }
 
       // Limpiar formulario
@@ -2098,8 +2118,17 @@ export default function TweetsPage() {
                         </AvatarFallback>
                       </Avatar>
                       <div className="min-w-0 flex-1 overflow-hidden">
-                        <p className="text-sm font-medium truncate text-gray-900">
+                        <p className="text-sm font-medium truncate text-gray-900 flex items-center gap-1">
                           @{account.username}
+                          {pendingCounts[account.username] &&
+                            pendingCounts[account.username] > 0 && (
+                              <Badge
+                                variant="secondary"
+                                className="text-[10px] px-1 py-0 bg-yellow-500 text-white"
+                              >
+                                +{pendingCounts[account.username]}
+                              </Badge>
+                            )}
                         </p>
                         {viewMode === "list" && account.labels.length > 0 && (
                           <div className="flex flex-wrap gap-1 mt-1 max-w-full overflow-hidden">
@@ -4152,8 +4181,17 @@ Pega las URLs de los tweets que quieres retwitear`}
 
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-2">
-                                <p className="font-semibold text-base text-purple-900">
+                                <p className="font-semibold text-base text-purple-900 flex items-center gap-1">
                                   @{account.username}
+                                  {pendingCounts[account.username] &&
+                                    pendingCounts[account.username] > 0 && (
+                                      <Badge
+                                        variant="secondary"
+                                        className="text-[10px] px-1 py-0 bg-yellow-500 text-white"
+                                      >
+                                        +{pendingCounts[account.username]}
+                                      </Badge>
+                                    )}
                                 </p>
                                 {isAssigned && (
                                   <Badge

@@ -374,6 +374,12 @@ function createQueueRoutes(queueService, prisma) {
           username: action.username,
           accountLabels: action.accountLabels || action.account?.labels || [],
           text: action.text || getActionDescription(action),
+          targetUsername:
+            action.targetUsername ||
+            (action.result ? action.result.targetUsername : undefined),
+          targetUserId:
+            action.targetUserId ||
+            (action.result ? action.result.targetUserId : undefined),
           status: action.status,
           completedAt: action.completedAt?.toISOString(),
           error: action.error,
@@ -403,29 +409,71 @@ function createQueueRoutes(queueService, prisma) {
 
   // Helper function para generar descripciones
   function getActionDescription(action) {
+    // Extraer datos potencialmente útiles desde action.result (si existe)
+    const resultData = action.result || {};
     switch (action.action) {
-      case "tweet":
-        return action.text || "Publicar nuevo tweet";
-      case "retweet":
-        return action.tweetId
-          ? `Retweet del tweet ID: ${action.tweetId}`
-          : "Hacer retweet";
-      case "like":
-        return action.tweetId
-          ? `Like al tweet ID: ${action.tweetId}`
-          : "Dar like a tweet";
-      case "reply":
-        return action.text
-          ? `Responder: "${action.text}"`
-          : "Responder a tweet";
-      case "follow":
-        return action.targetUserId
-          ? `Seguir a @${action.targetUserId}`
-          : "Seguir usuario";
-      case "unfollow":
-        return action.targetUserId
-          ? `Dejar de seguir a @${action.targetUserId}`
-          : "Dejar de seguir";
+      case "tweet": {
+        // Mostrar texto del tweet si está disponible
+        if (action.text)
+          return action.text.length > 120
+            ? `${action.text.substring(0, 117)}...`
+            : action.text;
+        // Fallback a id del tweet creado si viene en el result
+        if (resultData.tweetId || resultData.postedTweetId) {
+          const id = resultData.tweetId || resultData.postedTweetId;
+          return `Tweet publicado (ID: ${id})`;
+        }
+        return "Publicar nuevo tweet";
+      }
+      case "retweet": {
+        const rtId = action.tweetId || resultData.retweetedTweetId;
+        if (rtId) {
+          return `Retweet del tweet ID: ${rtId}`;
+        }
+        return "Hacer retweet";
+      }
+      case "like": {
+        const likeId = action.tweetId || resultData.likedTweetId;
+        if (likeId) {
+          return `Like al tweet ID: ${likeId}`;
+        }
+        return "Dar like a tweet";
+      }
+      case "reply": {
+        if (action.text) {
+          return `Responder: \"${
+            action.text.length > 80
+              ? action.text.substring(0, 77) + "..."
+              : action.text
+          }\"`;
+        }
+        return "Responder a tweet";
+      }
+      case "follow": {
+        // Priorizar targetUsername sobre targetUserId, buscando en action y luego en result
+        const username = action.targetUsername || resultData.targetUsername;
+        const userId = action.targetUserId || resultData.targetUserId;
+        if (username) return `Seguir a @${username}`;
+        if (userId) return `Seguir a ID: ${userId}`;
+        return "Seguir usuario";
+      }
+      case "unfollow": {
+        const username = action.targetUsername || resultData.targetUsername;
+        const userId = action.targetUserId || resultData.targetUserId;
+        if (username) return `Dejar de seguir a @${username}`;
+        if (userId) return `Dejar de seguir ID: ${userId}`;
+        return "Dejar de seguir";
+      }
+      case "dm": {
+        if (action.text) {
+          return `Mensaje directo: \"${
+            action.text.length > 80
+              ? action.text.substring(0, 77) + "..."
+              : action.text
+          }\"`;
+        }
+        return "Enviar mensaje directo";
+      }
       default:
         return action.text || "Acción personalizada";
     }
