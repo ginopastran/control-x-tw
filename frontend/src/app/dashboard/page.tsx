@@ -722,7 +722,7 @@ export default function Dashboard() {
                     En Cola
                   </p>
                   <p className="text-xl font-semibold text-gray-900 mt-1">
-                    {queueStatus.queue?.length || 0}
+                    {totalQueuedItems}
                   </p>
                 </div>
                 <div className="bg-blue-50 p-2 rounded-md">
@@ -804,7 +804,7 @@ export default function Dashboard() {
                   Programadas ({queueStatus.scheduled?.length || 0})
                 </TabsTrigger>
                 <TabsTrigger value="queue" className="text-xs">
-                  En Cola ({queueStatus.queue?.length || 0})
+                  En Cola ({totalQueuedItems})
                 </TabsTrigger>
                 <TabsTrigger value="history" className="text-xs">
                   Historial

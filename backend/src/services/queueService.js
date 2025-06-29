@@ -1069,9 +1069,10 @@ class QueueService {
         // Persistir cambios en BD
         try {
           await this.updateActionInDb(action.id, {
-            status: "queued",
+            status: "QUEUED",
             targetUserId: resolvedId,
             scheduledTime: newSchedule,
+            estimatedStartTime: newSchedule,
           });
         } catch (persistErr) {
           console.warn(
