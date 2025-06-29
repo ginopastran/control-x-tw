@@ -1,6 +1,8 @@
 const { TwitterApi } = require("twitter-api-v2");
 const TwitterService = require("./twitterService");
 
+const VERBOSE_QUEUE_LOGS = process.env.VERBOSE_QUEUE_LOGS === "true";
+
 class QueueService {
   constructor(prisma) {
     this.prisma = prisma;
@@ -429,12 +431,15 @@ class QueueService {
     // Agrupar acciones por cuenta
     const actionsByAccount = {};
     for (const action of actions) {
-      if (!actionsByAccount[action.accountId]) actionsByAccount[action.accountId] = [];
+      if (!actionsByAccount[action.accountId])
+        actionsByAccount[action.accountId] = [];
       actionsByAccount[action.accountId].push(action);
     }
 
     // Para cada cuenta, distribuir los tiempos de ejecución
-    for (const [accountId, accountActions] of Object.entries(actionsByAccount)) {
+    for (const [accountId, accountActions] of Object.entries(
+      actionsByAccount
+    )) {
       // Ordenar por algún criterio si es necesario (por ejemplo, por targetUsername)
       // accountActions.sort((a, b) => ...);
       let lastScheduled = now;
@@ -455,7 +460,8 @@ class QueueService {
           }
         } else {
           // Espaciar 16 minutos entre cada acción de la misma cuenta
-          scheduledTime = i === 0 ? now : new Date(lastScheduled.getTime() + minDelayMs);
+          scheduledTime =
+            i === 0 ? now : new Date(lastScheduled.getTime() + minDelayMs);
         }
         lastScheduled = scheduledTime;
 
@@ -493,16 +499,13 @@ class QueueService {
 
         // 🔍 LOGGING ESPECÍFICO PARA FOLLOWS DESPUÉS DE PROCESAR
         if (action.action === "follow") {
-          console.log(
-            `[QUEUE_DEBUG] Acción follow después de procesar:`,
-            {
-              actionId: actionObj.id,
-              accountId: actionObj.accountId,
-              targetUserId: actionObj.targetUserId,
-              targetUsername: actionObj.targetUsername,
-              scheduledTime: actionObj.scheduledTime.toISOString(),
-            }
-          );
+          console.log(`[QUEUE_DEBUG] Acción follow después de procesar:`, {
+            actionId: actionObj.id,
+            accountId: actionObj.accountId,
+            targetUserId: actionObj.targetUserId,
+            targetUsername: actionObj.targetUsername,
+            scheduledTime: actionObj.scheduledTime.toISOString(),
+          });
         }
 
         // Persistir en base de datos
@@ -580,11 +583,13 @@ class QueueService {
             const timeSinceLastAction =
               now.getTime() - lastActionTime.getTime();
             if (timeSinceLastAction < minDelayMs) {
-              console.log(
-                `⏰ Cuenta ${action.accountId} debe esperar ${Math.ceil(
-                  (minDelayMs - timeSinceLastAction) / 60000
-                )} minutos más`
-              );
+              if (VERBOSE_QUEUE_LOGS) {
+                console.log(
+                  `⏰ Cuenta ${action.accountId} debe esperar ${Math.ceil(
+                    (minDelayMs - timeSinceLastAction) / 60000
+                  )} minutos más`
+                );
+              }
               return false;
             }
           }
@@ -733,9 +738,11 @@ class QueueService {
               nextAction.accountId === action.accountId &&
               nextAction.action === action.action
             ) {
-              console.log(
-                `⏰ Misma cuenta + tipo; esperando 16 minutos antes de la siguiente acción...`
-              );
+              if (VERBOSE_QUEUE_LOGS) {
+                console.log(
+                  `⏰ Misma cuenta + tipo; esperando 16 minutos antes de la siguiente acción...`
+                );
+              }
               await new Promise((resolve) => setTimeout(resolve, minDelayMs));
             }
           }
