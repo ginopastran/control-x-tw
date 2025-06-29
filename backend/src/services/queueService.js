@@ -2,6 +2,7 @@ const { TwitterApi } = require("twitter-api-v2");
 const TwitterService = require("./twitterService");
 
 const VERBOSE_QUEUE_LOGS = process.env.VERBOSE_QUEUE_LOGS === "true";
+const VERBOSE_HISTORY_LOGS = process.env.VERBOSE_HISTORY_LOGS === "true";
 
 class QueueService {
   constructor(prisma) {
@@ -1337,8 +1338,19 @@ class QueueService {
     }
   }
 
-  // Mejorar addToHistory para asegurar consistencia
+  // =====================
+  // HISTORIAL / LOGGING
+  // =====================
+
   async addToHistory(actionInfo) {
+    if (VERBOSE_HISTORY_LOGS) {
+      console.log(
+        `📜 [HISTORY] Intentando registrar acción en historial → ${
+          actionInfo.actionId || actionInfo.id
+        } | estado: ${actionInfo.status}`
+      );
+    }
+
     const resolvedUsername =
       actionInfo.username ||
       actionInfo.accountUsername ||
@@ -1391,17 +1403,30 @@ class QueueService {
       return;
     }
 
-    await this.prisma.actionHistory.upsert({
-      where: { actionId: historyActionId },
-      update: updateData,
-      create: {
-        actionId: historyActionId,
-        ...updateData,
-        createdAt: actionInfo.createdAt
-          ? new Date(actionInfo.createdAt)
-          : new Date(),
-      },
-    });
+    try {
+      await this.prisma.actionHistory.upsert({
+        where: { actionId: historyActionId },
+        update: updateData,
+        create: {
+          actionId: historyActionId,
+          ...updateData,
+          createdAt: actionInfo.createdAt
+            ? new Date(actionInfo.createdAt)
+            : new Date(),
+        },
+      });
+
+      if (VERBOSE_HISTORY_LOGS) {
+        console.log(
+          `✅ [HISTORY] Acción ${historyActionId} registrada/actualizada correctamente`
+        );
+      }
+    } catch (historyErr) {
+      console.error(
+        `❌ [HISTORY] Error guardando acción ${historyActionId}:`,
+        historyErr
+      );
+    }
   }
 
   // Nuevo: Mapear estados de QueueStatus a ActionStatus

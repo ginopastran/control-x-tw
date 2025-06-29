@@ -380,12 +380,12 @@ export default function Dashboard() {
     fetchHistoryActionsList();
     setLoading(false);
 
-    // Auto-refresh cada 5 segundos
+    // Auto-refresh cada 10 segundos (reduce carga de conexiones)
     const interval = setInterval(() => {
       fetchQueueStatus();
       fetchRealtimeMetrics();
       fetchHistory();
-    }, 5000);
+    }, 10000);
 
     return () => clearInterval(interval);
   }, [queuedPage]);
