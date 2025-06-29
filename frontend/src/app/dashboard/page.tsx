@@ -499,6 +499,35 @@ export default function Dashboard() {
     }
   };
 
+  // 🆕 Componente que muestra una cuenta regresiva en vivo hasta la hora objetivo
+  const RelativeTime = ({ target }: { target: string }) => {
+    const [now, setNow] = useState(Date.now());
+
+    useEffect(() => {
+      const id = setInterval(() => setNow(Date.now()), 1000);
+      return () => clearInterval(id);
+    }, []);
+
+    if (!target) return "Fecha no disponible";
+    const diffMs = new Date(target).getTime() - now;
+
+    // Si ya pasó, usar formato relativo existente (pasado)
+    if (diffMs <= 0) return formatRelativeTime(target);
+
+    const totalSeconds = Math.floor(diffMs / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    if (hours > 0) {
+      return `En ${hours}h ${minutes}m`;
+    }
+    if (minutes > 0) {
+      return `En ${minutes}m ${seconds}s`;
+    }
+    return `En ${seconds}s`;
+  };
+
   // Función para cancelar una acción
   const cancelAction = async (actionId: string) => {
     try {
@@ -853,7 +882,7 @@ export default function Dashboard() {
                             </p>
                             <p className="text-xs text-purple-600">
                               Programada para:{" "}
-                              {formatRelativeTime(action.scheduledTime)}
+                              <RelativeTime target={action.scheduledTime} />
                             </p>
                           </div>
                           <Badge variant="secondary" className="text-xs">
@@ -990,7 +1019,9 @@ export default function Dashboard() {
                             </p>
                             <p className="text-xs text-blue-600">
                               Ejecutará en:{" "}
-                              {formatRelativeTime(action.estimatedStartTime)}
+                              <RelativeTime
+                                target={action.estimatedStartTime}
+                              />
                             </p>
                           </div>
                           <Badge variant="secondary" className="text-xs">
