@@ -28,6 +28,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
+  PaginationEllipsis,
 } from "@/components/ui/pagination";
 import {
   Calendar,
@@ -110,26 +111,8 @@ export default function HistorialPage() {
 
       const data = await response.json();
 
-      // Filtrar acciones según el estado seleccionado
-      let filteredActions = data.actions;
-
-      if (selectedStatus === "executed") {
-        // Solo mostrar acciones que realmente se ejecutaron (completadas o fallidas)
-        filteredActions = data.actions.filter(
-          (action: HistoryAction) =>
-            action.status === "COMPLETED" || action.status === "FAILED"
-        );
-      } else if (selectedStatus === "scheduled") {
-        // Solo mostrar acciones programadas (en cola)
-        filteredActions = data.actions.filter(
-          (action: HistoryAction) => action.status === "QUEUED"
-        );
-      }
-
-      setActions(filteredActions);
-      setTotalPages(
-        Math.ceil((filteredActions.length || data.total) / itemsPerPage)
-      );
+      setActions(data.actions || []);
+      setTotalPages(Math.ceil((data.total || 0) / itemsPerPage));
     } catch (err) {
       toast.error("Error al cargar el historial");
       console.error(err);
@@ -268,6 +251,30 @@ export default function HistorialPage() {
   const handleSearch = () => {
     setCurrentPage(1);
     fetchHistory();
+  };
+
+  const generatePageNumbers = () => {
+    const pages: (number | string)[] = [];
+    if (totalPages <= 5) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      pages.push(1);
+      if (currentPage > 3) {
+        pages.push("...");
+      }
+      const start = Math.max(2, currentPage - 1);
+      const end = Math.min(totalPages - 1, currentPage + 1);
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+      if (currentPage < totalPages - 2) {
+        pages.push("...");
+      }
+      pages.push(totalPages);
+    }
+    return pages;
   };
 
   return (
@@ -771,15 +778,18 @@ export default function HistorialPage() {
                       />
                     </PaginationItem>
 
-                    {[...Array(Math.min(5, totalPages))].map((_, i) => {
-                      const page = i + 1;
-                      return (
+                    {generatePageNumbers().map((page, index) =>
+                      page === "..." ? (
+                        <PaginationItem key={`ellipsis-${index}`}>
+                          <PaginationEllipsis />
+                        </PaginationItem>
+                      ) : (
                         <PaginationItem key={page}>
                           <PaginationLink
                             href="#"
                             onClick={(e) => {
                               e.preventDefault();
-                              setCurrentPage(page);
+                              setCurrentPage(page as number);
                             }}
                             isActive={currentPage === page}
                             className="hover:bg-gray-100"
@@ -787,8 +797,8 @@ export default function HistorialPage() {
                             {page}
                           </PaginationLink>
                         </PaginationItem>
-                      );
-                    })}
+                      )
+                    )}
 
                     <PaginationItem>
                       <PaginationNext
