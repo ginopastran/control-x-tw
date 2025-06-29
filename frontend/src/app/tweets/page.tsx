@@ -830,8 +830,8 @@ export default function TweetsPage() {
 
   // Función para ejecutar tweets en lote
   const handleBatchTweetExecute = async () => {
-    const tweetsToExecute = batchTweets.filter(
-      (tweet) => tweet.assignedAccounts.length > 0
+    const tweetsToExecute = shuffleArray(
+      batchTweets.filter((tweet) => tweet.assignedAccounts.length > 0)
     );
 
     if (tweetsToExecute.length === 0) {
@@ -1005,6 +1005,12 @@ export default function TweetsPage() {
     const now = Date.now();
     const minDelayMs = 16 * 60 * 1000; // 16 minutos
 
+    // Si solo hay 1 acción basta con un único offset aleatorio
+    if (count <= 1) {
+      const offset = Math.random() * maxTimeMs;
+      return [new Date(now + offset).toISOString()];
+    }
+
     // -----------------------------------------------
     // 1) Calculamos la ventana "extra" disponible una
     //    vez restados los delays mínimos obligatorios
@@ -1026,7 +1032,8 @@ export default function TweetsPage() {
     const times: Date[] = [new Date(now + gaps[0])];
     for (let i = 1; i < count; i++) {
       const prev = times[i - 1].getTime();
-      times.push(new Date(prev + gaps[i]));
+      const gap = gaps[i - 1]; // el (i-1)-ésimo gap existe seguro
+      times.push(new Date(prev + gap));
     }
 
     // 4) Devolver ISO strings
@@ -1570,8 +1577,8 @@ export default function TweetsPage() {
 
   // Función para ejecutar follows en lote
   const handleBatchFollowExecute = async () => {
-    const followsToExecute = batchFollows.filter(
-      (follow) => follow.assignedAccounts.length > 0
+    const followsToExecute = shuffleArray(
+      batchFollows.filter((follow) => follow.assignedAccounts.length > 0)
     );
 
     if (followsToExecute.length === 0) {
@@ -1585,22 +1592,36 @@ export default function TweetsPage() {
     let successCount = 0;
     let errorCount = 0;
 
+    // Si hay distribución aleatoria pre-calcular horarios únicos para todo el lote
+    let globalTimes: string[] = [];
+    if (useRandomDistribution) {
+      globalTimes = generateRandomDistributionTimes(followsToExecute.length);
+    }
+
+    // Asociar cada follow con su tiempo y ordenar por fecha ascendente
+    const followsWithTime = followsToExecute.map((f, idx) => ({
+      ...f,
+      scheduledISO: useRandomDistribution ? globalTimes[idx] : null,
+    }));
+
+    if (useRandomDistribution) {
+      followsWithTime.sort((a, b) =>
+        a.scheduledISO!.localeCompare(b.scheduledISO!)
+      );
+    }
+
     try {
-      for (const follow of followsToExecute) {
+      for (const follow of followsWithTime) {
         try {
           // 📋 Construir payload con distribución aleatoria cuando corresponda
           let actionData: any;
           if (useRandomDistribution) {
-            const randomTimes = generateRandomDistributionTimes(
-              follow.assignedAccounts.length
-            );
-
             actionData = {
               action: "follow",
               accountIds: follow.assignedAccounts,
               targetUsername: follow.username,
               useRandomDistribution: true,
-              distributionTimes: randomTimes,
+              distributionTimes: [follow.scheduledISO],
               distributionConfig: {
                 value: distributionValue,
                 unit: distributionUnit,
@@ -1685,8 +1706,8 @@ export default function TweetsPage() {
 
   // Función para ejecutar retweets en lote
   const handleBatchRetweetExecute = async () => {
-    const retweetsToExecute = batchRetweets.filter(
-      (retweet) => retweet.assignedAccounts.length > 0
+    const retweetsToExecute = shuffleArray(
+      batchRetweets.filter((retweet) => retweet.assignedAccounts.length > 0)
     );
 
     if (retweetsToExecute.length === 0) {
