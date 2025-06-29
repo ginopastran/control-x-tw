@@ -756,6 +756,43 @@ export default function TweetsPage() {
     return shuffled;
   };
 
+  // NUEVO: Interlevar por cuenta para evitar que una misma cuenta haga varias
+  // acciones consecutivas. Especialmente útil para lotes 1:1 donde cada retweet
+  // pertenece a una sola cuenta.
+  const interleaveByAccount = <T extends { assignedAccounts: string[] }>(
+    items: T[]
+  ): T[] => {
+    if (items.length === 0) return [];
+
+    // 1. Agrupar items por cuenta (asumimos 1 cuenta por item)
+    const groups: Record<string, T[]> = {};
+    items.forEach((item) => {
+      const accId = item.assignedAccounts[0];
+      if (!groups[accId]) groups[accId] = [];
+      groups[accId].push(item);
+    });
+
+    // 2. Mezclar aleatoriamente el orden dentro de cada grupo
+    Object.values(groups).forEach((arr) => arr.sort(() => Math.random() - 0.5));
+
+    // 3. Orden de cuentas también aleatorio
+    const accountIds = Object.keys(groups).sort(() => Math.random() - 0.5);
+
+    // 4. Construir resultado tomando uno de cada cuenta en ronda hasta terminar
+    const result: T[] = [];
+    let index = 0;
+    while (result.length < items.length) {
+      const accId = accountIds[index % accountIds.length];
+      const queue = groups[accId];
+      if (queue && queue.length) {
+        result.push(queue.shift()!);
+      }
+      index++;
+    }
+
+    return result;
+  };
+
   // Función para auto-asignar tweets a cuentas filtradas aleatoriamente (1:1, sin repetir cuentas)
   const handleAutoAssignTweets = () => {
     if (batchTweets.length === 0) {
@@ -830,9 +867,11 @@ export default function TweetsPage() {
 
   // Función para ejecutar tweets en lote
   const handleBatchTweetExecute = async () => {
-    const tweetsToExecute = shuffleArray(
-      batchTweets.filter((tweet) => tweet.assignedAccounts.length > 0)
+    let tweetsToExecute = batchTweets.filter(
+      (tweet) => tweet.assignedAccounts.length > 0
     );
+
+    tweetsToExecute = interleaveByAccount(shuffleArray(tweetsToExecute));
 
     if (tweetsToExecute.length === 0) {
       toast.error("Asigna al menos una cuenta a cada tweet");
@@ -1577,9 +1616,11 @@ export default function TweetsPage() {
 
   // Función para ejecutar follows en lote
   const handleBatchFollowExecute = async () => {
-    const followsToExecute = shuffleArray(
-      batchFollows.filter((follow) => follow.assignedAccounts.length > 0)
+    let followsToExecute = batchFollows.filter(
+      (follow) => follow.assignedAccounts.length > 0
     );
+
+    followsToExecute = interleaveByAccount(shuffleArray(followsToExecute));
 
     if (followsToExecute.length === 0) {
       toast.error("Asigna al menos una cuenta a cada follow");
@@ -1706,9 +1747,13 @@ export default function TweetsPage() {
 
   // Función para ejecutar retweets en lote
   const handleBatchRetweetExecute = async () => {
-    const retweetsToExecute = shuffleArray(
-      batchRetweets.filter((retweet) => retweet.assignedAccounts.length > 0)
+    // 1) Filtrar retweets con cuentas asignadas
+    let retweetsToExecute = batchRetweets.filter(
+      (retweet) => retweet.assignedAccounts.length > 0
     );
+
+    // 2) Mezclar e interlevar para repartir de forma más natural entre cuentas
+    retweetsToExecute = interleaveByAccount(shuffleArray(retweetsToExecute));
 
     if (retweetsToExecute.length === 0) {
       toast.error("Asigna al menos una cuenta a cada retweet");
@@ -1722,20 +1767,28 @@ export default function TweetsPage() {
     let errorCount = 0;
 
     try {
-      for (const retweet of retweetsToExecute) {
+      // Si se usa distribución aleatoria generar una lista global de tiempos
+      let globalTimes: string[] = [];
+      if (useRandomDistribution) {
+        globalTimes = generateRandomDistributionTimes(
+          retweetsToExecute.length
+        ).sort();
+      }
+
+      for (let idx = 0; idx < retweetsToExecute.length; idx++) {
+        const retweet = retweetsToExecute[idx];
         try {
           let actionData: any;
           if (useRandomDistribution) {
-            const randomTimes = generateRandomDistributionTimes(
-              retweet.assignedAccounts.length
-            );
+            // Utilizar un único tiempo pre-calculado para este retweet
+            const scheduledISO = globalTimes[idx];
 
             actionData = {
               action: "retweet",
               accountIds: retweet.assignedAccounts,
               tweetId: retweet.tweetId,
               useRandomDistribution: true,
-              distributionTimes: randomTimes,
+              distributionTimes: [scheduledISO],
               distributionConfig: {
                 value: distributionValue,
                 unit: distributionUnit,
