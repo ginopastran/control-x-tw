@@ -1,589 +1,422 @@
-
-2025-06-29T23:10:44.17399664Z ✅ [FOLLOW_VALIDATION] Validaciones pasadas - targetUserId ya resuelto:
-2025-06-29T23:10:44.17401059Z       - Cuenta origen: @ghernadez09 (ID: 1932168316363091968)
-2025-06-29T23:10:44.17401676Z       - Target: @olivaressmari (ID: 1932182130492334080)
-2025-06-29T23:10:44.17402308Z       - Fuente: Resuelto en endpoint /add
-2025-06-29T23:10:44.17402824Z     
-2025-06-29T23:10:44.174034401Z 👥 Ejecutando follow: @ghernadez09 → @olivaressmari (ID: 1932182130492334080)
-2025-06-29T23:10:44.174141253Z 🔍 Configurando cliente Twitter para @ghernadez09...
-2025-06-29T23:10:44.174150733Z ✅ Usando OAuth 1.0a para @ghernadez09
-2025-06-29T23:10:44.174237575Z 🚀 [FOLLOW_EXECUTE] Ejecutando follow directo: 1932168316363091968 → 1932182130492334080 (@olivaressmari)
-2025-06-29T23:10:44.284770216Z ✅ Follow ejecutado exitosamente: @ghernadez09 → 1932182130492334080 (@olivaressmari)
-2025-06-29T23:10:44.527157428Z ✅ Acción action_1751226422471_9h0yun1px completada exitosamente
-2025-06-29T23:10:44.935168937Z [RATE_LIMIT] Tracker actualizado para cmccr4mbx000pjjupc6y14zzz, acción follow
-2025-06-29T23:10:44.935193728Z 🔄 Ejecutando acción action_1751226422144_rc3bsxy57 (follow) para cuenta cmccr4mbx000pjjupc6y14zzz
-2025-06-29T23:10:44.935222089Z ✅ [FOLLOW_VALIDATION] Validaciones pasadas - targetUserId ya resuelto:
-2025-06-29T23:10:44.935225239Z       - Cuenta origen: @realsusana (ID: 1931560296448991232)
-2025-06-29T23:10:44.935227729Z       - Target: @olivaressmari (ID: 1932182130492334080)
-2025-06-29T23:10:44.935230289Z       - Fuente: Resuelto en endpoint /add
-2025-06-29T23:10:44.935232889Z     
-2025-06-29T23:10:44.93528794Z 👥 Ejecutando follow: @realsusana → @olivaressmari (ID: 1932182130492334080)
-2025-06-29T23:10:44.935318391Z 🔍 Configurando cliente Twitter para @realsusana...
-2025-06-29T23:10:44.935384572Z ✅ Usando OAuth 1.0a para @realsusana
-2025-06-29T23:10:44.935449394Z 🚀 [FOLLOW_EXECUTE] Ejecutando follow directo: 1931560296448991232 → 1932182130492334080 (@olivaressmari)
-2025-06-29T23:10:45.092449666Z ✅ Follow ejecutado exitosamente: @realsusana → 1932182130492334080 (@olivaressmari)
-2025-06-29T23:10:48.101950128Z ✅ Acción action_1751226422144_rc3bsxy57 completada exitosamente
-2025-06-29T23:10:48.611117187Z [RATE_LIMIT] Tracker actualizado para cmccr4n9l000tjjupl1bwrin4, acción follow
-2025-06-29T23:10:48.611157767Z 🔄 Ejecutando acción action_1751226421805_b36jzw0uz (follow) para cuenta cmccr4n9l000tjjupl1bwrin4
-2025-06-29T23:10:48.611162167Z ✅ [FOLLOW_VALIDATION] Validaciones pasadas - targetUserId ya resuelto:
-2025-06-29T23:10:48.611166388Z       - Cuenta origen: @samirpazz919 (ID: 1936863998697488384)
-2025-06-29T23:10:48.611168818Z       - Target: @olivaressmari (ID: 1932182130492334080)
-2025-06-29T23:10:48.611172948Z       - Fuente: Resuelto en endpoint /add
-2025-06-29T23:10:48.611175658Z     
-2025-06-29T23:10:48.611187758Z 👥 Ejecutando follow: @samirpazz919 → @olivaressmari (ID: 1932182130492334080)
-2025-06-29T23:10:48.611190928Z 🔍 Configurando cliente Twitter para @samirpazz919...
-2025-06-29T23:10:48.611193468Z ✅ Usando OAuth 1.0a para @samirpazz919
-2025-06-29T23:10:48.611196048Z 🚀 [FOLLOW_EXECUTE] Ejecutando follow directo: 1936863998697488384 → 1932182130492334080 (@olivaressmari)
-2025-06-29T23:10:48.728288311Z ✅ Follow ejecutado exitosamente: @samirpazz919 → 1932182130492334080 (@olivaressmari)
-2025-06-29T23:10:52.492696625Z ✅ Acción action_1751226421805_b36jzw0uz completada exitosamente
-2025-06-29T23:10:52.892213452Z [RATE_LIMIT] Tracker actualizado para cmccr4msr000rjjupkv6fi6wj, acción follow
-2025-06-29T23:10:52.892239042Z 🔄 Ejecutando acción action_1751226421318_6n7wn4rqk (follow) para cuenta cmccr4msr000rjjupkv6fi6wj
-2025-06-29T23:10:52.892243272Z ✅ [FOLLOW_VALIDATION] Validaciones pasadas - targetUserId ya resuelto:
-2025-06-29T23:10:52.892246222Z       - Cuenta origen: @solgarcia153232 (ID: 1931567405307686912)
-2025-06-29T23:10:52.892249532Z       - Target: @olivaressmari (ID: 1932182130492334080)
-2025-06-29T23:10:52.892252943Z       - Fuente: Resuelto en endpoint /add
-2025-06-29T23:10:52.892255572Z     
-2025-06-29T23:10:52.892259203Z 👥 Ejecutando follow: @solgarcia153232 → @olivaressmari (ID: 1932182130492334080)
-2025-06-29T23:10:52.892269173Z 🔍 Configurando cliente Twitter para @solgarcia153232...
-2025-06-29T23:10:52.892272103Z ✅ Usando OAuth 1.0a para @solgarcia153232
-2025-06-29T23:10:52.892332624Z 🚀 [FOLLOW_EXECUTE] Ejecutando follow directo: 1931567405307686912 → 1932182130492334080 (@olivaressmari)
-2025-06-29T23:10:52.997210164Z ✅ Follow ejecutado exitosamente: @solgarcia153232 → 1932182130492334080 (@olivaressmari)
-2025-06-29T23:10:55.700268344Z ✅ Acción action_1751226421318_6n7wn4rqk completada exitosamente
-2025-06-29T23:16:39.091523346Z Error obteniendo métricas en tiempo real: PrismaClientKnownRequestError: 
-2025-06-29T23:16:39.09215527Z Invalid `prisma.actionHistory.count()` invocation:
-2025-06-29T23:16:39.09216352Z 
-2025-06-29T23:16:39.09216619Z 
-2025-06-29T23:16:39.09216927Z Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 9)
-2025-06-29T23:16:39.09217276Z     at Zn.handleRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:7459)
-2025-06-29T23:16:39.09217542Z     at Zn.handleAndLogRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6784)
-2025-06-29T23:16:39.09217884Z     at Zn.request (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6491)
-2025-06-29T23:16:39.092181501Z     at async l (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:130:9778)
-2025-06-29T23:16:39.092184711Z     at async Promise.all (index 2)
-2025-06-29T23:16:39.092187211Z     at async HistoryService.getRealTimeMetrics (/opt/render/project/src/backend/src/services/historyService.js:236:53)
-2025-06-29T23:16:39.092190381Z     at async /opt/render/project/src/backend/src/routes/additionalRoutes.js:99:28 {
-2025-06-29T23:16:39.092192981Z   code: 'P2024',
-2025-06-29T23:16:39.092195891Z   meta: { modelName: 'ActionHistory', connection_limit: 9, timeout: 10 },
-2025-06-29T23:16:39.092199191Z   clientVersion: '6.10.1'
-2025-06-29T23:16:39.092201651Z }
-2025-06-29T23:16:43.894257959Z Error obteniendo métricas en tiempo real: PrismaClientKnownRequestError: 
-2025-06-29T23:16:43.89428641Z Invalid `prisma.actionHistory.count()` invocation:
-2025-06-29T23:16:43.89428908Z 
-2025-06-29T23:16:43.89429118Z 
-2025-06-29T23:16:43.89429424Z Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 9)
-2025-06-29T23:16:43.89429738Z     at Zn.handleRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:7459)
-2025-06-29T23:16:43.89430011Z     at Zn.handleAndLogRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6784)
-2025-06-29T23:16:43.89430346Z     at Zn.request (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6491)
-2025-06-29T23:16:43.89430588Z     at async l (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:130:9778)
-2025-06-29T23:16:43.89430916Z     at async Promise.all (index 1)
-2025-06-29T23:16:43.89431158Z     at async HistoryService.getRealTimeMetrics (/opt/render/project/src/backend/src/services/historyService.js:236:53)
-2025-06-29T23:16:43.894314531Z     at async /opt/render/project/src/backend/src/routes/additionalRoutes.js:99:28 {
-2025-06-29T23:16:43.89431706Z   code: 'P2024',
-2025-06-29T23:16:43.894319451Z   meta: { modelName: 'ActionHistory', connection_limit: 9, timeout: 10 },
-2025-06-29T23:16:43.894322511Z   clientVersion: '6.10.1'
-2025-06-29T23:16:43.894324941Z }
-2025-06-29T23:16:43.895446965Z [QUEUE] Error obteniendo estado desde BD: PrismaClientKnownRequestError: 
-2025-06-29T23:16:43.895476956Z Invalid `prisma.queuedAction.findMany()` invocation:
-2025-06-29T23:16:43.895480546Z 
-2025-06-29T23:16:43.895482896Z 
-2025-06-29T23:16:43.895486326Z Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 9)
-2025-06-29T23:16:43.895489656Z     at Zn.handleRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:7459)
-2025-06-29T23:16:43.895492276Z     at Zn.handleAndLogRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6784)
-2025-06-29T23:16:43.895510406Z     at Zn.request (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6491)
-2025-06-29T23:16:43.895513197Z     at async l (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:130:9778)
-2025-06-29T23:16:43.895516737Z     at async Promise.all (index 0)
-2025-06-29T23:16:43.895519357Z     at async QueueService.getQueueStatus (/opt/render/project/src/backend/src/services/queueService.js:1229:62)
-2025-06-29T23:16:43.895521947Z     at async /opt/render/project/src/backend/src/routes/queueRoutes.js:288:27 {
-2025-06-29T23:16:43.895524417Z   code: 'P2024',
-2025-06-29T23:16:43.895527397Z   meta: { modelName: 'QueuedAction', connection_limit: 9, timeout: 10 },
-2025-06-29T23:16:43.895530617Z   clientVersion: '6.10.1'
-2025-06-29T23:16:43.895533217Z }
-2025-06-29T23:16:43.990637125Z [QUEUE] Error obteniendo estado desde BD: PrismaClientKnownRequestError: 
-2025-06-29T23:16:43.990665886Z Invalid `prisma.queuedAction.findMany()` invocation:
-2025-06-29T23:16:43.990669776Z 
-2025-06-29T23:16:43.990691876Z 
-2025-06-29T23:16:43.990700106Z Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 9)
-2025-06-29T23:16:43.990704856Z     at Zn.handleRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:7459)
-2025-06-29T23:16:43.990708427Z     at Zn.handleAndLogRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6784)
-2025-06-29T23:16:43.990712347Z     at Zn.request (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6491)
-2025-06-29T23:16:43.990716477Z     at async l (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:130:9778)
-2025-06-29T23:16:43.990720357Z     at async Promise.all (index 0)
-2025-06-29T23:16:43.990723587Z     at async QueueService.getQueueStatus (/opt/render/project/src/backend/src/services/queueService.js:1229:62)
-2025-06-29T23:16:43.990726927Z     at async /opt/render/project/src/backend/src/routes/queueRoutes.js:288:27 {
-2025-06-29T23:16:43.990730147Z   code: 'P2024',
-2025-06-29T23:16:43.990733257Z   meta: { modelName: 'QueuedAction', connection_limit: 9, timeout: 10 },
-2025-06-29T23:16:43.990737187Z   clientVersion: '6.10.1'
-2025-06-29T23:16:43.990739987Z }
-2025-06-29T23:16:43.995873138Z Error obteniendo métricas en tiempo real: PrismaClientKnownRequestError: 
-2025-06-29T23:16:43.995887978Z Invalid `prisma.actionHistory.count()` invocation:
-2025-06-29T23:16:43.995890898Z 
-2025-06-29T23:16:43.995893378Z 
-2025-06-29T23:16:43.995896468Z Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 9)
-2025-06-29T23:16:43.995899508Z     at Zn.handleRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:7459)
-2025-06-29T23:16:43.995902318Z     at Zn.handleAndLogRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6784)
-2025-06-29T23:16:43.995905508Z     at Zn.request (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6491)
-2025-06-29T23:16:43.995908359Z     at async l (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:130:9778)
-2025-06-29T23:16:43.995911259Z     at async Promise.all (index 0)
-2025-06-29T23:16:43.995913588Z     at async HistoryService.getRealTimeMetrics (/opt/render/project/src/backend/src/services/historyService.js:236:53)
-2025-06-29T23:16:43.995924349Z     at async /opt/render/project/src/backend/src/routes/additionalRoutes.js:99:28 {
-2025-06-29T23:16:43.995927259Z   code: 'P2024',
-2025-06-29T23:16:43.995930179Z   meta: { modelName: 'ActionHistory', connection_limit: 9, timeout: 10 },
-2025-06-29T23:16:43.995933189Z   clientVersion: '6.10.1'
-2025-06-29T23:16:43.995935759Z }
-2025-06-29T23:16:53.190220538Z Error obteniendo métricas en tiempo real: PrismaClientKnownRequestError: 
-2025-06-29T23:16:53.190245979Z Invalid `prisma.actionHistory.count()` invocation:
-2025-06-29T23:16:53.190250609Z 
-2025-06-29T23:16:53.190254519Z 
-2025-06-29T23:16:53.190259379Z Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 9)
-2025-06-29T23:16:53.190264419Z     at Zn.handleRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:7459)
-2025-06-29T23:16:53.19026855Z     at Zn.handleAndLogRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6784)
-2025-06-29T23:16:53.19027363Z     at Zn.request (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6491)
-2025-06-29T23:16:53.19027793Z     at async l (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:130:9778)
-2025-06-29T23:16:53.19028267Z     at async Promise.all (index 1)
-2025-06-29T23:16:53.19028656Z     at async HistoryService.getRealTimeMetrics (/opt/render/project/src/backend/src/services/historyService.js:236:53)
-2025-06-29T23:16:53.1902914Z     at async /opt/render/project/src/backend/src/routes/additionalRoutes.js:99:28 {
-2025-06-29T23:16:53.19029558Z   code: 'P2024',
-2025-06-29T23:16:53.19029956Z   meta: { modelName: 'ActionHistory', connection_limit: 9, timeout: 10 },
-2025-06-29T23:16:53.1903049Z   clientVersion: '6.10.1'
-2025-06-29T23:16:53.190308871Z }
-2025-06-29T23:16:53.191506246Z [QUEUE] Error obteniendo estado desde BD: PrismaClientKnownRequestError: 
-2025-06-29T23:16:53.191524097Z Invalid `prisma.queuedAction.findMany()` invocation:
-2025-06-29T23:16:53.191528487Z 
-2025-06-29T23:16:53.191532077Z 
-2025-06-29T23:16:53.191536817Z Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 9)
-2025-06-29T23:16:53.191541347Z     at Zn.handleRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:7459)
-2025-06-29T23:16:53.191548677Z     at Zn.handleAndLogRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6784)
-2025-06-29T23:16:53.191553337Z     at Zn.request (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6491)
-2025-06-29T23:16:53.191557307Z     at async l (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:130:9778)
-2025-06-29T23:16:53.191561847Z     at async Promise.all (index 1)
-2025-06-29T23:16:53.191565647Z     at async QueueService.getQueueStatus (/opt/render/project/src/backend/src/services/queueService.js:1229:62)
-2025-06-29T23:16:53.191569438Z     at async /opt/render/project/src/backend/src/routes/queueRoutes.js:288:27 {
-2025-06-29T23:16:53.191608358Z   code: 'P2024',
-2025-06-29T23:16:53.191613159Z   meta: { modelName: 'QueuedAction', connection_limit: 9, timeout: 10 },
-2025-06-29T23:16:53.191617959Z   clientVersion: '6.10.1'
-2025-06-29T23:16:53.191622019Z }
-2025-06-29T23:16:57.495745293Z Error obteniendo estado de cola: PrismaClientKnownRequestError: 
-2025-06-29T23:16:57.495776323Z Invalid `prisma.actionHistory.count()` invocation:
-2025-06-29T23:16:57.495796014Z 
-2025-06-29T23:16:57.495798334Z 
-2025-06-29T23:16:57.495801374Z Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 9)
-2025-06-29T23:16:57.495805344Z     at Zn.handleRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:7459)
-2025-06-29T23:16:57.495807984Z     at Zn.handleAndLogRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6784)
-2025-06-29T23:16:57.495811754Z     at Zn.request (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6491)
-2025-06-29T23:16:57.495815104Z     at async l (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:130:9778)
-2025-06-29T23:16:57.495818154Z     at async Promise.all (index 1)
-2025-06-29T23:16:57.495821424Z     at async /opt/render/project/src/backend/src/routes/queueRoutes.js:314:45 {
-2025-06-29T23:16:57.495824004Z   code: 'P2024',
-2025-06-29T23:16:57.495826264Z   meta: { modelName: 'ActionHistory', connection_limit: 9, timeout: 10 },
-2025-06-29T23:16:57.495829144Z   clientVersion: '6.10.1'
-2025-06-29T23:16:57.495831604Z }
-2025-06-29T23:16:57.495833944Z Error obteniendo estado de cola: PrismaClientKnownRequestError: 
-2025-06-29T23:16:57.495836604Z Invalid `prisma.actionHistory.count()` invocation:
-2025-06-29T23:16:57.495839004Z 
-2025-06-29T23:16:57.495841205Z 
-2025-06-29T23:16:57.495843435Z Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 9)
-2025-06-29T23:16:57.495845835Z     at Zn.handleRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:7459)
-2025-06-29T23:16:57.495848265Z     at Zn.handleAndLogRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6784)
-2025-06-29T23:16:57.495850605Z     at Zn.request (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6491)
-2025-06-29T23:16:57.495852775Z     at async l (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:130:9778)
-2025-06-29T23:16:57.495855315Z     at async Promise.all (index 0)
-2025-06-29T23:16:57.495857515Z     at async /opt/render/project/src/backend/src/routes/queueRoutes.js:314:45 {
-2025-06-29T23:16:57.495859755Z   code: 'P2024',
-2025-06-29T23:16:57.495862005Z   meta: { modelName: 'ActionHistory', connection_limit: 9, timeout: 10 },
-2025-06-29T23:16:57.495864205Z   clientVersion: '6.10.1'
-2025-06-29T23:16:57.495866415Z }
-2025-06-29T23:16:59.69565213Z Error obteniendo métricas en tiempo real: PrismaClientKnownRequestError: 
-2025-06-29T23:16:59.695697571Z Invalid `prisma.actionHistory.count()` invocation:
-2025-06-29T23:16:59.695703471Z 
-2025-06-29T23:16:59.695707101Z 
-2025-06-29T23:16:59.695711641Z Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 9)
-2025-06-29T23:16:59.695716071Z     at Zn.handleRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:7459)
-2025-06-29T23:16:59.695719971Z     at Zn.handleAndLogRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6784)
-2025-06-29T23:16:59.695726841Z     at Zn.request (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6491)
-2025-06-29T23:16:59.695730771Z     at async l (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:130:9778)
-2025-06-29T23:16:59.695735571Z     at async Promise.all (index 1)
-2025-06-29T23:16:59.695749012Z     at async HistoryService.getRealTimeMetrics (/opt/render/project/src/backend/src/services/historyService.js:236:53)
-2025-06-29T23:16:59.695752212Z     at async /opt/render/project/src/backend/src/routes/additionalRoutes.js:99:28 {
-2025-06-29T23:16:59.695754692Z   code: 'P2024',
-2025-06-29T23:16:59.695757072Z   meta: { modelName: 'ActionHistory', connection_limit: 9, timeout: 10 },
-2025-06-29T23:16:59.695759862Z   clientVersion: '6.10.1'
-2025-06-29T23:16:59.695762122Z }
-2025-06-29T23:16:59.696449847Z Error obteniendo métricas en tiempo real: PrismaClientKnownRequestError: 
-2025-06-29T23:16:59.696457667Z Invalid `prisma.actionHistory.count()` invocation:
-2025-06-29T23:16:59.696460197Z 
-2025-06-29T23:16:59.696462507Z 
-2025-06-29T23:16:59.696465527Z Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 9)
-2025-06-29T23:16:59.696468207Z     at Zn.handleRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:7459)
-2025-06-29T23:16:59.696470427Z     at Zn.handleAndLogRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6784)
-2025-06-29T23:16:59.696473157Z     at Zn.request (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6491)
-2025-06-29T23:16:59.696475647Z     at async l (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:130:9778)
-2025-06-29T23:16:59.696478377Z     at async Promise.all (index 0)
-2025-06-29T23:16:59.696480717Z     at async HistoryService.getRealTimeMetrics (/opt/render/project/src/backend/src/services/historyService.js:236:53)
-2025-06-29T23:16:59.696483497Z     at async /opt/render/project/src/backend/src/routes/additionalRoutes.js:99:28 {
-2025-06-29T23:16:59.696485797Z   code: 'P2024',
-2025-06-29T23:16:59.696488177Z   meta: { modelName: 'ActionHistory', connection_limit: 9, timeout: 10 },
-2025-06-29T23:16:59.696490918Z   clientVersion: '6.10.1'
-2025-06-29T23:16:59.696493228Z }
-2025-06-29T23:16:59.789390248Z [QUEUE] Error obteniendo estado desde BD: PrismaClientKnownRequestError: 
-2025-06-29T23:16:59.789406439Z Invalid `prisma.queuedAction.findMany()` invocation:
-2025-06-29T23:16:59.789409079Z 
-2025-06-29T23:16:59.789411309Z 
-2025-06-29T23:16:59.789416189Z Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 9)
-2025-06-29T23:16:59.789419599Z     at Zn.handleRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:7459)
-2025-06-29T23:16:59.789424229Z     at Zn.handleAndLogRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6784)
-2025-06-29T23:16:59.789427719Z     at Zn.request (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6491)
-2025-06-29T23:16:59.789430629Z     at async l (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:130:9778)
-2025-06-29T23:16:59.789433639Z     at async Promise.all (index 0)
-2025-06-29T23:16:59.789436009Z     at async QueueService.getQueueStatus (/opt/render/project/src/backend/src/services/queueService.js:1229:62)
-2025-06-29T23:16:59.78943835Z     at async /opt/render/project/src/backend/src/routes/queueRoutes.js:288:27 {
-2025-06-29T23:16:59.789440559Z   code: 'P2024',
-2025-06-29T23:16:59.789442859Z   meta: { modelName: 'QueuedAction', connection_limit: 9, timeout: 10 },
-2025-06-29T23:16:59.78944569Z   clientVersion: '6.10.1'
-2025-06-29T23:16:59.78944798Z }
-2025-06-29T23:16:59.889250089Z [QUEUE] Error obteniendo estado desde BD: PrismaClientKnownRequestError: 
-2025-06-29T23:16:59.889264279Z Invalid `prisma.queuedAction.findMany()` invocation:
-2025-06-29T23:16:59.889267279Z 
-2025-06-29T23:16:59.889269359Z 
-2025-06-29T23:16:59.889272529Z Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 9)
-2025-06-29T23:16:59.88927552Z     at Zn.handleRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:7459)
-2025-06-29T23:16:59.889278029Z     at Zn.handleAndLogRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6784)
-2025-06-29T23:16:59.889280709Z     at Zn.request (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6491)
-2025-06-29T23:16:59.8892829Z     at async l (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:130:9778)
-2025-06-29T23:16:59.88928547Z     at async Promise.all (index 2)
-2025-06-29T23:16:59.88928779Z     at async QueueService.getQueueStatus (/opt/render/project/src/backend/src/services/queueService.js:1229:62)
-2025-06-29T23:16:59.88929091Z     at async /opt/render/project/src/backend/src/routes/additionalRoutes.js:100:27 {
-2025-06-29T23:16:59.8892931Z   code: 'P2024',
-2025-06-29T23:16:59.88929539Z   meta: { modelName: 'QueuedAction', connection_limit: 9, timeout: 10 },
-2025-06-29T23:16:59.8892982Z   clientVersion: '6.10.1'
-2025-06-29T23:16:59.88930039Z }
-2025-06-29T23:16:59.890600198Z Error obteniendo estado de cola: PrismaClientKnownRequestError: 
-2025-06-29T23:16:59.890614818Z Invalid `prisma.actionHistory.findMany()` invocation:
-2025-06-29T23:16:59.890617628Z 
-2025-06-29T23:16:59.890619738Z 
-2025-06-29T23:16:59.890622898Z Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 9)
-2025-06-29T23:16:59.890625698Z     at Zn.handleRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:7459)
-2025-06-29T23:16:59.890628329Z     at Zn.handleAndLogRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6784)
-2025-06-29T23:16:59.890631189Z     at Zn.request (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6491)
-2025-06-29T23:16:59.890633569Z     at async l (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:130:9778)
-2025-06-29T23:16:59.890648579Z     at async /opt/render/project/src/backend/src/routes/queueRoutes.js:291:30 {
-2025-06-29T23:16:59.890651849Z   code: 'P2024',
-2025-06-29T23:16:59.890654339Z   meta: { modelName: 'ActionHistory', connection_limit: 9, timeout: 10 },
-2025-06-29T23:16:59.890657439Z   clientVersion: '6.10.1'
-2025-06-29T23:16:59.890659849Z }
-2025-06-29T23:17:04.09343326Z Error obteniendo estado de cola: PrismaClientKnownRequestError: 
-2025-06-29T23:17:04.09345038Z Invalid `prisma.actionHistory.findMany()` invocation:
-2025-06-29T23:17:04.09345244Z 
-2025-06-29T23:17:04.09345419Z 
-2025-06-29T23:17:04.09345807Z Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 9)
-2025-06-29T23:17:04.093460561Z     at Zn.handleRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:7459)
-2025-06-29T23:17:04.09346279Z     at Zn.handleAndLogRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6784)
-2025-06-29T23:17:04.093465701Z     at Zn.request (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6491)
-2025-06-29T23:17:04.093476041Z     at async l (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:130:9778)
-2025-06-29T23:17:04.093479341Z     at async /opt/render/project/src/backend/src/routes/queueRoutes.js:291:30 {
-2025-06-29T23:17:04.093481171Z   code: 'P2024',
-2025-06-29T23:17:04.093483041Z   meta: { modelName: 'ActionHistory', connection_limit: 9, timeout: 10 },
-2025-06-29T23:17:04.093485381Z   clientVersion: '6.10.1'
-2025-06-29T23:17:04.093487051Z }
-2025-06-29T23:17:04.094290678Z Error obteniendo métricas en tiempo real: PrismaClientKnownRequestError: 
-2025-06-29T23:17:04.094303199Z Invalid `prisma.actionHistory.count()` invocation:
-2025-06-29T23:17:04.094306139Z 
-2025-06-29T23:17:04.094308399Z 
-2025-06-29T23:17:04.094313139Z Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 9)
-2025-06-29T23:17:04.094316839Z     at Zn.handleRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:7459)
-2025-06-29T23:17:04.094319629Z     at Zn.handleAndLogRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6784)
-2025-06-29T23:17:04.094323009Z     at Zn.request (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6491)
-2025-06-29T23:17:04.094325649Z     at async l (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:130:9778)
-2025-06-29T23:17:04.094328639Z     at async Promise.all (index 2)
-2025-06-29T23:17:04.094331199Z     at async HistoryService.getRealTimeMetrics (/opt/render/project/src/backend/src/services/historyService.js:236:53)
-2025-06-29T23:17:04.094334399Z     at async /opt/render/project/src/backend/src/routes/additionalRoutes.js:99:28 {
-2025-06-29T23:17:04.094336779Z   code: 'P2024',
-2025-06-29T23:17:04.094339359Z   meta: { modelName: 'ActionHistory', connection_limit: 9, timeout: 10 },
-2025-06-29T23:17:04.09434246Z   clientVersion: '6.10.1'
-2025-06-29T23:17:04.094344989Z }
-2025-06-29T23:17:04.095082456Z [QUEUE] Error obteniendo estado desde BD: PrismaClientKnownRequestError: 
-2025-06-29T23:17:04.095096776Z Invalid `prisma.queuedAction.findMany()` invocation:
-2025-06-29T23:17:04.095099446Z 
-2025-06-29T23:17:04.095101776Z 
-2025-06-29T23:17:04.095104806Z Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 9)
-2025-06-29T23:17:04.095107766Z     at Zn.handleRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:7459)
-2025-06-29T23:17:04.095110476Z     at Zn.handleAndLogRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6784)
-2025-06-29T23:17:04.095113386Z     at Zn.request (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6491)
-2025-06-29T23:17:04.095115886Z     at async l (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:130:9778)
-2025-06-29T23:17:04.095118746Z     at async Promise.all (index 0)
-2025-06-29T23:17:04.095121066Z     at async QueueService.getQueueStatus (/opt/render/project/src/backend/src/services/queueService.js:1229:62)
-2025-06-29T23:17:04.095123486Z     at async /opt/render/project/src/backend/src/routes/queueRoutes.js:288:27 {
-2025-06-29T23:17:04.095125706Z   code: 'P2024',
-2025-06-29T23:17:04.095128086Z   meta: { modelName: 'QueuedAction', connection_limit: 9, timeout: 10 },
-2025-06-29T23:17:04.095131277Z   clientVersion: '6.10.1'
-2025-06-29T23:17:04.095133557Z }
-2025-06-29T23:17:04.190266335Z Error obteniendo métricas en tiempo real: PrismaClientKnownRequestError: 
-2025-06-29T23:17:04.190282526Z Invalid `prisma.actionHistory.count()` invocation:
-2025-06-29T23:17:04.190285356Z 
-2025-06-29T23:17:04.190287606Z 
-2025-06-29T23:17:04.190292116Z Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 9)
-2025-06-29T23:17:04.190309266Z     at Zn.handleRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:7459)
-2025-06-29T23:17:04.190312316Z     at Zn.handleAndLogRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6784)
-2025-06-29T23:17:04.190315716Z     at Zn.request (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6491)
-2025-06-29T23:17:04.190318136Z     at async l (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:130:9778)
-2025-06-29T23:17:04.190320976Z     at async Promise.all (index 0)
-2025-06-29T23:17:04.190323656Z     at async HistoryService.getRealTimeMetrics (/opt/render/project/src/backend/src/services/historyService.js:236:53)
-2025-06-29T23:17:04.190327027Z     at async /opt/render/project/src/backend/src/routes/additionalRoutes.js:99:28 {
-2025-06-29T23:17:04.190329747Z   code: 'P2024',
-2025-06-29T23:17:04.190332327Z   meta: { modelName: 'ActionHistory', connection_limit: 9, timeout: 10 },
-2025-06-29T23:17:04.190335377Z   clientVersion: '6.10.1'
-2025-06-29T23:17:04.190338007Z }
-2025-06-29T23:17:04.191101173Z [QUEUE] Error obteniendo estado desde BD: PrismaClientKnownRequestError: 
-2025-06-29T23:17:04.191111473Z Invalid `prisma.queuedAction.findMany()` invocation:
-2025-06-29T23:17:04.191114034Z 
-2025-06-29T23:17:04.191116154Z 
-2025-06-29T23:17:04.191119014Z Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 9)
-2025-06-29T23:17:04.191121744Z     at Zn.handleRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:7459)
-2025-06-29T23:17:04.191124154Z     at Zn.handleAndLogRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6784)
-2025-06-29T23:17:04.191127024Z     at Zn.request (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6491)
-2025-06-29T23:17:04.191129274Z     at async l (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:130:9778)
-2025-06-29T23:17:04.191132084Z     at async Promise.all (index 0)
-2025-06-29T23:17:04.191134404Z     at async QueueService.getQueueStatus (/opt/render/project/src/backend/src/services/queueService.js:1229:62)
-2025-06-29T23:17:04.191136794Z     at async /opt/render/project/src/backend/src/routes/queueRoutes.js:288:27 {
-2025-06-29T23:17:04.191165545Z   code: 'P2024',
-2025-06-29T23:17:04.191168505Z   meta: { modelName: 'QueuedAction', connection_limit: 9, timeout: 10 },
-2025-06-29T23:17:04.191171415Z   clientVersion: '6.10.1'
-2025-06-29T23:17:04.191174585Z }
-2025-06-29T23:17:06.693431944Z Error obteniendo métricas en tiempo real: PrismaClientKnownRequestError: 
-2025-06-29T23:17:06.693449375Z Invalid `prisma.$queryRaw()` invocation:
-2025-06-29T23:17:06.693452155Z 
-2025-06-29T23:17:06.693454955Z 
-2025-06-29T23:17:06.693459255Z Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 9)
-2025-06-29T23:17:06.693462905Z     at Zn.handleRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:7459)
-2025-06-29T23:17:06.693476516Z     at Zn.handleAndLogRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6784)
-2025-06-29T23:17:06.693479565Z     at Zn.request (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6491)
-2025-06-29T23:17:06.693482386Z     at async l (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:130:9778)
-2025-06-29T23:17:06.693484976Z     at async HistoryService.getRealTimeMetrics (/opt/render/project/src/backend/src/services/historyService.js:256:27)
-2025-06-29T23:17:06.693488126Z     at async /opt/render/project/src/backend/src/routes/additionalRoutes.js:99:28 {
-2025-06-29T23:17:06.693490716Z   code: 'P2024',
-2025-06-29T23:17:06.693493516Z   meta: { connection_limit: 9, timeout: 10 },
-2025-06-29T23:17:06.693497146Z   clientVersion: '6.10.1'
-2025-06-29T23:17:06.693499786Z }
-2025-06-29T23:17:06.694219761Z Error obteniendo estado de cola: PrismaClientKnownRequestError: 
-2025-06-29T23:17:06.694237672Z Invalid `prisma.actionHistory.findMany()` invocation:
-2025-06-29T23:17:06.694240412Z 
-2025-06-29T23:17:06.694242522Z 
-2025-06-29T23:17:06.694245202Z Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 9)
-2025-06-29T23:17:06.694248142Z     at Zn.handleRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:7459)
-2025-06-29T23:17:06.694250302Z     at Zn.handleAndLogRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6784)
-2025-06-29T23:17:06.694253092Z     at Zn.request (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6491)
-2025-06-29T23:17:06.694255342Z     at async l (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:130:9778)
-2025-06-29T23:17:06.694257792Z     at async /opt/render/project/src/backend/src/routes/queueRoutes.js:291:30 {
-2025-06-29T23:17:06.694259922Z   code: 'P2024',
-2025-06-29T23:17:06.694262052Z   meta: { modelName: 'ActionHistory', connection_limit: 9, timeout: 10 },
-2025-06-29T23:17:06.694264682Z   clientVersion: '6.10.1'
-2025-06-29T23:17:06.694266782Z }
-2025-06-29T23:17:06.694727852Z Error obteniendo estado de cola: PrismaClientKnownRequestError: 
-2025-06-29T23:17:06.694740203Z Invalid `prisma.actionHistory.findMany()` invocation:
-2025-06-29T23:17:06.694743273Z 
-2025-06-29T23:17:06.694745543Z 
-2025-06-29T23:17:06.694748463Z Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 9)
-2025-06-29T23:17:06.694793714Z     at Zn.handleRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:7459)
-2025-06-29T23:17:06.694797434Z     at Zn.handleAndLogRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6784)
-2025-06-29T23:17:06.694800114Z     at Zn.request (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6491)
-2025-06-29T23:17:06.694802744Z     at async l (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:130:9778)
-2025-06-29T23:17:06.694848365Z     at async /opt/render/project/src/backend/src/routes/queueRoutes.js:291:30 {
-2025-06-29T23:17:06.694852675Z   code: 'P2024',
-2025-06-29T23:17:06.694855295Z   meta: { modelName: 'ActionHistory', connection_limit: 9, timeout: 10 },
-2025-06-29T23:17:06.694857915Z   clientVersion: '6.10.1'
-2025-06-29T23:17:06.694860315Z }
-2025-06-29T23:17:08.794615325Z Error obteniendo métricas en tiempo real: PrismaClientKnownRequestError: 
-2025-06-29T23:17:08.794665076Z Invalid `prisma.actionHistory.count()` invocation:
-2025-06-29T23:17:08.794668236Z 
-2025-06-29T23:17:08.794670386Z 
-2025-06-29T23:17:08.794708447Z Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 9)
-2025-06-29T23:17:08.794714877Z     at Zn.handleRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:7459)
-2025-06-29T23:17:08.794717588Z     at Zn.handleAndLogRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6784)
-2025-06-29T23:17:08.794720228Z     at Zn.request (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6491)
-2025-06-29T23:17:08.794722388Z     at async l (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:130:9778)
-2025-06-29T23:17:08.794726298Z     at async Promise.all (index 0)
-2025-06-29T23:17:08.794728628Z     at async HistoryService.getRealTimeMetrics (/opt/render/project/src/backend/src/services/historyService.js:236:53)
-2025-06-29T23:17:08.794731398Z     at async /opt/render/project/src/backend/src/routes/additionalRoutes.js:99:28 {
-2025-06-29T23:17:08.794733728Z   code: 'P2024',
-2025-06-29T23:17:08.794736128Z   meta: { modelName: 'ActionHistory', connection_limit: 9, timeout: 10 },
-2025-06-29T23:17:08.794739088Z   clientVersion: '6.10.1'
-2025-06-29T23:17:08.794741318Z }
-2025-06-29T23:17:08.795530275Z [QUEUE] Error obteniendo estado desde BD: PrismaClientKnownRequestError: 
-2025-06-29T23:17:08.795536935Z Invalid `prisma.queuedAction.findMany()` invocation:
-2025-06-29T23:17:08.795539625Z 
-2025-06-29T23:17:08.795541745Z 
-2025-06-29T23:17:08.795544765Z Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 9)
-2025-06-29T23:17:08.795547515Z     at Zn.handleRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:7459)
-2025-06-29T23:17:08.795549935Z     at Zn.handleAndLogRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6784)
-2025-06-29T23:17:08.795552666Z     at Zn.request (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6491)
-2025-06-29T23:17:08.795554955Z     at async l (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:130:9778)
-2025-06-29T23:17:08.795557626Z     at async Promise.all (index 0)
-2025-06-29T23:17:08.795559826Z     at async QueueService.getQueueStatus (/opt/render/project/src/backend/src/services/queueService.js:1229:62)
-2025-06-29T23:17:08.795562086Z     at async /opt/render/project/src/backend/src/routes/queueRoutes.js:288:27 {
-2025-06-29T23:17:08.795564466Z   code: 'P2024',
-2025-06-29T23:17:08.795566676Z   meta: { modelName: 'QueuedAction', connection_limit: 9, timeout: 10 },
-2025-06-29T23:17:08.795569296Z   clientVersion: '6.10.1'
-2025-06-29T23:17:08.795571576Z }
-2025-06-29T23:17:10.59461189Z Error obteniendo estado de cola: PrismaClientKnownRequestError: 
-2025-06-29T23:17:10.59463687Z Invalid `prisma.actionHistory.findMany()` invocation:
-2025-06-29T23:17:10.59463974Z 
-2025-06-29T23:17:10.59464187Z 
-2025-06-29T23:17:10.594647051Z Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 9)
-2025-06-29T23:17:10.594706742Z     at Zn.handleRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:7459)
-2025-06-29T23:17:10.594709482Z     at Zn.handleAndLogRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6784)
-2025-06-29T23:17:10.594725122Z     at Zn.request (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6491)
-2025-06-29T23:17:10.594727792Z     at async l (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:130:9778)
-2025-06-29T23:17:10.594731292Z     at async /opt/render/project/src/backend/src/routes/queueRoutes.js:291:30 {
-2025-06-29T23:17:10.594733822Z   code: 'P2024',
-2025-06-29T23:17:10.594736612Z   meta: { modelName: 'ActionHistory', connection_limit: 9, timeout: 10 },
-2025-06-29T23:17:10.594739553Z   clientVersion: '6.10.1'
-2025-06-29T23:17:10.594742253Z }
-2025-06-29T23:17:10.595265574Z Error obteniendo estado de cola: PrismaClientKnownRequestError: 
-2025-06-29T23:17:10.595274724Z Invalid `prisma.actionHistory.count()` invocation:
-2025-06-29T23:17:10.595277184Z 
-2025-06-29T23:17:10.595279184Z 
-2025-06-29T23:17:10.595281964Z Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 9)
-2025-06-29T23:17:10.595284874Z     at Zn.handleRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:7459)
-2025-06-29T23:17:10.595287344Z     at Zn.handleAndLogRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6784)
-2025-06-29T23:17:10.595289944Z     at Zn.request (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6491)
-2025-06-29T23:17:10.595292174Z     at async l (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:130:9778)
-2025-06-29T23:17:10.595295005Z     at async Promise.all (index 0)
-2025-06-29T23:17:10.595297994Z     at async /opt/render/project/src/backend/src/routes/queueRoutes.js:314:45 {
-2025-06-29T23:17:10.595300125Z   code: 'P2024',
-2025-06-29T23:17:10.595302375Z   meta: { modelName: 'ActionHistory', connection_limit: 9, timeout: 10 },
-2025-06-29T23:17:10.595305065Z   clientVersion: '6.10.1'
-2025-06-29T23:17:10.595307135Z }
-2025-06-29T23:17:10.595888717Z Error obteniendo estado de cola: PrismaClientKnownRequestError: 
-2025-06-29T23:17:10.595899218Z Invalid `prisma.actionHistory.count()` invocation:
-2025-06-29T23:17:10.595901558Z 
-2025-06-29T23:17:10.595903608Z 
-2025-06-29T23:17:10.595906778Z Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 9)
-2025-06-29T23:17:10.595909858Z     at Zn.handleRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:7459)
-2025-06-29T23:17:10.595912148Z     at Zn.handleAndLogRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6784)
-2025-06-29T23:17:10.595914828Z     at Zn.request (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6491)
-2025-06-29T23:17:10.595917118Z     at async l (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:130:9778)
-2025-06-29T23:17:10.595919948Z     at async Promise.all (index 0)
-2025-06-29T23:17:10.595922718Z     at async /opt/render/project/src/backend/src/routes/queueRoutes.js:314:45 {
-2025-06-29T23:17:10.595925478Z   code: 'P2024',
-2025-06-29T23:17:10.595931218Z   meta: { modelName: 'ActionHistory', connection_limit: 9, timeout: 10 },
-2025-06-29T23:17:10.595934208Z   clientVersion: '6.10.1'
-2025-06-29T23:17:10.595936638Z }
-2025-06-29T23:17:10.596424079Z [QUEUE] Error obteniendo estado desde BD: PrismaClientKnownRequestError: 
-2025-06-29T23:17:10.596439919Z Invalid `prisma.queuedAction.findMany()` invocation:
-2025-06-29T23:17:10.596442369Z 
-2025-06-29T23:17:10.596444219Z 
-2025-06-29T23:17:10.596447169Z Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 9)
-2025-06-29T23:17:10.596449709Z     at Zn.handleRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:7459)
-2025-06-29T23:17:10.596452079Z     at Zn.handleAndLogRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6784)
-2025-06-29T23:17:10.59645445Z     at Zn.request (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6491)
-2025-06-29T23:17:10.59645671Z     at async l (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:130:9778)
-2025-06-29T23:17:10.59645975Z     at async Promise.all (index 1)
-2025-06-29T23:17:10.59646204Z     at async QueueService.getQueueStatus (/opt/render/project/src/backend/src/services/queueService.js:1229:62)
-2025-06-29T23:17:10.59646479Z     at async /opt/render/project/src/backend/src/routes/additionalRoutes.js:100:27 {
-2025-06-29T23:17:10.59646731Z   code: 'P2024',
-2025-06-29T23:17:10.5964701Z   meta: { modelName: 'QueuedAction', connection_limit: 9, timeout: 10 },
-2025-06-29T23:17:10.59647277Z   clientVersion: '6.10.1'
-2025-06-29T23:17:10.59647525Z }
-2025-06-29T23:17:10.690574666Z [QUEUE] Error obteniendo estado desde BD: PrismaClientKnownRequestError: 
-2025-06-29T23:17:10.690592467Z Invalid `prisma.queuedAction.findMany()` invocation:
-2025-06-29T23:17:10.690595347Z 
-2025-06-29T23:17:10.690597837Z 
-2025-06-29T23:17:10.690600827Z Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 9)
-2025-06-29T23:17:10.690603747Z     at Zn.handleRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:7459)
-2025-06-29T23:17:10.690606037Z     at Zn.handleAndLogRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6784)
-2025-06-29T23:17:10.690611517Z     at Zn.request (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6491)
-2025-06-29T23:17:10.690614027Z     at async l (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:130:9778)
-2025-06-29T23:17:10.690616817Z     at async Promise.all (index 0)
-2025-06-29T23:17:10.690619007Z     at async QueueService.getQueueStatus (/opt/render/project/src/backend/src/services/queueService.js:1229:62)
-2025-06-29T23:17:10.690621978Z     at async /opt/render/project/src/backend/src/routes/additionalRoutes.js:100:27 {
-2025-06-29T23:17:10.690624338Z   code: 'P2024',
-2025-06-29T23:17:10.690626667Z   meta: { modelName: 'QueuedAction', connection_limit: 9, timeout: 10 },
-2025-06-29T23:17:10.690629568Z   clientVersion: '6.10.1'
-2025-06-29T23:17:10.690631748Z }
-2025-06-29T23:17:10.691962986Z [QUEUE] Error obteniendo estado desde BD: PrismaClientKnownRequestError: 
-2025-06-29T23:17:10.691975147Z Invalid `prisma.queuedAction.findMany()` invocation:
-2025-06-29T23:17:10.691977287Z 
-2025-06-29T23:17:10.691979457Z 
-2025-06-29T23:17:10.691982917Z Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 9)
-2025-06-29T23:17:10.691986917Z     at Zn.handleRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:7459)
-2025-06-29T23:17:10.691989817Z     at Zn.handleAndLogRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6784)
-2025-06-29T23:17:10.692002457Z     at Zn.request (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6491)
-2025-06-29T23:17:10.692005347Z     at async l (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:130:9778)
-2025-06-29T23:17:10.692008527Z     at async Promise.all (index 0)
-2025-06-29T23:17:10.692011367Z     at async QueueService.getQueueStatus (/opt/render/project/src/backend/src/services/queueService.js:1229:62)
-2025-06-29T23:17:10.692014197Z     at async /opt/render/project/src/backend/src/routes/queueRoutes.js:288:27 {
-2025-06-29T23:17:10.692016937Z   code: 'P2024',
-2025-06-29T23:17:10.692019928Z   meta: { modelName: 'QueuedAction', connection_limit: 9, timeout: 10 },
-2025-06-29T23:17:10.692023288Z   clientVersion: '6.10.1'
-2025-06-29T23:17:10.692025018Z }
-2025-06-29T23:17:10.694099522Z Error obteniendo métricas en tiempo real: PrismaClientKnownRequestError: 
-2025-06-29T23:17:10.694111933Z Invalid `prisma.actionHistory.count()` invocation:
-2025-06-29T23:17:10.694114833Z 
-2025-06-29T23:17:10.694117163Z 
-2025-06-29T23:17:10.694120553Z Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 9)
-2025-06-29T23:17:10.694123863Z     at Zn.handleRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:7459)
-2025-06-29T23:17:10.694126473Z     at Zn.handleAndLogRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6784)
-2025-06-29T23:17:10.694129543Z     at Zn.request (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6491)
-2025-06-29T23:17:10.694132273Z     at async l (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:130:9778)
-2025-06-29T23:17:10.694135323Z     at async Promise.all (index 0)
-2025-06-29T23:17:10.694137763Z     at async HistoryService.getRealTimeMetrics (/opt/render/project/src/backend/src/services/historyService.js:236:53)
-2025-06-29T23:17:10.694140813Z     at async /opt/render/project/src/backend/src/routes/additionalRoutes.js:99:28 {
-2025-06-29T23:17:10.694143323Z   code: 'P2024',
-2025-06-29T23:17:10.694145813Z   meta: { modelName: 'ActionHistory', connection_limit: 9, timeout: 10 },
-2025-06-29T23:17:10.694148743Z   clientVersion: '6.10.1'
-2025-06-29T23:17:10.694151243Z }
-2025-06-29T23:17:10.790601311Z Error obteniendo estado de cola: PrismaClientKnownRequestError: 
-2025-06-29T23:17:10.790616111Z Invalid `prisma.actionHistory.count()` invocation:
-2025-06-29T23:17:10.790618891Z 
-2025-06-29T23:17:10.790621391Z 
-2025-06-29T23:17:10.790624501Z Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 9)
-2025-06-29T23:17:10.790627541Z     at Zn.handleRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:7459)
-2025-06-29T23:17:10.790630561Z     at Zn.handleAndLogRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6784)
-2025-06-29T23:17:10.790635891Z     at Zn.request (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6491)
-2025-06-29T23:17:10.790638701Z     at async l (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:130:9778)
-2025-06-29T23:17:10.790641841Z     at async Promise.all (index 0)
-2025-06-29T23:17:10.790644872Z     at async /opt/render/project/src/backend/src/routes/queueRoutes.js:314:45 {
-2025-06-29T23:17:10.790647621Z   code: 'P2024',
-2025-06-29T23:17:10.790660292Z   meta: { modelName: 'ActionHistory', connection_limit: 9, timeout: 10 },
-2025-06-29T23:17:10.790663612Z   clientVersion: '6.10.1'
-2025-06-29T23:17:10.790666222Z }
-2025-06-29T23:17:13.09324194Z Error obteniendo estado de cola: PrismaClientKnownRequestError: 
-2025-06-29T23:17:13.09325928Z Invalid `prisma.actionHistory.findMany()` invocation:
-2025-06-29T23:17:13.09326248Z 
-2025-06-29T23:17:13.09326495Z 
-2025-06-29T23:17:13.09326794Z Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 9)
-2025-06-29T23:17:13.09327115Z     at Zn.handleRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:7459)
-2025-06-29T23:17:13.09327423Z     at Zn.handleAndLogRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6784)
-2025-06-29T23:17:13.093289281Z     at Zn.request (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6491)
-2025-06-29T23:17:13.093292301Z     at async l (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:130:9778)
-2025-06-29T23:17:13.093295131Z     at async /opt/render/project/src/backend/src/routes/queueRoutes.js:291:30 {
-2025-06-29T23:17:13.093297641Z   code: 'P2024',
-2025-06-29T23:17:13.093300191Z   meta: { modelName: 'ActionHistory', connection_limit: 9, timeout: 10 },
-2025-06-29T23:17:13.093302961Z   clientVersion: '6.10.1'
-2025-06-29T23:17:13.093305931Z }
-2025-06-29T23:17:13.193187642Z Error obteniendo estado de cola: PrismaClientKnownRequestError: 
-2025-06-29T23:17:13.193209733Z Invalid `prisma.actionHistory.findMany()` invocation:
-2025-06-29T23:17:13.193212933Z 
-2025-06-29T23:17:13.193215553Z 
-2025-06-29T23:17:13.193219003Z Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 9)
-2025-06-29T23:17:13.193222433Z     at Zn.handleRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:7459)
-2025-06-29T23:17:13.193225253Z     at Zn.handleAndLogRequestError (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6784)
-2025-06-29T23:17:13.193228623Z     at Zn.request (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:121:6491)
-2025-06-29T23:17:13.193231563Z     at async l (/opt/render/project/src/backend/node_modules/@prisma/client/runtime/library.js:130:9778)
-2025-06-29T23:17:13.193234643Z     at async /opt/render/project/src/backend/src/routes/queueRoutes.js:291:30 {
-2025-06-29T23:17:13.193237443Z   code: 'P2024',
-2025-06-29T23:17:13.193240313Z   meta: { modelName: 'ActionHistory', connection_limit: 9, timeout: 10 },
-2025-06-29T23:17:13.193243363Z   clientVersion: '6.10.1'
-2025-06-29T23:17:13.193246133Z }
-2025-06-29T23:19:39.289045662Z 🚀 Procesando 2 acciones listas
-2025-06-29T23:19:44.231968609Z [RATE_LIMIT] Tracker actualizado para cmccr4rcd001ajjuprfvy8i0c, acción follow
-2025-06-29T23:19:44.23199852Z 🔄 Ejecutando acción action_1751223133428_bv3777j3x (follow) para cuenta cmccr4rcd001ajjuprfvy8i0c
-2025-06-29T23:19:44.23200375Z ✅ [FOLLOW_VALIDATION] Validaciones pasadas - targetUserId ya resuelto:
-2025-06-29T23:19:44.23200807Z       - Cuenta origen: @gloriateja60907 (ID: 1933618228422492160)
-2025-06-29T23:19:44.23201306Z       - Target: @BelTorressss (ID: 1929621609503248391)
-2025-06-29T23:19:44.23201821Z       - Fuente: Resuelto en endpoint /add
-2025-06-29T23:19:44.23202201Z     
-2025-06-29T23:19:44.232026411Z 👥 Ejecutando follow: @gloriateja60907 → @BelTorressss (ID: 1929621609503248391)
-2025-06-29T23:19:44.232056741Z 🔍 Configurando cliente Twitter para @gloriateja60907...
-2025-06-29T23:19:44.232059451Z ✅ Usando OAuth 1.0a para @gloriateja60907
-2025-06-29T23:19:44.232070932Z 🚀 [FOLLOW_EXECUTE] Ejecutando follow directo: 1933618228422492160 → 1929621609503248391 (@BelTorressss)
-2025-06-29T23:19:44.365743738Z ✅ Follow ejecutado exitosamente: @gloriateja60907 → 1929621609503248391 (@BelTorressss)
-2025-06-29T23:19:49.796053449Z ✅ Acción action_1751223133428_bv3777j3x completada exitosamente
+[QUEUE_DEBUG] Convirtiendo acción follow de BD a memoria: {
+  actionId: 'action_1751226705729_btnefz4dk',
+  accountId: 'cmccr4ko7000ijjup4g85kn93',
+  targetUserId: null,
+  targetUsername: 'sandramamanii',
+  status: 'QUEUED → queued',
+  scheduledTime: '2025-06-30T09:40:33.484Z'
+}
+[QUEUE_DEBUG] Convirtiendo acción follow de BD a memoria: {
+  actionId: 'action_1751226705411_qie8m90pn',
+  accountId: 'cmccr4qdi0016jjup4cylljer',
+  targetUserId: null,
+  targetUsername: 'sandramamanii',
+  status: 'QUEUED → queued',
+  scheduledTime: '2025-06-30T09:40:33.484Z'
+}
+[QUEUE_DEBUG] Convirtiendo acción follow de BD a memoria: {
+  actionId: 'action_1751226705071_mxqzgt5o1',
+  accountId: 'cmcdyqew70002xfnazoasppoa',
+  targetUserId: null,
+  targetUsername: 'sandramamanii',
+  status: 'QUEUED → queued',
+  scheduledTime: '2025-06-30T09:40:33.484Z'
+}
+[QUEUE_DEBUG] Convirtiendo acción follow de BD a memoria: {
+  actionId: 'action_1751226704756_vc10q90fq',
+  accountId: 'cmccr4po80013jjupjbupfvzb',
+  targetUserId: null,
+  targetUsername: 'sandramamanii',
+  status: 'QUEUED → queued',
+  scheduledTime: '2025-06-30T09:40:33.484Z'
+}
+[QUEUE_DEBUG] Convirtiendo acción follow de BD a memoria: {
+  actionId: 'action_1751226704440_a3hkt3vsj',
+  accountId: 'cmccr4pex0012jjupxirtu0o7',
+  targetUserId: null,
+  targetUsername: 'sandramamanii',
+  status: 'QUEUED → queued',
+  scheduledTime: '2025-06-30T09:40:33.484Z'
+}
+[QUEUE_DEBUG] Convirtiendo acción follow de BD a memoria: {
+  actionId: 'action_1751226704124_tqlyhenq4',
+  accountId: 'cmccr4o0b000wjjup4qlnvgag',
+  targetUserId: null,
+  targetUsername: 'sandramamanii',
+  status: 'QUEUED → queued',
+  scheduledTime: '2025-06-30T09:40:33.484Z'
+}
+[QUEUE_DEBUG] Convirtiendo acción follow de BD a memoria: {
+  actionId: 'action_1751226703805_zcdhwe9gw',
+  accountId: 'cmccr4n16000sjjup75p3t2i5',
+  targetUserId: null,
+  targetUsername: 'sandramamanii',
+  status: 'QUEUED → queued',
+  scheduledTime: '2025-06-30T09:40:33.484Z'
+}
+[QUEUE_DEBUG] Convirtiendo acción follow de BD a memoria: {
+  actionId: 'action_1751226703488_mbbosvxql',
+  accountId: 'cmccr4jpr000ejjup9ja4jze0',
+  targetUserId: null,
+  targetUsername: 'sandramamanii',
+  status: 'QUEUED → queued',
+  scheduledTime: '2025-06-30T09:40:33.484Z'
+}
+[QUEUE_DEBUG] Convirtiendo acción follow de BD a memoria: {
+  actionId: 'action_1751226702382_mf0yz0e1o',
+  accountId: 'cmccr4qlx0017jjuptxvw7xa6',
+  targetUserId: null,
+  targetUsername: 'sandramamanii',
+  status: 'QUEUED → queued',
+  scheduledTime: '2025-06-30T09:40:33.484Z'
+}
+[QUEUE_DEBUG] Convirtiendo acción follow de BD a memoria: {
+  actionId: 'action_1751226702064_ts3tniueq',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: null,
+  targetUsername: 'sandramamanii',
+  status: 'QUEUED → queued',
+  scheduledTime: '2025-06-30T09:40:33.484Z'
+}
+[QUEUE_DEBUG] Convirtiendo acción follow de BD a memoria: {
+  actionId: 'action_1751226701747_uws877dm6',
+  accountId: 'cmccr4qvg0018jjupbf7a550c',
+  targetUserId: null,
+  targetUsername: 'sandramamanii',
+  status: 'QUEUED → queued',
+  scheduledTime: '2025-06-30T09:40:33.484Z'
+}
+[QUEUE_DEBUG] Convirtiendo acción follow de BD a memoria: {
+  actionId: 'action_1751226701427_nohfdz6a5',
+  accountId: 'cmccr4oy30010jjup4fu7ihf1',
+  targetUserId: null,
+  targetUsername: 'sandramamanii',
+  status: 'QUEUED → queued',
+  scheduledTime: '2025-06-30T09:40:33.484Z'
+}
+[QUEUE_DEBUG] Convirtiendo acción follow de BD a memoria: {
+  actionId: 'action_1751226701110_hjrwatw9b',
+  accountId: 'cmccr4pwo0014jjupcxvysecn',
+  targetUserId: null,
+  targetUsername: 'sandramamanii',
+  status: 'QUEUED → queued',
+  scheduledTime: '2025-06-30T09:40:33.484Z'
+}
+[QUEUE_DEBUG] Convirtiendo acción follow de BD a memoria: {
+  actionId: 'action_1751226700793_n2umivb04',
+  accountId: 'cmccr4p6i0011jjupng1i11vi',
+  targetUserId: null,
+  targetUsername: 'sandramamanii',
+  status: 'QUEUED → queued',
+  scheduledTime: '2025-06-30T09:40:33.484Z'
+}
+[QUEUE_DEBUG] Convirtiendo acción follow de BD a memoria: {
+  actionId: 'action_1751226700445_t2f9d363f',
+  accountId: 'cmccr4q530015jjupyzeyijnf',
+  targetUserId: null,
+  targetUsername: 'sandramamanii',
+  status: 'QUEUED → queued',
+  scheduledTime: '2025-06-30T09:40:33.484Z'
+}
+[QUEUE_DEBUG] Convirtiendo acción follow de BD a memoria: {
+  actionId: 'action_1751226700127_baq07i8p4',
+  accountId: 'cmccr4ni0000ujjupdpoetpx6',
+  targetUserId: null,
+  targetUsername: 'sandramamanii',
+  status: 'QUEUED → queued',
+  scheduledTime: '2025-06-30T09:40:33.484Z'
+}
+[QUEUE_DEBUG] Convirtiendo acción follow de BD a memoria: {
+  actionId: 'action_1751226699810_hyg2bzzrf',
+  accountId: 'cmccr4o8s000xjjupjhj9by6w',
+  targetUserId: null,
+  targetUsername: 'sandramamanii',
+  status: 'QUEUED → queued',
+  scheduledTime: '2025-06-30T09:40:33.484Z'
+}
+[QUEUE_DEBUG] Convirtiendo acción follow de BD a memoria: {
+  actionId: 'action_1751226699493_cw0jpimjn',
+  accountId: 'cmccr4oh9000yjjupfkyfo7au',
+  targetUserId: null,
+  targetUsername: 'sandramamanii',
+  status: 'QUEUED → queued',
+  scheduledTime: '2025-06-30T09:40:33.484Z'
+}
+[QUEUE_DEBUG] Convirtiendo acción follow de BD a memoria: {
+  actionId: 'action_1751226699176_4rc7cn8k7',
+  accountId: 'cmccr4opo000zjjupc1d3k67z',
+  targetUserId: null,
+  targetUsername: 'sandramamanii',
+  accountId: 'cmccr4jhc000djjupk9qeu08o',
+}
+}
+[QUEUE_DEBUG] Convirtiendo acción follow de BD a memoria: {
+  actionId: 'action_1751226771972_lqz93f6qo',
+  actionId: 'action_1751226810109_aqm9pz5gl',
+  accountId: 'cmcdyqew70002xfnazoasppoa',
+  status: 'QUEUED → queued',
+  accountId: 'cmccr4qlx0017jjuptxvw7xa6',
+  targetUserId: null,
+  targetUsername: 'solgarcia153232',
+  status: 'QUEUED → queued',
+  targetUserId: null,
+  status: 'QUEUED → queued',
+  status: 'QUEUED → queued',
+  693. ID: action_1751226667850_itbnnyyx2, Target: @gonziambu (ID: null), Status: QUEUED
+  695. ID: action_1751226666897_7ekt6jxld, Target: @gonziambu (ID: null), Status: QUEUED
+  696. ID: action_1751232630969_m785gzhfb, Target: @hernanpere_z (ID: null), Status: QUEUED
+  697. ID: action_1751223164281_2912bdpr3, Target: @silvaggustavo2 (ID: null), Status: QUEUED
+  698. ID: action_1751223163936_lygk8eds3, Target: @silvaggustavo2 (ID: null), Status: QUEUED
+  699. ID: action_1751232787470_x4hpqz7ae, Target: @carlasanchz__ (ID: null), Status: QUEUED
+  700. ID: action_1751226680789_x81jy5yzg, Target: @normamoreno90 (ID: null), Status: QUEUED
+  701. ID: action_1751226681109_et9biliag, Target: @normamoreno90 (ID: null), Status: QUEUED
+  1714. ID: action_1751227013671_rkoc334m9, Target: @puenteshuggo (ID: null), Status: QUEUED
+  targetUsername: 'samirpazz919',
+}
+[QUEUE_DEBUG] Convirtiendo acción follow de BD a memoria: {
+  actionId: 'action_1751226512442_u3xgu7gpm',
+  accountId: 'cmccr4po80013jjupjbupfvzb',
+  scheduledTime: '2025-06-30T02:46:12.543Z'
+}
+  targetUsername: 'carlasanchz__',
+  actionId: 'action_1751226645663_dsiy78z2p',
+  accountId: 'cmccr4o8s000xjjupjhj9by6w',
+  targetUserId: null,
+  targetUsername: 'sandramamanii',
+  status: 'QUEUED → queued',
+  targetUserId: null,
+  targetUsername: 'JulietaAlv44555',
+  status: 'QUEUED → queued',
+  scheduledTime: '2025-06-30T14:14:19.725Z'
+  status: 'QUEUED → queued',
+}
+  targetUserId: null,
+  targetUsername: 'rosaguevara1950',
+  status: 'QUEUED → queued',
+  accountId: 'cmccr4rcd001ajjuprfvy8i0c',
+  scheduledTime: '2025-07-01T00:02:43.775Z'
+  status: 'QUEUED → queued',
+  scheduledTime: '2025-07-01T02:10:19.139Z'
+}
+[QUEUE_DEBUG] Convirtiendo acción follow de BD a memoria: {
+  27. ID: action_1751226438282_mfvccbgei, Target: @emipires44 (ID: null), Status: QUEUED
+  1670. ID: action_1751227002547_44nbgu2pq, Target: @rubengonzzales (ID: null), Status: QUEUED
+🚀 Procesando 43 acciones listas
+[RATE_LIMIT] Tracker actualizado para cmccr4rxe001cjjupu8dxf7y6, acción follow
+🔄 Ejecutando acción action_1751232607940_4q7p304nc (follow) para cuenta cmccr4rxe001cjjupu8dxf7y6
+🔍 [FOLLOW_ID_LOOKUP] Resolviendo ID para @roxonaHerrera en tiempo de ejecución...
+🔍 Configurando cliente Twitter para @francisco50s...
+✅ Usando OAuth 1.0a para @francisco50s
+[CACHE] MISS: Buscando User ID para @roxonaHerrera via API.
+==> Your service is live 🎉
+==> 
+==> ///////////////////////////////////////////////////////////
+==> 
+==> Available at your primary URL https://control-x-tw-backend.onrender.com
+==> 
+==> ///////////////////////////////////////////////////////////
+✅ [FOLLOW_ID_LOOKUP] Resuelto @roxonaHerrera → 1937241894859489280. Acción reprogramada para 29/6/2025, 23:49:17
+🔄 Acción action_1751232607940_4q7p304nc reprogramada para lookup de ID
+⏰ Saltando acción action_1751232604897_i215c43zp - delay mínimo no cumplido
+[RATE_LIMIT] Tracker actualizado para cmccr4rcd001ajjuprfvy8i0c, acción follow
+🔄 Ejecutando acción action_1751223131561_sahm2wbkp (follow) para cuenta cmccr4rcd001ajjuprfvy8i0c
+✅ [FOLLOW_VALIDATION] Validaciones pasadas - targetUserId ya resuelto:
+      - Cuenta origen: @gloriateja60907 (ID: 1933618228422492160)
+      - Target: @raminavarra (ID: 1930021879504306176)
+      - Fuente: Resuelto en endpoint /add
+    
+👥 Ejecutando follow: @gloriateja60907 → @raminavarra (ID: 1930021879504306176)
+🔍 Configurando cliente Twitter para @gloriateja60907...
+✅ Usando OAuth 1.0a para @gloriateja60907
+🚀 [FOLLOW_EXECUTE] Ejecutando follow directo: 1933618228422492160 → 1930021879504306176 (@raminavarra)
+❌ Error de Twitter API en follow: ApiResponseError: Request failed with code 429
+    at RequestHandlerHelper.createResponseError (/opt/render/project/src/backend/node_modules/twitter-api-v2/dist/cjs/client-mixins/request-handler.helper.js:104:16)
+    at RequestHandlerHelper.onResponseEndHandler (/opt/render/project/src/backend/node_modules/twitter-api-v2/dist/cjs/client-mixins/request-handler.helper.js:262:25)
+    at Gunzip.emit (node:events:507:28)
+    at endReadableNT (node:internal/streams/readable:1701:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  error: true,
+  type: 'response',
+  code: 429,
+  headers: {
+    date: 'Sun, 29 Jun 2025 23:33:18 GMT',
+    'content-type': 'application/json; charset=utf-8',
+    'content-length': '94',
+    connection: 'keep-alive',
+    perf: '7402827104',
+    'set-cookie': [
+      'guest_id=v1%3A175123999818948069; Max-Age=34214400; Expires=Thu, 30 Jul 2026 23:33:18 GMT; Path=/; Domain=.x.com; Secure; SameSite=None',
+      '__cf_bm=7c.avvl_BxU.6r7SUj2lCht_qHe_.GxHMXZLzO8SNeQ-1751239998-1.0.1.1-DnXSNyaeID.FhcwadPyAmnOh7o2h9Y.yTfOzt1PU9LHlMuZ.oYZM86_ntKMDeVA8ppwMlTDju9EBlnPjd8l9EZdnjaAirBgC3zt.r8y33.k; path=/; expires=Mon, 30-Jun-25 00:03:18 GMT; domain=.x.com; HttpOnly; Secure'
+    ],
+    'api-version': '2.142',
+    'cache-control': 'no-cache, no-store, max-age=0',
+    'x-access-level': 'read-write',
+    'x-frame-options': 'SAMEORIGIN',
+    'content-encoding': 'gzip',
+    'x-transaction-id': '048ce10fa43322d0',
+    'x-xss-protection': '0',
+    'x-rate-limit-limit': '1',
+    'x-rate-limit-reset': '1751240084',
+    'content-disposition': 'attachment; filename=json.json',
+    'x-content-type-options': 'nosniff',
+    'x-rate-limit-remaining': '0',
+    'strict-transport-security': 'max-age=631138519; includeSubdomains',
+    'x-response-time': '19',
+    'x-connection-hash': '33e4e1317be22d1d14c56c505ebeff7c243f75ff48e9f48420a4e2d67183283f',
+    vary: 'accept-encoding',
+    'cf-cache-status': 'DYNAMIC',
+    server: 'cloudflare tsa_p',
+    'cf-ray': '95793a6489f7a11a-PDX'
+  },
+  rateLimit: { limit: 1, remaining: 0, reset: 1751240084 },
+  data: {
+    title: 'Too Many Requests',
+    detail: 'Too Many Requests',
+    type: 'about:blank',
+    status: 429
+  }
+}
+❌ Error ejecutando acción action_1751223131561_sahm2wbkp: Error de Twitter: Request failed with code 429
+[RATE_LIMIT] Tracker actualizado para cmccr4rkt001bjjupogzozzvw, acción follow
+🔄 Ejecutando acción action_1751223131905_apfyr6w58 (follow) para cuenta cmccr4rkt001bjjupogzozzvw
+✅ [FOLLOW_VALIDATION] Validaciones pasadas - targetUserId ya resuelto:
+      - Cuenta origen: @beatrizzFuness (ID: 1933622394419359746)
+      - Target: @raminavarra (ID: 1930021879504306176)
+      - Fuente: Resuelto en endpoint /add
+    
+👥 Ejecutando follow: @beatrizzFuness → @raminavarra (ID: 1930021879504306176)
+🔍 Configurando cliente Twitter para @beatrizzFuness...
+✅ Usando OAuth 1.0a para @beatrizzFuness
+🚀 [FOLLOW_EXECUTE] Ejecutando follow directo: 1933622394419359746 → 1930021879504306176 (@raminavarra)
+✅ Follow ejecutado exitosamente: @beatrizzFuness → 1930021879504306176 (@raminavarra)
+✅ Acción action_1751223131905_apfyr6w58 completada exitosamente
+📜 [HISTORY] Intentando registrar acción en historial → action_1751223131905_apfyr6w58 | estado: COMPLETED
+✅ [HISTORY] Acción action_1751223131905_apfyr6w58 registrada/actualizada correctamente
+[RATE_LIMIT] Tracker actualizado para cmccr4jhc000djjupk9qeu08o, acción follow
+🔄 Ejecutando acción action_1751226432491_1rimcpjry (follow) para cuenta cmccr4jhc000djjupk9qeu08o
+🔍 [FOLLOW_ID_LOOKUP] Resolviendo ID para @emipires44 en tiempo de ejecución...
+🔍 Configurando cliente Twitter para @umaaagarcia...
+✅ Usando OAuth 1.0a para @umaaagarcia
+[CACHE] MISS: Buscando User ID para @emipires44 via API.
+✅ [FOLLOW_ID_LOOKUP] Resuelto @emipires44 → 1931566238498492416. Acción reprogramada para 29/6/2025, 23:49:20
+🔄 Acción action_1751226432491_1rimcpjry reprogramada para lookup de ID
+[RATE_LIMIT] Tracker actualizado para cmccr4jyt000fjjup7pm555ob, acción follow
+🔄 Ejecutando acción action_1751226432818_2sqp3mlgk (follow) para cuenta cmccr4jyt000fjjup7pm555ob
+🔍 [FOLLOW_ID_LOOKUP] Resolviendo ID para @emipires44 en tiempo de ejecución...
+🔍 Configurando cliente Twitter para @mariourrquiza...
+✅ Usando OAuth 1.0a para @mariourrquiza
+[CACHE] HIT: User ID para @emipires44 encontrado en cache.
+✅ [FOLLOW_ID_LOOKUP] Resuelto @emipires44 → 1931566238498492416. Acción reprogramada para 29/6/2025, 23:49:20
+🔄 Acción action_1751226432818_2sqp3mlgk reprogramada para lookup de ID
+[RATE_LIMIT] Tracker actualizado para cmccr4j8u000cjjuperpwhdjf, acción follow
+🔄 Ejecutando acción action_1751226433144_u18c84dmt (follow) para cuenta cmccr4j8u000cjjuperpwhdjf
+🔍 [FOLLOW_ID_LOOKUP] Resolviendo ID para @emipires44 en tiempo de ejecución...
+🔍 Configurando cliente Twitter para @romicastroo1...
+✅ Usando OAuth 1.0a para @romicastroo1
+[CACHE] HIT: User ID para @emipires44 encontrado en cache.
+✅ [FOLLOW_ID_LOOKUP] Resuelto @emipires44 → 1931566238498492416. Acción reprogramada para 29/6/2025, 23:49:21
+🔄 Acción action_1751226433144_u18c84dmt reprogramada para lookup de ID
+[RATE_LIMIT] Tracker actualizado para cmccr4ldi000ljjupdugbvkgp, acción follow
+🔄 Ejecutando acción action_1751226433471_9qaw5e4y1 (follow) para cuenta cmccr4ldi000ljjupdugbvkgp
+🔍 [FOLLOW_ID_LOOKUP] Resolviendo ID para @emipires44 en tiempo de ejecución...
+🔍 Configurando cliente Twitter para @rubengonzzales...
+✅ Usando OAuth 1.0a para @rubengonzzales
+[CACHE] HIT: User ID para @emipires44 encontrado en cache.
+✅ [FOLLOW_ID_LOOKUP] Resuelto @emipires44 → 1931566238498492416. Acción reprogramada para 29/6/2025, 23:49:22
+🔄 Acción action_1751226433471_9qaw5e4y1 reprogramada para lookup de ID
+[RATE_LIMIT] Tracker actualizado para cmccr4lv2000njjupgen2jb58, acción follow
+🔄 Ejecutando acción action_1751226433798_wba9aqox6 (follow) para cuenta cmccr4lv2000njjupgen2jb58
+🔍 [FOLLOW_ID_LOOKUP] Resolviendo ID para @emipires44 en tiempo de ejecución...
+🔍 Configurando cliente Twitter para @ramiromoli84224...
+✅ Usando OAuth 1.0a para @ramiromoli84224
+[CACHE] HIT: User ID para @emipires44 encontrado en cache.
+✅ [FOLLOW_ID_LOOKUP] Resuelto @emipires44 → 1931566238498492416. Acción reprogramada para 29/6/2025, 23:49:23
+🔄 Acción action_1751226433798_wba9aqox6 reprogramada para lookup de ID
+[RATE_LIMIT] Tracker actualizado para cmccr4kwm000jjjupjjig2piy, acción follow
+🔄 Ejecutando acción action_1751226434125_mgzr6eb8g (follow) para cuenta cmccr4kwm000jjjupjjig2piy
+🔍 [FOLLOW_ID_LOOKUP] Resolviendo ID para @emipires44 en tiempo de ejecución...
+🔍 Configurando cliente Twitter para @matimoreni44...
+✅ Usando OAuth 1.0a para @matimoreni44
+[CACHE] HIT: User ID para @emipires44 encontrado en cache.
+✅ [FOLLOW_ID_LOOKUP] Resuelto @emipires44 → 1931566238498492416. Acción reprogramada para 29/6/2025, 23:49:24
+🔄 Acción action_1751226434125_mgzr6eb8g reprogramada para lookup de ID
+[RATE_LIMIT] Tracker actualizado para cmccr4l52000kjjup0rfneo8h, acción follow
+🔄 Ejecutando acción action_1751226434452_10zccsat3 (follow) para cuenta cmccr4l52000kjjup0rfneo8h
+🔍 [FOLLOW_ID_LOOKUP] Resolviendo ID para @emipires44 en tiempo de ejecución...
+🔍 Configurando cliente Twitter para @julivilla920...
+✅ Usando OAuth 1.0a para @julivilla920
+[CACHE] HIT: User ID para @emipires44 encontrado en cache.
+✅ [FOLLOW_ID_LOOKUP] Resuelto @emipires44 → 1931566238498492416. Acción reprogramada para 29/6/2025, 23:49:24
+🔄 Acción action_1751226434452_10zccsat3 reprogramada para lookup de ID
+[RATE_LIMIT] Tracker actualizado para cmccr4mke000qjjupwznjkag0, acción follow
+🔄 Ejecutando acción action_1751226434779_aggeu9yjf (follow) para cuenta cmccr4mke000qjjupwznjkag0
+🔍 [FOLLOW_ID_LOOKUP] Resolviendo ID para @emipires44 en tiempo de ejecución...
+🔍 Configurando cliente Twitter para @paulitamrtz4...
+✅ Usando OAuth 1.0a para @paulitamrtz4
+[CACHE] HIT: User ID para @emipires44 encontrado en cache.
+✅ [FOLLOW_ID_LOOKUP] Resuelto @emipires44 → 1931566238498492416. Acción reprogramada para 29/6/2025, 23:49:25
+🔄 Acción action_1751226434779_aggeu9yjf reprogramada para lookup de ID
+[RATE_LIMIT] Tracker actualizado para cmccr4ko7000ijjup4g85kn93, acción follow
+🔄 Ejecutando acción action_1751226443598_5zdy7wmod (follow) para cuenta cmccr4ko7000ijjup4g85kn93
+🔍 [FOLLOW_ID_LOOKUP] Resolviendo ID para @emipires44 en tiempo de ejecución...
+🔍 Configurando cliente Twitter para @ruizramiro12...
+✅ Usando OAuth 1.0a para @ruizramiro12
+[CACHE] HIT: User ID para @emipires44 encontrado en cache.
+✅ [FOLLOW_ID_LOOKUP] Resuelto @emipires44 → 1931566238498492416. Acción reprogramada para 29/6/2025, 23:49:25
+🔄 Acción action_1751226443598_5zdy7wmod reprogramada para lookup de ID
+[RATE_LIMIT] Tracker actualizado para cmccr4qdi0016jjup4cylljer, acción follow
+🔄 Ejecutando acción action_1751226443271_gsggj91q8 (follow) para cuenta cmccr4qdi0016jjup4cylljer
+🔍 [FOLLOW_ID_LOOKUP] Resolviendo ID para @emipires44 en tiempo de ejecución...
+🔍 Configurando cliente Twitter para @normamoreno90...
+✅ Usando OAuth 1.0a para @normamoreno90
+[CACHE] HIT: User ID para @emipires44 encontrado en cache.
+✅ [FOLLOW_ID_LOOKUP] Resuelto @emipires44 → 1931566238498492416. Acción reprogramada para 29/6/2025, 23:49:26
+🔄 Acción action_1751226443271_gsggj91q8 reprogramada para lookup de ID
+[RATE_LIMIT] Tracker actualizado para cmcdyqew70002xfnazoasppoa, acción follow
+🔄 Ejecutando acción action_1751226442945_pizo9m36v (follow) para cuenta cmcdyqew70002xfnazoasppoa
+🔍 [FOLLOW_ID_LOOKUP] Resolviendo ID para @emipires44 en tiempo de ejecución...
+🔍 Configurando cliente Twitter para @franrodigue1...
+✅ Usando OAuth 1.0a para @franrodigue1
+[CACHE] HIT: User ID para @emipires44 encontrado en cache.
+✅ [FOLLOW_ID_LOOKUP] Resuelto @emipires44 → 1931566238498492416. Acción reprogramada para 29/6/2025, 23:49:27
+🔄 Acción action_1751226442945_pizo9m36v reprogramada para lookup de ID
+[RATE_LIMIT] Tracker actualizado para cmccr4po80013jjupjbupfvzb, acción follow
+🔄 Ejecutando acción action_1751226442617_644nlr82g (follow) para cuenta cmccr4po80013jjupjbupfvzb
+🔍 [FOLLOW_ID_LOOKUP] Resolviendo ID para @emipires44 en tiempo de ejecución...
+🔍 Configurando cliente Twitter para @silvaggustavo2...
+✅ Usando OAuth 1.0a para @silvaggustavo2
+[CACHE] HIT: User ID para @emipires44 encontrado en cache.
+✅ [FOLLOW_ID_LOOKUP] Resuelto @emipires44 → 1931566238498492416. Acción reprogramada para 29/6/2025, 23:49:27
+🔄 Acción action_1751226442617_644nlr82g reprogramada para lookup de ID
+[RATE_LIMIT] Tracker actualizado para cmccr4pex0012jjupxirtu0o7, acción follow
+🔄 Ejecutando acción action_1751226442290_d0oszx64w (follow) para cuenta cmccr4pex0012jjupxirtu0o7
+🔍 [FOLLOW_ID_LOOKUP] Resolviendo ID para @emipires44 en tiempo de ejecución...
+🔍 Configurando cliente Twitter para @ramiroperezz23...
+✅ Usando OAuth 1.0a para @ramiroperezz23
+[CACHE] HIT: User ID para @emipires44 encontrado en cache.
+✅ [FOLLOW_ID_LOOKUP] Resuelto @emipires44 → 1931566238498492416. Acción reprogramada para 29/6/2025, 23:49:28
+🔄 Acción action_1751226442290_d0oszx64w reprogramada para lookup de ID
+[RATE_LIMIT] Tracker actualizado para cmccr4m3h000ojjupyiew3u7b, acción follow
+🔄 Ejecutando acción action_1751226435108_hnd3d7slx (follow) para cuenta cmccr4m3h000ojjupyiew3u7b
+🔍 [FOLLOW_ID_LOOKUP] Resolviendo ID para @emipires44 en tiempo de ejecución...
+🔍 Configurando cliente Twitter para @rosamendezgc...
+✅ Usando OAuth 1.0a para @rosamendezgc
+[CACHE] HIT: User ID para @emipires44 encontrado en cache.
+✅ [FOLLOW_ID_LOOKUP] Resuelto @emipires44 → 1931566238498492416. Acción reprogramada para 29/6/2025, 23:49:29
+🔄 Acción action_1751226435108_hnd3d7slx reprogramada para lookup de ID
+[RATE_LIMIT] Tracker actualizado para cmccr4msr000rjjupkv6fi6wj, acción follow
+🔄 Ejecutando acción action_1751226435436_t3sbko7ap (follow) para cuenta cmccr4msr000rjjupkv6fi6wj
+🔍 [FOLLOW_ID_LOOKUP] Resolviendo ID para @emipires44 en tiempo de ejecución...
+🔍 Configurando cliente Twitter para @solgarcia153232...
+✅ Usando OAuth 1.0a para @solgarcia153232
+[CACHE] HIT: User ID para @emipires44 encontrado en cache.
+✅ [FOLLOW_ID_LOOKUP] Resuelto @emipires44 → 1931566238498492416. Acción reprogramada para 29/6/2025, 23:49:29
+🔄 Acción action_1751226435436_t3sbko7ap reprogramada para lookup de ID
+[RATE_LIMIT] Tracker actualizado para cmccr4n9l000tjjupl1bwrin4, acción follow
+🔄 Ejecutando acción action_1751226435762_z1lfrncfx (follow) para cuenta cmccr4n9l000tjjupl1bwrin4
+🔍 [FOLLOW_ID_LOOKUP] Resolviendo ID para @emipires44 en tiempo de ejecución...
+🔍 Configurando cliente Twitter para @samirpazz919...
+✅ Usando OAuth 1.0a para @samirpazz919
+[CACHE] HIT: User ID para @emipires44 encontrado en cache.
+✅ [FOLLOW_ID_LOOKUP] Resuelto @emipires44 → 1931566238498492416. Acción reprogramada para 29/6/2025, 23:49:30
+🔄 Acción action_1751226435762_z1lfrncfx reprogramada para lookup de ID

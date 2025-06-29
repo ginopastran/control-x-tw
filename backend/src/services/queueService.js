@@ -1226,24 +1226,24 @@ class QueueService {
 
   async getQueueStatus() {
     try {
-      // Obtener acciones programadas desde BD para datos más precisos
-      const [scheduledFromDb, queuedFromDb, runningFromDb] = await Promise.all([
-        this.prisma.queuedAction.findMany({
-          where: { status: "SCHEDULED" },
-          include: { account: true },
-          orderBy: { scheduledTime: "asc" },
-        }),
-        this.prisma.queuedAction.findMany({
-          where: { status: "QUEUED" },
-          include: { account: true },
-          orderBy: { estimatedStartTime: "asc" },
-        }),
-        this.prisma.queuedAction.findMany({
-          where: { status: "RUNNING" },
-          include: { account: true },
-          orderBy: { startedAt: "asc" },
-        }),
-      ]);
+      // ⚠️ Evitar 3 conexiones simultáneas → ejecutar en serie (misma conexión reutilizada)
+      const scheduledFromDb = await this.prisma.queuedAction.findMany({
+        where: { status: "SCHEDULED" },
+        include: { account: true },
+        orderBy: { scheduledTime: "asc" },
+      });
+
+      const queuedFromDb = await this.prisma.queuedAction.findMany({
+        where: { status: "QUEUED" },
+        include: { account: true },
+        orderBy: { estimatedStartTime: "asc" },
+      });
+
+      const runningFromDb = await this.prisma.queuedAction.findMany({
+        where: { status: "RUNNING" },
+        include: { account: true },
+        orderBy: { startedAt: "asc" },
+      });
 
       return {
         queue: queuedFromDb.map((action) => ({

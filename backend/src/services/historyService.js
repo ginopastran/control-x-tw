@@ -232,24 +232,24 @@ class HistoryService {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // Obtener estadísticas del día
-    const [totalToday, successToday, failedToday] = await Promise.all([
-      this.prisma.actionHistory.count({
-        where: { createdAt: { gte: today } },
-      }),
-      this.prisma.actionHistory.count({
-        where: {
-          createdAt: { gte: today },
-          success: true,
-        },
-      }),
-      this.prisma.actionHistory.count({
-        where: {
-          createdAt: { gte: today },
-          success: false,
-        },
-      }),
-    ]);
+    // Obtener estadísticas del día (secuencial para no abrir 3 conexiones a la vez)
+    const totalToday = await this.prisma.actionHistory.count({
+      where: { createdAt: { gte: today } },
+    });
+
+    const successToday = await this.prisma.actionHistory.count({
+      where: {
+        createdAt: { gte: today },
+        success: true,
+      },
+    });
+
+    const failedToday = await this.prisma.actionHistory.count({
+      where: {
+        createdAt: { gte: today },
+        success: false,
+      },
+    });
 
     // Obtener distribución de acciones por hora (últimas 24 horas)
     const last24Hours = new Date(Date.now() - 24 * 60 * 60 * 1000);
