@@ -242,7 +242,8 @@ export default function Dashboard() {
   ];
 
   // Opciones dinámicas de acciones detectadas en el historial (todas las que existan en BD)
-  const [allHistoryActions, setAllHistoryActions] = useState<string[]>(QUEUE_ACTION_OPTIONS);
+  const [allHistoryActions, setAllHistoryActions] =
+    useState<string[]>(QUEUE_ACTION_OPTIONS);
 
   // Agregar variables calculadas que faltaban
   const totalActiveAccounts = accountLimits.filter(
@@ -268,7 +269,10 @@ export default function Dashboard() {
     new Set(queueStatus.history?.map((h) => h.action) || [])
   );
 
-  const totalHistoryPages = Math.max(1, Math.ceil(totalHistoryItems / historyItemsPerPage));
+  const totalHistoryPages = Math.max(
+    1,
+    Math.ceil(totalHistoryItems / historyItemsPerPage)
+  );
   const paginatedHistory = historyData;
 
   const goToHistoryPage = (p: number) => {
@@ -359,7 +363,9 @@ export default function Dashboard() {
       if (Array.isArray(data.actionsByType)) {
         const detected = data.actionsByType.map((item: any) => item.action);
         // Unir con lista default y quitar duplicados
-        setAllHistoryActions(Array.from(new Set([...detected, ...QUEUE_ACTION_OPTIONS])));
+        setAllHistoryActions(
+          Array.from(new Set([...detected, ...QUEUE_ACTION_OPTIONS]))
+        );
       }
     } catch (err) {
       console.error("Error cargando lista de acciones:", err);
@@ -370,6 +376,7 @@ export default function Dashboard() {
     fetchAccountLimits();
     fetchQueueStatus();
     fetchRealtimeMetrics();
+    fetchHistory();
     fetchHistoryActionsList();
     setLoading(false);
 
@@ -377,6 +384,7 @@ export default function Dashboard() {
     const interval = setInterval(() => {
       fetchQueueStatus();
       fetchRealtimeMetrics();
+      fetchHistory();
     }, 5000);
 
     return () => clearInterval(interval);
@@ -788,7 +796,12 @@ export default function Dashboard() {
   };
 
   const clearQueue = async () => {
-    if (!window.confirm("¿Seguro que deseas cancelar TODAS las acciones en cola y programadas?")) return;
+    if (
+      !window.confirm(
+        "¿Seguro que deseas cancelar TODAS las acciones en cola y programadas?"
+      )
+    )
+      return;
     const typed = prompt('Para confirmar escribe "LIMPIAR" (en mayúsculas):');
     if (typed !== "LIMPIAR") {
       alert("Operación cancelada. No se escribió LIMPIAR correctamente.");
@@ -1309,14 +1322,20 @@ export default function Dashboard() {
                     <SelectContent>
                       <SelectItem value="all">Todas</SelectItem>
                       {allHistoryActions.map((act) => (
-                        <SelectItem key={act} value={act} className="capitalize">
+                        <SelectItem
+                          key={act}
+                          value={act}
+                          className="capitalize"
+                        >
                           {act}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
 
-                  {(historySearch || historyAccountFilter !== "all" || historyActionFilter !== "all") && (
+                  {(historySearch ||
+                    historyAccountFilter !== "all" ||
+                    historyActionFilter !== "all") && (
                     <Button
                       variant="ghost"
                       size="sm"
@@ -1372,11 +1391,16 @@ export default function Dashboard() {
                               </p>
                             )}
                             <p className="text-xs text-gray-500">
-                              Completada: {formatRelativeTime(action.completedAt)}
+                              Completada:{" "}
+                              {formatRelativeTime(action.completedAt)}
                             </p>
                           </div>
                           <Badge
-                            variant={action.status === "COMPLETED" ? "secondary" : "destructive"}
+                            variant={
+                              action.status === "COMPLETED"
+                                ? "secondary"
+                                : "destructive"
+                            }
                             className="text-xs"
                           >
                             {action.status === "COMPLETED" ? "OK" : "FALLÓ"}
