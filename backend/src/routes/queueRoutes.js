@@ -118,59 +118,18 @@ function createQueueRoutes(queueService, prisma) {
           }
         }
 
-        // 🔥 NUEVA LÓGICA: BÚSQUEDA TEMPRANA DE targetUserId
+        /*
+         * 🔕 EARLY LOOKUP DESHABILITADO
+         * -------------------------------------------------------------
+         * Para evitar ráfagas de consultas que provoquen errores 429 en
+         * la API de Twitter, se elimina la búsqueda temprana del
+         * targetUserId.  Ahora la resolución del ID se realizará en el
+         * momento de la ejecución de la acción dentro del QueueService.
+         * -------------------------------------------------------------
+         */
         console.log(
-          `🔍 [FOLLOW_EARLY_LOOKUP] Iniciando búsqueda temprana para: ${
-            req.body.targetUsername || req.body.targetUserId
-          }`
+          `🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.`
         );
-
-        try {
-          const resolvedTargetData = await resolveTargetUserId(
-            req.body.targetUsername,
-            req.body.targetUserId,
-            prisma,
-            accountIds[0] // Usar la primera cuenta para acceso a API si es necesario
-          );
-
-          // Actualizar los datos con lo que se resolvió
-          req.body.targetUserId = resolvedTargetData.targetUserId;
-          req.body.targetUsername = resolvedTargetData.targetUsername;
-
-          // Si se usó la API, programar con delay
-          if (resolvedTargetData.usedApi) {
-            const delayMinutes = 16;
-            req.body.scheduledTime = new Date(
-              Date.now() + delayMinutes * 60 * 1000
-            ).toISOString();
-            console.log(
-              `⏰ [FOLLOW_EARLY_LOOKUP] Acción programada para ${delayMinutes} minutos después debido a API lookup`
-            );
-          }
-
-          // ⚠️  IMPORTANTE: actualizar la variable local global
-          localScheduledTime = req.body.scheduledTime;
-
-          console.log(`✅ [FOLLOW_EARLY_LOOKUP] Target resuelto:`, {
-            targetUserId: resolvedTargetData.targetUserId,
-            targetUsername: resolvedTargetData.targetUsername,
-            source: resolvedTargetData.source,
-            usedApi: resolvedTargetData.usedApi,
-            scheduledTime: req.body.scheduledTime,
-          });
-        } catch (lookupError) {
-          console.error(
-            `❌ [FOLLOW_EARLY_LOOKUP] Error resolviendo target:`,
-            lookupError.message
-          );
-          return res.status(400).json({
-            error: `Error resolviendo usuario objetivo: ${lookupError.message}`,
-            details: {
-              targetUsername: req.body.targetUsername,
-              targetUserId: req.body.targetUserId,
-            },
-          });
-        }
       }
 
       const accounts = await prisma.xAccount.findMany({

@@ -1008,17 +1008,77 @@ class QueueService {
       );
     }
 
-    // 3. Validar que tenemos targetUserId (debería estar resuelto ya)
+    // 3. Resolver targetUserId SI NO ESTÁ DEFINIDO (lookup diferido)
     if (!action.targetUserId) {
-      const errorMsg = `❌ [FOLLOW_VALIDATION] targetUserId no está resuelto. Esto indica un error en el proceso de resolución temprana.`;
-      console.error(errorMsg, {
-        actionId: action.id,
-        targetUsername: action.targetUsername,
-        targetUserId: action.targetUserId,
-      });
-      throw new Error(
-        "❌ ERROR INTERNO: targetUserId no fue resuelto correctamente en el proceso de creación"
-      );
+      if (!action.targetUsername) {
+        const errorMsg = `❌ [FOLLOW_VALIDATION] No se proporcionó targetUsername ni targetUserId`;
+        console.error(errorMsg);
+        throw new Error(
+          "Debe proporcionar targetUsername o targetUserId para realizar el follow"
+        );
+      }
+
+      const cleanUsername = action.targetUsername.replace(/^@+/, "").trim();
+
+      try {
+        console.log(
+          `🔍 [FOLLOW_ID_LOOKUP] Resolviendo ID para @${cleanUsername} en tiempo de ejecución...`
+        );
+
+        const client = await this.twitterService.getTwitterClient(
+          action.account
+        );
+        const resolvedId = await this.getUserIdFromUsername(
+          client,
+          cleanUsername
+        );
+
+        action.targetUserId = resolvedId;
+
+        // Reprogramar acción 16 minutos después de la resolución para respetar delay
+        const minDelayMs = 16 * 60 * 1000;
+        const newSchedule = new Date(Date.now() + minDelayMs);
+
+        action.status = "queued";
+        action.scheduledTime = newSchedule;
+        action.estimatedStartTime = newSchedule;
+
+        // Persistir cambios en BD
+        try {
+          await this.updateActionInDb(action.id, {
+            status: "queued",
+            targetUserId: resolvedId,
+            scheduledTime: newSchedule,
+          });
+        } catch (persistErr) {
+          console.warn(
+            `⚠️  [FOLLOW_ID_LOOKUP] No se pudo persistir targetUserId/scheduledTime en BD:`,
+            persistErr.message
+          );
+        }
+
+        console.log(
+          `✅ [FOLLOW_ID_LOOKUP] Resuelto @${cleanUsername} → ${resolvedId}. Acción reprogramada para ${newSchedule.toLocaleString(
+            "es-ES"
+          )}`
+        );
+
+        // Indicar al processQueue que la acción fue reprogramada
+        return {
+          success: false,
+          data: {
+            stage: "ID_LOOKUP_COMPLETED",
+          },
+        };
+      } catch (lookupErr) {
+        console.error(
+          `❌ [FOLLOW_ID_LOOKUP] Error obteniendo ID de @${cleanUsername}:`,
+          lookupErr.message
+        );
+        throw new Error(
+          `Error resolviendo usuario objetivo (@${cleanUsername}): ${lookupErr.message}`
+        );
+      }
     }
 
     // 4. Validar que no intente seguirse a sí mismo
