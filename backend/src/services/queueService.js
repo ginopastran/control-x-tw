@@ -309,9 +309,17 @@ class QueueService {
         return;
       }
 
-      // 🔥 VERIFICAR SI LA ACCIÓN EXISTE ANTES DE ACTUALIZAR
+      // 🔥 VERIFICAR SI LA ACCIÓN EXISTE ANTES DE ACTUALIZAR (incluyendo datos de la cuenta)
       const existingAction = await this.prisma.queuedAction.findUnique({
         where: { actionId: actionId },
+        include: {
+          account: {
+            select: {
+              username: true,
+              labels: true,
+            },
+          },
+        },
       });
 
       if (!existingAction) {
@@ -345,6 +353,10 @@ class QueueService {
               actionForHistory.accountUsername ||
               (actionForHistory.account && actionForHistory.account.username) ||
               "unknown",
+            accountLabels:
+              actionForHistory.accountLabels ||
+              actionForHistory.account?.labels ||
+              [],
             action: actionForHistory.action || "unknown",
             status: filteredData.status || "FAILED",
             success: false,
