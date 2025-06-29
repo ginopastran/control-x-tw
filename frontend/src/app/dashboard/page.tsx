@@ -41,6 +41,13 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { API_CONFIG, buildApiUrl } from "@/config/api";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface AccountLimits {
   _id: string;
@@ -209,6 +216,20 @@ export default function Dashboard() {
   const [queuedPage, setQueuedPage] = useState(1);
   const [itemsPerPage] = useState(10);
 
+  // 🎛️  Filtros para la pestaña "En Cola"
+  const [queueSearch, setQueueSearch] = useState("");
+  const [queueActionFilter, setQueueActionFilter] = useState<string>("all");
+
+  const ACTION_OPTIONS = [
+    "tweet",
+    "reply",
+    "like",
+    "retweet",
+    "follow",
+    "unfollow",
+    "dm",
+  ];
+
   // Agregar variables calculadas que faltaban
   const totalActiveAccounts = accountLimits.filter(
     (account) => account.status === "active"
@@ -289,14 +310,28 @@ export default function Dashboard() {
     ? Math.ceil(queueStatus.scheduled.length / itemsPerPage)
     : 1;
 
-  const paginatedQueued = queueStatus.queue?.slice(
+  // Aplicar filtros a la cola
+  const filteredQueued = queueStatus.queue?.filter((a) => {
+    const searchMatch =
+      queueSearch.trim() === "" ||
+      a.accountUsername.toLowerCase().includes(queueSearch.toLowerCase()) ||
+      (a.targetUsername &&
+        a.targetUsername.toLowerCase().includes(queueSearch.toLowerCase()));
+
+    const actionMatch =
+      queueActionFilter === "all" || a.action === queueActionFilter;
+
+    return searchMatch && actionMatch;
+  });
+
+  const totalQueuedPages = filteredQueued
+    ? Math.ceil(filteredQueued.length / itemsPerPage)
+    : 1;
+
+  const paginatedQueued = filteredQueued?.slice(
     (queuedPage - 1) * itemsPerPage,
     queuedPage * itemsPerPage
   );
-
-  const totalQueuedPages = queueStatus.queue
-    ? Math.ceil(queueStatus.queue.length / itemsPerPage)
-    : 1;
 
   const filteredAccounts = accountLimits.filter(
     (account: AccountLimits) =>
@@ -878,6 +913,58 @@ export default function Dashboard() {
               </TabsContent>
 
               <TabsContent value="queue" className="mt-4">
+                {/* Filtros */}
+                <div className="flex flex-wrap items-center gap-3 mb-4">
+                  <Input
+                    placeholder="Buscar usuario…"
+                    value={queueSearch}
+                    onChange={(e) => {
+                      setQueueSearch(e.target.value);
+                      setQueuedPage(1);
+                    }}
+                    className="w-48"
+                  />
+
+                  <Select
+                    value={queueActionFilter}
+                    onValueChange={(val: any) => {
+                      setQueueActionFilter(val);
+                      setQueuedPage(1);
+                    }}
+                  >
+                    <SelectTrigger className="w-40">
+                      <SelectValue placeholder="Tipo de acción" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todas</SelectItem>
+                      {ACTION_OPTIONS.map((opt) => (
+                        <SelectItem
+                          key={opt}
+                          value={opt}
+                          className="capitalize"
+                        >
+                          {opt}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {(queueSearch || queueActionFilter !== "all") && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setQueueSearch("");
+                        setQueueActionFilter("all");
+                        setQueuedPage(1);
+                      }}
+                      className="text-gray-600 hover:text-gray-800"
+                    >
+                      Limpiar filtros
+                    </Button>
+                  )}
+                </div>
+
                 {paginatedQueued?.length > 0 ? (
                   <div className="space-y-2">
                     {paginatedQueued.map((action, index) => (
