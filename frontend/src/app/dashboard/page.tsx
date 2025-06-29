@@ -39,6 +39,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
+  PaginationEllipsis,
 } from "@/components/ui/pagination";
 import { API_CONFIG, buildApiUrl } from "@/config/api";
 import {
@@ -48,6 +49,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface AccountLimits {
   _id: string;
@@ -215,6 +217,7 @@ export default function Dashboard() {
   const [queuedPage, setQueuedPage] = useState(1);
   const [itemsPerPage] = useState(20);
   const [totalQueuedItems, setTotalQueuedItems] = useState(0);
+  const [queueLoading, setQueueLoading] = useState(false);
 
   // 🎛️  Filtros para la pestaña "En Cola"
   const [queueSearch, setQueueSearch] = useState("");
@@ -274,8 +277,10 @@ export default function Dashboard() {
       setQueueStatus(data);
       setTotalHistoryItems(data.totalHistoryItems || 0);
       setTotalQueuedItems(data.totalQueueItems || 0);
+      setQueueLoading(false);
     } catch (err) {
       console.error("Error:", err);
+      setQueueLoading(false);
     }
   };
 
@@ -305,7 +310,7 @@ export default function Dashboard() {
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [historyPage]);
+  }, [historyPage, queuedPage]);
 
   const paginatedScheduled = queueStatus.scheduled?.slice(
     (scheduledPage - 1) * itemsPerPage,
@@ -668,6 +673,28 @@ export default function Dashboard() {
     }
   };
 
+  const goToPage = (page: number) => {
+    if (page < 1 || page > totalQueuedPages || page === queuedPage) return;
+    setQueueLoading(true);
+    setQueuedPage(page);
+  };
+
+  const generatePageNumbers = () => {
+    const pages: (number | "ellipsis")[] = [];
+    if (totalQueuedPages <= 5) {
+      for (let i = 1; i <= totalQueuedPages; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      if (queuedPage > 3) pages.push("ellipsis");
+      const start = Math.max(2, queuedPage - 1);
+      const end = Math.min(totalQueuedPages - 1, queuedPage + 1);
+      for (let i = start; i <= end; i++) pages.push(i);
+      if (queuedPage < totalQueuedPages - 2) pages.push("ellipsis");
+      pages.push(totalQueuedPages);
+    }
+    return pages;
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-gray-50">
@@ -995,7 +1022,13 @@ export default function Dashboard() {
                   )}
                 </div>
 
-                {paginatedQueued?.length > 0 ? (
+                {queueLoading ? (
+                  <div className="space-y-2">
+                    {Array.from({ length: itemsPerPage }).map((_, i) => (
+                      <Skeleton key={i} className="h-20 w-full rounded-md" />
+                    ))}
+                  </div>
+                ) : paginatedQueued?.length > 0 ? (
                   <div className="space-y-2">
                     {paginatedQueued.map((action, index) => (
                       <div
@@ -1040,35 +1073,55 @@ export default function Dashboard() {
                       </div>
                     ))}
                     {totalQueuedPages > 1 && (
-                      <div className="flex items-center justify-between pt-4">
-                        <span className="text-sm text-gray-600">
-                          Página {queuedPage} de {totalQueuedPages}
-                        </span>
-                        <div className="flex items-center space-x-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                              setQueuedPage((p) => Math.max(1, p - 1))
-                            }
-                            disabled={queuedPage <= 1}
-                          >
-                            Anterior
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                              setQueuedPage((p) =>
-                                Math.min(totalQueuedPages, p + 1)
-                              )
-                            }
-                            disabled={queuedPage >= totalQueuedPages}
-                          >
-                            Siguiente
-                          </Button>
-                        </div>
-                      </div>
+                      <Pagination className="pt-4">
+                        <PaginationContent>
+                          <PaginationItem>
+                            <PaginationPrevious
+                              href="#"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                goToPage(queuedPage - 1);
+                              }}
+                              className="cursor-pointer"
+                              aria-disabled={queuedPage <= 1 || queueLoading}
+                            />
+                          </PaginationItem>
+                          {generatePageNumbers().map((p, idx) =>
+                            p === "ellipsis" ? (
+                              <PaginationItem key={`el-${idx}`}>
+                                <PaginationEllipsis />
+                              </PaginationItem>
+                            ) : (
+                              <PaginationItem key={p as number}>
+                                <PaginationLink
+                                  href="#"
+                                  isActive={p === queuedPage}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    goToPage(p as number);
+                                  }}
+                                  className="cursor-pointer"
+                                >
+                                  {p}
+                                </PaginationLink>
+                              </PaginationItem>
+                            )
+                          )}
+                          <PaginationItem>
+                            <PaginationNext
+                              href="#"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                goToPage(queuedPage + 1);
+                              }}
+                              className="cursor-pointer"
+                              aria-disabled={
+                                queuedPage >= totalQueuedPages || queueLoading
+                              }
+                            />
+                          </PaginationItem>
+                        </PaginationContent>
+                      </Pagination>
                     )}
                   </div>
                 ) : (

@@ -1031,7 +1031,32 @@ class QueueService {
       );
     }
 
-    // 3. Resolver targetUserId SI NO ESTÁ DEFINIDO (lookup diferido)
+    // 🆕 (3.a) Intentar resolver targetUserId desde historial/BD antes de usar la API
+    if (!action.targetUserId && action.targetUsername) {
+      try {
+        const prev = await this.prisma.actionHistory.findFirst({
+          where: {
+            targetUsername: action.targetUsername,
+            targetUserId: { not: null },
+          },
+          orderBy: { completedAt: "desc" },
+          select: { targetUserId: true },
+        });
+        if (prev?.targetUserId) {
+          console.log(
+            `[FOLLOW_ID_LOOKUP] ID recuperado desde historial: @${action.targetUsername} → ${prev.targetUserId}`
+          );
+          action.targetUserId = prev.targetUserId;
+        }
+      } catch (histErr) {
+        console.warn(
+          `[FOLLOW_ID_LOOKUP] No se pudo consultar historial para @${action.targetUsername}:`,
+          histErr.message
+        );
+      }
+    }
+
+    // 3.b  Si todavía no hay ID → lookup API
     if (!action.targetUserId) {
       if (!action.targetUsername) {
         const errorMsg = `❌ [FOLLOW_VALIDATION] No se proporcionó targetUsername ni targetUserId`;
