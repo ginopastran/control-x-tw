@@ -101,9 +101,10 @@ model ActionHistory {
     action String // tweet, reply, like, retweet, follow, unfollow, etc.
 
     // Contenido de la acción
-    text         String?
-    tweetId      String?
-    targetUserId String?
+    text           String?
+    tweetId        String?
+    targetUserId   String?
+    targetUsername String?
 
     // Estados y tiempos
     status  ActionStatus
