@@ -539,12 +539,12 @@ export default function Dashboard() {
       case "tweet":
         return action.text
           ? action.text.length > 60
-            ? `${action.text.substring(0, 60)}...`
+            ? `${action.text.substring(0, 1000)}...`
             : action.text
           : "Publicar nuevo tweet";
       case "retweet":
         return action.tweetId
-          ? `Retweet del tweet ID: ${action.tweetId.substring(0, 12)}...`
+          ? `Retweet del tweet ID: ${action.tweetId.substring(0, 100)}...`
           : "Hacer retweet";
       case "like":
         return action.tweetId
