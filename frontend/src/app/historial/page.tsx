@@ -233,7 +233,8 @@ export default function HistorialPage() {
     );
   };
 
-  const formatRelativeTime = (dateString: string) => {
+  const formatRelativeTime = (dateString?: string) => {
+    if (!dateString) return "Pendiente";
     const date = new Date(dateString);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
@@ -601,12 +602,14 @@ export default function HistorialPage() {
                         <TableCell className="py-4">
                           <div className="space-y-1">
                             <div className="text-sm font-medium text-gray-900">
-                              {formatRelativeTime(action.createdAt)}
+                              {formatRelativeTime(
+                                action.completedAt || action.createdAt
+                              )}
                             </div>
                             <div className="text-xs text-gray-500">
-                              {new Date(action.createdAt).toLocaleString(
-                                "es-ES"
-                              )}
+                              {new Date(
+                                action.completedAt || action.createdAt
+                              ).toLocaleString("es-ES")}
                             </div>
                           </div>
                         </TableCell>
