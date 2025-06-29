@@ -464,18 +464,11 @@ class QueueService {
           action.distributionTimes &&
           action.distributionTimes[i]
         ) {
-          // Usar tiempo de distribución aleatoria
+          // Usar directamente el tiempo de distribución aleatoria propuesto
+          // y dejar que la verificación por cuenta (computeNextAvailable)
+          // aplique el delay mínimo SOLO si esa misma cuenta realizó una acción
+          // semejante en los últimos 16 minutos.
           scheduledTime = new Date(action.distributionTimes[i]);
-          // APLICAR DELAY MÍNIMO DE 16 MINUTOS
-          const minTimeForThisAction = new Date(now.getTime() + i * minDelayMs);
-          if (scheduledTime < minTimeForThisAction) {
-            scheduledTime = minTimeForThisAction;
-            console.log(
-              `⏰ Aplicando delay mínimo de ${
-                16 * (i + 1)
-              } minutos para acción ${i + 1}`
-            );
-          }
         } else if (!action.scheduledTime) {
           // Usar delays normales + delay mínimo
           const baseDelay =
@@ -780,12 +773,19 @@ class QueueService {
             batchId: action.batchId,
           });
 
-          // DELAY MÍNIMO ENTRE ACCIONES (incluso si son de cuentas diferentes)
-          if (readyActions.indexOf(action) < readyActions.length - 1) {
-            console.log(
-              `⏰ Esperando 16 minutos antes de la siguiente acción...`
-            );
-            await new Promise((resolve) => setTimeout(resolve, minDelayMs));
+          // DELAY MÍNIMO ENTRE ACCIONES DE LA MISMA CUENTA Y MISMO TIPO
+          const idx = readyActions.indexOf(action);
+          if (idx < readyActions.length - 1) {
+            const nextAction = readyActions[idx + 1];
+            if (
+              nextAction.accountId === action.accountId &&
+              nextAction.action === action.action
+            ) {
+              console.log(
+                `⏰ Misma cuenta + tipo; esperando 16 minutos antes de la siguiente acción...`
+              );
+              await new Promise((resolve) => setTimeout(resolve, minDelayMs));
+            }
           }
         } catch (error) {
           console.error(
