@@ -91,6 +91,7 @@ interface QueueAction {
   targetUserId?: string;
   targetUsername?: string;
   status: string;
+  error?: string;
   createdAt: string;
   estimatedStartTime: string;
 }
@@ -117,6 +118,7 @@ interface HistoryAction {
   status: string;
   completedAt: string;
   error?: string;
+  targetUsername?: string;
 }
 
 interface ScheduledAction {
@@ -208,10 +210,15 @@ export default function Dashboard() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLabel, setSelectedLabel] = useState<string>("all");
 
-  // Estados para paginación del historial
+  // 📑 Estados para historial (paginación y filtros)
+  const [historySearch, setHistorySearch] = useState("");
+  const [historyAccountFilter, setHistoryAccountFilter] = useState("all");
+  const [historyActionFilter, setHistoryActionFilter] = useState<string>("all");
   const [historyPage, setHistoryPage] = useState(1);
-  const [historyPerPage] = useState(10);
+  const historyItemsPerPage = 20;
+  const [historyData, setHistoryData] = useState<HistoryAction[]>([]);
   const [totalHistoryItems, setTotalHistoryItems] = useState(0);
+  const [historyLoading, setHistoryLoading] = useState(false);
 
   // Estados para paginación de colas
   const [queuedPage, setQueuedPage] = useState(1);
@@ -223,7 +230,8 @@ export default function Dashboard() {
   const [queueSearch, setQueueSearch] = useState("");
   const [queueActionFilter, setQueueActionFilter] = useState<string>("all");
 
-  const ACTION_OPTIONS = [
+  // Opciones estáticas conocidas (se usan como fallback y para la cola)
+  const QUEUE_ACTION_OPTIONS = [
     "tweet",
     "reply",
     "like",
@@ -232,6 +240,9 @@ export default function Dashboard() {
     "unfollow",
     "dm",
   ];
+
+  // Opciones dinámicas de acciones detectadas en el historial (todas las que existan en BD)
+  const [allHistoryActions, setAllHistoryActions] = useState<string[]>(QUEUE_ACTION_OPTIONS);
 
   // Agregar variables calculadas que faltaban
   const totalActiveAccounts = accountLimits.filter(
@@ -248,6 +259,46 @@ export default function Dashboard() {
 
   // Paginación para acciones programadas
   const [scheduledPage, setScheduledPage] = useState(1);
+
+  // Lista de cuentas (todas las cuentas del sistema para selector de historial)
+  const uniqueAccounts = accountLimits.map((acc) => acc.username);
+
+  // Lista de tipos de acción únicos en historial para selector
+  const uniqueHistoryActions = Array.from(
+    new Set(queueStatus.history?.map((h) => h.action) || [])
+  );
+
+  const totalHistoryPages = Math.max(1, Math.ceil(totalHistoryItems / historyItemsPerPage));
+  const paginatedHistory = historyData;
+
+  const goToHistoryPage = (p: number) => {
+    setHistoryLoading(true);
+    setHistoryPage(Math.max(1, Math.min(totalHistoryPages, p)));
+  };
+
+  // 🔍 Cargar historial con filtros desde backend
+  const fetchHistory = async () => {
+    setHistoryLoading(true);
+    try {
+      const params = new URLSearchParams({
+        page: historyPage.toString(),
+        limit: historyItemsPerPage.toString(),
+        search: historySearch,
+        action: historyActionFilter,
+        account: historyAccountFilter,
+        status: "executed", // solo ejecutadas por defecto
+      });
+      const res = await fetch(`/api/history?${params.toString()}`);
+      if (!res.ok) throw new Error("Error al cargar historial");
+      const data = await res.json();
+      setHistoryData(data.actions || []);
+      setTotalHistoryItems(data.total || 0);
+    } catch (err) {
+      console.error("Error cargando historial:", err);
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
 
   const fetchAccountLimits = async () => {
     try {
@@ -267,7 +318,7 @@ export default function Dashboard() {
       const response = await fetch(
         buildApiUrl(API_CONFIG.ENDPOINTS.QUEUE.STATUS, {
           historyPage,
-          historyLimit: historyPerPage,
+          historyLimit: historyItemsPerPage,
           queuePage: queuedPage,
           queueLimit: itemsPerPage,
         })
@@ -275,12 +326,14 @@ export default function Dashboard() {
       if (!response.ok) throw new Error("Error al cargar estado de cola");
       const data = await response.json();
       setQueueStatus(data);
-      setTotalHistoryItems(data.totalHistoryItems || 0);
       setTotalQueuedItems(data.totalQueueItems || 0);
+      setTotalHistoryItems(data.totalHistoryItems || 0);
       setQueueLoading(false);
+      setHistoryLoading(false);
     } catch (err) {
       console.error("Error:", err);
       setQueueLoading(false);
+      setHistoryLoading(false);
     }
   };
 
@@ -297,10 +350,27 @@ export default function Dashboard() {
     }
   };
 
+  // 🔄 Obtener lista completa de tipos de acción desde el backend (historial/stats)
+  const fetchHistoryActionsList = async () => {
+    try {
+      const res = await fetch("/api/history/stats?days=365");
+      if (!res.ok) throw new Error("Error al obtener stats de historial");
+      const data = await res.json();
+      if (Array.isArray(data.actionsByType)) {
+        const detected = data.actionsByType.map((item: any) => item.action);
+        // Unir con lista default y quitar duplicados
+        setAllHistoryActions(Array.from(new Set([...detected, ...QUEUE_ACTION_OPTIONS])));
+      }
+    } catch (err) {
+      console.error("Error cargando lista de acciones:", err);
+    }
+  };
+
   useEffect(() => {
     fetchAccountLimits();
     fetchQueueStatus();
     fetchRealtimeMetrics();
+    fetchHistoryActionsList();
     setLoading(false);
 
     // Auto-refresh cada 5 segundos
@@ -310,7 +380,12 @@ export default function Dashboard() {
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [historyPage, queuedPage]);
+  }, [queuedPage]);
+
+  // Ejecutar fetchHistory cada vez que filtros/página cambien
+  useEffect(() => {
+    fetchHistory();
+  }, [historyPage, historySearch, historyAccountFilter, historyActionFilter]);
 
   const paginatedScheduled = queueStatus.scheduled?.slice(
     (scheduledPage - 1) * itemsPerPage,
@@ -695,6 +770,44 @@ export default function Dashboard() {
     return pages;
   };
 
+  // 📑 Generar paginación para HISTORIAL (independiente de la cola)
+  const generateHistoryPageNumbers = () => {
+    const pages: (number | "ellipsis")[] = [];
+    if (totalHistoryPages <= 5) {
+      for (let i = 1; i <= totalHistoryPages; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      if (historyPage > 3) pages.push("ellipsis");
+      const start = Math.max(2, historyPage - 1);
+      const end = Math.min(totalHistoryPages - 1, historyPage + 1);
+      for (let i = start; i <= end; i++) pages.push(i);
+      if (historyPage < totalHistoryPages - 2) pages.push("ellipsis");
+      pages.push(totalHistoryPages);
+    }
+    return pages;
+  };
+
+  const clearQueue = async () => {
+    if (!window.confirm("¿Seguro que deseas cancelar TODAS las acciones en cola y programadas?")) return;
+    const typed = prompt('Para confirmar escribe "LIMPIAR" (en mayúsculas):');
+    if (typed !== "LIMPIAR") {
+      alert("Operación cancelada. No se escribió LIMPIAR correctamente.");
+      return;
+    }
+    try {
+      const response = await fetch("/api/queue/all", {
+        method: "DELETE",
+      });
+      if (!response.ok) throw new Error("Error al cancelar acciones");
+      await response.json();
+      await fetchQueueStatus();
+      alert("Cola limpiada exitosamente");
+    } catch (err) {
+      console.error(err);
+      alert("No se pudo limpiar la cola");
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-gray-50">
@@ -994,7 +1107,7 @@ export default function Dashboard() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">Todas</SelectItem>
-                      {ACTION_OPTIONS.map((opt) => (
+                      {QUEUE_ACTION_OPTIONS.map((opt) => (
                         <SelectItem
                           key={opt}
                           value={opt}
@@ -1020,6 +1133,15 @@ export default function Dashboard() {
                       Limpiar filtros
                     </Button>
                   )}
+
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={clearQueue}
+                    className="ml-auto"
+                  >
+                    Limpiar cola
+                  </Button>
                 </div>
 
                 {queueLoading ? (
@@ -1033,7 +1155,7 @@ export default function Dashboard() {
                     {paginatedQueued.map((action, index) => (
                       <div
                         key={index}
-                        className="flex items-center justify-between p-3 border border-blue-200 rounded-md bg-blue-50"
+                        className={`flex items-center justify-between p-3 border border-blue-200 rounded-md bg-blue-50`}
                       >
                         <div className="flex items-center space-x-2">
                           <Clock className="h-3 w-3 text-blue-600" />
@@ -1051,6 +1173,11 @@ export default function Dashboard() {
                             <p className="text-xs text-gray-600">
                               {getActionDescription(action)}
                             </p>
+                            {action.status !== "COMPLETED" && action.error && (
+                              <p className="text-xs text-red-600 break-all">
+                                Error: {action.error}
+                              </p>
+                            )}
                             <p className="text-xs text-blue-600">
                               Ejecutará en:{" "}
                               <RelativeTime
@@ -1135,73 +1262,182 @@ export default function Dashboard() {
               </TabsContent>
 
               <TabsContent value="history" className="mt-4">
-                {queueStatus.history?.length > 0 ? (
-                  <div className="space-y-2">
-                    {queueStatus.history
-                      .filter(
-                        (action) =>
-                          // Solo mostrar acciones realmente ejecutadas (no programadas)
-                          action.status === "COMPLETED" ||
-                          action.status === "FAILED"
-                      )
-                      .map((action, index) => (
-                        <div
-                          key={index}
-                          className={`flex items-center justify-between p-3 border rounded-md ${
-                            action.status === "COMPLETED"
-                              ? "border-green-200 bg-green-50"
-                              : "border-red-200 bg-red-50"
-                          }`}
-                        >
-                          <div className="flex items-center space-x-2">
-                            {action.status === "COMPLETED" ? (
-                              <CheckCircle2 className="h-3 w-3 text-green-600" />
-                            ) : (
-                              <AlertTriangle className="h-3 w-3 text-red-600" />
-                            )}
-                            <div>
-                              <p className="text-sm font-medium text-gray-900">
-                                <a
-                                  href={`https://twitter.com/${action.username}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="hover:underline text-blue-600"
-                                >
-                                  @{action.username}
-                                </a>
-                              </p>
-                              <p className="text-xs text-gray-600">
-                                {getActionDescription(action)}
-                              </p>
-                              {action.error && (
-                                <p className="text-xs text-red-600">
-                                  Error: {action.error}
-                                </p>
-                              )}
-                            </div>
-                            <Badge
-                              variant={
-                                action.status === "COMPLETED"
-                                  ? "default"
-                                  : "destructive"
-                              }
-                              className="text-xs"
-                            >
-                              {action.action}
-                            </Badge>
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            {formatRelativeTime(action.completedAt)}
-                          </div>
-                        </div>
+                {/* Filtros de historial */}
+                <div className="flex flex-wrap items-center gap-3 mb-4">
+                  <Input
+                    placeholder="Buscar en historial…"
+                    value={historySearch}
+                    onChange={(e) => {
+                      setHistorySearch(e.target.value);
+                      setHistoryPage(1);
+                    }}
+                    className="w-48"
+                  />
+
+                  {/* Filtro por cuenta */}
+                  <Select
+                    value={historyAccountFilter}
+                    onValueChange={(val: any) => {
+                      setHistoryAccountFilter(val);
+                      setHistoryPage(1);
+                    }}
+                  >
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="Cuenta" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todas las cuentas</SelectItem>
+                      {uniqueAccounts.map((acc) => (
+                        <SelectItem key={acc} value={acc}>
+                          @{acc}
+                        </SelectItem>
                       ))}
+                    </SelectContent>
+                  </Select>
+
+                  {/* Filtro por tipo de acción */}
+                  <Select
+                    value={historyActionFilter}
+                    onValueChange={(val: any) => {
+                      setHistoryActionFilter(val);
+                      setHistoryPage(1);
+                    }}
+                  >
+                    <SelectTrigger className="w-40">
+                      <SelectValue placeholder="Acción" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todas</SelectItem>
+                      {allHistoryActions.map((act) => (
+                        <SelectItem key={act} value={act} className="capitalize">
+                          {act}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {(historySearch || historyAccountFilter !== "all" || historyActionFilter !== "all") && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setHistorySearch("");
+                        setHistoryAccountFilter("all");
+                        setHistoryActionFilter("all");
+                        setHistoryPage(1);
+                      }}
+                      className="text-gray-600 hover:text-gray-800"
+                    >
+                      Limpiar filtros
+                    </Button>
+                  )}
+                </div>
+
+                {historyLoading ? (
+                  <div className="space-y-2">
+                    {Array.from({ length: historyItemsPerPage }).map((_, i) => (
+                      <Skeleton key={i} className="h-20 w-full rounded-md" />
+                    ))}
+                  </div>
+                ) : paginatedHistory.length > 0 ? (
+                  <div className="space-y-2">
+                    {paginatedHistory.map((action, index) => (
+                      <div
+                        key={action.id || index}
+                        className={`flex items-center justify-between p-3 border rounded-md w-full ${
+                          action.status === "COMPLETED"
+                            ? "border-green-200 bg-green-50"
+                            : "border-red-200 bg-red-50"
+                        }`}
+                      >
+                        <div className="flex items-center space-x-2">
+                          {getActionIcon(action.action)}
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">
+                              <a
+                                href={`https://twitter.com/${action.username}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="hover:underline text-blue-600"
+                              >
+                                @{action.username}
+                              </a>
+                            </p>
+                            <p className="text-xs text-gray-600">
+                              {getActionDescription(action)}
+                            </p>
+                            {action.status !== "COMPLETED" && action.error && (
+                              <p className="text-xs text-red-600 break-all">
+                                Error: {action.error}
+                              </p>
+                            )}
+                            <p className="text-xs text-gray-500">
+                              Completada: {formatRelativeTime(action.completedAt)}
+                            </p>
+                          </div>
+                          <Badge
+                            variant={action.status === "COMPLETED" ? "secondary" : "destructive"}
+                            className="text-xs"
+                          >
+                            {action.status === "COMPLETED" ? "OK" : "FALLÓ"}
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                    {totalHistoryPages > 1 && (
+                      <Pagination className="pt-4">
+                        <PaginationContent>
+                          <PaginationItem>
+                            <PaginationPrevious
+                              href="#"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                goToHistoryPage(historyPage - 1);
+                              }}
+                              className="cursor-pointer"
+                              aria-disabled={historyPage <= 1}
+                            />
+                          </PaginationItem>
+                          {generateHistoryPageNumbers().map((p, idx) =>
+                            p === "ellipsis" ? (
+                              <PaginationItem key={`hist-el-${idx}`}>
+                                <PaginationEllipsis />
+                              </PaginationItem>
+                            ) : (
+                              <PaginationItem key={`hist-${p as number}`}>
+                                <PaginationLink
+                                  href="#"
+                                  isActive={p === historyPage}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    goToHistoryPage(p as number);
+                                  }}
+                                  className="cursor-pointer"
+                                >
+                                  {p}
+                                </PaginationLink>
+                              </PaginationItem>
+                            )
+                          )}
+                          <PaginationItem>
+                            <PaginationNext
+                              href="#"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                goToHistoryPage(historyPage + 1);
+                              }}
+                              className="cursor-pointer"
+                              aria-disabled={historyPage >= totalHistoryPages}
+                            />
+                          </PaginationItem>
+                        </PaginationContent>
+                      </Pagination>
+                    )}
                   </div>
                 ) : (
                   <div className="text-center py-8">
-                    <BarChart3 className="h-8 w-8 text-gray-300 mx-auto mb-2" />
-                    <p className="text-sm text-gray-500">
-                      No hay historial de acciones ejecutadas
-                    </p>
+                    <Clock className="h-8 w-8 text-gray-300 mx-auto mb-2" />
+                    <p className="text-sm text-gray-500">Sin resultados</p>
                   </div>
                 )}
               </TabsContent>

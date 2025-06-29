@@ -426,93 +426,48 @@ class QueueService {
     const now = new Date();
     const minDelayMs = 16 * 60 * 1000; // 16 minutos en milisegundos
 
-    // 🗺️  Map que indica la siguiente hora disponible para cada cuenta+tipo
-    //     (así los follows respetan delay con follows, tweets con tweets, etc.)
-    const nextAvailableTime = new Map();
+    // Agrupar acciones por cuenta
+    const actionsByAccount = {};
+    for (const action of actions) {
+      if (!actionsByAccount[action.accountId]) actionsByAccount[action.accountId] = [];
+      actionsByAccount[action.accountId].push(action);
+    }
 
-    const computeNextAvailable = (accountId, actionType) => {
-      const key = `${accountId}_${actionType}`;
-      if (nextAvailableTime.has(key)) return nextAvailableTime.get(key);
-
-      // Tomar como base el último uso registrado de ESA acción para la cuenta
-      const trackerKey = `${accountId}_${actionType}`;
-      let latest = this.rateLimitTracker.get(trackerKey) || new Date(0);
-
-      // Acciones pendientes en memoria / programadas del MISMO tipo
-      const pendingTimes = [...this.actionQueue, ...this.scheduledActions]
-        .filter((a) => a.accountId === accountId && a.action === actionType)
-        .map((a) => new Date(a.scheduledTime || a.estimatedStartTime));
-
-      pendingTimes.forEach((t) => {
-        if (t > latest) latest = t;
-      });
-
-      nextAvailableTime.set(key, latest);
-      return latest;
-    };
-
-    for (let i = 0; i < actions.length; i++) {
-      const action = actions[i];
-      // Respetar scheduledTime si ya viene definido (p.ej., delay de 16 min tras lookup)
-      let scheduledTime = action.scheduledTime
-        ? new Date(action.scheduledTime)
-        : now;
-
-      try {
+    // Para cada cuenta, distribuir los tiempos de ejecución
+    for (const [accountId, accountActions] of Object.entries(actionsByAccount)) {
+      // Ordenar por algún criterio si es necesario (por ejemplo, por targetUsername)
+      // accountActions.sort((a, b) => ...);
+      let lastScheduled = now;
+      for (let i = 0; i < accountActions.length; i++) {
+        let action = accountActions[i];
+        let scheduledTime;
         if (
           action.useRandomDistribution &&
           action.distributionTimes &&
           action.distributionTimes[i]
         ) {
-          // Usar directamente el tiempo de distribución aleatoria propuesto
-          // y dejar que la verificación por cuenta (computeNextAvailable)
-          // aplique el delay mínimo SOLO si esa misma cuenta realizó una acción
-          // semejante en los últimos 16 minutos.
-          scheduledTime = new Date(action.distributionTimes[i]);
-        } else if (!action.scheduledTime) {
-          // Usar delays normales + delay mínimo
-          const baseDelay =
-            action.baseDelay !== undefined ? action.baseDelay : 30000;
-          const randomDelay =
-            action.randomDelay !== undefined ? action.randomDelay : 60000;
-          const calculatedDelay = baseDelay + Math.random() * randomDelay;
-
-          // Aplicar delay mínimo de 16 minutos por acción
-          const totalDelay = Math.max(calculatedDelay, i * minDelayMs);
-          scheduledTime = new Date(now.getTime() + totalDelay);
+          // Distribución aleatoria, pero respetando el mínimo de 16 minutos entre acciones de la misma cuenta
+          const candidateTime = new Date(action.distributionTimes[i]);
+          if (i === 0 || candidateTime - lastScheduled >= minDelayMs) {
+            scheduledTime = candidateTime;
+          } else {
+            scheduledTime = new Date(lastScheduled.getTime() + minDelayMs);
+          }
+        } else {
+          // Espaciar 16 minutos entre cada acción de la misma cuenta
+          scheduledTime = i === 0 ? now : new Date(lastScheduled.getTime() + minDelayMs);
         }
-        // Si venía scheduledTime pero es antes de now, al menos cumplir delay mínimo
-        if (action.scheduledTime && scheduledTime < now) {
-          scheduledTime = new Date(now.getTime() + minDelayMs);
-        }
+        lastScheduled = scheduledTime;
 
         // 🛡️  Ajustar para respetar delay mínimo con acciones previas de LA MISMA CUENTA (incluso de lotes anteriores)
-        const latestForAccount = computeNextAvailable(
-          action.accountId,
-          action.action
-        );
-        const earliestAllowed = new Date(
-          latestForAccount.getTime() + minDelayMs
-        );
-        if (scheduledTime < earliestAllowed) {
-          console.log(
-            `⏰ Ajustando tiempo para cuenta ${
-              action.accountId
-            } (delay mínimo global). Antes: ${scheduledTime.toISOString()}, nuevo: ${earliestAllowed.toISOString()}`
-          );
-          scheduledTime = earliestAllowed;
-          // actualizar el mapa para siguientes acciones del mismo lote
-          nextAvailableTime.set(
-            `${action.accountId}_${action.action}`,
-            scheduledTime
-          );
-        } else {
-          // registrar tiempo también
-          nextAvailableTime.set(
-            `${action.accountId}_${action.action}`,
-            scheduledTime
-          );
+        // (Mantener compatibilidad con el tracker de rate limit)
+        const trackerKey = `${accountId}_${action.action}`;
+        let latest = this.rateLimitTracker.get(trackerKey) || new Date(0);
+        if (scheduledTime < new Date(latest.getTime() + minDelayMs)) {
+          scheduledTime = new Date(latest.getTime() + minDelayMs);
+          lastScheduled = scheduledTime;
         }
+        this.rateLimitTracker.set(trackerKey, scheduledTime);
 
         const actionObj = {
           id: this.generateActionId(),
@@ -539,7 +494,7 @@ class QueueService {
         // 🔍 LOGGING ESPECÍFICO PARA FOLLOWS DESPUÉS DE PROCESAR
         if (action.action === "follow") {
           console.log(
-            `[QUEUE_DEBUG] Acción follow #${i + 1} después de procesar:`,
+            `[QUEUE_DEBUG] Acción follow después de procesar:`,
             {
               actionId: actionObj.id,
               accountId: actionObj.accountId,
@@ -562,9 +517,6 @@ class QueueService {
             actionObj.id
           } programada para: ${scheduledTime.toLocaleString("es-ES")}`
         );
-      } catch (error) {
-        console.error(`❌ Error procesando acción ${i + 1}:`, error.message);
-        throw error;
       }
     }
 
