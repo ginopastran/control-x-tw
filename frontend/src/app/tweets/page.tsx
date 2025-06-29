@@ -1003,25 +1003,30 @@ export default function TweetsPage() {
       distributionUnit
     );
     const now = Date.now();
-    const minDelayMs = 16 * 60 * 1000; // 16 minutos en milisegundos
-    const times: string[] = [];
+    const minDelayMs = 16 * 60 * 1000; // 16 minutos
 
-    for (let i = 0; i < count; i++) {
-      // Generar tiempo aleatorio entre ahora y el máximo configurado
-      const randomDelay = Math.random() * maxTimeMs;
+    // 1) Generar offsets aleatorios uniformes en el rango [0, maxTimeMs)
+    const rawOffsets = Array.from(
+      { length: count },
+      () => Math.random() * maxTimeMs
+    );
 
-      // Aplicar delay mínimo de 16 minutos por acción
-      const baseTimeWithMinDelay = now + i * minDelayMs; // 16min * índice
-      const finalTime = Math.max(baseTimeWithMinDelay, now + randomDelay);
+    // 2) Convertir a fechas absolutas y ordenarlas cronológicamente
+    const times = rawOffsets
+      .map((offset) => new Date(now + offset))
+      .sort((a, b) => a.getTime() - b.getTime());
 
-      const scheduledTime = new Date(finalTime);
-      times.push(scheduledTime.toISOString());
+    // 3) Asegurar separación mínima de 16 minutos
+    for (let i = 1; i < times.length; i++) {
+      const prevTime = times[i - 1].getTime();
+      const minAllowed = prevTime + minDelayMs;
+      if (times[i].getTime() < minAllowed) {
+        times[i] = new Date(minAllowed);
+      }
     }
 
-    // Ordenar los tiempos para asegurar secuencia correcta
-    times.sort();
-
-    return times;
+    // 4) Devolver ISO strings
+    return times.map((t) => t.toISOString());
   };
 
   // Modificar executeAction para incluir distribución aleatoria

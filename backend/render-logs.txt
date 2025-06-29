@@ -1,0 +1,2566 @@
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159755147_14ke4wuw8',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'silva_tomi9090',
+  accountUsername: 'VillalbaEr11720'
+}
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159755148_f5bvcgdvi',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'silva_tomi9090',
+  scheduledTime: '2025-06-29T04:33:59.506Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159755148_f5bvcgdvi',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'silva_tomi9090',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159755148_f5bvcgdvi',
+  targetUserId: null,
+  targetUsername: 'silva_tomi9090',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159755148_f5bvcgdvi programada para: 29/6/2025, 4:33:59
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 157 acciones pendientes
+⏰ Rango de ejecución: 29/6/2025, 4:33:59 - 29/6/2025, 4:33:59
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'maxilopp99',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "maxilopp99" → "maxilopp99"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-29T01:22:42.777Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159756928_3a69xw7hs',
+  targetUserId: undefined,
+  targetUsername: 'maxilopp99',
+  estimatedStartTime: '2025-06-29T01:22:42.777Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159756928_3a69xw7hs',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'maxilopp99',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-29T01:22:42.777Z, nuevo: 2025-06-29T04:49:59.506Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159756929_9295apgdz',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'maxilopp99',
+  scheduledTime: '2025-06-29T04:49:59.506Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159756929_9295apgdz',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'maxilopp99',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159756929_9295apgdz',
+  targetUserId: null,
+  targetUsername: 'maxilopp99',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159756929_9295apgdz programada para: 29/6/2025, 4:49:59
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 158 acciones pendientes
+⏰ Rango de ejecución: 29/6/2025, 4:49:59 - 29/6/2025, 4:49:59
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'BelTorressss',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "BelTorressss" → "BelTorressss"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-29T18:22:26.136Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159758438_sa4q7cm0p',
+  targetUserId: undefined,
+  targetUsername: 'BelTorressss',
+  estimatedStartTime: '2025-06-29T18:22:26.136Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159758438_sa4q7cm0p',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'BelTorressss',
+  accountUsername: 'VillalbaEr11720'
+}
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159758439_9om2bo25n',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'BelTorressss',
+  scheduledTime: '2025-06-29T18:22:26.136Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159758439_9om2bo25n',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'BelTorressss',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159758439_9om2bo25n',
+  targetUserId: null,
+  targetUsername: 'BelTorressss',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159758439_9om2bo25n programada para: 29/6/2025, 18:22:26
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 159 acciones pendientes
+⏰ Rango de ejecución: 29/6/2025, 18:22:26 - 29/6/2025, 18:22:26
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'gonzmoreno__',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "gonzmoreno__" → "gonzmoreno__"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-29T20:17:26.006Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159759946_ysj4rjpga',
+  targetUserId: undefined,
+  targetUsername: 'gonzmoreno__',
+  estimatedStartTime: '2025-06-29T20:17:26.006Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159759946_ysj4rjpga',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'gonzmoreno__',
+  accountUsername: 'VillalbaEr11720'
+}
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159759946_newgycr8k',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'gonzmoreno__',
+  scheduledTime: '2025-06-29T20:17:26.006Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159759946_newgycr8k',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'gonzmoreno__',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159759946_newgycr8k',
+  targetUserId: null,
+  targetUsername: 'gonzmoreno__',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159759946_newgycr8k programada para: 29/6/2025, 20:17:26
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 160 acciones pendientes
+⏰ Rango de ejecución: 29/6/2025, 20:17:26 - 29/6/2025, 20:17:26
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'alvarezpau7',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "alvarezpau7" → "alvarezpau7"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-29T15:26:25.299Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159761472_esswdlr4h',
+  targetUserId: undefined,
+  targetUsername: 'alvarezpau7',
+  estimatedStartTime: '2025-06-29T15:26:25.299Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159761472_esswdlr4h',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'alvarezpau7',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-29T15:26:25.299Z, nuevo: 2025-06-29T20:33:26.006Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159761474_rq0py6uvy',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'alvarezpau7',
+  scheduledTime: '2025-06-29T20:33:26.006Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159761474_rq0py6uvy',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'alvarezpau7',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159761474_rq0py6uvy',
+  targetUserId: null,
+  targetUsername: 'alvarezpau7',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159761474_rq0py6uvy programada para: 29/6/2025, 20:33:26
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 161 acciones pendientes
+⏰ Rango de ejecución: 29/6/2025, 20:33:26 - 29/6/2025, 20:33:26
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'belubarra7',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "belubarra7" → "belubarra7"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-29T18:32:40.895Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159762976_x9dngl0l8',
+  targetUserId: undefined,
+  targetUsername: 'belubarra7',
+  estimatedStartTime: '2025-06-29T18:32:40.895Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159762976_x9dngl0l8',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'belubarra7',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-29T18:32:40.895Z, nuevo: 2025-06-29T20:49:26.006Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159762977_x838epbez',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'belubarra7',
+  scheduledTime: '2025-06-29T20:49:26.006Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159762977_x838epbez',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'belubarra7',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159762977_x838epbez',
+  targetUserId: null,
+  targetUsername: 'belubarra7',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159762977_x838epbez programada para: 29/6/2025, 20:49:26
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 162 acciones pendientes
+⏰ Rango de ejecución: 29/6/2025, 20:49:26 - 29/6/2025, 20:49:26
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'raminavarra',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "raminavarra" → "raminavarra"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-29T06:28:27.558Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159764479_5lt46iabl',
+  targetUserId: undefined,
+  targetUsername: 'raminavarra',
+  estimatedStartTime: '2025-06-29T06:28:27.558Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159764479_5lt46iabl',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'raminavarra',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-29T06:28:27.558Z, nuevo: 2025-06-29T21:05:26.006Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159764479_6eeewkxj3',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'raminavarra',
+  scheduledTime: '2025-06-29T21:05:26.006Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159764479_6eeewkxj3',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'raminavarra',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159764479_6eeewkxj3',
+  targetUserId: null,
+  targetUsername: 'raminavarra',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159764479_6eeewkxj3 programada para: 29/6/2025, 21:05:26
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 163 acciones pendientes
+⏰ Rango de ejecución: 29/6/2025, 21:05:26 - 29/6/2025, 21:05:26
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'julilopezzzzzz',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "julilopezzzzzz" → "julilopezzzzzz"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-30T00:29:39.136Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159765972_12vgyxos0',
+  targetUserId: undefined,
+  targetUsername: 'julilopezzzzzz',
+  estimatedStartTime: '2025-06-30T00:29:39.136Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159765972_12vgyxos0',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'julilopezzzzzz',
+  accountUsername: 'VillalbaEr11720'
+}
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159765972_mh45mizkh',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'julilopezzzzzz',
+  scheduledTime: '2025-06-30T00:29:39.136Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159765972_mh45mizkh',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'julilopezzzzzz',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159765972_mh45mizkh',
+  targetUserId: null,
+  targetUsername: 'julilopezzzzzz',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159765972_mh45mizkh programada para: 30/6/2025, 0:29:39
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 164 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 0:29:39 - 30/6/2025, 0:29:39
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'carlasanchz__',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "carlasanchz__" → "carlasanchz__"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-29T03:46:33.511Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159767458_tgg44xzrr',
+  targetUserId: undefined,
+  targetUsername: 'carlasanchz__',
+  estimatedStartTime: '2025-06-29T03:46:33.511Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159767458_tgg44xzrr',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'carlasanchz__',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-29T03:46:33.511Z, nuevo: 2025-06-30T00:45:39.136Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159767459_ty35dy5sy',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'carlasanchz__',
+  scheduledTime: '2025-06-30T00:45:39.136Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159767459_ty35dy5sy',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'carlasanchz__',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159767459_ty35dy5sy',
+  targetUserId: null,
+  targetUsername: 'carlasanchz__',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159767459_ty35dy5sy programada para: 30/6/2025, 0:45:39
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 165 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 0:45:39 - 30/6/2025, 0:45:39
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'JulietaAlv44555',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "JulietaAlv44555" → "JulietaAlv44555"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-29T21:08:42.598Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159768954_khh6k2560',
+  targetUserId: undefined,
+  targetUsername: 'JulietaAlv44555',
+  estimatedStartTime: '2025-06-29T21:08:42.598Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159768954_khh6k2560',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'JulietaAlv44555',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-29T21:08:42.598Z, nuevo: 2025-06-30T01:01:39.136Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159768955_edl5i8cj9',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'JulietaAlv44555',
+  scheduledTime: '2025-06-30T01:01:39.136Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159768955_edl5i8cj9',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'JulietaAlv44555',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159768955_edl5i8cj9',
+  targetUserId: null,
+  targetUsername: 'JulietaAlv44555',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159768955_edl5i8cj9 programada para: 30/6/2025, 1:01:39
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 166 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 1:01:39 - 30/6/2025, 1:01:39
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'zonkapires',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "zonkapires" → "zonkapires"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-29T21:43:10.974Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159770531_lnk9mxchn',
+  targetUserId: undefined,
+  targetUsername: 'zonkapires',
+  estimatedStartTime: '2025-06-29T21:43:10.974Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159770531_lnk9mxchn',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'zonkapires',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-29T21:43:10.974Z, nuevo: 2025-06-30T01:17:39.136Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159770532_0pgp144zb',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'zonkapires',
+  scheduledTime: '2025-06-30T01:17:39.136Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159770532_0pgp144zb',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'zonkapires',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159770532_0pgp144zb',
+  targetUserId: null,
+  targetUsername: 'zonkapires',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159770532_0pgp144zb programada para: 30/6/2025, 1:17:39
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 167 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 1:17:39 - 30/6/2025, 1:17:39
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'ferrrgoonzalez',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "ferrrgoonzalez" → "ferrrgoonzalez"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-30T07:03:05.009Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159772030_zqv5xjxc7',
+  targetUserId: undefined,
+  targetUsername: 'ferrrgoonzalez',
+  estimatedStartTime: '2025-06-30T07:03:05.009Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159772030_zqv5xjxc7',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'ferrrgoonzalez',
+  accountUsername: 'VillalbaEr11720'
+}
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159772030_df006mire',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'ferrrgoonzalez',
+  scheduledTime: '2025-06-30T07:03:05.009Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159772030_df006mire',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'ferrrgoonzalez',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159772030_df006mire',
+  targetUserId: null,
+  targetUsername: 'ferrrgoonzalez',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159772030_df006mire programada para: 30/6/2025, 7:03:05
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 168 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 7:03:05 - 30/6/2025, 7:03:05
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'romicastroo1',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "romicastroo1" → "romicastroo1"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-29T08:49:09.471Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159773520_5iptgz0rj',
+  targetUserId: undefined,
+  targetUsername: 'romicastroo1',
+  estimatedStartTime: '2025-06-29T08:49:09.471Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159773520_5iptgz0rj',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'romicastroo1',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-29T08:49:09.471Z, nuevo: 2025-06-30T07:19:05.009Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159773520_rni6r9745',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'romicastroo1',
+  scheduledTime: '2025-06-30T07:19:05.009Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159773520_rni6r9745',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'romicastroo1',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159773520_rni6r9745',
+  targetUserId: null,
+  targetUsername: 'romicastroo1',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159773520_rni6r9745 programada para: 30/6/2025, 7:19:05
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 169 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 7:19:05 - 30/6/2025, 7:19:05
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'umaaagarcia',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "umaaagarcia" → "umaaagarcia"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-29T11:56:00.297Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159775418_g5c3aebv8',
+  targetUserId: undefined,
+  targetUsername: 'umaaagarcia',
+  estimatedStartTime: '2025-06-29T11:56:00.297Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159775418_g5c3aebv8',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'umaaagarcia',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-29T11:56:00.297Z, nuevo: 2025-06-30T07:35:05.009Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159775418_37q2ml48h',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'umaaagarcia',
+  scheduledTime: '2025-06-30T07:35:05.009Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159775418_37q2ml48h',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'umaaagarcia',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159775418_37q2ml48h',
+  targetUserId: null,
+  targetUsername: 'umaaagarcia',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159775418_37q2ml48h programada para: 30/6/2025, 7:35:05
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 170 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 7:35:05 - 30/6/2025, 7:35:05
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'sandramamanii',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "sandramamanii" → "sandramamanii"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-30T02:40:23.100Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159776925_049xa7zrm',
+  targetUserId: undefined,
+  targetUsername: 'sandramamanii',
+  estimatedStartTime: '2025-06-30T02:40:23.100Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159776925_049xa7zrm',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'sandramamanii',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-30T02:40:23.100Z, nuevo: 2025-06-30T07:51:05.009Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159776925_goil5d0v9',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'sandramamanii',
+  scheduledTime: '2025-06-30T07:51:05.009Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159776925_goil5d0v9',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'sandramamanii',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159776925_goil5d0v9',
+  targetUserId: null,
+  targetUsername: 'sandramamanii',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159776925_goil5d0v9 programada para: 30/6/2025, 7:51:05
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 171 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 7:51:05 - 30/6/2025, 7:51:05
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'mariourrquiza',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "mariourrquiza" → "mariourrquiza"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-29T16:42:24.117Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159778424_kkh41mwyn',
+  targetUserId: undefined,
+  targetUsername: 'mariourrquiza',
+  estimatedStartTime: '2025-06-29T16:42:24.117Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159778424_kkh41mwyn',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'mariourrquiza',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-29T16:42:24.117Z, nuevo: 2025-06-30T08:07:05.009Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159778425_pu6zeylq0',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'mariourrquiza',
+  scheduledTime: '2025-06-30T08:07:05.009Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159778425_pu6zeylq0',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'mariourrquiza',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159778425_pu6zeylq0',
+  targetUserId: null,
+  targetUsername: 'mariourrquiza',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159778425_pu6zeylq0 programada para: 30/6/2025, 8:07:05
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 172 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 8:07:05 - 30/6/2025, 8:07:05
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'alvarezbruno123',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "alvarezbruno123" → "alvarezbruno123"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-29T21:33:55.548Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159779918_0j82iev51',
+  targetUserId: undefined,
+  targetUsername: 'alvarezbruno123',
+  estimatedStartTime: '2025-06-29T21:33:55.548Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159779918_0j82iev51',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'alvarezbruno123',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-29T21:33:55.548Z, nuevo: 2025-06-30T08:23:05.009Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159779918_oz8uemzm4',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'alvarezbruno123',
+  scheduledTime: '2025-06-30T08:23:05.009Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159779918_oz8uemzm4',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'alvarezbruno123',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159779918_oz8uemzm4',
+  targetUserId: null,
+  targetUsername: 'alvarezbruno123',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159779918_oz8uemzm4 programada para: 30/6/2025, 8:23:05
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 173 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 8:23:05 - 30/6/2025, 8:23:05
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'solbaarra',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "solbaarra" → "solbaarra"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-30T05:12:05.923Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159781404_zn521qhci',
+  targetUserId: undefined,
+  targetUsername: 'solbaarra',
+  estimatedStartTime: '2025-06-30T05:12:05.923Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159781404_zn521qhci',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'solbaarra',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-30T05:12:05.923Z, nuevo: 2025-06-30T08:39:05.009Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159781404_6kyz2inyq',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'solbaarra',
+  scheduledTime: '2025-06-30T08:39:05.009Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159781404_6kyz2inyq',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'solbaarra',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159781404_6kyz2inyq',
+  targetUserId: null,
+  targetUsername: 'solbaarra',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159781404_6kyz2inyq programada para: 30/6/2025, 8:39:05
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 174 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 8:39:05 - 30/6/2025, 8:39:05
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'ruizramiro12',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "ruizramiro12" → "ruizramiro12"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-29T08:32:30.295Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159782898_303x4julp',
+  targetUserId: undefined,
+  targetUsername: 'ruizramiro12',
+  estimatedStartTime: '2025-06-29T08:32:30.295Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159782898_303x4julp',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'ruizramiro12',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-29T08:32:30.295Z, nuevo: 2025-06-30T08:55:05.009Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159782898_s9wjiwfug',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'ruizramiro12',
+  scheduledTime: '2025-06-30T08:55:05.009Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159782898_s9wjiwfug',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'ruizramiro12',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159782898_s9wjiwfug',
+  targetUserId: null,
+  targetUsername: 'ruizramiro12',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159782898_s9wjiwfug programada para: 30/6/2025, 8:55:05
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 175 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 8:55:05 - 30/6/2025, 8:55:05
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'matimoreni44',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "matimoreni44" → "matimoreni44"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-30T04:37:56.078Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159784417_xtg9jc010',
+  targetUserId: undefined,
+  targetUsername: 'matimoreni44',
+  estimatedStartTime: '2025-06-30T04:37:56.078Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159784417_xtg9jc010',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'matimoreni44',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-30T04:37:56.078Z, nuevo: 2025-06-30T09:11:05.009Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159784417_ky3vsjpdw',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'matimoreni44',
+  scheduledTime: '2025-06-30T09:11:05.009Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159784417_ky3vsjpdw',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'matimoreni44',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159784417_ky3vsjpdw',
+  targetUserId: null,
+  targetUsername: 'matimoreni44',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159784417_ky3vsjpdw programada para: 30/6/2025, 9:11:05
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 176 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 9:11:05 - 30/6/2025, 9:11:05
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'julivilla920',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "julivilla920" → "julivilla920"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-29T09:01:10.596Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159785985_ozg6e3cvb',
+  targetUserId: undefined,
+  targetUsername: 'julivilla920',
+  estimatedStartTime: '2025-06-29T09:01:10.596Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159785985_ozg6e3cvb',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'julivilla920',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-29T09:01:10.596Z, nuevo: 2025-06-30T09:27:05.009Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159785986_rpq2r4yw6',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'julivilla920',
+  scheduledTime: '2025-06-30T09:27:05.009Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159785986_rpq2r4yw6',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'julivilla920',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159785986_rpq2r4yw6',
+  targetUserId: null,
+  targetUsername: 'julivilla920',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159785986_rpq2r4yw6 programada para: 30/6/2025, 9:27:05
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 177 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 9:27:05 - 30/6/2025, 9:27:05
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'rubengonzzales',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "rubengonzzales" → "rubengonzzales"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-29T19:46:24.655Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159787475_b3mlzu206',
+  targetUserId: undefined,
+  targetUsername: 'rubengonzzales',
+  estimatedStartTime: '2025-06-29T19:46:24.655Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159787475_b3mlzu206',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'rubengonzzales',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-29T19:46:24.655Z, nuevo: 2025-06-30T09:43:05.009Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159787475_v80hypb1w',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'rubengonzzales',
+  scheduledTime: '2025-06-30T09:43:05.009Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159787475_v80hypb1w',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'rubengonzzales',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159787475_v80hypb1w',
+  targetUserId: null,
+  targetUsername: 'rubengonzzales',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159787475_v80hypb1w programada para: 30/6/2025, 9:43:05
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 178 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 9:43:05 - 30/6/2025, 9:43:05
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'franrodigue1',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "franrodigue1" → "franrodigue1"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-30T01:30:58.402Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159789054_lq3axxjnl',
+  targetUserId: undefined,
+  targetUsername: 'franrodigue1',
+  estimatedStartTime: '2025-06-30T01:30:58.402Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159789054_lq3axxjnl',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'franrodigue1',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-30T01:30:58.402Z, nuevo: 2025-06-30T09:59:05.009Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159789054_8m7zixkus',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'franrodigue1',
+  scheduledTime: '2025-06-30T09:59:05.009Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159789054_8m7zixkus',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'franrodigue1',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159789054_8m7zixkus',
+  targetUserId: null,
+  targetUsername: 'franrodigue1',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159789054_8m7zixkus programada para: 30/6/2025, 9:59:05
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 179 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 9:59:05 - 30/6/2025, 9:59:05
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'ramiromoli84224',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "ramiromoli84224" → "ramiromoli84224"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-30T07:01:34.798Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159790711_223w9yqoz',
+  targetUserId: undefined,
+  targetUsername: 'ramiromoli84224',
+  estimatedStartTime: '2025-06-30T07:01:34.798Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159790711_223w9yqoz',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'ramiromoli84224',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-30T07:01:34.798Z, nuevo: 2025-06-30T10:15:05.009Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159790711_2w78bfyte',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'ramiromoli84224',
+  scheduledTime: '2025-06-30T10:15:05.009Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159790711_2w78bfyte',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'ramiromoli84224',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159790711_2w78bfyte',
+  targetUserId: null,
+  targetUsername: 'ramiromoli84224',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159790711_2w78bfyte programada para: 30/6/2025, 10:15:05
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 180 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 10:15:05 - 30/6/2025, 10:15:05
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'rosamendezgc',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "rosamendezgc" → "rosamendezgc"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-29T07:48:36.579Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159792210_4ax8h0sdh',
+  targetUserId: undefined,
+  targetUsername: 'rosamendezgc',
+  estimatedStartTime: '2025-06-29T07:48:36.579Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159792210_4ax8h0sdh',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'rosamendezgc',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-29T07:48:36.579Z, nuevo: 2025-06-30T10:31:05.009Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159792210_yeamxdckl',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'rosamendezgc',
+  scheduledTime: '2025-06-30T10:31:05.009Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159792210_yeamxdckl',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'rosamendezgc',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159792210_yeamxdckl',
+  targetUserId: null,
+  targetUsername: 'rosamendezgc',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159792210_yeamxdckl programada para: 30/6/2025, 10:31:05
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 181 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 10:31:05 - 30/6/2025, 10:31:05
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'realsusana',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "realsusana" → "realsusana"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-29T01:42:15.753Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159793709_fsdf0ncbj',
+  targetUserId: undefined,
+  targetUsername: 'realsusana',
+  estimatedStartTime: '2025-06-29T01:42:15.753Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159793709_fsdf0ncbj',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'realsusana',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-29T01:42:15.753Z, nuevo: 2025-06-30T10:47:05.009Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159793709_9tqg2vito',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'realsusana',
+  scheduledTime: '2025-06-30T10:47:05.009Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159793709_9tqg2vito',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'realsusana',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159793709_9tqg2vito',
+  targetUserId: null,
+  targetUsername: 'realsusana',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159793709_9tqg2vito programada para: 30/6/2025, 10:47:05
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 182 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 10:47:05 - 30/6/2025, 10:47:05
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'paulitamrtz4',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "paulitamrtz4" → "paulitamrtz4"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-29T19:56:33.741Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159795204_2tj93qp14',
+  targetUserId: undefined,
+  targetUsername: 'paulitamrtz4',
+  estimatedStartTime: '2025-06-29T19:56:33.741Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159795204_2tj93qp14',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'paulitamrtz4',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-29T19:56:33.741Z, nuevo: 2025-06-30T11:03:05.009Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159795204_urv29hylm',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'paulitamrtz4',
+  scheduledTime: '2025-06-30T11:03:05.009Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159795204_urv29hylm',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'paulitamrtz4',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159795204_urv29hylm',
+  targetUserId: null,
+  targetUsername: 'paulitamrtz4',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159795204_urv29hylm programada para: 30/6/2025, 11:03:05
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 183 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 11:03:05 - 30/6/2025, 11:03:05
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'solgarcia153232',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "solgarcia153232" → "solgarcia153232"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-29T22:23:06.440Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159796712_2pocunlqe',
+  targetUserId: undefined,
+  targetUsername: 'solgarcia153232',
+  estimatedStartTime: '2025-06-29T22:23:06.440Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159796712_2pocunlqe',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'solgarcia153232',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-29T22:23:06.440Z, nuevo: 2025-06-30T11:19:05.009Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159796712_z9xcshg16',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'solgarcia153232',
+  scheduledTime: '2025-06-30T11:19:05.009Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159796712_z9xcshg16',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'solgarcia153232',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159796712_z9xcshg16',
+  targetUserId: null,
+  targetUsername: 'solgarcia153232',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159796712_z9xcshg16 programada para: 30/6/2025, 11:19:05
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 184 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 11:19:05 - 30/6/2025, 11:19:05
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'emipires44',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "emipires44" → "emipires44"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-29T05:33:33.922Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159798205_mw07439my',
+  targetUserId: undefined,
+  targetUsername: 'emipires44',
+  estimatedStartTime: '2025-06-29T05:33:33.922Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159798205_mw07439my',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'emipires44',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-29T05:33:33.922Z, nuevo: 2025-06-30T11:35:05.009Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159798206_fgt54qxhe',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'emipires44',
+  scheduledTime: '2025-06-30T11:35:05.009Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159798206_fgt54qxhe',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'emipires44',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159798206_fgt54qxhe',
+  targetUserId: null,
+  targetUsername: 'emipires44',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159798206_fgt54qxhe programada para: 30/6/2025, 11:35:05
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 185 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 11:35:05 - 30/6/2025, 11:35:05
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'samirpazz919',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "samirpazz919" → "samirpazz919"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-29T03:16:21.541Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159799707_vrlwiq9pb',
+  targetUserId: undefined,
+  targetUsername: 'samirpazz919',
+  estimatedStartTime: '2025-06-29T03:16:21.541Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159799707_vrlwiq9pb',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'samirpazz919',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-29T03:16:21.541Z, nuevo: 2025-06-30T11:51:05.009Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159799707_a2na0my4d',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'samirpazz919',
+  scheduledTime: '2025-06-30T11:51:05.009Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159799707_a2na0my4d',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'samirpazz919',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159799707_a2na0my4d',
+  targetUserId: null,
+  targetUsername: 'samirpazz919',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159799707_a2na0my4d programada para: 30/6/2025, 11:51:05
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 186 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 11:51:05 - 30/6/2025, 11:51:05
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'juannmoralesO',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "juannmoralesO" → "juannmoralesO"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-30T04:26:23.393Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159801205_8golgp3f3',
+  targetUserId: undefined,
+  targetUsername: 'juannmoralesO',
+  estimatedStartTime: '2025-06-30T04:26:23.393Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159801205_8golgp3f3',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'juannmoralesO',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-30T04:26:23.393Z, nuevo: 2025-06-30T12:07:05.009Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159801206_jdtb25a9s',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'juannmoralesO',
+  scheduledTime: '2025-06-30T12:07:05.009Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159801206_jdtb25a9s',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'juannmoralesO',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159801206_jdtb25a9s',
+  targetUserId: null,
+  targetUsername: 'juannmoralesO',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159801206_jdtb25a9s programada para: 30/6/2025, 12:07:05
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 187 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 12:07:05 - 30/6/2025, 12:07:05
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'ghernadez09',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "ghernadez09" → "ghernadez09"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-30T02:43:09.136Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159802688_wy141j12j',
+  targetUserId: undefined,
+  targetUsername: 'ghernadez09',
+  estimatedStartTime: '2025-06-30T02:43:09.136Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159802688_wy141j12j',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'ghernadez09',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-30T02:43:09.136Z, nuevo: 2025-06-30T12:23:05.009Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159802689_aik6aahnb',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'ghernadez09',
+  scheduledTime: '2025-06-30T12:23:05.009Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159802689_aik6aahnb',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'ghernadez09',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159802689_aik6aahnb',
+  targetUserId: null,
+  targetUsername: 'ghernadez09',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159802689_aik6aahnb programada para: 30/6/2025, 12:23:05
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 188 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 12:23:05 - 30/6/2025, 12:23:05
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'gonziambu',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "gonziambu" → "gonziambu"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-29T09:43:42.611Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159804320_mrxmao63h',
+  targetUserId: undefined,
+  targetUsername: 'gonziambu',
+  estimatedStartTime: '2025-06-29T09:43:42.611Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159804320_mrxmao63h',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'gonziambu',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-29T09:43:42.611Z, nuevo: 2025-06-30T12:39:05.009Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159804320_424gusoor',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'gonziambu',
+  scheduledTime: '2025-06-30T12:39:05.009Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159804320_424gusoor',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'gonziambu',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159804320_424gusoor',
+  targetUserId: null,
+  targetUsername: 'gonziambu',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159804320_424gusoor programada para: 30/6/2025, 12:39:05
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 189 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 12:39:05 - 30/6/2025, 12:39:05
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "Guardiamaria2" → "Guardiamaria2"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-29T02:53:07.576Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159807317_1avciqhjz',
+  targetUserId: undefined,
+  targetUsername: 'Guardiamaria2',
+  estimatedStartTime: '2025-06-29T02:53:07.576Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159807317_1avciqhjz',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'Guardiamaria2',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-29T02:53:07.576Z, nuevo: 2025-06-30T13:11:05.009Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159807317_4pkn64mab',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'Guardiamaria2',
+  scheduledTime: '2025-06-30T13:11:05.009Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159807317_4pkn64mab',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'Guardiamaria2',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159807317_4pkn64mab',
+  targetUserId: null,
+  targetUsername: 'Guardiamaria2',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159807317_4pkn64mab programada para: 30/6/2025, 13:11:05
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 191 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 13:11:05 - 30/6/2025, 13:11:05
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'alepaez91',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "alepaez91" → "alepaez91"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-29T10:41:42.071Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159808821_px19elgm3',
+  targetUserId: undefined,
+  targetUsername: 'alepaez91',
+  estimatedStartTime: '2025-06-29T10:41:42.071Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159808821_px19elgm3',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'alepaez91',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-29T10:41:42.071Z, nuevo: 2025-06-30T13:27:05.009Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159808821_m36c3mtw4',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'alepaez91',
+  scheduledTime: '2025-06-30T13:27:05.009Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159808821_m36c3mtw4',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'alepaez91',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159808821_m36c3mtw4',
+  targetUserId: null,
+  targetUsername: 'alepaez91',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159808821_m36c3mtw4 programada para: 30/6/2025, 13:27:05
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 192 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 13:27:05 - 30/6/2025, 13:27:05
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'tomimartinezzs',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "tomimartinezzs" → "tomimartinezzs"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-30T00:44:35.947Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159810333_t27vtpv2i',
+  targetUserId: undefined,
+  targetUsername: 'tomimartinezzs',
+  estimatedStartTime: '2025-06-30T00:44:35.947Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159810333_t27vtpv2i',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'tomimartinezzs',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-30T00:44:35.947Z, nuevo: 2025-06-30T13:43:05.009Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159810333_phdcna40p',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'tomimartinezzs',
+  scheduledTime: '2025-06-30T13:43:05.009Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159810333_phdcna40p',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'tomimartinezzs',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159810333_phdcna40p',
+  targetUserId: null,
+  targetUsername: 'tomimartinezzs',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159810333_phdcna40p programada para: 30/6/2025, 13:43:05
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 193 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 13:43:05 - 30/6/2025, 13:43:05
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'puenteshuggo',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "puenteshuggo" → "puenteshuggo"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-29T07:06:51.096Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159811862_wu4v89vms',
+  targetUserId: undefined,
+  targetUsername: 'puenteshuggo',
+  estimatedStartTime: '2025-06-29T07:06:51.096Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159811862_wu4v89vms',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'puenteshuggo',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-29T07:06:51.096Z, nuevo: 2025-06-30T13:59:05.009Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159811862_rtlc9wjd1',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'puenteshuggo',
+  scheduledTime: '2025-06-30T13:59:05.009Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159811862_rtlc9wjd1',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'puenteshuggo',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159811862_rtlc9wjd1',
+  targetUserId: null,
+  targetUsername: 'puenteshuggo',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159811862_rtlc9wjd1 programada para: 30/6/2025, 13:59:05
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 194 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 13:59:05 - 30/6/2025, 13:59:05
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'ramiroperezz23',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "ramiroperezz23" → "ramiroperezz23"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-29T11:55:50.636Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159813390_wp4p29921',
+  targetUserId: undefined,
+  targetUsername: 'ramiroperezz23',
+  estimatedStartTime: '2025-06-29T11:55:50.636Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159813390_wp4p29921',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'ramiroperezz23',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-29T11:55:50.636Z, nuevo: 2025-06-30T14:15:05.009Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159813391_qtjtcoojh',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'ramiroperezz23',
+  scheduledTime: '2025-06-30T14:15:05.009Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159813391_qtjtcoojh',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'ramiroperezz23',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159813391_qtjtcoojh',
+  targetUserId: null,
+  targetUsername: 'ramiroperezz23',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159813391_qtjtcoojh programada para: 30/6/2025, 14:15:05
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 195 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 14:15:05 - 30/6/2025, 14:15:05
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'silvaggustavo2',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "silvaggustavo2" → "silvaggustavo2"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-30T05:01:27.390Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159814887_x05dbvht6',
+  targetUserId: undefined,
+  targetUsername: 'silvaggustavo2',
+  estimatedStartTime: '2025-06-30T05:01:27.390Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159814887_x05dbvht6',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'silvaggustavo2',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-30T05:01:27.390Z, nuevo: 2025-06-30T14:31:05.009Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159814888_qr9ahpfqp',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'silvaggustavo2',
+  scheduledTime: '2025-06-30T14:31:05.009Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159814888_qr9ahpfqp',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'silvaggustavo2',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159814888_qr9ahpfqp',
+  targetUserId: null,
+  targetUsername: 'silvaggustavo2',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159814888_qr9ahpfqp programada para: 30/6/2025, 14:31:05
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 196 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 14:31:05 - 30/6/2025, 14:31:05
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'roxonaHerrera',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "roxonaHerrera" → "roxonaHerrera"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-29T22:53:21.685Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159816372_nvivetse9',
+  targetUserId: undefined,
+  targetUsername: 'roxonaHerrera',
+  estimatedStartTime: '2025-06-29T22:53:21.685Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159816372_nvivetse9',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'roxonaHerrera',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-29T22:53:21.685Z, nuevo: 2025-06-30T14:47:05.009Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159816372_cdimd1h4c',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'roxonaHerrera',
+  scheduledTime: '2025-06-30T14:47:05.009Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159816372_cdimd1h4c',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'roxonaHerrera',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159816372_cdimd1h4c',
+  targetUserId: null,
+  targetUsername: 'roxonaHerrera',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159816372_cdimd1h4c programada para: 30/6/2025, 14:47:05
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 197 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 14:47:05 - 30/6/2025, 14:47:05
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'delmontemaria8',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "delmontemaria8" → "delmontemaria8"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-29T03:57:13.275Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159817869_vlw42hjv9',
+  targetUserId: undefined,
+  targetUsername: 'delmontemaria8',
+  estimatedStartTime: '2025-06-29T03:57:13.275Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159817869_vlw42hjv9',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'delmontemaria8',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-29T03:57:13.275Z, nuevo: 2025-06-30T15:03:05.009Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159817869_oen03wrve',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'delmontemaria8',
+  scheduledTime: '2025-06-30T15:03:05.009Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159817869_oen03wrve',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'delmontemaria8',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159817869_oen03wrve',
+  targetUserId: null,
+  targetUsername: 'delmontemaria8',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159817869_oen03wrve programada para: 30/6/2025, 15:03:05
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 198 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 15:03:05 - 30/6/2025, 15:03:05
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'normamoreno90',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "normamoreno90" → "normamoreno90"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-29T14:44:25.971Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159819454_w757j97c6',
+  targetUserId: undefined,
+  targetUsername: 'normamoreno90',
+  estimatedStartTime: '2025-06-29T14:44:25.971Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159819454_w757j97c6',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'normamoreno90',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-29T14:44:25.971Z, nuevo: 2025-06-30T15:19:05.009Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159819454_cztxjkf8t',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'normamoreno90',
+  scheduledTime: '2025-06-30T15:19:05.009Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159819454_cztxjkf8t',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'normamoreno90',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159819454_cztxjkf8t',
+  targetUserId: null,
+  targetUsername: 'normamoreno90',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159819454_cztxjkf8t programada para: 30/6/2025, 15:19:05
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 199 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 15:19:05 - 30/6/2025, 15:19:05
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'rosaguevara1950',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "rosaguevara1950" → "rosaguevara1950"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-30T06:55:50.681Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159820953_445ce4t3x',
+  targetUserId: undefined,
+  targetUsername: 'rosaguevara1950',
+  estimatedStartTime: '2025-06-30T06:55:50.681Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159820953_445ce4t3x',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'rosaguevara1950',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-30T06:55:50.681Z, nuevo: 2025-06-30T15:35:05.009Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159820954_k292hqb5g',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'rosaguevara1950',
+  scheduledTime: '2025-06-30T15:35:05.009Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159820954_k292hqb5g',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'rosaguevara1950',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159820954_k292hqb5g',
+  targetUserId: null,
+  targetUsername: 'rosaguevara1950',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159820954_k292hqb5g programada para: 30/6/2025, 15:35:05
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 200 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 15:35:05 - 30/6/2025, 15:35:05
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'marceOrtegosa',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "marceOrtegosa" → "marceOrtegosa"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-29T20:56:56.787Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159822448_iz0zgrlff',
+  targetUserId: undefined,
+  targetUsername: 'marceOrtegosa',
+  estimatedStartTime: '2025-06-29T20:56:56.787Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159822448_iz0zgrlff',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'marceOrtegosa',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-29T20:56:56.787Z, nuevo: 2025-06-30T15:51:05.009Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159822449_7rn9mk0l0',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'marceOrtegosa',
+  scheduledTime: '2025-06-30T15:51:05.009Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159822449_7rn9mk0l0',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'marceOrtegosa',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159822449_7rn9mk0l0',
+  targetUserId: null,
+  targetUsername: 'marceOrtegosa',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159822449_7rn9mk0l0 programada para: 30/6/2025, 15:51:05
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 201 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 15:51:05 - 30/6/2025, 15:51:05
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'VillalbaEr11720',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "VillalbaEr11720" → "VillalbaEr11720"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-29T05:58:24.635Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159823975_inht7c9wx',
+  targetUserId: undefined,
+  targetUsername: 'VillalbaEr11720',
+  estimatedStartTime: '2025-06-29T05:58:24.635Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159823975_inht7c9wx',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'VillalbaEr11720',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-29T05:58:24.635Z, nuevo: 2025-06-30T16:07:05.009Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159823976_8ck33xp9h',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'VillalbaEr11720',
+  scheduledTime: '2025-06-30T16:07:05.009Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159823976_8ck33xp9h',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'VillalbaEr11720',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159823976_8ck33xp9h',
+  targetUserId: null,
+  targetUsername: 'VillalbaEr11720',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159823976_8ck33xp9h programada para: 30/6/2025, 16:07:05
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 202 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 16:07:05 - 30/6/2025, 16:07:05
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'gloriateja60907',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "gloriateja60907" → "gloriateja60907"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-30T01:35:33.122Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159825477_yk2uf398x',
+  targetUserId: undefined,
+  targetUsername: 'gloriateja60907',
+  estimatedStartTime: '2025-06-30T01:35:33.122Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159825477_yk2uf398x',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'gloriateja60907',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-30T01:35:33.122Z, nuevo: 2025-06-30T16:23:05.009Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159825477_9qxlsbfi3',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'gloriateja60907',
+  scheduledTime: '2025-06-30T16:23:05.009Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159825477_9qxlsbfi3',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'gloriateja60907',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159825477_9qxlsbfi3',
+  targetUserId: null,
+  targetUsername: 'gloriateja60907',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159825477_9qxlsbfi3 programada para: 30/6/2025, 16:23:05
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 203 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 16:23:05 - 30/6/2025, 16:23:05
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'beatrizzFuness',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "beatrizzFuness" → "beatrizzFuness"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-30T06:06:39.896Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159826982_qgeh848xo',
+  targetUserId: undefined,
+  targetUsername: 'beatrizzFuness',
+  estimatedStartTime: '2025-06-30T06:06:39.896Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159826982_qgeh848xo',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'beatrizzFuness',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-30T06:06:39.896Z, nuevo: 2025-06-30T16:39:05.009Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159826983_zpfk1avwz',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'beatrizzFuness',
+  scheduledTime: '2025-06-30T16:39:05.009Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159826983_zpfk1avwz',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'beatrizzFuness',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159826983_zpfk1avwz',
+  targetUserId: null,
+  targetUsername: 'beatrizzFuness',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159826983_zpfk1avwz programada para: 30/6/2025, 16:39:05
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 204 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 16:39:05 - 30/6/2025, 16:39:05
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'francisco50s',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "francisco50s" → "francisco50s"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-29T02:37:51.210Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159828470_k17fvle8u',
+  targetUserId: undefined,
+  targetUsername: 'francisco50s',
+  estimatedStartTime: '2025-06-29T02:37:51.210Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159828470_k17fvle8u',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'francisco50s',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-29T02:37:51.210Z, nuevo: 2025-06-30T16:55:05.009Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159828471_6gq4cfgiv',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'francisco50s',
+  scheduledTime: '2025-06-30T16:55:05.009Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159828471_6gq4cfgiv',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'francisco50s',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159828471_6gq4cfgiv',
+  targetUserId: null,
+  targetUsername: 'francisco50s',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159828471_6gq4cfgiv programada para: 30/6/2025, 16:55:05
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 205 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 16:55:05 - 30/6/2025, 16:55:05
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'hernanpere_z',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: undefined,
+  useRandomDistribution: true
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "hernanpere_z" → "hernanpere_z"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 30 hours
+[QUEUE] Acción para @VillalbaEr11720 programada ALEATORIAMENTE para: 2025-06-29T23:03:27.523Z
+[QUEUE_DEBUG] Acción follow creada para @VillalbaEr11720: {
+  actionId: 'action_1751159829985_6amxkl063',
+  targetUserId: undefined,
+  targetUsername: 'hernanpere_z',
+  estimatedStartTime: '2025-06-29T23:03:27.523Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751159829985_6amxkl063',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'hernanpere_z',
+  accountUsername: 'VillalbaEr11720'
+}
+⏰ Ajustando tiempo para cuenta cmccr4r3z0019jjup3kt8ml7y (delay mínimo global). Antes: 2025-06-29T23:03:27.523Z, nuevo: 2025-06-30T17:11:05.009Z
+[QUEUE_DEBUG] Acción follow #1 después de procesar: {
+  actionId: 'action_1751159829985_w2drlmgps',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'hernanpere_z',
+  scheduledTime: '2025-06-30T17:11:05.009Z'
+}
+[QUEUE_DEBUG] Persistiendo acción follow en BD: {
+  actionId: 'action_1751159829985_w2drlmgps',
+  accountId: 'cmccr4r3z0019jjup3kt8ml7y',
+  targetUserId: undefined,
+  targetUsername: 'hernanpere_z',
+  status: 'queued'
+}
+[QUEUE_DEBUG] Acción follow guardada en BD: {
+  actionId: 'action_1751159829985_w2drlmgps',
+  targetUserId: null,
+  targetUsername: 'hernanpere_z',
+  status: 'QUEUED'
+}
+✅ Acción action_1751159829985_w2drlmgps programada para: 30/6/2025, 17:11:05
+🎯 1 acciones agregadas exitosamente
+📊 Cola actual: 206 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 17:11:05 - 30/6/2025, 17:11:05
