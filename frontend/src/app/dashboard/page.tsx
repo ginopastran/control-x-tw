@@ -212,9 +212,9 @@ export default function Dashboard() {
   const [totalHistoryItems, setTotalHistoryItems] = useState(0);
 
   // Estados para paginación de colas
-  const [scheduledPage, setScheduledPage] = useState(1);
   const [queuedPage, setQueuedPage] = useState(1);
-  const [itemsPerPage] = useState(10);
+  const [itemsPerPage] = useState(20);
+  const [totalQueuedItems, setTotalQueuedItems] = useState(0);
 
   // 🎛️  Filtros para la pestaña "En Cola"
   const [queueSearch, setQueueSearch] = useState("");
@@ -243,6 +243,9 @@ export default function Dashboard() {
     (account) => account.status === "suspended"
   ).length;
 
+  // Paginación para acciones programadas
+  const [scheduledPage, setScheduledPage] = useState(1);
+
   const fetchAccountLimits = async () => {
     try {
       const response = await fetch(
@@ -262,12 +265,15 @@ export default function Dashboard() {
         buildApiUrl(API_CONFIG.ENDPOINTS.QUEUE.STATUS, {
           historyPage,
           historyLimit: historyPerPage,
+          queuePage: queuedPage,
+          queueLimit: itemsPerPage,
         })
       );
       if (!response.ok) throw new Error("Error al cargar estado de cola");
       const data = await response.json();
       setQueueStatus(data);
       setTotalHistoryItems(data.totalHistoryItems || 0);
+      setTotalQueuedItems(data.totalQueueItems || 0);
     } catch (err) {
       console.error("Error:", err);
     }
@@ -311,7 +317,7 @@ export default function Dashboard() {
     : 1;
 
   // Aplicar filtros a la cola
-  const filteredQueued = queueStatus.queue?.filter((a) => {
+  const filteredQueuedAll = queueStatus.queue?.filter((a) => {
     const searchMatch =
       queueSearch.trim() === "" ||
       a.accountUsername.toLowerCase().includes(queueSearch.toLowerCase()) ||
@@ -324,14 +330,9 @@ export default function Dashboard() {
     return searchMatch && actionMatch;
   });
 
-  const totalQueuedPages = filteredQueued
-    ? Math.ceil(filteredQueued.length / itemsPerPage)
-    : 1;
+  const totalQueuedPages = Math.ceil(totalQueuedItems / itemsPerPage);
 
-  const paginatedQueued = filteredQueued?.slice(
-    (queuedPage - 1) * itemsPerPage,
-    queuedPage * itemsPerPage
-  );
+  const paginatedQueued = filteredQueuedAll;
 
   const filteredAccounts = accountLimits.filter(
     (account: AccountLimits) =>

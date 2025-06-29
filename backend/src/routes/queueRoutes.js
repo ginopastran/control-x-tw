@@ -277,7 +277,12 @@ function createQueueRoutes(queueService, prisma) {
   // Obtener estado de la cola
   router.get("/status", async (req, res) => {
     try {
-      const { historyPage = 1, historyLimit = 10 } = req.query;
+      const {
+        historyPage = 1,
+        historyLimit = 10,
+        queuePage = 1,
+        queueLimit = 100,
+      } = req.query;
 
       // Obtener estado de la cola desde BD (método actualizado)
       const queueStatus = await queueService.getQueueStatus();
@@ -321,9 +326,16 @@ function createQueueRoutes(queueService, prisma) {
         }),
       ]);
 
+      const totalQueueItems = queueStatus.queue.length;
+
+      const paginatedQueue = queueStatus.queue.slice(
+        (parseInt(queuePage) - 1) * parseInt(queueLimit),
+        parseInt(queuePage) * parseInt(queueLimit)
+      );
+
       // Formatear respuesta completa
       const response = {
-        queue: queueStatus.queue,
+        queue: paginatedQueue,
         running: queueStatus.running,
         scheduled: queueStatus.scheduled,
 
@@ -357,6 +369,7 @@ function createQueueRoutes(queueService, prisma) {
             status: { in: ["COMPLETED", "FAILED"] },
           },
         }),
+        totalQueueItems,
       };
 
       res.json(response);
