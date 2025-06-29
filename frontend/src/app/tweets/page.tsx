@@ -1005,24 +1005,28 @@ export default function TweetsPage() {
     const now = Date.now();
     const minDelayMs = 16 * 60 * 1000; // 16 minutos
 
-    // 1) Generar offsets aleatorios uniformes en el rango [0, maxTimeMs)
-    const rawOffsets = Array.from(
-      { length: count },
-      () => Math.random() * maxTimeMs
+    // -----------------------------------------------
+    // 1) Calculamos la ventana "extra" disponible una
+    //    vez restados los delays mínimos obligatorios
+    // -----------------------------------------------
+    const requiredWindow = (count - 1) * minDelayMs;
+    const extraWindow = Math.max(0, maxTimeMs - requiredWindow);
+
+    // 2) Generamos (count-1) números aleatorios y los
+    //    normalizamos para repartir el extraWindow de
+    //    forma proporcional → brechas variables.
+    const randomParts = Array.from({ length: count - 1 }, () => Math.random());
+    const randomSum = randomParts.reduce((sum, v) => sum + v, 0) || 1;
+
+    const gaps: number[] = randomParts.map(
+      (part) => minDelayMs + (part / randomSum) * extraWindow
     );
 
-    // 2) Convertir a fechas absolutas y ordenarlas cronológicamente
-    const times = rawOffsets
-      .map((offset) => new Date(now + offset))
-      .sort((a, b) => a.getTime() - b.getTime());
-
-    // 3) Asegurar separación mínima de 16 minutos
-    for (let i = 1; i < times.length; i++) {
-      const prevTime = times[i - 1].getTime();
-      const minAllowed = prevTime + minDelayMs;
-      if (times[i].getTime() < minAllowed) {
-        times[i] = new Date(minAllowed);
-      }
+    // 3) Construimos los tiempos acumulando las brechas
+    const times: Date[] = [new Date(now + gaps[0])];
+    for (let i = 1; i < count; i++) {
+      const prev = times[i - 1].getTime();
+      times.push(new Date(prev + gaps[i]));
     }
 
     // 4) Devolver ISO strings
