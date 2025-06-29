@@ -23,6 +23,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Loader2, AlertTriangle, Check, X, Plus, Trash2 } from "lucide-react";
+import { buildApiUrl, API_CONFIG } from "@/config/api";
 
 interface AuthorizedEmail {
   _id: string;
@@ -52,6 +53,7 @@ export default function EmailsAdminPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [adding, setAdding] = useState(false);
+  const [clearingQueue, setClearingQueue] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -129,6 +131,47 @@ export default function EmailsAdminPage() {
       await fetchData();
     } catch (err: any) {
       setError(err.message);
+    }
+  };
+
+  const handleClearQueue = async () => {
+    if (
+      !window.confirm(
+        "¿Estás seguro que deseas eliminar TODAS las acciones en cola y programadas? Esta acción es irreversible."
+      )
+    )
+      return;
+
+    const confirmation = prompt(
+      'Para confirmar, escribe "LIMPIAR COLA" en mayúsculas.'
+    );
+    if (confirmation !== "LIMPIAR COLA") {
+      setError("Confirmación incorrecta. Operación cancelada.");
+      return;
+    }
+
+    try {
+      setClearingQueue(true);
+      setError("");
+      setSuccess("");
+
+      const response = await fetch(
+        buildApiUrl(API_CONFIG.ENDPOINTS.QUEUE.CLEAR_ALL),
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Error al limpiar la cola");
+      }
+
+      setSuccess("La cola de acciones ha sido limpiada exitosamente.");
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setClearingQueue(false);
     }
   };
 
@@ -316,6 +359,40 @@ export default function EmailsAdminPage() {
                 </TableBody>
               </Table>
             )}
+          </CardContent>
+        </Card>
+
+        {/* Zona de Peligro */}
+        <Card className="border-destructive">
+          <CardHeader>
+            <CardTitle className="text-destructive">Zona de Peligro</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="font-medium">Limpiar Cola de Acciones</p>
+                <p className="text-sm text-muted-foreground">
+                  Elimina permanentemente todas las acciones en cola y
+                  programadas.
+                </p>
+              </div>
+              <Button
+                variant="destructive"
+                onClick={handleClearQueue}
+                disabled={clearingQueue}
+              >
+                {clearingQueue ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />{" "}
+                    Limpiando...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="mr-2 h-4 w-4" /> Limpiar Cola
+                  </>
+                )}
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>

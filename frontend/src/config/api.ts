@@ -2,7 +2,9 @@
 export const API_CONFIG = {
   BASE_URL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001",
   ENDPOINTS: {
-    ACCOUNTS: "/api/accounts",
+    ACCOUNTS: {
+      BASE: "/accounts",
+    },
     AUTH: {
       ME: "/api/auth/me",
       LOGIN: "/api/auth/login",
@@ -10,10 +12,11 @@ export const API_CONFIG = {
       REGISTER: "/api/auth/register",
     },
     QUEUE: {
-      ADD: "/api/queue/add",
-      STATUS: "/api/queue/status",
-      CANCEL: (id: string) => `/api/queue/cancel/${id}`,
-      DELETE: (id: string) => `/api/queue/${id}`,
+      ADD: "/queue/add",
+      STATUS: "/queue/status",
+      CANCEL: (id: string) => `/queue/scheduled/${id}`,
+      DELETE: (id: string) => `/queue/${id}`,
+      CLEAR_ALL: "/queue/all",
     },
     SCHEDULE: "/api/schedule",
     METRICS: {

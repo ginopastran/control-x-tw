@@ -1660,95 +1660,25 @@ class QueueService {
   }
 
   async clearAllQueuedAndScheduledActions() {
-    let canceledCount = 0;
-
     try {
-      // 1. Obtener todas las acciones pendientes desde BD
-      const allPendingActions = await this.prisma.queuedAction.findMany({
+      const { count } = await this.prisma.queuedAction.deleteMany({
         where: {
           status: {
-            in: ["QUEUED", "SCHEDULED", "RUNNING"],
+            in: ["QUEUED", "SCHEDULED"],
           },
         },
-        include: { account: true },
       });
 
-      // 2. Actualizar todas a CANCELLED en BD
-      if (allPendingActions.length > 0) {
-        await this.prisma.queuedAction.updateMany({
-          where: {
-            status: {
-              in: ["QUEUED", "SCHEDULED", "RUNNING"],
-            },
-          },
-          data: {
-            status: "CANCELLED",
-          },
-        });
-
-        // 3. Crear entradas en historial para cada una
-        for (const action of allPendingActions) {
-          try {
-            await this.prisma.actionHistory.upsert({
-              where: { actionId: action.actionId },
-              update: {
-                status: "CANCELLED",
-                success: false,
-                completedAt: new Date(),
-                error: "Cancelada masivamente por el administrador",
-              },
-              create: {
-                actionId: action.actionId,
-                accountId: action.accountId,
-                username:
-                  action.accountUsername ||
-                  (action.account && action.account.username) ||
-                  "unknown",
-                accountLabels:
-                  action.accountLabels || action.account.labels || [],
-                action: action.action,
-                text: action.text,
-                tweetId: action.tweetId,
-                targetUserId: action.targetUserId,
-                status: "CANCELLED",
-                success: false,
-                createdAt: action.createdAt,
-                completedAt: new Date(),
-                error: "Cancelada masivamente por el administrador",
-              },
-            });
-            canceledCount++;
-          } catch (historyError) {
-            console.error(
-              `Error actualizando historial para ${action.actionId}:`,
-              historyError
-            );
-          }
-        }
-
-        // 4. Limpiar todas las acciones de BD
-        await this.prisma.queuedAction.deleteMany({
-          where: {
-            status: "CANCELLED",
-          },
-        });
-      }
-
-      // 5. Limpiar colas en memoria
-      this.scheduledActions = [];
       this.actionQueue = [];
-      this.runningActions.clear();
+      this.scheduledActions = [];
 
       console.log(
-        `🧹 Se cancelaron y limpiaron ${canceledCount} acciones de las colas.`
+        `✅ [QUEUE] Limpiadas ${count} acciones en cola y programadas.`
       );
-      return canceledCount;
+      return { count };
     } catch (error) {
-      console.error(
-        "[QUEUE] Error en clearAllQueuedAndScheduledActions:",
-        error
-      );
-      throw error;
+      console.error("❌ Error limpiando la cola de acciones:", error);
+      throw new Error("No se pudo limpiar la cola de acciones");
     }
   }
 
