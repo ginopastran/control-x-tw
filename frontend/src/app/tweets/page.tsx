@@ -319,7 +319,8 @@ export default function TweetsPage() {
 
       if (useRandomDistribution) {
         const randomTimes = generateRandomDistributionTimes(
-          selectedAccounts.length
+          selectedAccounts.length,
+          false
         );
 
         scheduleData = {
@@ -893,7 +894,8 @@ export default function TweetsPage() {
 
           if (useRandomDistribution) {
             const randomTimes = generateRandomDistributionTimes(
-              tweet.assignedAccounts.length
+              tweet.assignedAccounts.length,
+              false
             );
 
             actionData = {
@@ -1034,7 +1036,10 @@ export default function TweetsPage() {
   };
 
   // Función para generar tiempos aleatorios distribuidos con delay mínimo
-  const generateRandomDistributionTimes = (count: number) => {
+  const generateRandomDistributionTimes = (
+    count: number,
+    requireMinGap: boolean = false
+  ) => {
     if (!useRandomDistribution) return [];
 
     const maxTimeMs = convertToMilliseconds(
@@ -1042,7 +1047,7 @@ export default function TweetsPage() {
       distributionUnit
     );
     const now = Date.now();
-    const minDelayMs = 16 * 60 * 1000; // 16 minutos
+    const minDelayMs = requireMinGap ? 16 * 60 * 1000 : 0; // 16 min solo si se requiere
 
     // Si solo hay 1 acción basta con un único offset aleatorio
     if (count <= 1) {
@@ -1095,7 +1100,8 @@ export default function TweetsPage() {
       if (useRandomDistribution) {
         // Generar tiempos aleatorios para cada cuenta
         const randomTimes = generateRandomDistributionTimes(
-          selectedAccounts.length
+          selectedAccounts.length,
+          false
         );
 
         actionData = {
@@ -1636,7 +1642,10 @@ export default function TweetsPage() {
     // Si hay distribución aleatoria pre-calcular horarios únicos para todo el lote
     let globalTimes: string[] = [];
     if (useRandomDistribution) {
-      globalTimes = generateRandomDistributionTimes(followsToExecute.length);
+      globalTimes = generateRandomDistributionTimes(
+        followsToExecute.length,
+        true
+      );
     }
 
     // Asociar cada follow con su tiempo y ordenar por fecha ascendente
@@ -1771,7 +1780,8 @@ export default function TweetsPage() {
       let globalTimes: string[] = [];
       if (useRandomDistribution) {
         globalTimes = generateRandomDistributionTimes(
-          retweetsToExecute.length
+          retweetsToExecute.length,
+          false
         ).sort();
       }
 
