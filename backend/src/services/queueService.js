@@ -426,26 +426,28 @@ class QueueService {
     const now = new Date();
     const minDelayMs = 16 * 60 * 1000; // 16 minutos en milisegundos
 
-    // 🗺️  Map que indica la siguiente hora disponible para cada cuenta
-    //     (considera acciones YA existentes + último uso ejecutado)
+    // 🗺️  Map que indica la siguiente hora disponible para cada cuenta+tipo
+    //     (así los follows respetan delay con follows, tweets con tweets, etc.)
     const nextAvailableTime = new Map();
 
-    const computeNextAvailable = (accountId) => {
-      if (nextAvailableTime.has(accountId))
-        return nextAvailableTime.get(accountId);
+    const computeNextAvailable = (accountId, actionType) => {
+      const key = `${accountId}_${actionType}`;
+      if (nextAvailableTime.has(key)) return nextAvailableTime.get(key);
 
-      let latest = this.rateLimitTracker.get(accountId) || new Date(0);
+      // Tomar como base el último uso registrado de ESA acción para la cuenta
+      const trackerKey = `${accountId}_${actionType}`;
+      let latest = this.rateLimitTracker.get(trackerKey) || new Date(0);
 
-      // Acciones ya en cola/memoria
+      // Acciones pendientes en memoria / programadas del MISMO tipo
       const pendingTimes = [...this.actionQueue, ...this.scheduledActions]
-        .filter((a) => a.accountId === accountId)
+        .filter((a) => a.accountId === accountId && a.action === actionType)
         .map((a) => new Date(a.scheduledTime || a.estimatedStartTime));
 
       pendingTimes.forEach((t) => {
         if (t > latest) latest = t;
       });
 
-      nextAvailableTime.set(accountId, latest);
+      nextAvailableTime.set(key, latest);
       return latest;
     };
 
@@ -492,7 +494,10 @@ class QueueService {
         }
 
         // 🛡️  Ajustar para respetar delay mínimo con acciones previas de LA MISMA CUENTA (incluso de lotes anteriores)
-        const latestForAccount = computeNextAvailable(action.accountId);
+        const latestForAccount = computeNextAvailable(
+          action.accountId,
+          action.action
+        );
         const earliestAllowed = new Date(
           latestForAccount.getTime() + minDelayMs
         );
@@ -504,10 +509,16 @@ class QueueService {
           );
           scheduledTime = earliestAllowed;
           // actualizar el mapa para siguientes acciones del mismo lote
-          nextAvailableTime.set(action.accountId, scheduledTime);
+          nextAvailableTime.set(
+            `${action.accountId}_${action.action}`,
+            scheduledTime
+          );
         } else {
           // registrar tiempo también
-          nextAvailableTime.set(action.accountId, scheduledTime);
+          nextAvailableTime.set(
+            `${action.accountId}_${action.action}`,
+            scheduledTime
+          );
         }
 
         const actionObj = {
