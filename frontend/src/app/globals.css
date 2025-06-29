@@ -1,0 +1,266 @@
+@tailwind base;
+
+@custom-variant dark (&:is(.dark *));
+@tailwind components;
+@tailwind utilities;
+
+/* Estilos base para tema light moderno */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter",
+    sans-serif;
+  background-color: #fafafa;
+}
+
+@layer base {
+  :root {
+    /* Tema light moderno y limpio */
+    --background: 0 0% 98%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 72.2% 50.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 5.9% 10%;
+    --radius: 0.5rem;
+
+    /* Variables personalizadas para gris limpio */
+    --gray-50: 250 20% 99%;
+    --gray-100: 240 5% 96%;
+    --gray-200: 240 6% 90%;
+    --gray-300: 240 5% 84%;
+    --gray-400: 240 5% 65%;
+    --gray-500: 240 4% 46%;
+    --gray-600: 240 5% 34%;
+    --gray-700: 240 5% 26%;
+    --gray-800: 240 4% 16%;
+    --gray-900: 240 6% 10%;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+  .dark {
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-gray-50 text-gray-900;
+  }
+}
+
+/* Componentes limpios y modernos */
+@layer components {
+  .container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .card-clean {
+    @apply bg-white border border-gray-200 rounded-lg shadow-sm;
+  }
+
+  .btn-clean {
+    @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 disabled:pointer-events-none disabled:opacity-50;
+  }
+
+  .btn-primary-clean {
+    @apply bg-gray-900 text-white hover:bg-gray-800 active:bg-gray-950;
+  }
+
+  .btn-secondary-clean {
+    @apply bg-gray-100 text-gray-900 hover:bg-gray-200 border border-gray-300;
+  }
+
+  .input-clean {
+    @apply flex h-9 w-full rounded-md border border-gray-300 bg-white px-3 py-1 text-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-400 focus-visible:border-gray-400 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .text-muted-clean {
+    @apply text-gray-600;
+  }
+
+  .text-subtle-clean {
+    @apply text-gray-500;
+  }
+}
+
+/* Scrollbar minimalista */
+@layer utilities {
+  .scrollbar-clean {
+    scrollbar-width: thin;
+    scrollbar-color: #e5e7eb #f9fafb;
+  }
+
+  .scrollbar-clean::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-clean::-webkit-scrollbar-track {
+    background: #f9fafb;
+  }
+
+  .scrollbar-clean::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+  }
+
+  .scrollbar-clean::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+  }
+}
+
+/* Animaciones suaves */
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+:root {
+  --sidebar: hsl(0 0% 98%);
+  --sidebar-foreground: hsl(240 5.3% 26.1%);
+  --sidebar-primary: hsl(240 5.9% 10%);
+  --sidebar-primary-foreground: hsl(0 0% 98%);
+  --sidebar-accent: hsl(240 4.8% 95.9%);
+  --sidebar-accent-foreground: hsl(240 5.9% 10%);
+  --sidebar-border: hsl(220 13% 91%);
+  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+}
+
+.dark {
+  --sidebar: hsl(240 5.9% 10%);
+  --sidebar-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-primary: hsl(224.3 76.3% 48%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(240 3.7% 15.9%);
+  --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-border: hsl(240 3.7% 15.9%);
+  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+}
+
+@theme inline {
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* ✅ Fix para Sonner toasts */
+[data-sonner-toaster] {
+  --normal-bg: white !important;
+  --normal-border: rgb(229, 231, 235) !important;
+  --normal-text: rgb(17, 24, 39) !important;
+}
+
+[data-sonner-toast] {
+  background-color: white !important;
+  border: 1px solid rgb(229, 231, 235) !important;
+  color: rgb(17, 24, 39) !important;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1) !important;
+  backdrop-filter: none !important;
+}
+
+[data-sonner-toast][data-type="success"] {
+  background-color: rgb(240, 253, 244) !important;
+  border-color: rgb(34, 197, 94) !important;
+  color: rgb(22, 101, 52) !important;
+}
+
+[data-sonner-toast][data-type="error"] {
+  background-color: rgb(254, 242, 242) !important;
+  border-color: rgb(239, 68, 68) !important;
+  color: rgb(153, 27, 27) !important;
+}
+
+[data-sonner-toast][data-type="warning"] {
+  background-color: rgb(255, 251, 235) !important;
+  border-color: rgb(245, 158, 11) !important;
+  color: rgb(146, 64, 14) !important;
+}
+
+/* Título del toast */
+[data-sonner-toast] [data-title] {
+  color: inherit !important;
+  font-weight: 600 !important;
+}
+
+/* Descripción del toast */
+[data-sonner-toast] [data-description] {
+  color: inherit !important;
+  opacity: 0.8 !important;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

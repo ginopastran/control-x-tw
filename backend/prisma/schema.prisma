@@ -1,0 +1,251 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider        = "prisma-client-js"
+    previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+    id        String   @id @default(cuid())
+    email     String   @unique
+    username  String?  @unique
+    password  String?
+    name      String?
+    role      UserRole @default(USER)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // Relación con XAccount
+    accounts XAccount[]
+
+    @@map("users")
+}
+
+model XAccount {
+    id            String   @id @default(cuid())
+    username      String   @unique
+    userId        String?  @unique // ID numérico del usuario de Twitter/X
+    twitterUserId String? // Alias para compatibilidad
+    labels        String[]
+
+    // Usuario propietario
+    ownerId String?
+    owner   User?   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+    // Credenciales OAuth 1.0a propias
+    ownApiKey            String?
+    ownApiSecret         String?
+    ownBearerToken       String?
+    ownAccessToken       String?
+    ownAccessTokenSecret String?
+
+    // Credenciales OAuth 2.0 propias
+    ownClientId           String?
+    ownClientSecret       String?
+    ownOAuth2AccessToken  String?
+    ownOAuth2RefreshToken String?
+    oauth2TokenExpiresAt  DateTime?
+
+    // Configuración
+    useOwnCredentials   Boolean @default(false)
+    preferOAuth2        Boolean @default(false)
+    credentialsVerified Boolean @default(false)
+    isActive            Boolean @default(true)
+
+    // Información del perfil
+    profileInfo Json?
+
+    // Métricas
+    metrics Json?
+
+    // Límites diarios
+    dailyLimits Json?
+
+    // Información de la app del usuario
+    userAppName  String?
+    appCreatedAt DateTime?
+
+    lastActivity DateTime      @default(now())
+    status       AccountStatus @default(ACTIVE)
+    createdAt    DateTime      @default(now())
+    updatedAt    DateTime      @updatedAt
+
+    // Relaciones
+    actionHistory    ActionHistory[]
+    authorizedEmails AuthorizedEmail[]
+    scheduledActions ScheduledAction[]
+    messages         Message[]
+
+    @@map("x_accounts")
+}
+
+model ActionHistory {
+    id       String @id @default(cuid())
+    actionId String @unique // ID único de la acción original
+
+    // Información de la cuenta
+    accountId     String
+    account       XAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+    username      String
+    accountLabels String[]
+
+    // Información de la acción
+    action String // tweet, reply, like, retweet, follow, unfollow, etc.
+
+    // Contenido de la acción
+    text         String?
+    tweetId      String?
+    targetUserId String?
+
+    // Estados y tiempos
+    status  ActionStatus
+    success Boolean      @default(false)
+
+    // Timestamps
+    createdAt   DateTime  @default(now())
+    startedAt   DateTime?
+    completedAt DateTime?
+
+    // Configuración de delays
+    baseDelay   Int?
+    randomDelay Int?
+    actualDelay Int?
+
+    // Resultados
+    result    Json?
+    error     String?
+    errorCode String?
+
+    // Metadatos adicionales
+    ipAddress String?
+    userAgent String?
+    batchId   String?
+
+    // Para facilitar consultas por fecha
+    dateOnly String?
+
+    updatedAt DateTime @updatedAt
+
+    @@index([createdAt(sort: Desc), status])
+    @@index([accountId, createdAt(sort: Desc)])
+    @@index([action, createdAt(sort: Desc)])
+    @@index([dateOnly, success])
+    @@index([batchId])
+    @@map("action_history")
+}
+
+model AuthorizedEmail {
+    id        String    @id @default(cuid())
+    email     String    @unique
+    accountId String?
+    account   XAccount? @relation(fields: [accountId], references: [id], onDelete: SetNull)
+    isActive  Boolean   @default(true)
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+
+    @@map("authorized_emails")
+}
+
+model DeveloperAccount {
+    id          String   @id @default(cuid())
+    email       String   @unique
+    username    String   @unique
+    apiKey      String?
+    apiSecret   String?
+    bearerToken String?
+    isActive    Boolean  @default(true)
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    @@map("developer_accounts")
+}
+
+model Message {
+    id        String      @id @default(cuid())
+    content   String
+    type      MessageType @default(INFO)
+    accountId String?
+    account   XAccount?   @relation(fields: [accountId], references: [id], onDelete: SetNull)
+    isRead    Boolean     @default(false)
+    createdAt DateTime    @default(now())
+    updatedAt DateTime    @updatedAt
+
+    @@map("messages")
+}
+
+model ScheduledAction {
+    id          String                @id @default(cuid())
+    accountId   String
+    account     XAccount              @relation(fields: [accountId], references: [id], onDelete: Cascade)
+    action      String
+    content     Json?
+    scheduledAt DateTime
+    status      ScheduledActionStatus @default(PENDING)
+    executeAt   DateTime?
+    executedAt  DateTime?
+    result      Json?
+    error       String?
+    createdAt   DateTime              @default(now())
+    updatedAt   DateTime              @updatedAt
+
+    @@index([scheduledAt])
+    @@index([status])
+    @@map("scheduled_actions")
+}
+
+model TokenInfo {
+    id           String    @id @default(cuid())
+    accountId    String    @unique
+    accessToken  String
+    refreshToken String?
+    tokenType    String    @default("Bearer")
+    expiresAt    DateTime?
+    scope        String?
+    createdAt    DateTime  @default(now())
+    updatedAt    DateTime  @updatedAt
+
+    @@map("token_info")
+}
+
+// Enums
+enum UserRole {
+    USER
+    ADMIN
+    SUPERADMIN
+}
+
+enum AccountStatus {
+    ACTIVE
+    SUSPENDED
+    LIMITED
+    ERROR
+}
+
+enum ActionStatus {
+    QUEUED
+    RUNNING
+    COMPLETED
+    FAILED
+    CANCELLED
+}
+
+enum MessageType {
+    INFO
+    WARNING
+    ERROR
+    SUCCESS
+}
+
+enum ScheduledActionStatus {
+    PENDING
+    EXECUTING
+    COMPLETED
+    FAILED
+    CANCELLED
+}
