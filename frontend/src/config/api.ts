@@ -3,7 +3,8 @@ export const API_CONFIG = {
   BASE_URL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001",
   ENDPOINTS: {
     ACCOUNTS: {
-      BASE: "/accounts",
+      BASE: "/api/accounts",
+      CREDENTIALS: (id: string) => `/api/accounts/${id}/credentials`,
     },
     AUTH: {
       ME: "/api/auth/me",
@@ -12,11 +13,11 @@ export const API_CONFIG = {
       REGISTER: "/api/auth/register",
     },
     QUEUE: {
-      ADD: "/queue/add",
-      STATUS: "/queue/status",
-      CANCEL: (id: string) => `/queue/scheduled/${id}`,
-      DELETE: (id: string) => `/queue/${id}`,
-      CLEAR_ALL: "/queue/all",
+      ADD: "/api/queue/add",
+      STATUS: "/api/queue/status",
+      CANCEL: (id: string) => `/api/queue/scheduled/${id}`,
+      DELETE: (id: string) => `/api/queue/${id}`,
+      CLEAR_ALL: "/api/queue/all",
     },
     SCHEDULE: "/api/schedule",
     METRICS: {
@@ -24,6 +25,10 @@ export const API_CONFIG = {
     },
     TWEETS: "/api/tweets",
     ACCOUNT_LIMITS: "/api/account-limits",
+    HISTORY: {
+      BASE: "/api/history",
+      STATS: "/api/history/stats",
+    },
   },
 };
 
