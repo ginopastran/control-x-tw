@@ -59,6 +59,7 @@ import {
   Activity,
   Zap,
   Search,
+  FlaskConical,
 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -130,6 +131,7 @@ export default function TweetsPage() {
   const [accounts, setAccounts] = useState<XAccount[]>([]);
   const [selectedAccounts, setSelectedAccounts] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadingTest, setLoadingTest] = useState(false);
   const [actionResults, setActionResults] = useState<ActionResult[]>([]);
   const [progress, setProgress] = useState<{ current: number; total: number }>({
     current: 0,
@@ -2012,6 +2014,61 @@ export default function TweetsPage() {
 
     setLoading(false);
     toast.success(`Encolados ${ok} follows (fallidos: ${fail}) en ${(n - 1)} slots de 30m`);
+  };
+
+  // 🧪 TEST: Seguirse entre 5 cuentas (máx)
+  const handleMutualFollowTest = async () => {
+    const testCount = 5;
+    const accArr =
+      selectedAccounts.length > 1
+        ? accounts.filter((a) => selectedAccounts.includes(a._id))
+        : accounts;
+
+    const n = Math.min(testCount, accArr.length);
+    if (n < 2) {
+      toast.error("Se necesitan al menos 2 cuentas para la prueba");
+      return;
+    }
+
+    const shuffled = [...accArr].sort(() => Math.random() - 0.5).slice(0, n);
+
+    const SLOT_MS = 30 * 60 * 1000; // 30 minutos
+    const now = Date.now();
+
+    let ok = 0,
+      fail = 0;
+    setLoadingTest(true);
+
+    try {
+      for (let s = 0; s < n - 1; s++) {
+        const slotTime = new Date(now + s * SLOT_MS).toISOString();
+        for (let i = 0; i < n; i++) {
+          const follower = shuffled[i];
+          const target = shuffled[(i + s + 1) % n];
+
+          try {
+            await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.QUEUE.ADD), {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                action: "follow",
+                accountIds: [follower._id],
+                targetUsername: target.username,
+                scheduledTime: slotTime,
+              }),
+            });
+            ok++;
+          } catch (err) {
+            console.error(err);
+            fail++;
+          }
+        }
+      }
+
+      toast.success(`Prueba programada: ${ok} acciones, ${fail} fallidas`);
+    } finally {
+      setLoadingTest(false);
+    }
   };
 
   return (
@@ -4102,7 +4159,7 @@ Pega las URLs de los tweets que quieres retwitear`}
                     </Badge>
                     {action.status === "scheduled" && (
                       <Button
-                        variant="ghost"
+                        variant="outline"
                         size="sm"
                         onClick={() => cancelScheduledAction(action.id)}
                         className="text-red-600 hover:text-red-700 hover:bg-red-50"
@@ -5033,6 +5090,19 @@ Pega las URLs de los tweets que quieres retwitear`}
                 <Users className="h-4 w-4 mr-2" />
               )}
               Seguirse entre Todas
+            </Button>
+            <Button
+              variant="outline"
+              disabled={loadingTest || accounts.length < 2}
+              onClick={handleMutualFollowTest}
+              className="bg-orange-500 hover:bg-orange-600 text-white"
+            >
+              {loadingTest ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <FlaskConical className="h-4 w-4 mr-2" />
+              )}
+              Prueba 5×5
             </Button>
           </CardContent>
         )}

@@ -1124,9 +1124,9 @@ class QueueService {
 
         action.targetUserId = resolvedId;
 
-        // Reprogramar acción 16 minutos después de la resolución para respetar delay
-        const minDelayMs = 16 * 60 * 1000;
-        const newSchedule = new Date(Date.now() + minDelayMs);
+        // Reprogramar acción 30 minutos después de la resolución para respetar delay FOLLOW
+        const minDelayFollowMs = 30 * 60 * 1000;
+        const newSchedule = new Date(Date.now() + minDelayFollowMs);
 
         action.status = "queued";
         action.scheduledTime = newSchedule;

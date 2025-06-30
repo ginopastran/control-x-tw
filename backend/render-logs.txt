@@ -21,10 +21,82 @@
   action: 'follow',
   accountIds: '[1 cuentas]',
   targetUserId: undefined,
+  targetUsername: 'franrodigue1',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: '2025-06-30T01:50:00.181Z',
+  useRandomDistribution: false
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "franrodigue1" → "franrodigue1"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'carlasanchz__',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: '2025-06-30T01:50:00.181Z',
+  useRandomDistribution: false
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "carlasanchz__" → "carlasanchz__"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'VillalbaEr11720',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: '2025-06-30T01:50:00.181Z',
+  useRandomDistribution: false
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "VillalbaEr11720" → "VillalbaEr11720"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'zonkapires',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: '2025-06-30T01:50:00.181Z',
+  useRandomDistribution: false
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "zonkapires" → "zonkapires"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'marceOrtegosa',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: '2025-06-30T01:50:00.181Z',
+  useRandomDistribution: false
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "marceOrtegosa" → "marceOrtegosa"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'alvarezpau7',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: '2025-06-30T01:50:00.181Z',
+  useRandomDistribution: false
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "alvarezpau7" → "alvarezpau7"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
   targetUsername: 'belubarra7',
   text: undefined,
   tweetId: undefined,
-  scheduledTime: '2025-06-30T01:39:53.519Z',
+  scheduledTime: '2025-06-30T01:50:00.181Z',
   useRandomDistribution: false
 }
 ✅ [QUEUE_VALIDATION] targetUsername válido: "belubarra7" → "belubarra7"
@@ -36,7 +108,7 @@
   targetUsername: 'silva_tomi9090',
   text: undefined,
   tweetId: undefined,
-  scheduledTime: '2025-06-30T01:39:53.519Z',
+  scheduledTime: '2025-06-30T01:50:00.181Z',
   useRandomDistribution: false
 }
 ✅ [QUEUE_VALIDATION] targetUsername válido: "silva_tomi9090" → "silva_tomi9090"
@@ -45,169 +117,49 @@
   action: 'follow',
   accountIds: '[1 cuentas]',
   targetUserId: undefined,
-  targetUsername: 'julivilla920',
+  targetUsername: 'alepaez91',
   text: undefined,
   tweetId: undefined,
-  scheduledTime: '2025-06-30T01:39:53.519Z',
+  scheduledTime: '2025-06-30T01:50:00.181Z',
   useRandomDistribution: false
 }
-✅ [QUEUE_VALIDATION] targetUsername válido: "julivilla920" → "julivilla920"
+✅ [QUEUE_VALIDATION] targetUsername válido: "alepaez91" → "alepaez91"
 🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
 [QUEUE_DEBUG] Datos recibidos en /add: {
   action: 'follow',
   accountIds: '[1 cuentas]',
   targetUserId: undefined,
-  targetUsername: 'samirpazz919',
+  targetUsername: 'mariourrquiza',
   text: undefined,
   tweetId: undefined,
-  scheduledTime: '2025-06-30T01:39:53.519Z',
+  scheduledTime: '2025-06-30T01:50:00.181Z',
   useRandomDistribution: false
 }
-✅ [QUEUE_VALIDATION] targetUsername válido: "samirpazz919" → "samirpazz919"
+✅ [QUEUE_VALIDATION] targetUsername válido: "mariourrquiza" → "mariourrquiza"
 🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
 [QUEUE_DEBUG] Datos recibidos en /add: {
   action: 'follow',
   accountIds: '[1 cuentas]',
   targetUserId: undefined,
-  targetUsername: 'matimoreni44',
+  targetUsername: 'ghernadez09',
   text: undefined,
   tweetId: undefined,
-  scheduledTime: '2025-06-30T01:39:53.519Z',
+  scheduledTime: '2025-06-30T01:50:00.181Z',
   useRandomDistribution: false
 }
-✅ [QUEUE_VALIDATION] targetUsername válido: "matimoreni44" → "matimoreni44"
+✅ [QUEUE_VALIDATION] targetUsername válido: "ghernadez09" → "ghernadez09"
 🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
 [QUEUE_DEBUG] Datos recibidos en /add: {
   action: 'follow',
   accountIds: '[1 cuentas]',
   targetUserId: undefined,
-  targetUsername: 'hernanpere_z',
+  targetUsername: 'alvarezbruno123',
   text: undefined,
   tweetId: undefined,
-  scheduledTime: '2025-06-30T01:39:53.519Z',
+  scheduledTime: '2025-06-30T01:50:00.181Z',
   useRandomDistribution: false
 }
-✅ [QUEUE_VALIDATION] targetUsername válido: "hernanpere_z" → "hernanpere_z"
-🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
-[QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'follow',
-  accountIds: '[1 cuentas]',
-  targetUserId: undefined,
-  targetUsername: 'silvaggustavo2',
-  text: undefined,
-  tweetId: undefined,
-  scheduledTime: '2025-06-30T01:39:53.519Z',
-  useRandomDistribution: false
-}
-✅ [QUEUE_VALIDATION] targetUsername válido: "silvaggustavo2" → "silvaggustavo2"
-🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
-[QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'follow',
-  accountIds: '[1 cuentas]',
-  targetUserId: undefined,
-  targetUsername: 'franrodigue1',
-  text: undefined,
-  tweetId: undefined,
-  scheduledTime: '2025-06-30T01:39:53.519Z',
-  useRandomDistribution: false
-}
-✅ [QUEUE_VALIDATION] targetUsername válido: "franrodigue1" → "franrodigue1"
-🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
-[QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'follow',
-  accountIds: '[1 cuentas]',
-  targetUserId: undefined,
-  targetUsername: 'solgarcia153232',
-  text: undefined,
-  tweetId: undefined,
-  scheduledTime: '2025-06-30T01:39:53.519Z',
-  useRandomDistribution: false
-}
-✅ [QUEUE_VALIDATION] targetUsername válido: "solgarcia153232" → "solgarcia153232"
-🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
-[QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'follow',
-  accountIds: '[1 cuentas]',
-  targetUserId: undefined,
-  targetUsername: 'gonzmoreno__',
-  text: undefined,
-  tweetId: undefined,
-  scheduledTime: '2025-06-30T01:39:53.519Z',
-  useRandomDistribution: false
-}
-✅ [QUEUE_VALIDATION] targetUsername válido: "gonzmoreno__" → "gonzmoreno__"
-🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
-[QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'follow',
-  accountIds: '[1 cuentas]',
-  targetUserId: undefined,
-  targetUsername: 'gonziambu',
-  text: undefined,
-  tweetId: undefined,
-  scheduledTime: '2025-06-30T01:39:53.519Z',
-  useRandomDistribution: false
-}
-✅ [QUEUE_VALIDATION] targetUsername válido: "gonziambu" → "gonziambu"
-🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
-[QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'follow',
-  accountIds: '[1 cuentas]',
-  targetUserId: undefined,
-  targetUsername: 'francisco50s',
-  text: undefined,
-  tweetId: undefined,
-  scheduledTime: '2025-06-30T01:39:53.519Z',
-  useRandomDistribution: false
-}
-✅ [QUEUE_VALIDATION] targetUsername válido: "francisco50s" → "francisco50s"
-🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
-[QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'follow',
-  accountIds: '[1 cuentas]',
-  targetUserId: undefined,
-  targetUsername: 'VillalbaEr11720',
-  text: undefined,
-  tweetId: undefined,
-  scheduledTime: '2025-06-30T01:39:53.519Z',
-  useRandomDistribution: false
-}
-✅ [QUEUE_VALIDATION] targetUsername válido: "VillalbaEr11720" → "VillalbaEr11720"
-🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
-[QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'follow',
-  accountIds: '[1 cuentas]',
-  targetUserId: undefined,
-  targetUsername: 'rosamendezgc',
-  text: undefined,
-  tweetId: undefined,
-  scheduledTime: '2025-06-30T01:39:53.519Z',
-  useRandomDistribution: false
-}
-✅ [QUEUE_VALIDATION] targetUsername válido: "rosamendezgc" → "rosamendezgc"
-🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
-[QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'follow',
-  accountIds: '[1 cuentas]',
-  targetUserId: undefined,
-  targetUsername: 'emipires44',
-  text: undefined,
-  tweetId: undefined,
-  scheduledTime: '2025-06-30T01:39:53.519Z',
-  useRandomDistribution: false
-}
-✅ [QUEUE_VALIDATION] targetUsername válido: "emipires44" → "emipires44"
-🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
-[QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'follow',
-  accountIds: '[1 cuentas]',
-  targetUserId: undefined,
-  targetUsername: 'sandramamanii',
-  text: undefined,
-  tweetId: undefined,
-  scheduledTime: '2025-06-30T01:39:53.519Z',
-  useRandomDistribution: false
-}
-✅ [QUEUE_VALIDATION] targetUsername válido: "sandramamanii" → "sandramamanii"
+✅ [QUEUE_VALIDATION] targetUsername válido: "alvarezbruno123" → "alvarezbruno123"
 🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
 [QUEUE_DEBUG] Datos recibidos en /add: {
   action: 'follow',
@@ -216,106 +168,200 @@
   targetUsername: 'roxonaHerrera',
   text: undefined,
   tweetId: undefined,
-  scheduledTime: '2025-06-30T01:39:53.519Z',
+  scheduledTime: '2025-06-30T01:50:00.181Z',
   useRandomDistribution: false
 }
 ✅ [QUEUE_VALIDATION] targetUsername válido: "roxonaHerrera" → "roxonaHerrera"
 🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
-Error en /api/queue/add: ReferenceError: minDelayMs is not defined
-[QUEUE] Recibida petición para añadir acciones. BaseDelay: undefinedms, RandomDelay: undefinedms
-    at QueueService.addActionsToQueue (/opt/render/project/src/backend/src/services/queueService.js:502:57)
-    at /opt/render/project/src/backend/src/routes/queueRoutes.js:235:26
-[QUEUE] Acción para @romicastroo1 programada SECUENCIALMENTE para: 2025-06-30T01:39:53.519Z (Delay total: 30000ms)
-[QUEUE_DEBUG] Acción follow creada para @romicastroo1: {
-  actionId: 'action_1751247594388_nlkgq3fia',
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
   targetUserId: undefined,
-  targetUsername: 'belubarra7',
-  estimatedStartTime: '2025-06-30T01:39:53.519Z'
+  targetUsername: 'solgarcia153232',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: '2025-06-30T01:50:00.181Z',
+  useRandomDistribution: false
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "solgarcia153232" → "solgarcia153232"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'silvaggustavo2',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: '2025-06-30T01:50:00.181Z',
+  useRandomDistribution: false
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "silvaggustavo2" → "silvaggustavo2"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'normamoreno90',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: '2025-06-30T01:50:00.181Z',
+  useRandomDistribution: false
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "normamoreno90" → "normamoreno90"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'hernanpere_z',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: '2025-06-30T01:50:00.181Z',
+  useRandomDistribution: false
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "hernanpere_z" → "hernanpere_z"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. BaseDelay: undefinedms, RandomDelay: undefinedms
+[QUEUE] Acción para @sandramamanii programada SECUENCIALMENTE para: 2025-06-30T01:50:00.181Z (Delay total: 30000ms)
+[QUEUE_DEBUG] Acción follow creada para @sandramamanii: {
+  actionId: 'action_1751248201118_cbbalo89j',
+  targetUserId: undefined,
+  targetUsername: 'franrodigue1',
+  estimatedStartTime: '2025-06-30T01:50:00.181Z'
 }
 📥 Agregando 1 acciones a la cola
 [QUEUE_DEBUG] Acción follow #1 antes de procesar: {
-  actionId: 'action_1751247594388_nlkgq3fia',
-  accountId: 'cmccr4j8u000cjjuperpwhdjf',
+  actionId: 'action_1751248201118_cbbalo89j',
+  accountId: 'cmccr4jpr000ejjup9ja4jze0',
   targetUserId: undefined,
-  targetUsername: 'belubarra7',
-  accountUsername: 'romicastroo1'
+  targetUsername: 'franrodigue1',
+  accountUsername: 'sandramamanii'
 }
-[QUEUE] Recibida petición para añadir acciones. BaseDelay: undefinedms, RandomDelay: undefinedms
-[QUEUE] Acción para @franrodigue1 programada SECUENCIALMENTE para: 2025-06-30T01:39:53.519Z (Delay total: 30000ms)
-[QUEUE_DEBUG] Acción follow creada para @franrodigue1: {
-  actionId: 'action_1751247594389_1lhomkg6q',
+[QUEUE_DEBUG] Acción follow después de procesar: {
+  actionId: 'action_1751248201119_ean3zztvi',
+  accountId: 'cmccr4jpr000ejjup9ja4jze0',
   targetUserId: undefined,
-  targetUsername: 'silva_tomi9090',
-  estimatedStartTime: '2025-06-30T01:39:53.519Z'
+  targetUsername: 'franrodigue1',
+  scheduledTime: '2025-06-30T01:50:00.181Z'
+}
+✅ Acción action_1751248201119_ean3zztvi programada para: 30/6/2025, 1:50:00
+[QUEUE] Recibida petición para añadir acciones. BaseDelay: undefinedms, RandomDelay: undefinedms
+[QUEUE] Acción para @alepaez91 programada SECUENCIALMENTE para: 2025-06-30T01:50:00.181Z (Delay total: 30000ms)
+[QUEUE_DEBUG] Acción follow creada para @alepaez91: {
+  actionId: 'action_1751248201234_v4mpr4vdx',
+  targetUserId: undefined,
+  targetUsername: 'mariourrquiza',
+  estimatedStartTime: '2025-06-30T01:50:00.181Z'
 }
 📥 Agregando 1 acciones a la cola
 [QUEUE_DEBUG] Acción follow #1 antes de procesar: {
-  actionId: 'action_1751247594389_1lhomkg6q',
-  accountId: 'cmcdyqew70002xfnazoasppoa',
+  actionId: 'action_1751248201234_v4mpr4vdx',
+  accountId: 'cmccr4opo000zjjupc1d3k67z',
   targetUserId: undefined,
-  targetUsername: 'silva_tomi9090',
-  accountUsername: 'franrodigue1'
+  targetUsername: 'mariourrquiza',
+  accountUsername: 'alepaez91'
 }
-Error en /api/queue/add: ReferenceError: minDelayMs is not defined
-    at QueueService.addActionsToQueue (/opt/render/project/src/backend/src/services/queueService.js:502:57)
-    at /opt/render/project/src/backend/src/routes/queueRoutes.js:235:26
+[QUEUE_DEBUG] Acción follow después de procesar: {
+  actionId: 'action_1751248201234_atv733m29',
+  accountId: 'cmccr4opo000zjjupc1d3k67z',
+  targetUserId: undefined,
+  targetUsername: 'mariourrquiza',
+  scheduledTime: '2025-06-30T01:50:00.181Z'
+}
+✅ Acción action_1751248201234_atv733m29 programada para: 30/6/2025, 1:50:00
 [QUEUE] Recibida petición para añadir acciones. BaseDelay: undefinedms, RandomDelay: undefinedms
-[QUEUE] Acción para @matimoreni44 programada SECUENCIALMENTE para: 2025-06-30T01:39:53.519Z (Delay total: 30000ms)
-[QUEUE_DEBUG] Acción follow creada para @matimoreni44: {
-  actionId: 'action_1751247594390_x0vxmct6v',
-  targetUserId: undefined,
-  targetUsername: 'julivilla920',
-  estimatedStartTime: '2025-06-30T01:39:53.519Z'
-}
-📥 Agregando 1 acciones a la cola
-[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
-  actionId: 'action_1751247594390_x0vxmct6v',
-  accountId: 'cmccr4kwm000jjjupjjig2piy',
-  targetUserId: undefined,
-  targetUsername: 'julivilla920',
-  accountUsername: 'matimoreni44'
-}
-Error en /api/queue/add: ReferenceError: minDelayMs is not defined
-    at QueueService.addActionsToQueue (/opt/render/project/src/backend/src/services/queueService.js:502:57)
-    at /opt/render/project/src/backend/src/routes/queueRoutes.js:235:26
-[QUEUE] Recibida petición para añadir acciones. BaseDelay: undefinedms, RandomDelay: undefinedms
-[QUEUE] Acción para @zonkapires programada SECUENCIALMENTE para: 2025-06-30T01:39:53.519Z (Delay total: 30000ms)
+[QUEUE] Acción para @zonkapires programada SECUENCIALMENTE para: 2025-06-30T01:50:00.181Z (Delay total: 30000ms)
 [QUEUE_DEBUG] Acción follow creada para @zonkapires: {
-  actionId: 'action_1751247594391_e8erb52sy',
+  actionId: 'action_1751248201236_shohhpq3d',
   targetUserId: undefined,
-  targetUsername: 'samirpazz919',
-  estimatedStartTime: '2025-06-30T01:39:53.519Z'
+  targetUsername: 'carlasanchz__',
+  estimatedStartTime: '2025-06-30T01:50:00.181Z'
 }
 📥 Agregando 1 acciones a la cola
 [QUEUE_DEBUG] Acción follow #1 antes de procesar: {
-  actionId: 'action_1751247594391_e8erb52sy',
+  actionId: 'action_1751248201236_shohhpq3d',
   accountId: 'cmcdyy83w0003xfna438cvb2n',
   targetUserId: undefined,
-  targetUsername: 'samirpazz919',
+  targetUsername: 'carlasanchz__',
   accountUsername: 'zonkapires'
 }
-Error en /api/queue/add: ReferenceError: minDelayMs is not defined
-    at QueueService.addActionsToQueue (/opt/render/project/src/backend/src/services/queueService.js:502:57)
-    at /opt/render/project/src/backend/src/routes/queueRoutes.js:235:26
-[QUEUE] Recibida petición para añadir acciones. BaseDelay: undefinedms, RandomDelay: undefinedms
-[QUEUE] Acción para @realsusana programada SECUENCIALMENTE para: 2025-06-30T01:39:53.519Z (Delay total: 30000ms)
-[QUEUE_DEBUG] Acción follow creada para @realsusana: {
-  actionId: 'action_1751247594391_vhs04y7x8',
+[QUEUE_DEBUG] Acción follow después de procesar: {
+  actionId: 'action_1751248201236_vszm6atyr',
+  accountId: 'cmcdyy83w0003xfna438cvb2n',
   targetUserId: undefined,
-  targetUsername: 'matimoreni44',
-  estimatedStartTime: '2025-06-30T01:39:53.519Z'
+  targetUsername: 'carlasanchz__',
+  scheduledTime: '2025-06-30T01:50:00.181Z'
+}
+✅ Acción action_1751248201236_vszm6atyr programada para: 30/6/2025, 1:50:00
+[QUEUE] Recibida petición para añadir acciones. BaseDelay: undefinedms, RandomDelay: undefinedms
+[QUEUE] Acción para @rosamendezgc programada SECUENCIALMENTE para: 2025-06-30T01:50:00.181Z (Delay total: 30000ms)
+[QUEUE_DEBUG] Acción follow creada para @rosamendezgc: {
+  actionId: 'action_1751248201236_5jpbsce9y',
+  targetUserId: undefined,
+  targetUsername: 'VillalbaEr11720',
+  estimatedStartTime: '2025-06-30T01:50:00.181Z'
 }
 📥 Agregando 1 acciones a la cola
 [QUEUE_DEBUG] Acción follow #1 antes de procesar: {
-  actionId: 'action_1751247594391_vhs04y7x8',
-  accountId: 'cmccr4mbx000pjjupc6y14zzz',
+  actionId: 'action_1751248201236_5jpbsce9y',
+  accountId: 'cmccr4m3h000ojjupyiew3u7b',
   targetUserId: undefined,
-  targetUsername: 'matimoreni44',
-  accountUsername: 'realsusana'
+  targetUsername: 'VillalbaEr11720',
+  accountUsername: 'rosamendezgc'
 }
-Error en /api/queue/add: ReferenceError: minDelayMs is not defined
-    at QueueService.addActionsToQueue (/opt/render/project/src/backend/src/services/queueService.js:502:57)
-    at /opt/render/project/src/backend/src/routes/queueRoutes.js:235:26
+[QUEUE_DEBUG] Acción follow después de procesar: {
+  actionId: 'action_1751248201236_y78f9twne',
+  accountId: 'cmccr4m3h000ojjupyiew3u7b',
+  targetUserId: undefined,
+  targetUsername: 'VillalbaEr11720',
+  scheduledTime: '2025-06-30T01:50:00.181Z'
+}
+✅ Acción action_1751248201236_y78f9twne programada para: 30/6/2025, 1:50:00
+[QUEUE] Recibida petición para añadir acciones. BaseDelay: undefinedms, RandomDelay: undefinedms
+[QUEUE] Acción para @silvaggustavo2 programada SECUENCIALMENTE para: 2025-06-30T01:50:00.181Z (Delay total: 30000ms)
+[QUEUE_DEBUG] Acción follow creada para @silvaggustavo2: {
+  actionId: 'action_1751248201237_f0dlq7j2z',
+  targetUserId: undefined,
+  targetUsername: 'zonkapires',
+  estimatedStartTime: '2025-06-30T01:50:00.181Z'
+}
+
+
+
+
+
+
+🔄 Inicializando cola desde la base de datos...
+🔄 Intentando conectar a PostgreSQL con Prisma...
+🔄 Inicializando cola desde la base de datos...
+✅ Cola inicializada: 0 en cola, 0 programadas, 0 ejecutándose
+✅ Conexión a PostgreSQL exitosa: [ { test: 1 } ]
+🔧 Configuración CORS:
+   Entorno: production
+   Orígenes permitidos: https://x-bots-dashboard.vercel.app
+   Frontend URL: https://x-bots-dashboard.vercel.app
+✅ Cola inicializada: 0 en cola, 0 programadas, 0 ejecutándose
+🚀 Servidor ejecutándose en puerto 10000
+📊 Estado inicial de la cola restaurado desde BD
+==> Your service is live 🎉
+==> 
+==> ///////////////////////////////////////////////////////////
+==> 
+==> Available at your primary URL https://control-x-tw-backend.onrender.com
+==> 
+==> ///////////////////////////////////////////////////////////
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'franrodigue1',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: '2025-06-30T01:50:00.181Z',
+  useRandomDistribution: false
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "franrodigue1" → "franrodigue1"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
 [QUEUE_DEBUG] Datos recibidos en /add: {
   action: 'follow',
   accountIds: '[1 cuentas]',
@@ -323,7 +369,7 @@ Error en /api/queue/add: ReferenceError: minDelayMs is not defined
   targetUsername: 'carlasanchz__',
   text: undefined,
   tweetId: undefined,
-  scheduledTime: '2025-06-30T01:39:53.519Z',
+  scheduledTime: '2025-06-30T01:50:00.181Z',
   useRandomDistribution: false
 }
 ✅ [QUEUE_VALIDATION] targetUsername válido: "carlasanchz__" → "carlasanchz__"
@@ -332,20 +378,283 @@ Error en /api/queue/add: ReferenceError: minDelayMs is not defined
   action: 'follow',
   accountIds: '[1 cuentas]',
   targetUserId: undefined,
-  targetUsername: 'JulietaAlv44555',
+  targetUsername: 'VillalbaEr11720',
   text: undefined,
   tweetId: undefined,
-  scheduledTime: '2025-06-30T01:39:53.519Z',
+  scheduledTime: '2025-06-30T01:50:00.181Z',
   useRandomDistribution: false
 }
-✅ [QUEUE_VALIDATION] targetUsername válido: "JulietaAlv44555" → "JulietaAlv44555"
+✅ [QUEUE_VALIDATION] targetUsername válido: "VillalbaEr11720" → "VillalbaEr11720"
 🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
 [QUEUE_DEBUG] Datos recibidos en /add: {
   action: 'follow',
   accountIds: '[1 cuentas]',
   targetUserId: undefined,
-  targetUsername: 'ruizramiro12',
+  targetUsername: 'zonkapires',
   text: undefined,
   tweetId: undefined,
-  scheduledTime: '2025-06-30T01:39:53.519Z',
+  scheduledTime: '2025-06-30T01:50:00.181Z',
   useRandomDistribution: false
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "zonkapires" → "zonkapires"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'marceOrtegosa',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: '2025-06-30T01:50:00.181Z',
+  useRandomDistribution: false
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "marceOrtegosa" → "marceOrtegosa"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'alvarezpau7',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: '2025-06-30T01:50:00.181Z',
+  useRandomDistribution: false
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "alvarezpau7" → "alvarezpau7"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'belubarra7',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: '2025-06-30T01:50:00.181Z',
+  useRandomDistribution: false
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "belubarra7" → "belubarra7"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'silva_tomi9090',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: '2025-06-30T01:50:00.181Z',
+  useRandomDistribution: false
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "silva_tomi9090" → "silva_tomi9090"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'alepaez91',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: '2025-06-30T01:50:00.181Z',
+  useRandomDistribution: false
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "alepaez91" → "alepaez91"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'mariourrquiza',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: '2025-06-30T01:50:00.181Z',
+  useRandomDistribution: false
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "mariourrquiza" → "mariourrquiza"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'ghernadez09',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: '2025-06-30T01:50:00.181Z',
+  useRandomDistribution: false
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "ghernadez09" → "ghernadez09"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'alvarezbruno123',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: '2025-06-30T01:50:00.181Z',
+  useRandomDistribution: false
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "alvarezbruno123" → "alvarezbruno123"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'roxonaHerrera',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: '2025-06-30T01:50:00.181Z',
+  useRandomDistribution: false
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "roxonaHerrera" → "roxonaHerrera"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'solgarcia153232',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: '2025-06-30T01:50:00.181Z',
+  useRandomDistribution: false
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "solgarcia153232" → "solgarcia153232"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'silvaggustavo2',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: '2025-06-30T01:50:00.181Z',
+  useRandomDistribution: false
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "silvaggustavo2" → "silvaggustavo2"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'normamoreno90',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: '2025-06-30T01:50:00.181Z',
+  useRandomDistribution: false
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "normamoreno90" → "normamoreno90"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE_DEBUG] Datos recibidos en /add: {
+  action: 'follow',
+  accountIds: '[1 cuentas]',
+  targetUserId: undefined,
+  targetUsername: 'hernanpere_z',
+  text: undefined,
+  tweetId: undefined,
+  scheduledTime: '2025-06-30T01:50:00.181Z',
+  useRandomDistribution: false
+}
+✅ [QUEUE_VALIDATION] targetUsername válido: "hernanpere_z" → "hernanpere_z"
+🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
+[QUEUE] Recibida petición para añadir acciones. BaseDelay: undefinedms, RandomDelay: undefinedms
+[QUEUE] Acción para @sandramamanii programada SECUENCIALMENTE para: 2025-06-30T01:50:00.181Z (Delay total: 30000ms)
+[QUEUE_DEBUG] Acción follow creada para @sandramamanii: {
+  actionId: 'action_1751248201118_cbbalo89j',
+  targetUserId: undefined,
+  targetUsername: 'franrodigue1',
+  estimatedStartTime: '2025-06-30T01:50:00.181Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751248201118_cbbalo89j',
+  accountId: 'cmccr4jpr000ejjup9ja4jze0',
+  targetUserId: undefined,
+  targetUsername: 'franrodigue1',
+  accountUsername: 'sandramamanii'
+}
+[QUEUE_DEBUG] Acción follow después de procesar: {
+  actionId: 'action_1751248201119_ean3zztvi',
+  accountId: 'cmccr4jpr000ejjup9ja4jze0',
+  targetUserId: undefined,
+  targetUsername: 'franrodigue1',
+  scheduledTime: '2025-06-30T01:50:00.181Z'
+}
+✅ Acción action_1751248201119_ean3zztvi programada para: 30/6/2025, 1:50:00
+[QUEUE] Recibida petición para añadir acciones. BaseDelay: undefinedms, RandomDelay: undefinedms
+[QUEUE] Acción para @alepaez91 programada SECUENCIALMENTE para: 2025-06-30T01:50:00.181Z (Delay total: 30000ms)
+[QUEUE_DEBUG] Acción follow creada para @alepaez91: {
+  actionId: 'action_1751248201234_v4mpr4vdx',
+  targetUserId: undefined,
+  targetUsername: 'mariourrquiza',
+  estimatedStartTime: '2025-06-30T01:50:00.181Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751248201234_v4mpr4vdx',
+  accountId: 'cmccr4opo000zjjupc1d3k67z',
+  targetUserId: undefined,
+  targetUsername: 'mariourrquiza',
+  accountUsername: 'alepaez91'
+}
+[QUEUE_DEBUG] Acción follow después de procesar: {
+  actionId: 'action_1751248201234_atv733m29',
+  accountId: 'cmccr4opo000zjjupc1d3k67z',
+  targetUserId: undefined,
+  targetUsername: 'mariourrquiza',
+  scheduledTime: '2025-06-30T01:50:00.181Z'
+}
+✅ Acción action_1751248201234_atv733m29 programada para: 30/6/2025, 1:50:00
+[QUEUE] Recibida petición para añadir acciones. BaseDelay: undefinedms, RandomDelay: undefinedms
+[QUEUE] Acción para @zonkapires programada SECUENCIALMENTE para: 2025-06-30T01:50:00.181Z (Delay total: 30000ms)
+[QUEUE_DEBUG] Acción follow creada para @zonkapires: {
+  actionId: 'action_1751248201236_shohhpq3d',
+  targetUserId: undefined,
+  targetUsername: 'carlasanchz__',
+  estimatedStartTime: '2025-06-30T01:50:00.181Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751248201236_shohhpq3d',
+  accountId: 'cmcdyy83w0003xfna438cvb2n',
+  targetUserId: undefined,
+  targetUsername: 'carlasanchz__',
+  accountUsername: 'zonkapires'
+}
+[QUEUE_DEBUG] Acción follow después de procesar: {
+  actionId: 'action_1751248201236_vszm6atyr',
+  accountId: 'cmcdyy83w0003xfna438cvb2n',
+  targetUserId: undefined,
+  targetUsername: 'carlasanchz__',
+  scheduledTime: '2025-06-30T01:50:00.181Z'
+}
+✅ Acción action_1751248201236_vszm6atyr programada para: 30/6/2025, 1:50:00
+[QUEUE] Recibida petición para añadir acciones. BaseDelay: undefinedms, RandomDelay: undefinedms
+[QUEUE] Acción para @rosamendezgc programada SECUENCIALMENTE para: 2025-06-30T01:50:00.181Z (Delay total: 30000ms)
+[QUEUE_DEBUG] Acción follow creada para @rosamendezgc: {
+  actionId: 'action_1751248201236_5jpbsce9y',
+  targetUserId: undefined,
+  targetUsername: 'VillalbaEr11720',
+  estimatedStartTime: '2025-06-30T01:50:00.181Z'
+}
+📥 Agregando 1 acciones a la cola
+[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
+  actionId: 'action_1751248201236_5jpbsce9y',
+  accountId: 'cmccr4m3h000ojjupyiew3u7b',
+  targetUserId: undefined,
+  targetUsername: 'VillalbaEr11720',
+  accountUsername: 'rosamendezgc'
+}
+[QUEUE_DEBUG] Acción follow después de procesar: {
+  actionId: 'action_1751248201236_y78f9twne',
+  accountId: 'cmccr4m3h000ojjupyiew3u7b',
+  targetUserId: undefined,
+  targetUsername: 'VillalbaEr11720',
+  scheduledTime: '2025-06-30T01:50:00.181Z'
+}
+✅ Acción action_1751248201236_y78f9twne programada para: 30/6/2025, 1:50:00
+[QUEUE] Recibida petición para añadir acciones. BaseDelay: undefinedms, RandomDelay: undefinedms
+[QUEUE] Acción para @silvaggustavo2 programada SECUENCIALMENTE para: 2025-06-30T01:50:00.181Z (Delay total: 30000ms)
+[QUEUE_DEBUG] Acción follow creada para @silvaggustavo2: {
+  actionId: 'action_1751248201237_f0dlq7j2z',
+  targetUserId: undefined,
+  targetUsername: 'zonkapires',
+  estimatedStartTime: '2025-06-30T01:50:00.181Z'
+}
