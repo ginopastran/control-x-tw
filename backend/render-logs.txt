@@ -1,979 +1,204 @@
-==> Uploading build...
-==> Uploaded in 4.6s. Compression took 1.1s
-==> Build successful 🎉
-==> Deploying...
-==> Your service is live 🎉
-==> 
-==> ///////////////////////////////////////////////////////////
-==> 
-==> Available at your primary URL https://control-x-tw-backend.onrender.com
-==> 
-==> ///////////////////////////////////////////////////////////
-  scheduledTime: '2025-06-30T04:15:25.023Z',
-  useRandomDistribution: undefined
-}
-✅ [QUEUE_VALIDATION] targetUsername válido: "zonkapires" → "zonkapires"
-🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
-[QUEUE] Recibida petición para añadir acciones. BaseDelay: undefinedms, RandomDelay: undefinedms
-[QUEUE] Acción para @JulietaAlv44555 programada SECUENCIALMENTE para: 2025-06-30T04:15:25.023Z (Delay total: 30000ms)
-[QUEUE_DEBUG] Acción follow creada para @JulietaAlv44555: {
-  actionId: 'action_1751256926074_84eiaec9r',
-  targetUserId: undefined,
-  targetUsername: 'zonkapires',
-  estimatedStartTime: '2025-06-30T04:15:25.023Z'
-}
-📥 Agregando 1 acciones a la cola
-[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
-  actionId: 'action_1751256926074_84eiaec9r',
-  accountId: 'cmccr4ijl0009jjupi2vi8vr5',
-  targetUserId: undefined,
-  targetUsername: 'zonkapires',
-  accountUsername: 'JulietaAlv44555'
-}
-[QUEUE_DEBUG] Acción follow después de procesar: {
-  actionId: 'action_1751256926075_bbg089nwn',
-  accountId: 'cmccr4ijl0009jjupi2vi8vr5',
-  targetUserId: undefined,
-  targetUsername: 'zonkapires',
-  scheduledTime: '2025-06-30T04:15:25.023Z'
-}
-✅ Acción action_1751256926075_bbg089nwn programada para: 30/6/2025, 4:15:25
-🎯 1 acciones agregadas exitosamente
-📊 Cola actual: 1 acciones pendientes
-⏰ Rango de ejecución: 30/6/2025, 4:15:25 - 30/6/2025, 4:15:25
 [QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'follow',
+  action: 'tweet',
   accountIds: '[1 cuentas]',
   targetUserId: undefined,
-  targetUsername: 'Guardiamaria2',
-  text: undefined,
+  targetUsername: undefined,
+  text: '"hay gente que no sabe lo que duele ver a tu ex en ..."',
   tweetId: undefined,
-  scheduledTime: '2025-06-30T04:15:25.023Z',
-  useRandomDistribution: undefined
+  scheduledTime: undefined,
+  useRandomDistribution: true
 }
-✅ [QUEUE_VALIDATION] targetUsername válido: "Guardiamaria2" → "Guardiamaria2"
-🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
-[QUEUE] Recibida petición para añadir acciones. BaseDelay: undefinedms, RandomDelay: undefinedms
-[QUEUE] Acción para @zonkapires programada SECUENCIALMENTE para: 2025-06-30T04:15:25.023Z (Delay total: 30000ms)
-[QUEUE_DEBUG] Acción follow creada para @zonkapires: {
-  actionId: 'action_1751256926987_xsw5mwwim',
-  targetUserId: undefined,
-  targetUsername: 'Guardiamaria2',
-  estimatedStartTime: '2025-06-30T04:15:25.023Z'
-}
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 6 hours
+[QUEUE] Acción para @carlasanchz__ programada ALEATORIAMENTE para: 2025-06-30T11:56:11.155Z
 📥 Agregando 1 acciones a la cola
-[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
-  actionId: 'action_1751256926987_xsw5mwwim',
-  accountId: 'cmcdyy83w0003xfna438cvb2n',
-  targetUserId: undefined,
-  targetUsername: 'Guardiamaria2',
-  accountUsername: 'zonkapires'
-}
-[QUEUE_DEBUG] Acción follow después de procesar: {
-  actionId: 'action_1751256926987_byy5unh5k',
-  accountId: 'cmcdyy83w0003xfna438cvb2n',
-  targetUserId: undefined,
-  targetUsername: 'Guardiamaria2',
-  scheduledTime: '2025-06-30T04:15:25.023Z'
-}
-✅ Acción action_1751256926987_byy5unh5k programada para: 30/6/2025, 4:15:25
-🚀 Procesando 2 acciones listas
+✅ Acción action_1751264246422_hc18ki70i programada para: 30/6/2025, 11:56:11
 🎯 1 acciones agregadas exitosamente
-📊 Cola actual: 2 acciones pendientes
-⏰ Rango de ejecución: 30/6/2025, 4:15:25 - 30/6/2025, 4:15:25
+📊 Cola actual: 2479 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 11:56:11 - 30/6/2025, 11:56:11
 [QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'follow',
+  action: 'tweet',
   accountIds: '[1 cuentas]',
   targetUserId: undefined,
-  targetUsername: 'romicastroo1',
-  text: undefined,
+  targetUsername: undefined,
+  text: '"anoche soñé con vos y me desperté con resaca. que ..."',
   tweetId: undefined,
-  scheduledTime: '2025-06-30T04:15:25.023Z',
-  useRandomDistribution: undefined
+  scheduledTime: undefined,
+  useRandomDistribution: true
 }
-✅ [QUEUE_VALIDATION] targetUsername válido: "romicastroo1" → "romicastroo1"
-🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
-[QUEUE] Recibida petición para añadir acciones. BaseDelay: undefinedms, RandomDelay: undefinedms
-[QUEUE] Acción para @Guardiamaria2 programada SECUENCIALMENTE para: 2025-06-30T04:15:25.023Z (Delay total: 30000ms)
-[QUEUE_DEBUG] Acción follow creada para @Guardiamaria2: {
-  actionId: 'action_1751256927565_cplghy62d',
-  targetUserId: undefined,
-  targetUsername: 'romicastroo1',
-  estimatedStartTime: '2025-06-30T04:15:25.023Z'
-}
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 6 hours
+[QUEUE] Acción para @carlasanchz__ programada ALEATORIAMENTE para: 2025-06-30T08:43:49.801Z
 📥 Agregando 1 acciones a la cola
-[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
-  actionId: 'action_1751256927565_cplghy62d',
-  accountId: 'cmccr4oh9000yjjupfkyfo7au',
-  targetUserId: undefined,
-  targetUsername: 'romicastroo1',
-  accountUsername: 'Guardiamaria2'
-}
-[QUEUE_DEBUG] Acción follow después de procesar: {
-  actionId: 'action_1751256927565_0xwl3g40t',
-  accountId: 'cmccr4oh9000yjjupfkyfo7au',
-  targetUserId: undefined,
-  targetUsername: 'romicastroo1',
-  scheduledTime: '2025-06-30T04:15:25.023Z'
-}
-✅ Acción action_1751256927565_0xwl3g40t programada para: 30/6/2025, 4:15:25
+✅ Acción action_1751264248251_qeigmyw8j programada para: 30/6/2025, 12:12:11
 🎯 1 acciones agregadas exitosamente
-📊 Cola actual: 3 acciones pendientes
-⏰ Rango de ejecución: 30/6/2025, 4:15:25 - 30/6/2025, 4:15:25
-[RATE_LIMIT] Tracker actualizado para cmccr4ijl0009jjupi2vi8vr5, acción follow
-🔄 Ejecutando acción action_1751256926075_bbg089nwn (follow) para cuenta cmccr4ijl0009jjupi2vi8vr5
-[QUEUE] Cargando datos de cuenta para cmccr4ijl0009jjupi2vi8vr5...
-✅ [QUEUE] Cuenta cargada: @JulietaAlv44555 (ID: cmccr4ijl0009jjupi2vi8vr5)
+📊 Cola actual: 2480 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 12:12:11 - 30/6/2025, 12:12:11
 [QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'follow',
+  action: 'tweet',
   accountIds: '[1 cuentas]',
   targetUserId: undefined,
-  targetUsername: 'francisco50s',
-  text: undefined,
+  targetUsername: undefined,
+  text: '"el frio de mendoza no es normal..."',
   tweetId: undefined,
-  scheduledTime: '2025-06-30T04:15:25.023Z',
-  useRandomDistribution: undefined
+  scheduledTime: undefined,
+  useRandomDistribution: true
 }
-✅ [QUEUE_VALIDATION] targetUsername válido: "francisco50s" → "francisco50s"
-🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
-[QUEUE] Recibida petición para añadir acciones. BaseDelay: undefinedms, RandomDelay: undefinedms
-[QUEUE] Acción para @romicastroo1 programada SECUENCIALMENTE para: 2025-06-30T04:15:25.023Z (Delay total: 30000ms)
-[QUEUE_DEBUG] Acción follow creada para @romicastroo1: {
-  actionId: 'action_1751256928153_2t6rtj6wt',
-  targetUserId: undefined,
-  targetUsername: 'francisco50s',
-  estimatedStartTime: '2025-06-30T04:15:25.023Z'
-}
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 6 hours
+[QUEUE] Acción para @carlasanchz__ programada ALEATORIAMENTE para: 2025-06-30T06:50:51.753Z
 📥 Agregando 1 acciones a la cola
-[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
-  actionId: 'action_1751256928153_2t6rtj6wt',
-  accountId: 'cmccr4j8u000cjjuperpwhdjf',
-  targetUserId: undefined,
-  targetUsername: 'francisco50s',
-  accountUsername: 'romicastroo1'
-}
-[QUEUE_DEBUG] Acción follow después de procesar: {
-  actionId: 'action_1751256928154_cr2j3qv6s',
-  accountId: 'cmccr4j8u000cjjuperpwhdjf',
-  targetUserId: undefined,
-  targetUsername: 'francisco50s',
-  scheduledTime: '2025-06-30T04:15:25.023Z'
-}
-✅ Acción action_1751256928154_cr2j3qv6s programada para: 30/6/2025, 4:15:25
-🔍 [FOLLOW_ID_LOOKUP] Resolviendo ID para @zonkapires en tiempo de ejecución...
-🔍 Configurando cliente Twitter para @JulietaAlv44555...
-✅ Usando OAuth 1.0a para @JulietaAlv44555
-[CACHE] MISS: Buscando User ID para @zonkapires via API.
+✅ Acción action_1751264249840_w7ht7ywnp programada para: 30/6/2025, 12:28:11
 🎯 1 acciones agregadas exitosamente
-📊 Cola actual: 4 acciones pendientes
-⏰ Rango de ejecución: 30/6/2025, 4:15:25 - 30/6/2025, 4:15:25
+📊 Cola actual: 2481 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 12:28:11 - 30/6/2025, 12:28:11
 [QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'follow',
+  action: 'tweet',
   accountIds: '[1 cuentas]',
   targetUserId: undefined,
-  targetUsername: 'JulietaAlv44555',
-  text: undefined,
+  targetUsername: undefined,
+  text: '"no se si seguir o soltar..."',
   tweetId: undefined,
-  scheduledTime: '2025-06-30T04:15:25.023Z',
-  useRandomDistribution: undefined
+  scheduledTime: undefined,
+  useRandomDistribution: true
 }
-✅ [QUEUE_VALIDATION] targetUsername válido: "JulietaAlv44555" → "JulietaAlv44555"
-🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
-[QUEUE] Recibida petición para añadir acciones. BaseDelay: undefinedms, RandomDelay: undefinedms
-[QUEUE] Acción para @francisco50s programada SECUENCIALMENTE para: 2025-06-30T04:15:25.023Z (Delay total: 30000ms)
-[QUEUE_DEBUG] Acción follow creada para @francisco50s: {
-  actionId: 'action_1751256928809_pefy2r33f',
-  targetUserId: undefined,
-  targetUsername: 'JulietaAlv44555',
-  estimatedStartTime: '2025-06-30T04:15:25.023Z'
-}
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 6 hours
+[QUEUE] Acción para @carlasanchz__ programada ALEATORIAMENTE para: 2025-06-30T10:51:11.018Z
 📥 Agregando 1 acciones a la cola
-[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
-  actionId: 'action_1751256928809_pefy2r33f',
-  accountId: 'cmccr4rxe001cjjupu8dxf7y6',
-  targetUserId: undefined,
-  targetUsername: 'JulietaAlv44555',
-  accountUsername: 'francisco50s'
-}
-[QUEUE_DEBUG] Acción follow después de procesar: {
-  actionId: 'action_1751256928809_hr2sln06a',
-  accountId: 'cmccr4rxe001cjjupu8dxf7y6',
-  targetUserId: undefined,
-  targetUsername: 'JulietaAlv44555',
-  scheduledTime: '2025-06-30T04:15:25.023Z'
-}
-✅ Acción action_1751256928809_hr2sln06a programada para: 30/6/2025, 4:15:25
-✅ [FOLLOW_ID_LOOKUP] Resuelto @zonkapires → 1910470701141909505. Acción reprogramada para 30/6/2025, 4:30:28
-🔄 Acción action_1751256926075_bbg089nwn reprogramada para lookup de ID
+✅ Acción action_1751264251418_ifpsdipf0 programada para: 30/6/2025, 12:44:11
 🎯 1 acciones agregadas exitosamente
-📊 Cola actual: 5 acciones pendientes
-⏰ Rango de ejecución: 30/6/2025, 4:15:25 - 30/6/2025, 4:15:25
+📊 Cola actual: 2482 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 12:44:11 - 30/6/2025, 12:44:11
 [QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'follow',
+  action: 'tweet',
   accountIds: '[1 cuentas]',
   targetUserId: undefined,
-  targetUsername: 'Guardiamaria2',
-  text: undefined,
+  targetUsername: undefined,
+  text: '"mi vida amorosa es muy triste..."',
   tweetId: undefined,
-  scheduledTime: '2025-06-30T04:30:25.023Z',
-  useRandomDistribution: undefined
+  scheduledTime: undefined,
+  useRandomDistribution: true
 }
-✅ [QUEUE_VALIDATION] targetUsername válido: "Guardiamaria2" → "Guardiamaria2"
-🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
-[QUEUE] Recibida petición para añadir acciones. BaseDelay: undefinedms, RandomDelay: undefinedms
-[QUEUE] Acción para @JulietaAlv44555 programada SECUENCIALMENTE para: 2025-06-30T04:30:25.023Z (Delay total: 30000ms)
-[QUEUE_DEBUG] Acción follow creada para @JulietaAlv44555: {
-  actionId: 'action_1751256929451_ca6w7anz6',
-  targetUserId: undefined,
-  targetUsername: 'Guardiamaria2',
-  estimatedStartTime: '2025-06-30T04:30:25.023Z'
-}
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 6 hours
+[QUEUE] Acción para @JulietaAlv44555 programada ALEATORIAMENTE para: 2025-06-30T07:42:20.278Z
 📥 Agregando 1 acciones a la cola
-[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
-  actionId: 'action_1751256929451_ca6w7anz6',
-  accountId: 'cmccr4ijl0009jjupi2vi8vr5',
-  targetUserId: undefined,
-  targetUsername: 'Guardiamaria2',
-  accountUsername: 'JulietaAlv44555'
-}
-[QUEUE_DEBUG] Acción follow después de procesar: {
-  actionId: 'action_1751256929452_7qsgwq1pv',
-  accountId: 'cmccr4ijl0009jjupi2vi8vr5',
-  targetUserId: undefined,
-  targetUsername: 'Guardiamaria2',
-  scheduledTime: '2025-06-30T04:30:25.023Z'
-}
-✅ Acción action_1751256929452_7qsgwq1pv programada para: 30/6/2025, 4:30:25
-[RATE_LIMIT] Tracker actualizado para cmcdyy83w0003xfna438cvb2n, acción follow
-🔄 Ejecutando acción action_1751256926987_byy5unh5k (follow) para cuenta cmcdyy83w0003xfna438cvb2n
-[QUEUE] Cargando datos de cuenta para cmcdyy83w0003xfna438cvb2n...
-✅ [QUEUE] Cuenta cargada: @zonkapires (ID: cmcdyy83w0003xfna438cvb2n)
+✅ Acción action_1751264287171_1lxgmmtyj programada para: 30/6/2025, 7:42:20
 🎯 1 acciones agregadas exitosamente
-📊 Cola actual: 6 acciones pendientes
-⏰ Rango de ejecución: 30/6/2025, 4:30:25 - 30/6/2025, 4:30:25
-🔍 [FOLLOW_ID_LOOKUP] Resolviendo ID para @Guardiamaria2 en tiempo de ejecución...
-🔍 Configurando cliente Twitter para @zonkapires...
-✅ Usando OAuth 1.0a para @zonkapires
-[CACHE] MISS: Buscando User ID para @Guardiamaria2 via API.
+📊 Cola actual: 2483 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 7:42:20 - 30/6/2025, 7:42:20
 [QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'follow',
+  action: 'tweet',
   accountIds: '[1 cuentas]',
   targetUserId: undefined,
-  targetUsername: 'romicastroo1',
-  text: undefined,
+  targetUsername: undefined,
+  text: '"el mundo se cae a pedazos y yo viendo historias de..."',
   tweetId: undefined,
-  scheduledTime: '2025-06-30T04:30:25.023Z',
-  useRandomDistribution: undefined
+  scheduledTime: undefined,
+  useRandomDistribution: true
 }
-✅ [QUEUE_VALIDATION] targetUsername válido: "romicastroo1" → "romicastroo1"
-🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
-[QUEUE] Recibida petición para añadir acciones. BaseDelay: undefinedms, RandomDelay: undefinedms
-[QUEUE] Acción para @zonkapires programada SECUENCIALMENTE para: 2025-06-30T04:30:25.023Z (Delay total: 30000ms)
-[QUEUE_DEBUG] Acción follow creada para @zonkapires: {
-  actionId: 'action_1751256930004_ko4wxrl4t',
-  targetUserId: undefined,
-  targetUsername: 'romicastroo1',
-  estimatedStartTime: '2025-06-30T04:30:25.023Z'
-}
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 6 hours
+[QUEUE] Acción para @JulietaAlv44555 programada ALEATORIAMENTE para: 2025-06-30T08:47:44.131Z
 📥 Agregando 1 acciones a la cola
-[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
-  actionId: 'action_1751256930004_ko4wxrl4t',
-  accountId: 'cmcdyy83w0003xfna438cvb2n',
-  targetUserId: undefined,
-  targetUsername: 'romicastroo1',
-  accountUsername: 'zonkapires'
-}
-[QUEUE_DEBUG] Acción follow después de procesar: {
-  actionId: 'action_1751256930004_zkpzdauiz',
-  accountId: 'cmcdyy83w0003xfna438cvb2n',
-  targetUserId: undefined,
-  targetUsername: 'romicastroo1',
-  scheduledTime: '2025-06-30T04:30:25.023Z'
-}
-✅ Acción action_1751256930004_zkpzdauiz programada para: 30/6/2025, 4:30:25
-✅ [FOLLOW_ID_LOOKUP] Resuelto @Guardiamaria2 → 1932874259996815364. Acción reprogramada para 30/6/2025, 4:30:29
-🔄 Acción action_1751256926987_byy5unh5k reprogramada para lookup de ID
+✅ Acción action_1751264289211_7p2tio0gy programada para: 30/6/2025, 8:47:44
 🎯 1 acciones agregadas exitosamente
-📊 Cola actual: 7 acciones pendientes
-⏰ Rango de ejecución: 30/6/2025, 4:30:25 - 30/6/2025, 4:30:25
+📊 Cola actual: 2484 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 8:47:44 - 30/6/2025, 8:47:44
 [QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'follow',
+  action: 'tweet',
   accountIds: '[1 cuentas]',
   targetUserId: undefined,
-  targetUsername: 'francisco50s',
-  text: undefined,
+  targetUsername: undefined,
+  text: '"si me decís que vamos al cerro con sanguchitos y m..."',
   tweetId: undefined,
-  scheduledTime: '2025-06-30T04:30:25.023Z',
-  useRandomDistribution: undefined
+  scheduledTime: undefined,
+  useRandomDistribution: true
 }
-✅ [QUEUE_VALIDATION] targetUsername válido: "francisco50s" → "francisco50s"
-🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
-[QUEUE] Recibida petición para añadir acciones. BaseDelay: undefinedms, RandomDelay: undefinedms
-[QUEUE] Acción para @Guardiamaria2 programada SECUENCIALMENTE para: 2025-06-30T04:30:25.023Z (Delay total: 30000ms)
-[QUEUE_DEBUG] Acción follow creada para @Guardiamaria2: {
-  actionId: 'action_1751256930526_kyiri3t4r',
-  targetUserId: undefined,
-  targetUsername: 'francisco50s',
-  estimatedStartTime: '2025-06-30T04:30:25.023Z'
-}
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 6 hours
+[QUEUE] Acción para @JulietaAlv44555 programada ALEATORIAMENTE para: 2025-06-30T09:28:59.118Z
 📥 Agregando 1 acciones a la cola
-[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
-  actionId: 'action_1751256930526_kyiri3t4r',
-  accountId: 'cmccr4oh9000yjjupfkyfo7au',
-  targetUserId: undefined,
-  targetUsername: 'francisco50s',
-  accountUsername: 'Guardiamaria2'
-}
-[QUEUE_DEBUG] Acción follow después de procesar: {
-  actionId: 'action_1751256930526_z00k9qrmy',
-  accountId: 'cmccr4oh9000yjjupfkyfo7au',
-  targetUserId: undefined,
-  targetUsername: 'francisco50s',
-  scheduledTime: '2025-06-30T04:30:25.023Z'
-}
-✅ Acción action_1751256930526_z00k9qrmy programada para: 30/6/2025, 4:30:25
+✅ Acción action_1751264290805_ltnw29861 programada para: 30/6/2025, 9:28:59
 🎯 1 acciones agregadas exitosamente
-📊 Cola actual: 8 acciones pendientes
-⏰ Rango de ejecución: 30/6/2025, 4:30:25 - 30/6/2025, 4:30:25
+📊 Cola actual: 2485 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 9:28:59 - 30/6/2025, 9:28:59
 [QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'follow',
+  action: 'tweet',
   accountIds: '[1 cuentas]',
   targetUserId: undefined,
-  targetUsername: 'JulietaAlv44555',
-  text: undefined,
+  targetUsername: undefined,
+  text: '"qué fácil sería todo si me pagasen por procastinar..."',
   tweetId: undefined,
-  scheduledTime: '2025-06-30T04:30:25.023Z',
-  useRandomDistribution: undefined
+  scheduledTime: undefined,
+  useRandomDistribution: true
 }
-✅ [QUEUE_VALIDATION] targetUsername válido: "JulietaAlv44555" → "JulietaAlv44555"
-🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
-[QUEUE] Recibida petición para añadir acciones. BaseDelay: undefinedms, RandomDelay: undefinedms
-[QUEUE] Acción para @romicastroo1 programada SECUENCIALMENTE para: 2025-06-30T04:30:25.023Z (Delay total: 30000ms)
-[QUEUE_DEBUG] Acción follow creada para @romicastroo1: {
-  actionId: 'action_1751256931061_8wqss7y46',
-  targetUserId: undefined,
-  targetUsername: 'JulietaAlv44555',
-  estimatedStartTime: '2025-06-30T04:30:25.023Z'
-}
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 6 hours
+[QUEUE] Acción para @JulietaAlv44555 programada ALEATORIAMENTE para: 2025-06-30T06:47:07.715Z
 📥 Agregando 1 acciones a la cola
-[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
-  actionId: 'action_1751256931061_8wqss7y46',
-  accountId: 'cmccr4j8u000cjjuperpwhdjf',
-  targetUserId: undefined,
-  targetUsername: 'JulietaAlv44555',
-  accountUsername: 'romicastroo1'
-}
-[QUEUE_DEBUG] Acción follow después de procesar: {
-  actionId: 'action_1751256931062_kg4u10p6o',
-  accountId: 'cmccr4j8u000cjjuperpwhdjf',
-  targetUserId: undefined,
-  targetUsername: 'JulietaAlv44555',
-  scheduledTime: '2025-06-30T04:30:25.023Z'
-}
-✅ Acción action_1751256931062_kg4u10p6o programada para: 30/6/2025, 4:30:25
+✅ Acción action_1751264293246_hhnkgabzd programada para: 30/6/2025, 9:44:59
 🎯 1 acciones agregadas exitosamente
-📊 Cola actual: 9 acciones pendientes
-⏰ Rango de ejecución: 30/6/2025, 4:30:25 - 30/6/2025, 4:30:25
+📊 Cola actual: 2486 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 9:44:59 - 30/6/2025, 9:44:59
 [QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'follow',
+  action: 'tweet',
   accountIds: '[1 cuentas]',
   targetUserId: undefined,
-  targetUsername: 'zonkapires',
-  text: undefined,
+  targetUsername: undefined,
+  text: '"esta demasiado fresco..."',
   tweetId: undefined,
-  scheduledTime: '2025-06-30T04:30:25.023Z',
-  useRandomDistribution: undefined
+  scheduledTime: undefined,
+  useRandomDistribution: true
 }
-✅ [QUEUE_VALIDATION] targetUsername válido: "zonkapires" → "zonkapires"
-🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
-[QUEUE] Recibida petición para añadir acciones. BaseDelay: undefinedms, RandomDelay: undefinedms
-[QUEUE] Acción para @francisco50s programada SECUENCIALMENTE para: 2025-06-30T04:30:25.023Z (Delay total: 30000ms)
-[QUEUE_DEBUG] Acción follow creada para @francisco50s: {
-  actionId: 'action_1751256931604_ss6vy4k2b',
-  targetUserId: undefined,
-  targetUsername: 'zonkapires',
-  estimatedStartTime: '2025-06-30T04:30:25.023Z'
-}
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 6 hours
+[QUEUE] Acción para @zonkapires programada ALEATORIAMENTE para: 2025-06-30T11:45:17.089Z
 📥 Agregando 1 acciones a la cola
-[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
-  actionId: 'action_1751256931604_ss6vy4k2b',
-  accountId: 'cmccr4rxe001cjjupu8dxf7y6',
-  targetUserId: undefined,
-  targetUsername: 'zonkapires',
-  accountUsername: 'francisco50s'
-}
-[QUEUE_DEBUG] Acción follow después de procesar: {
-  actionId: 'action_1751256931605_lko9m9z65',
-  accountId: 'cmccr4rxe001cjjupu8dxf7y6',
-  targetUserId: undefined,
-  targetUsername: 'zonkapires',
-  scheduledTime: '2025-06-30T04:30:25.023Z'
-}
-✅ Acción action_1751256931605_lko9m9z65 programada para: 30/6/2025, 4:30:25
+✅ Acción action_1751264326522_2d57qhipw programada para: 30/6/2025, 11:45:17
 🎯 1 acciones agregadas exitosamente
-📊 Cola actual: 10 acciones pendientes
-⏰ Rango de ejecución: 30/6/2025, 4:30:25 - 30/6/2025, 4:30:25
+📊 Cola actual: 2487 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 11:45:17 - 30/6/2025, 11:45:17
 [QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'follow',
+  action: 'tweet',
   accountIds: '[1 cuentas]',
   targetUserId: undefined,
-  targetUsername: 'romicastroo1',
-  text: undefined,
+  targetUsername: undefined,
+  text: '"qué difícil es estudiar cuando tu mente está en al..."',
   tweetId: undefined,
-  scheduledTime: '2025-06-30T04:45:25.023Z',
-  useRandomDistribution: undefined
+  scheduledTime: undefined,
+  useRandomDistribution: true
 }
-✅ [QUEUE_VALIDATION] targetUsername válido: "romicastroo1" → "romicastroo1"
-🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
-[QUEUE] Recibida petición para añadir acciones. BaseDelay: undefinedms, RandomDelay: undefinedms
-[QUEUE] Acción para @JulietaAlv44555 programada SECUENCIALMENTE para: 2025-06-30T04:45:25.023Z (Delay total: 30000ms)
-[QUEUE_DEBUG] Acción follow creada para @JulietaAlv44555: {
-  actionId: 'action_1751256932124_jg5jjgxbn',
-  targetUserId: undefined,
-  targetUsername: 'romicastroo1',
-  estimatedStartTime: '2025-06-30T04:45:25.023Z'
-}
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 6 hours
+[QUEUE] Acción para @zonkapires programada ALEATORIAMENTE para: 2025-06-30T06:26:47.465Z
 📥 Agregando 1 acciones a la cola
-[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
-  actionId: 'action_1751256932124_jg5jjgxbn',
-  accountId: 'cmccr4ijl0009jjupi2vi8vr5',
-  targetUserId: undefined,
-  targetUsername: 'romicastroo1',
-  accountUsername: 'JulietaAlv44555'
-}
-[QUEUE_DEBUG] Acción follow después de procesar: {
-  actionId: 'action_1751256932124_zrhsnqmac',
-  accountId: 'cmccr4ijl0009jjupi2vi8vr5',
-  targetUserId: undefined,
-  targetUsername: 'romicastroo1',
-  scheduledTime: '2025-06-30T04:45:25.023Z'
-}
-✅ Acción action_1751256932124_zrhsnqmac programada para: 30/6/2025, 4:45:25
-🚀 Procesando 3 acciones listas
+✅ Acción action_1751264328085_py68pd0ph programada para: 30/6/2025, 12:01:17
 🎯 1 acciones agregadas exitosamente
-📊 Cola actual: 11 acciones pendientes
-⏰ Rango de ejecución: 30/6/2025, 4:45:25 - 30/6/2025, 4:45:25
-[RATE_LIMIT] Tracker actualizado para cmccr4oh9000yjjupfkyfo7au, acción follow
-🔄 Ejecutando acción action_1751256927565_0xwl3g40t (follow) para cuenta cmccr4oh9000yjjupfkyfo7au
-[QUEUE] Cargando datos de cuenta para cmccr4oh9000yjjupfkyfo7au...
+📊 Cola actual: 2488 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 12:01:17 - 30/6/2025, 12:01:17
 [QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'follow',
+  action: 'tweet',
   accountIds: '[1 cuentas]',
   targetUserId: undefined,
-  targetUsername: 'francisco50s',
-  text: undefined,
+  targetUsername: undefined,
+  text: '"que aburrido esto..."',
   tweetId: undefined,
-  scheduledTime: '2025-06-30T04:45:25.023Z',
-  useRandomDistribution: undefined
+  scheduledTime: undefined,
+  useRandomDistribution: true
 }
-✅ [QUEUE_VALIDATION] targetUsername válido: "francisco50s" → "francisco50s"
-🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
-✅ [QUEUE] Cuenta cargada: @Guardiamaria2 (ID: cmccr4oh9000yjjupfkyfo7au)
-[QUEUE] Recibida petición para añadir acciones. BaseDelay: undefinedms, RandomDelay: undefinedms
-[QUEUE] Acción para @zonkapires programada SECUENCIALMENTE para: 2025-06-30T04:45:25.023Z (Delay total: 30000ms)
-[QUEUE_DEBUG] Acción follow creada para @zonkapires: {
-  actionId: 'action_1751256932672_ulrys0veb',
-  targetUserId: undefined,
-  targetUsername: 'francisco50s',
-  estimatedStartTime: '2025-06-30T04:45:25.023Z'
-}
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 6 hours
+[QUEUE] Acción para @zonkapires programada ALEATORIAMENTE para: 2025-06-30T07:40:13.628Z
 📥 Agregando 1 acciones a la cola
-[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
-  actionId: 'action_1751256932672_ulrys0veb',
-  accountId: 'cmcdyy83w0003xfna438cvb2n',
-  targetUserId: undefined,
-  targetUsername: 'francisco50s',
-  accountUsername: 'zonkapires'
-}
-[QUEUE_DEBUG] Acción follow después de procesar: {
-  actionId: 'action_1751256932672_kiwalsh2r',
-  accountId: 'cmcdyy83w0003xfna438cvb2n',
-  targetUserId: undefined,
-  targetUsername: 'francisco50s',
-  scheduledTime: '2025-06-30T04:45:25.023Z'
-}
-✅ Acción action_1751256932672_kiwalsh2r programada para: 30/6/2025, 4:45:25
-🔍 [FOLLOW_ID_LOOKUP] Resolviendo ID para @romicastroo1 en tiempo de ejecución...
-🔍 Configurando cliente Twitter para @Guardiamaria2...
-✅ Usando OAuth 1.0a para @Guardiamaria2
-[CACHE] MISS: Buscando User ID para @romicastroo1 via API.
+✅ Acción action_1751264329630_hhidhvpqn programada para: 30/6/2025, 12:17:17
 🎯 1 acciones agregadas exitosamente
-📊 Cola actual: 12 acciones pendientes
-⏰ Rango de ejecución: 30/6/2025, 4:45:25 - 30/6/2025, 4:45:25
-✅ [FOLLOW_ID_LOOKUP] Resuelto @romicastroo1 → 1930406555683274752. Acción reprogramada para 30/6/2025, 4:30:32
-🔄 Acción action_1751256927565_0xwl3g40t reprogramada para lookup de ID
+📊 Cola actual: 2489 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 12:17:17 - 30/6/2025, 12:17:17
 [QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'follow',
+  action: 'tweet',
   accountIds: '[1 cuentas]',
   targetUserId: undefined,
-  targetUsername: 'JulietaAlv44555',
-  text: undefined,
+  targetUsername: undefined,
+  text: '"cada vez entiendo más a los que se van al campo y ..."',
   tweetId: undefined,
-  scheduledTime: '2025-06-30T04:45:25.023Z',
-  useRandomDistribution: undefined
+  scheduledTime: undefined,
+  useRandomDistribution: true
 }
-✅ [QUEUE_VALIDATION] targetUsername válido: "JulietaAlv44555" → "JulietaAlv44555"
-🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
-[QUEUE] Recibida petición para añadir acciones. BaseDelay: undefinedms, RandomDelay: undefinedms
-[QUEUE] Acción para @Guardiamaria2 programada SECUENCIALMENTE para: 2025-06-30T04:45:25.023Z (Delay total: 30000ms)
-[QUEUE_DEBUG] Acción follow creada para @Guardiamaria2: {
-  actionId: 'action_1751256933233_s3a9x84d2',
-  targetUserId: undefined,
-  targetUsername: 'JulietaAlv44555',
-  estimatedStartTime: '2025-06-30T04:45:25.023Z'
-}
+[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 6 hours
+[QUEUE] Acción para @zonkapires programada ALEATORIAMENTE para: 2025-06-30T09:46:03.688Z
 📥 Agregando 1 acciones a la cola
-[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
-  actionId: 'action_1751256933233_s3a9x84d2',
-  accountId: 'cmccr4oh9000yjjupfkyfo7au',
-  targetUserId: undefined,
-  targetUsername: 'JulietaAlv44555',
-  accountUsername: 'Guardiamaria2'
-}
-[QUEUE_DEBUG] Acción follow después de procesar: {
-  actionId: 'action_1751256933233_d869vtxln',
-  accountId: 'cmccr4oh9000yjjupfkyfo7au',
-  targetUserId: undefined,
-  targetUsername: 'JulietaAlv44555',
-  scheduledTime: '2025-06-30T04:45:25.023Z'
-}
-✅ Acción action_1751256933233_d869vtxln programada para: 30/6/2025, 4:45:25
-[RATE_LIMIT] Tracker actualizado para cmccr4j8u000cjjuperpwhdjf, acción follow
-🔄 Ejecutando acción action_1751256928154_cr2j3qv6s (follow) para cuenta cmccr4j8u000cjjuperpwhdjf
-[QUEUE] Cargando datos de cuenta para cmccr4j8u000cjjuperpwhdjf...
-✅ [QUEUE] Cuenta cargada: @romicastroo1 (ID: cmccr4j8u000cjjuperpwhdjf)
+✅ Acción action_1751264331167_ddl5xhgcz programada para: 30/6/2025, 12:33:17
 🎯 1 acciones agregadas exitosamente
-📊 Cola actual: 13 acciones pendientes
-⏰ Rango de ejecución: 30/6/2025, 4:45:25 - 30/6/2025, 4:45:25
-🔍 [FOLLOW_ID_LOOKUP] Resolviendo ID para @francisco50s en tiempo de ejecución...
-🔍 Configurando cliente Twitter para @romicastroo1...
-✅ Usando OAuth 1.0a para @romicastroo1
-[CACHE] MISS: Buscando User ID para @francisco50s via API.
-[QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'follow',
-  accountIds: '[1 cuentas]',
-  targetUserId: undefined,
-  targetUsername: 'zonkapires',
-  text: undefined,
-  tweetId: undefined,
-  scheduledTime: '2025-06-30T04:45:25.023Z',
-  useRandomDistribution: undefined
-}
-✅ [QUEUE_VALIDATION] targetUsername válido: "zonkapires" → "zonkapires"
-🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
-[QUEUE] Recibida petición para añadir acciones. BaseDelay: undefinedms, RandomDelay: undefinedms
-[QUEUE] Acción para @romicastroo1 programada SECUENCIALMENTE para: 2025-06-30T04:45:25.023Z (Delay total: 30000ms)
-[QUEUE_DEBUG] Acción follow creada para @romicastroo1: {
-  actionId: 'action_1751256933788_7xvy94yr8',
-  targetUserId: undefined,
-  targetUsername: 'zonkapires',
-  estimatedStartTime: '2025-06-30T04:45:25.023Z'
-}
-📥 Agregando 1 acciones a la cola
-[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
-  actionId: 'action_1751256933788_7xvy94yr8',
-  accountId: 'cmccr4j8u000cjjuperpwhdjf',
-  targetUserId: undefined,
-  targetUsername: 'zonkapires',
-  accountUsername: 'romicastroo1'
-}
-[QUEUE_DEBUG] Acción follow después de procesar: {
-  actionId: 'action_1751256933788_520cfhety',
-  accountId: 'cmccr4j8u000cjjuperpwhdjf',
-  targetUserId: undefined,
-  targetUsername: 'zonkapires',
-  scheduledTime: '2025-06-30T04:45:25.023Z'
-}
-✅ Acción action_1751256933788_520cfhety programada para: 30/6/2025, 4:45:25
-✅ [FOLLOW_ID_LOOKUP] Resuelto @francisco50s → 1937247137206558721. Acción reprogramada para 30/6/2025, 4:30:33
-🔄 Acción action_1751256928154_cr2j3qv6s reprogramada para lookup de ID
-🎯 1 acciones agregadas exitosamente
-📊 Cola actual: 14 acciones pendientes
-⏰ Rango de ejecución: 30/6/2025, 4:45:25 - 30/6/2025, 4:45:25
-[RATE_LIMIT] Tracker actualizado para cmccr4rxe001cjjupu8dxf7y6, acción follow
-🔄 Ejecutando acción action_1751256928809_hr2sln06a (follow) para cuenta cmccr4rxe001cjjupu8dxf7y6
-[QUEUE] Cargando datos de cuenta para cmccr4rxe001cjjupu8dxf7y6...
-[QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'follow',
-  accountIds: '[1 cuentas]',
-  targetUserId: undefined,
-  targetUsername: 'Guardiamaria2',
-  text: undefined,
-  tweetId: undefined,
-  scheduledTime: '2025-06-30T04:45:25.023Z',
-  useRandomDistribution: undefined
-}
-✅ [QUEUE_VALIDATION] targetUsername válido: "Guardiamaria2" → "Guardiamaria2"
-🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
-✅ [QUEUE] Cuenta cargada: @francisco50s (ID: cmccr4rxe001cjjupu8dxf7y6)
-[QUEUE] Recibida petición para añadir acciones. BaseDelay: undefinedms, RandomDelay: undefinedms
-[QUEUE] Acción para @francisco50s programada SECUENCIALMENTE para: 2025-06-30T04:45:25.023Z (Delay total: 30000ms)
-[QUEUE_DEBUG] Acción follow creada para @francisco50s: {
-  actionId: 'action_1751256934336_iuxj4kjjo',
-  targetUserId: undefined,
-  targetUsername: 'Guardiamaria2',
-  estimatedStartTime: '2025-06-30T04:45:25.023Z'
-}
-📥 Agregando 1 acciones a la cola
-[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
-  actionId: 'action_1751256934336_iuxj4kjjo',
-  accountId: 'cmccr4rxe001cjjupu8dxf7y6',
-  targetUserId: undefined,
-  targetUsername: 'Guardiamaria2',
-  accountUsername: 'francisco50s'
-}
-[QUEUE_DEBUG] Acción follow después de procesar: {
-  actionId: 'action_1751256934337_ldg50emqz',
-  accountId: 'cmccr4rxe001cjjupu8dxf7y6',
-  targetUserId: undefined,
-  targetUsername: 'Guardiamaria2',
-  scheduledTime: '2025-06-30T04:45:25.023Z'
-}
-✅ Acción action_1751256934337_ldg50emqz programada para: 30/6/2025, 4:45:25
-🔍 [FOLLOW_ID_LOOKUP] Resolviendo ID para @JulietaAlv44555 en tiempo de ejecución...
-🔍 Configurando cliente Twitter para @francisco50s...
-✅ Usando OAuth 1.0a para @francisco50s
-[CACHE] MISS: Buscando User ID para @JulietaAlv44555 via API.
-🎯 1 acciones agregadas exitosamente
-📊 Cola actual: 15 acciones pendientes
-⏰ Rango de ejecución: 30/6/2025, 4:45:25 - 30/6/2025, 4:45:25
-✅ [FOLLOW_ID_LOOKUP] Resuelto @JulietaAlv44555 → 1930361302687289344. Acción reprogramada para 30/6/2025, 4:30:34
-🔄 Acción action_1751256928809_hr2sln06a reprogramada para lookup de ID
-[QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'follow',
-  accountIds: '[1 cuentas]',
-  targetUserId: undefined,
-  targetUsername: 'francisco50s',
-  text: undefined,
-  tweetId: undefined,
-  scheduledTime: '2025-06-30T05:00:25.023Z',
-  useRandomDistribution: undefined
-}
-✅ [QUEUE_VALIDATION] targetUsername válido: "francisco50s" → "francisco50s"
-🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
-[QUEUE] Recibida petición para añadir acciones. BaseDelay: undefinedms, RandomDelay: undefinedms
-[QUEUE] Acción para @JulietaAlv44555 programada SECUENCIALMENTE para: 2025-06-30T05:00:25.023Z (Delay total: 30000ms)
-[QUEUE_DEBUG] Acción follow creada para @JulietaAlv44555: {
-  actionId: 'action_1751256934886_wguqaoej7',
-  targetUserId: undefined,
-  targetUsername: 'francisco50s',
-  estimatedStartTime: '2025-06-30T05:00:25.023Z'
-}
-📥 Agregando 1 acciones a la cola
-[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
-  actionId: 'action_1751256934886_wguqaoej7',
-  accountId: 'cmccr4ijl0009jjupi2vi8vr5',
-  targetUserId: undefined,
-  targetUsername: 'francisco50s',
-  accountUsername: 'JulietaAlv44555'
-}
-[QUEUE_DEBUG] Acción follow después de procesar: {
-  actionId: 'action_1751256934886_2x74q35ls',
-  accountId: 'cmccr4ijl0009jjupi2vi8vr5',
-  targetUserId: undefined,
-  targetUsername: 'francisco50s',
-  scheduledTime: '2025-06-30T05:00:25.023Z'
-}
-✅ Acción action_1751256934886_2x74q35ls programada para: 30/6/2025, 5:00:25
-🎯 1 acciones agregadas exitosamente
-📊 Cola actual: 16 acciones pendientes
-⏰ Rango de ejecución: 30/6/2025, 5:00:25 - 30/6/2025, 5:00:25
-[QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'follow',
-  accountIds: '[1 cuentas]',
-  targetUserId: undefined,
-  targetUsername: 'JulietaAlv44555',
-  text: undefined,
-  tweetId: undefined,
-  scheduledTime: '2025-06-30T05:00:25.023Z',
-  useRandomDistribution: undefined
-}
-✅ [QUEUE_VALIDATION] targetUsername válido: "JulietaAlv44555" → "JulietaAlv44555"
-🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
-[QUEUE] Recibida petición para añadir acciones. BaseDelay: undefinedms, RandomDelay: undefinedms
-[QUEUE] Acción para @zonkapires programada SECUENCIALMENTE para: 2025-06-30T05:00:25.023Z (Delay total: 30000ms)
-[QUEUE_DEBUG] Acción follow creada para @zonkapires: {
-  actionId: 'action_1751256935457_k1jkfzmfh',
-  targetUserId: undefined,
-  targetUsername: 'JulietaAlv44555',
-  estimatedStartTime: '2025-06-30T05:00:25.023Z'
-}
-📥 Agregando 1 acciones a la cola
-[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
-  actionId: 'action_1751256935457_k1jkfzmfh',
-  accountId: 'cmcdyy83w0003xfna438cvb2n',
-  targetUserId: undefined,
-  targetUsername: 'JulietaAlv44555',
-  accountUsername: 'zonkapires'
-}
-[QUEUE_DEBUG] Acción follow después de procesar: {
-  actionId: 'action_1751256935457_gwr9m0ajg',
-  accountId: 'cmcdyy83w0003xfna438cvb2n',
-  targetUserId: undefined,
-  targetUsername: 'JulietaAlv44555',
-  scheduledTime: '2025-06-30T05:00:25.023Z'
-}
-✅ Acción action_1751256935457_gwr9m0ajg programada para: 30/6/2025, 5:00:25
-🎯 1 acciones agregadas exitosamente
-📊 Cola actual: 17 acciones pendientes
-⏰ Rango de ejecución: 30/6/2025, 5:00:25 - 30/6/2025, 5:00:25
-[QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'follow',
-  accountIds: '[1 cuentas]',
-  targetUserId: undefined,
-  targetUsername: 'zonkapires',
-  text: undefined,
-  tweetId: undefined,
-  scheduledTime: '2025-06-30T05:00:25.023Z',
-  useRandomDistribution: undefined
-}
-✅ [QUEUE_VALIDATION] targetUsername válido: "zonkapires" → "zonkapires"
-🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
-[QUEUE] Recibida petición para añadir acciones. BaseDelay: undefinedms, RandomDelay: undefinedms
-[QUEUE] Acción para @Guardiamaria2 programada SECUENCIALMENTE para: 2025-06-30T05:00:25.023Z (Delay total: 30000ms)
-[QUEUE_DEBUG] Acción follow creada para @Guardiamaria2: {
-  actionId: 'action_1751256936204_4cbr1tcy6',
-  targetUserId: undefined,
-  targetUsername: 'zonkapires',
-  estimatedStartTime: '2025-06-30T05:00:25.023Z'
-}
-📥 Agregando 1 acciones a la cola
-[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
-  actionId: 'action_1751256936204_4cbr1tcy6',
-  accountId: 'cmccr4oh9000yjjupfkyfo7au',
-  targetUserId: undefined,
-  targetUsername: 'zonkapires',
-  accountUsername: 'Guardiamaria2'
-}
-[QUEUE_DEBUG] Acción follow después de procesar: {
-  actionId: 'action_1751256936204_khqq4pnop',
-  accountId: 'cmccr4oh9000yjjupfkyfo7au',
-  targetUserId: undefined,
-  targetUsername: 'zonkapires',
-  scheduledTime: '2025-06-30T05:00:25.023Z'
-}
-✅ Acción action_1751256936204_khqq4pnop programada para: 30/6/2025, 5:00:25
-🎯 1 acciones agregadas exitosamente
-📊 Cola actual: 18 acciones pendientes
-⏰ Rango de ejecución: 30/6/2025, 5:00:25 - 30/6/2025, 5:00:25
-[QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'follow',
-  accountIds: '[1 cuentas]',
-  targetUserId: undefined,
-  targetUsername: 'Guardiamaria2',
-  text: undefined,
-  tweetId: undefined,
-  scheduledTime: '2025-06-30T05:00:25.023Z',
-  useRandomDistribution: undefined
-}
-✅ [QUEUE_VALIDATION] targetUsername válido: "Guardiamaria2" → "Guardiamaria2"
-🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
-[QUEUE] Recibida petición para añadir acciones. BaseDelay: undefinedms, RandomDelay: undefinedms
-[QUEUE] Acción para @romicastroo1 programada SECUENCIALMENTE para: 2025-06-30T05:00:25.023Z (Delay total: 30000ms)
-[QUEUE_DEBUG] Acción follow creada para @romicastroo1: {
-  actionId: 'action_1751256936757_oi6r7r7ff',
-  targetUserId: undefined,
-  targetUsername: 'Guardiamaria2',
-  estimatedStartTime: '2025-06-30T05:00:25.023Z'
-}
-📥 Agregando 1 acciones a la cola
-[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
-  actionId: 'action_1751256936757_oi6r7r7ff',
-  accountId: 'cmccr4j8u000cjjuperpwhdjf',
-  targetUserId: undefined,
-  targetUsername: 'Guardiamaria2',
-  accountUsername: 'romicastroo1'
-}
-[QUEUE_DEBUG] Acción follow después de procesar: {
-  actionId: 'action_1751256936757_fp7r75lut',
-  accountId: 'cmccr4j8u000cjjuperpwhdjf',
-  targetUserId: undefined,
-  targetUsername: 'Guardiamaria2',
-  scheduledTime: '2025-06-30T05:00:25.023Z'
-}
-✅ Acción action_1751256936757_fp7r75lut programada para: 30/6/2025, 5:00:25
-🎯 1 acciones agregadas exitosamente
-📊 Cola actual: 19 acciones pendientes
-⏰ Rango de ejecución: 30/6/2025, 5:00:25 - 30/6/2025, 5:00:25
-[QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'follow',
-  accountIds: '[1 cuentas]',
-  targetUserId: undefined,
-  targetUsername: 'romicastroo1',
-  text: undefined,
-  tweetId: undefined,
-  scheduledTime: '2025-06-30T05:00:25.023Z',
-  useRandomDistribution: undefined
-}
-✅ [QUEUE_VALIDATION] targetUsername válido: "romicastroo1" → "romicastroo1"
-🔕 [FOLLOW_EARLY_LOOKUP] Deshabilitado. El targetUserId se resolverá al ejecutar la acción.
-[QUEUE] Recibida petición para añadir acciones. BaseDelay: undefinedms, RandomDelay: undefinedms
-[QUEUE] Acción para @francisco50s programada SECUENCIALMENTE para: 2025-06-30T05:00:25.023Z (Delay total: 30000ms)
-[QUEUE_DEBUG] Acción follow creada para @francisco50s: {
-  actionId: 'action_1751256937319_thx17aqw6',
-  targetUserId: undefined,
-  targetUsername: 'romicastroo1',
-  estimatedStartTime: '2025-06-30T05:00:25.023Z'
-}
-📥 Agregando 1 acciones a la cola
-[QUEUE_DEBUG] Acción follow #1 antes de procesar: {
-  actionId: 'action_1751256937319_thx17aqw6',
-  accountId: 'cmccr4rxe001cjjupu8dxf7y6',
-  targetUserId: undefined,
-  targetUsername: 'romicastroo1',
-  accountUsername: 'francisco50s'
-}
-[QUEUE_DEBUG] Acción follow después de procesar: {
-  actionId: 'action_1751256937319_crp46j6zt',
-  accountId: 'cmccr4rxe001cjjupu8dxf7y6',
-  targetUserId: undefined,
-  targetUsername: 'romicastroo1',
-  scheduledTime: '2025-06-30T05:00:25.023Z'
-}
-✅ Acción action_1751256937319_crp46j6zt programada para: 30/6/2025, 5:00:25
-🎯 1 acciones agregadas exitosamente
-📊 Cola actual: 20 acciones pendientes
-⏰ Rango de ejecución: 30/6/2025, 5:00:25 - 30/6/2025, 5:00:25
-==> Detected service running on port 10000
-==> Docs on specifying a port: https://render.com/docs/web-services#port-binding
-🚀 Procesando 5 acciones listas
-[RATE_LIMIT] Tracker actualizado para cmccr4ijl0009jjupi2vi8vr5, acción follow
-🔄 Ejecutando acción action_1751256929452_7qsgwq1pv (follow) para cuenta cmccr4ijl0009jjupi2vi8vr5
-[QUEUE] Cargando datos de cuenta para cmccr4ijl0009jjupi2vi8vr5...
-✅ [QUEUE] Cuenta cargada: @JulietaAlv44555 (ID: cmccr4ijl0009jjupi2vi8vr5)
-🔍 [FOLLOW_ID_LOOKUP] Resolviendo ID para @Guardiamaria2 en tiempo de ejecución...
-🔍 Configurando cliente Twitter para @JulietaAlv44555...
-✅ Usando OAuth 1.0a para @JulietaAlv44555
-[CACHE] HIT: User ID para @Guardiamaria2 encontrado en cache.
-✅ [FOLLOW_ID_LOOKUP] Resuelto @Guardiamaria2 → 1932874259996815364. Acción reprogramada para 30/6/2025, 4:45:33
-🔄 Acción action_1751256929452_7qsgwq1pv reprogramada para lookup de ID
-[RATE_LIMIT] Tracker actualizado para cmcdyy83w0003xfna438cvb2n, acción follow
-🔄 Ejecutando acción action_1751256930004_zkpzdauiz (follow) para cuenta cmcdyy83w0003xfna438cvb2n
-[QUEUE] Cargando datos de cuenta para cmcdyy83w0003xfna438cvb2n...
-✅ [QUEUE] Cuenta cargada: @zonkapires (ID: cmcdyy83w0003xfna438cvb2n)
-🔍 [FOLLOW_ID_LOOKUP] Resolviendo ID para @romicastroo1 en tiempo de ejecución...
-🔍 Configurando cliente Twitter para @zonkapires...
-✅ Usando OAuth 1.0a para @zonkapires
-[CACHE] HIT: User ID para @romicastroo1 encontrado en cache.
-✅ [FOLLOW_ID_LOOKUP] Resuelto @romicastroo1 → 1930406555683274752. Acción reprogramada para 30/6/2025, 4:45:34
-🔄 Acción action_1751256930004_zkpzdauiz reprogramada para lookup de ID
-[RATE_LIMIT] Tracker actualizado para cmccr4oh9000yjjupfkyfo7au, acción follow
-🔄 Ejecutando acción action_1751256930526_z00k9qrmy (follow) para cuenta cmccr4oh9000yjjupfkyfo7au
-[QUEUE] Cargando datos de cuenta para cmccr4oh9000yjjupfkyfo7au...
-✅ [QUEUE] Cuenta cargada: @Guardiamaria2 (ID: cmccr4oh9000yjjupfkyfo7au)
-🔍 [FOLLOW_ID_LOOKUP] Resolviendo ID para @francisco50s en tiempo de ejecución...
-🔍 Configurando cliente Twitter para @Guardiamaria2...
-✅ Usando OAuth 1.0a para @Guardiamaria2
-[CACHE] HIT: User ID para @francisco50s encontrado en cache.
-✅ [FOLLOW_ID_LOOKUP] Resuelto @francisco50s → 1937247137206558721. Acción reprogramada para 30/6/2025, 4:45:35
-🔄 Acción action_1751256930526_z00k9qrmy reprogramada para lookup de ID
-⏰ Saltando acción action_1751256926075_bbg089nwn - delay mínimo no cumplido
-⏰ Saltando acción action_1751256926987_byy5unh5k - delay mínimo no cumplido
-🚀 Procesando 4 acciones listas
-[RATE_LIMIT] Tracker actualizado para cmccr4j8u000cjjuperpwhdjf, acción follow
-🔄 Ejecutando acción action_1751256931062_kg4u10p6o (follow) para cuenta cmccr4j8u000cjjuperpwhdjf
-[QUEUE] Cargando datos de cuenta para cmccr4j8u000cjjuperpwhdjf...
-✅ [QUEUE] Cuenta cargada: @romicastroo1 (ID: cmccr4j8u000cjjuperpwhdjf)
-🔍 [FOLLOW_ID_LOOKUP] Resolviendo ID para @JulietaAlv44555 en tiempo de ejecución...
-🔍 Configurando cliente Twitter para @romicastroo1...
-✅ Usando OAuth 1.0a para @romicastroo1
-[CACHE] HIT: User ID para @JulietaAlv44555 encontrado en cache.
-✅ [FOLLOW_ID_LOOKUP] Resuelto @JulietaAlv44555 → 1930361302687289344. Acción reprogramada para 30/6/2025, 4:45:38
-🔄 Acción action_1751256931062_kg4u10p6o reprogramada para lookup de ID
-[RATE_LIMIT] Tracker actualizado para cmccr4rxe001cjjupu8dxf7y6, acción follow
-🔄 Ejecutando acción action_1751256931605_lko9m9z65 (follow) para cuenta cmccr4rxe001cjjupu8dxf7y6
-[QUEUE] Cargando datos de cuenta para cmccr4rxe001cjjupu8dxf7y6...
-✅ [QUEUE] Cuenta cargada: @francisco50s (ID: cmccr4rxe001cjjupu8dxf7y6)
-🔍 [FOLLOW_ID_LOOKUP] Resolviendo ID para @zonkapires en tiempo de ejecución...
-🔍 Configurando cliente Twitter para @francisco50s...
-✅ Usando OAuth 1.0a para @francisco50s
-[CACHE] HIT: User ID para @zonkapires encontrado en cache.
-✅ [FOLLOW_ID_LOOKUP] Resuelto @zonkapires → 1910470701141909505. Acción reprogramada para 30/6/2025, 4:45:38
-🔄 Acción action_1751256931605_lko9m9z65 reprogramada para lookup de ID
-⏰ Saltando acción action_1751256928154_cr2j3qv6s - delay mínimo no cumplido
-⏰ Saltando acción action_1751256928809_hr2sln06a - delay mínimo no cumplido
-🚀 Procesando 11 acciones listas
-[RATE_LIMIT] Tracker actualizado para cmccr4ijl0009jjupi2vi8vr5, acción follow
-🔄 Ejecutando acción action_1751256929452_7qsgwq1pv (follow) para cuenta cmccr4ijl0009jjupi2vi8vr5
-✅ [FOLLOW_VALIDATION] Validaciones pasadas - targetUserId ya resuelto:
-      - Cuenta origen: @JulietaAlv44555 (ID: 1930361302687289344)
-      - Target: @Guardiamaria2 (ID: 1932874259996815364)
-      - Fuente: Resuelto en endpoint /add
-    
-👥 Ejecutando follow: @JulietaAlv44555 → @Guardiamaria2 (ID: 1932874259996815364)
-🔍 Configurando cliente Twitter para @JulietaAlv44555...
-✅ Usando OAuth 1.0a para @JulietaAlv44555
-🚀 [FOLLOW_EXECUTE] Ejecutando follow directo: 1930361302687289344 → 1932874259996815364 (@Guardiamaria2)
-✅ Follow ejecutado exitosamente: @JulietaAlv44555 → 1932874259996815364 (@Guardiamaria2)
-✅ Acción action_1751256929452_7qsgwq1pv completada exitosamente
-📜 [HISTORY] Intentando registrar acción en historial → action_1751256929452_7qsgwq1pv | estado: COMPLETED
-✅ [HISTORY] Acción action_1751256929452_7qsgwq1pv registrada/actualizada correctamente
-[RATE_LIMIT] Tracker actualizado para cmcdyy83w0003xfna438cvb2n, acción follow
-🔄 Ejecutando acción action_1751256930004_zkpzdauiz (follow) para cuenta cmcdyy83w0003xfna438cvb2n
-✅ [FOLLOW_VALIDATION] Validaciones pasadas - targetUserId ya resuelto:
-      - Cuenta origen: @zonkapires (ID: 1910470701141909505)
-      - Target: @romicastroo1 (ID: 1930406555683274752)
-      - Fuente: Resuelto en endpoint /add
-    
-👥 Ejecutando follow: @zonkapires → @romicastroo1 (ID: 1930406555683274752)
-🔍 Configurando cliente Twitter para @zonkapires...
-✅ Usando OAuth 1.0a para @zonkapires
-🚀 [FOLLOW_EXECUTE] Ejecutando follow directo: 1910470701141909505 → 1930406555683274752 (@romicastroo1)
-✅ Follow ejecutado exitosamente: @zonkapires → 1930406555683274752 (@romicastroo1)
-✅ Acción action_1751256930004_zkpzdauiz completada exitosamente
-📜 [HISTORY] Intentando registrar acción en historial → action_1751256930004_zkpzdauiz | estado: COMPLETED
-✅ [HISTORY] Acción action_1751256930004_zkpzdauiz registrada/actualizada correctamente
-[RATE_LIMIT] Tracker actualizado para cmccr4oh9000yjjupfkyfo7au, acción follow
-🔄 Ejecutando acción action_1751256930526_z00k9qrmy (follow) para cuenta cmccr4oh9000yjjupfkyfo7au
-✅ [FOLLOW_VALIDATION] Validaciones pasadas - targetUserId ya resuelto:
-      - Cuenta origen: @Guardiamaria2 (ID: 1932874259996815364)
-      - Target: @francisco50s (ID: 1937247137206558721)
-      - Fuente: Resuelto en endpoint /add
-    
-👥 Ejecutando follow: @Guardiamaria2 → @francisco50s (ID: 1937247137206558721)
-🔍 Configurando cliente Twitter para @Guardiamaria2...
-✅ Usando OAuth 1.0a para @Guardiamaria2
-🚀 [FOLLOW_EXECUTE] Ejecutando follow directo: 1932874259996815364 → 1937247137206558721 (@francisco50s)
-✅ Follow ejecutado exitosamente: @Guardiamaria2 → 1937247137206558721 (@francisco50s)
-✅ Acción action_1751256930526_z00k9qrmy completada exitosamente
-📜 [HISTORY] Intentando registrar acción en historial → action_1751256930526_z00k9qrmy | estado: COMPLETED
-✅ [HISTORY] Acción action_1751256930526_z00k9qrmy registrada/actualizada correctamente
-⏰ Saltando acción action_1751256926075_bbg089nwn - delay mínimo no cumplido
-⏰ Saltando acción action_1751256926987_byy5unh5k - delay mínimo no cumplido
-⏰ Saltando acción action_1751256927565_0xwl3g40t - delay mínimo no cumplido
-[RATE_LIMIT] Tracker actualizado para cmccr4j8u000cjjuperpwhdjf, acción follow
-🔄 Ejecutando acción action_1751256928154_cr2j3qv6s (follow) para cuenta cmccr4j8u000cjjuperpwhdjf
-✅ [FOLLOW_VALIDATION] Validaciones pasadas - targetUserId ya resuelto:
-      - Cuenta origen: @romicastroo1 (ID: 1930406555683274752)
-      - Target: @francisco50s (ID: 1937247137206558721)
-      - Fuente: Resuelto en endpoint /add
-    
-👥 Ejecutando follow: @romicastroo1 → @francisco50s (ID: 1937247137206558721)
-🔍 Configurando cliente Twitter para @romicastroo1...
-✅ Usando OAuth 1.0a para @romicastroo1
-🚀 [FOLLOW_EXECUTE] Ejecutando follow directo: 1930406555683274752 → 1937247137206558721 (@francisco50s)
-✅ Follow ejecutado exitosamente: @romicastroo1 → 1937247137206558721 (@francisco50s)
-✅ Acción action_1751256928154_cr2j3qv6s completada exitosamente
-📜 [HISTORY] Intentando registrar acción en historial → action_1751256928154_cr2j3qv6s | estado: COMPLETED
-✅ [HISTORY] Acción action_1751256928154_cr2j3qv6s registrada/actualizada correctamente
-⏰ Saltando acción action_1751256932124_zrhsnqmac - delay mínimo no cumplido
-⏰ Saltando acción action_1751256932672_kiwalsh2r - delay mínimo no cumplido
-⏰ Saltando acción action_1751256933233_d869vtxln - delay mínimo no cumplido
-⏰ Saltando acción action_1751256933788_520cfhety - delay mínimo no cumplido
-🚀 Procesando 3 acciones listas
-[RATE_LIMIT] Tracker actualizado para cmccr4rxe001cjjupu8dxf7y6, acción follow
-🔄 Ejecutando acción action_1751256931605_lko9m9z65 (follow) para cuenta cmccr4rxe001cjjupu8dxf7y6
-✅ [FOLLOW_VALIDATION] Validaciones pasadas - targetUserId ya resuelto:
-      - Cuenta origen: @francisco50s (ID: 1937247137206558721)
-      - Target: @zonkapires (ID: 1910470701141909505)
-      - Fuente: Resuelto en endpoint /add
-    
-👥 Ejecutando follow: @francisco50s → @zonkapires (ID: 1910470701141909505)
-🔍 Configurando cliente Twitter para @francisco50s...
-✅ Usando OAuth 1.0a para @francisco50s
-🚀 [FOLLOW_EXECUTE] Ejecutando follow directo: 1937247137206558721 → 1910470701141909505 (@zonkapires)
-✅ Follow ejecutado exitosamente: @francisco50s → 1910470701141909505 (@zonkapires)
-✅ Acción action_1751256931605_lko9m9z65 completada exitosamente
-📜 [HISTORY] Intentando registrar acción en historial → action_1751256931605_lko9m9z65 | estado: COMPLETED
-✅ [HISTORY] Acción action_1751256931605_lko9m9z65 registrada/actualizada correctamente
-✅ [QUEUE] Limpiadas 11 acciones en cola y programadas.
+📊 Cola actual: 2490 acciones pendientes
+⏰ Rango de ejecución: 30/6/2025, 12:33:17 - 30/6/2025, 12:33:17

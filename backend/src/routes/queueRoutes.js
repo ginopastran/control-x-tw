@@ -70,7 +70,10 @@ function createQueueRoutes(queueService, prisma) {
             error:
               "Para acciones de follow se requiere targetUserId o targetUsername",
             details: {
-              received: { targetUserId: bodyTargetUserId, targetUsername: bodyTargetUsername },
+              received: {
+                targetUserId: bodyTargetUserId,
+                targetUsername: bodyTargetUsername,
+              },
               requirement:
                 "Debe especificar al menos uno: targetUserId (ID numérico) o targetUsername (sin @)",
             },
@@ -102,7 +105,10 @@ function createQueueRoutes(queueService, prisma) {
 
         // Validar formato de targetUserId si está presente
         if (bodyTargetUserId) {
-          if (typeof bodyTargetUserId === "string" && !/^\d+$/.test(bodyTargetUserId)) {
+          if (
+            typeof bodyTargetUserId === "string" &&
+            !/^\d+$/.test(bodyTargetUserId)
+          ) {
             // Es un string pero no numérico - probablemente es un username
             console.log(
               `⚠️ [QUEUE_VALIDATION] targetUserId parece ser username: "${bodyTargetUserId}"`
@@ -282,10 +288,27 @@ function createQueueRoutes(queueService, prisma) {
         historyLimit = 10,
         queuePage = 1,
         queueLimit = 100,
+        actionTypes,
       } = req.query;
+
+      // Permitir filtrado opcional por tipo de acción (por ejemplo: "tweet,retweet")
+      const actionTypesFilter = (actionTypes || "")
+        .split(",")
+        .map((t) => t.trim().toLowerCase())
+        .filter(Boolean);
 
       // Obtener estado de la cola desde BD (método actualizado)
       const queueStatus = await queueService.getQueueStatus();
+
+      // Si el usuario proporcionó actionTypes, filtrar los resultados
+      if (actionTypesFilter.length > 0) {
+        const matchesFilter = (actionObj) =>
+          actionTypesFilter.includes((actionObj.action || "").toLowerCase());
+
+        queueStatus.queue = queueStatus.queue.filter(matchesFilter);
+        queueStatus.running = queueStatus.running.filter(matchesFilter);
+        queueStatus.scheduled = queueStatus.scheduled.filter(matchesFilter);
+      }
 
       // Obtener historial desde la base de datos (solo acciones ejecutadas)
       const historyActions = await prisma.actionHistory.findMany({
