@@ -284,6 +284,9 @@ function createAdditionalRoutes(
         select: {
           id: true,
           username: true,
+          userId: true,
+          twitterUserId: true,
+          twitterId: true,
           ownApiKey: true,
           ownApiSecret: true,
           ownAccessToken: true,
@@ -300,6 +303,9 @@ function createAdditionalRoutes(
       const accountsInfo = accounts.map((account) => ({
         id: account.id,
         username: account.username,
+        twitterUserId: account.twitterUserId || null,
+        twitterId: account.twitterId || null,
+        userId: account.userId || null,
         hasOAuth2: !!(
           account.ownOAuth2AccessToken && account.ownOAuth2RefreshToken
         ),

@@ -1,204 +1,850 @@
-[QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'tweet',
-  accountIds: '[1 cuentas]',
-  targetUserId: undefined,
-  targetUsername: undefined,
-  text: '"hay gente que no sabe lo que duele ver a tu ex en ..."',
-  tweetId: undefined,
-  scheduledTime: undefined,
-  useRandomDistribution: true
-}
-[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 6 hours
-[QUEUE] Acción para @carlasanchz__ programada ALEATORIAMENTE para: 2025-06-30T11:56:11.155Z
-📥 Agregando 1 acciones a la cola
-✅ Acción action_1751264246422_hc18ki70i programada para: 30/6/2025, 11:56:11
-🎯 1 acciones agregadas exitosamente
-📊 Cola actual: 2479 acciones pendientes
-⏰ Rango de ejecución: 30/6/2025, 11:56:11 - 30/6/2025, 11:56:11
-[QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'tweet',
-  accountIds: '[1 cuentas]',
-  targetUserId: undefined,
-  targetUsername: undefined,
-  text: '"anoche soñé con vos y me desperté con resaca. que ..."',
-  tweetId: undefined,
-  scheduledTime: undefined,
-  useRandomDistribution: true
-}
-[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 6 hours
-[QUEUE] Acción para @carlasanchz__ programada ALEATORIAMENTE para: 2025-06-30T08:43:49.801Z
-📥 Agregando 1 acciones a la cola
-✅ Acción action_1751264248251_qeigmyw8j programada para: 30/6/2025, 12:12:11
-🎯 1 acciones agregadas exitosamente
-📊 Cola actual: 2480 acciones pendientes
-⏰ Rango de ejecución: 30/6/2025, 12:12:11 - 30/6/2025, 12:12:11
-[QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'tweet',
-  accountIds: '[1 cuentas]',
-  targetUserId: undefined,
-  targetUsername: undefined,
-  text: '"el frio de mendoza no es normal..."',
-  tweetId: undefined,
-  scheduledTime: undefined,
-  useRandomDistribution: true
-}
-[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 6 hours
-[QUEUE] Acción para @carlasanchz__ programada ALEATORIAMENTE para: 2025-06-30T06:50:51.753Z
-📥 Agregando 1 acciones a la cola
-✅ Acción action_1751264249840_w7ht7ywnp programada para: 30/6/2025, 12:28:11
-🎯 1 acciones agregadas exitosamente
-📊 Cola actual: 2481 acciones pendientes
-⏰ Rango de ejecución: 30/6/2025, 12:28:11 - 30/6/2025, 12:28:11
-[QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'tweet',
-  accountIds: '[1 cuentas]',
-  targetUserId: undefined,
-  targetUsername: undefined,
-  text: '"no se si seguir o soltar..."',
-  tweetId: undefined,
-  scheduledTime: undefined,
-  useRandomDistribution: true
-}
-[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 6 hours
-[QUEUE] Acción para @carlasanchz__ programada ALEATORIAMENTE para: 2025-06-30T10:51:11.018Z
-📥 Agregando 1 acciones a la cola
-✅ Acción action_1751264251418_ifpsdipf0 programada para: 30/6/2025, 12:44:11
-🎯 1 acciones agregadas exitosamente
-📊 Cola actual: 2482 acciones pendientes
-⏰ Rango de ejecución: 30/6/2025, 12:44:11 - 30/6/2025, 12:44:11
-[QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'tweet',
-  accountIds: '[1 cuentas]',
-  targetUserId: undefined,
-  targetUsername: undefined,
-  text: '"mi vida amorosa es muy triste..."',
-  tweetId: undefined,
-  scheduledTime: undefined,
-  useRandomDistribution: true
-}
-[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 6 hours
-[QUEUE] Acción para @JulietaAlv44555 programada ALEATORIAMENTE para: 2025-06-30T07:42:20.278Z
-📥 Agregando 1 acciones a la cola
-✅ Acción action_1751264287171_1lxgmmtyj programada para: 30/6/2025, 7:42:20
-🎯 1 acciones agregadas exitosamente
-📊 Cola actual: 2483 acciones pendientes
-⏰ Rango de ejecución: 30/6/2025, 7:42:20 - 30/6/2025, 7:42:20
-[QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'tweet',
-  accountIds: '[1 cuentas]',
-  targetUserId: undefined,
-  targetUsername: undefined,
-  text: '"el mundo se cae a pedazos y yo viendo historias de..."',
-  tweetId: undefined,
-  scheduledTime: undefined,
-  useRandomDistribution: true
-}
-[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 6 hours
-[QUEUE] Acción para @JulietaAlv44555 programada ALEATORIAMENTE para: 2025-06-30T08:47:44.131Z
-📥 Agregando 1 acciones a la cola
-✅ Acción action_1751264289211_7p2tio0gy programada para: 30/6/2025, 8:47:44
-🎯 1 acciones agregadas exitosamente
-📊 Cola actual: 2484 acciones pendientes
-⏰ Rango de ejecución: 30/6/2025, 8:47:44 - 30/6/2025, 8:47:44
-[QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'tweet',
-  accountIds: '[1 cuentas]',
-  targetUserId: undefined,
-  targetUsername: undefined,
-  text: '"si me decís que vamos al cerro con sanguchitos y m..."',
-  tweetId: undefined,
-  scheduledTime: undefined,
-  useRandomDistribution: true
-}
-[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 6 hours
-[QUEUE] Acción para @JulietaAlv44555 programada ALEATORIAMENTE para: 2025-06-30T09:28:59.118Z
-📥 Agregando 1 acciones a la cola
-✅ Acción action_1751264290805_ltnw29861 programada para: 30/6/2025, 9:28:59
-🎯 1 acciones agregadas exitosamente
-📊 Cola actual: 2485 acciones pendientes
-⏰ Rango de ejecución: 30/6/2025, 9:28:59 - 30/6/2025, 9:28:59
-[QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'tweet',
-  accountIds: '[1 cuentas]',
-  targetUserId: undefined,
-  targetUsername: undefined,
-  text: '"qué fácil sería todo si me pagasen por procastinar..."',
-  tweetId: undefined,
-  scheduledTime: undefined,
-  useRandomDistribution: true
-}
-[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 6 hours
-[QUEUE] Acción para @JulietaAlv44555 programada ALEATORIAMENTE para: 2025-06-30T06:47:07.715Z
-📥 Agregando 1 acciones a la cola
-✅ Acción action_1751264293246_hhnkgabzd programada para: 30/6/2025, 9:44:59
-🎯 1 acciones agregadas exitosamente
-📊 Cola actual: 2486 acciones pendientes
-⏰ Rango de ejecución: 30/6/2025, 9:44:59 - 30/6/2025, 9:44:59
-[QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'tweet',
-  accountIds: '[1 cuentas]',
-  targetUserId: undefined,
-  targetUsername: undefined,
-  text: '"esta demasiado fresco..."',
-  tweetId: undefined,
-  scheduledTime: undefined,
-  useRandomDistribution: true
-}
-[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 6 hours
-[QUEUE] Acción para @zonkapires programada ALEATORIAMENTE para: 2025-06-30T11:45:17.089Z
-📥 Agregando 1 acciones a la cola
-✅ Acción action_1751264326522_2d57qhipw programada para: 30/6/2025, 11:45:17
-🎯 1 acciones agregadas exitosamente
-📊 Cola actual: 2487 acciones pendientes
-⏰ Rango de ejecución: 30/6/2025, 11:45:17 - 30/6/2025, 11:45:17
-[QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'tweet',
-  accountIds: '[1 cuentas]',
-  targetUserId: undefined,
-  targetUsername: undefined,
-  text: '"qué difícil es estudiar cuando tu mente está en al..."',
-  tweetId: undefined,
-  scheduledTime: undefined,
-  useRandomDistribution: true
-}
-[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 6 hours
-[QUEUE] Acción para @zonkapires programada ALEATORIAMENTE para: 2025-06-30T06:26:47.465Z
-📥 Agregando 1 acciones a la cola
-✅ Acción action_1751264328085_py68pd0ph programada para: 30/6/2025, 12:01:17
-🎯 1 acciones agregadas exitosamente
-📊 Cola actual: 2488 acciones pendientes
-⏰ Rango de ejecución: 30/6/2025, 12:01:17 - 30/6/2025, 12:01:17
-[QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'tweet',
-  accountIds: '[1 cuentas]',
-  targetUserId: undefined,
-  targetUsername: undefined,
-  text: '"que aburrido esto..."',
-  tweetId: undefined,
-  scheduledTime: undefined,
-  useRandomDistribution: true
-}
-[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 6 hours
-[QUEUE] Acción para @zonkapires programada ALEATORIAMENTE para: 2025-06-30T07:40:13.628Z
-📥 Agregando 1 acciones a la cola
-✅ Acción action_1751264329630_hhidhvpqn programada para: 30/6/2025, 12:17:17
-🎯 1 acciones agregadas exitosamente
-📊 Cola actual: 2489 acciones pendientes
-⏰ Rango de ejecución: 30/6/2025, 12:17:17 - 30/6/2025, 12:17:17
-[QUEUE_DEBUG] Datos recibidos en /add: {
-  action: 'tweet',
-  accountIds: '[1 cuentas]',
-  targetUserId: undefined,
-  targetUsername: undefined,
-  text: '"cada vez entiendo más a los que se van al campo y ..."',
-  tweetId: undefined,
-  scheduledTime: undefined,
-  useRandomDistribution: true
-}
-[QUEUE] Recibida petición para añadir acciones. Distribución aleatoria: 6 hours
-[QUEUE] Acción para @zonkapires programada ALEATORIAMENTE para: 2025-06-30T09:46:03.688Z
-📥 Agregando 1 acciones a la cola
-✅ Acción action_1751264331167_ddl5xhgcz programada para: 30/6/2025, 12:33:17
-🎯 1 acciones agregadas exitosamente
-📊 Cola actual: 2490 acciones pendientes
-⏰ Rango de ejecución: 30/6/2025, 12:33:17 - 30/6/2025, 12:33:17
+2025-06-30T15:29:22.995412051Z [QUEUE_DEBUG] Convirtiendo acción follow de BD a memoria: {
+2025-06-30T15:29:22.995414541Z   actionId: 'action_1751261936031_vtrozixk0',
+2025-06-30T15:29:22.995417151Z   accountId: 'cmccr4k79000gjjup2fhtkmbj',
+2025-06-30T15:29:22.995419711Z   targetUserId: null,
+2025-06-30T15:29:22.995422571Z   targetUsername: 'julilopezzzzzz',
+2025-06-30T15:29:22.995425331Z   status: 'QUEUED → queued',
+2025-06-30T15:29:22.995428111Z   scheduledTime: '2025-06-30T23:12:24.056Z'
+2025-06-30T15:29:22.995431191Z }
+2025-06-30T15:29:22.995433731Z [QUEUE_DEBUG] Convirtiendo acción follow de BD a memoria: {
+2025-06-30T15:29:22.995436561Z   actionId: 'action_1751261935911_66bv205jv',
+2025-06-30T15:29:22.995439591Z   accountId: 'cmccr4ni0000ujjupdpoetpx6',
+2025-06-30T15:29:22.99620149Z   status: 'QUEUED → queued',
+2025-06-30T15:29:22.999190723Z [QUEUE_DEBUG] Convirtiendo acción follow de BD a memoria: {
+2025-06-30T15:29:22.999196953Z   actionId: 'action_1751261943705_glol9ln5z',
+2025-06-30T15:29:22.999199583Z   accountId: 'cmccr4qdi0016jjup4cylljer',
+2025-06-30T15:29:23.094440034Z   scheduledTime: '2025-07-01T01:12:24.056Z'
+2025-06-30T15:29:23.095069469Z }
+2025-06-30T15:29:23.095077269Z   accountId: 'cmccr4i2t0007jjupft4s5ymj',
+2025-06-30T15:29:23.106769794Z   targetUserId: null,
+2025-06-30T15:29:23.115346333Z }
+2025-06-30T15:29:23.116998824Z   87. ID: action_1751261896107_cdqz8qieb, Target: @maxilopp99 (ID: null), Status: QUEUED
+2025-06-30T15:29:23.117001194Z   88. ID: action_1751261896970_2x16r3ule, Target: @gloriateja60907 (ID: null), Status: QUEUED
+2025-06-30T15:29:23.117003494Z   89. ID: action_1751261896815_t1d8su9ul, Target: @olivaressmari (ID: null), Status: QUEUED
+2025-06-30T15:29:23.117005764Z   90. ID: action_1751261896204_3udrzeyx4, Target: @solbaarra (ID: null), Status: QUEUED
+2025-06-30T15:29:23.117007974Z   91. ID: action_1751261896304_fp4rfsvzt, Target: @gonziambu (ID: null), Status: QUEUED
+2025-06-30T15:29:23.117010234Z   92. ID: action_1751261896403_wjwacc9vj, Target: @gonzmoreno__ (ID: null), Status: QUEUED
+2025-06-30T15:29:23.117012444Z   93. ID: action_1751261896961_twfwwg6oo, Target: @belubarra7 (ID: null), Status: QUEUED
+2025-06-30T15:29:23.117783813Z   387. ID: action_1751261913546_id15lhioh, Target: @belubarra7 (ID: null), Status: QUEUED
+2025-06-30T15:29:23.197455434Z   1463. ID: action_1751261979002_uuxpu4ryj, Target: @delmontemaria8 (ID: null), Status: QUEUED
+2025-06-30T15:29:23.202930277Z   status: 'QUEUED → queued',
+2025-06-30T15:29:23.204297521Z   targetUserId: null,
+2025-06-30T15:29:23.204300361Z   targetUsername: 'ruizramiro12',
+2025-06-30T15:29:23.204303041Z   status: 'QUEUED → queued',
+2025-06-30T15:29:23.204305751Z   scheduledTime: '2025-06-30T17:42:24.056Z'
+2025-06-30T15:29:23.204308491Z }
+2025-06-30T15:29:23.204311241Z [QUEUE_DEBUG] Convirtiendo acción follow de BD a memoria: {
+2025-06-30T15:29:23.204314011Z   actionId: 'action_1751261905107_c5ryeur01',
+2025-06-30T15:29:23.204316811Z   accountId: 'cmccr4rcd001ajjuprfvy8i0c',
+2025-06-30T15:29:23.204319581Z   targetUserId: null,
+2025-06-30T15:29:23.204322281Z   targetUsername: 'ferrrgoonzalez',
+2025-06-30T15:29:23.204325072Z   status: 'QUEUED → queued',
+2025-06-30T15:29:23.291016504Z   targetUserId: null,
+2025-06-30T15:29:23.298281101Z   targetUsername: 'maxilopp99',
+2025-06-30T15:29:23.301168691Z   targetUserId: null,
+2025-06-30T15:29:23.301171581Z   targetUsername: 'belubarra7',
+2025-06-30T15:29:23.301174792Z   status: 'QUEUED → queued',
+2025-06-30T15:29:23.301177501Z   scheduledTime: '2025-06-30T21:12:24.056Z'
+2025-06-30T15:29:23.301179852Z }
+2025-06-30T15:29:23.301182552Z [QUEUE_DEBUG] Convirtiendo acción follow de BD a memoria: {
+2025-06-30T15:29:23.301326455Z   status: 'QUEUED → queued',
+2025-06-30T15:29:23.304076902Z   targetUserId: null,
+2025-06-30T15:29:23.304079432Z   targetUsername: 'delmontemaria8',
+2025-06-30T15:29:23.304082012Z   status: 'QUEUED → queued',
+2025-06-30T15:29:23.304084622Z   scheduledTime: '2025-06-30T22:42:24.056Z'
+2025-06-30T15:29:23.304087292Z }
+2025-06-30T15:29:23.304089912Z [QUEUE_DEBUG] Convirtiendo acción follow de BD a memoria: {
+2025-06-30T15:29:23.304092512Z   actionId: 'action_1751261933203_w815pdb73',
+2025-06-30T15:29:23.393776688Z   targetUserId: null,
+2025-06-30T15:29:23.396448993Z   targetUserId: null,
+2025-06-30T15:29:23.396451633Z   targetUsername: 'ramiromoli84224',
+2025-06-30T15:29:23.396454203Z   status: 'QUEUED → queued',
+2025-06-30T15:29:23.398961404Z   status: 'QUEUED → queued',
+2025-06-30T15:29:23.399785064Z   targetUserId: null,
+2025-06-30T15:29:23.399787704Z   targetUsername: 'ramiroperezz23',
+2025-06-30T15:29:23.401723811Z [QUEUE_DEBUG] Convirtiendo acción follow de BD a memoria: {
+2025-06-30T15:29:23.4065801Z   targetUserId: null,
+2025-06-30T15:29:23.408975858Z   actionId: 'action_1751261965303_4ki7iuznq',
+2025-06-30T15:29:23.500331944Z [QUEUE_DEBUG] Convirtiendo acción follow de BD a memoria: {
+2025-06-30T15:29:23.5059138Z   targetUsername: 'alvarezbruno123',
+2025-06-30T15:29:23.506510255Z   94. ID: action_1751261897040_8i0vyz2hg, Target: @tomimartinezzs (ID: null), Status: QUEUED
+2025-06-30T15:29:23.506512585Z   95. ID: action_1751261896203_9murx0u8l, Target: @BelTorressss (ID: null), Status: QUEUED
+2025-06-30T15:29:23.506514945Z   96. ID: action_1751261896105_pfhs4tvb0, Target: @puenteshuggo (ID: null), Status: QUEUED
+2025-06-30T15:29:23.594444418Z   840. ID: action_1751261937702_2agelmawq, Target: @JulietaAlv44555 (ID: null), Status: QUEUED
+2025-06-30T15:29:27.911557365Z ==> Your service is live 🎉
+2025-06-30T15:29:27.937660701Z ==> 
+2025-06-30T15:29:27.964904817Z ==> ///////////////////////////////////////////////////////////
+2025-06-30T15:29:27.988311474Z ==> 
+2025-06-30T15:29:28.01328278Z ==> Available at your primary URL https://control-x-tw-backend.onrender.com
+2025-06-30T15:29:28.037698387Z ==> 
+2025-06-30T15:29:28.08043849Z ==> ///////////////////////////////////////////////////////////
+2025-06-30T15:29:28.617224721Z 🚀 Procesando 75 acciones listas
+2025-06-30T15:29:29.290748494Z [RATE_LIMIT] Tracker actualizado para cmccr4hdi0004jjupmo0c3b13, acción retweet
+2025-06-30T15:29:29.290801545Z 🔄 Ejecutando acción action_1751262911251_2dnu4xnfl (retweet) para cuenta cmccr4hdi0004jjupmo0c3b13
+2025-06-30T15:29:29.291094082Z 🔄 Ejecutando retweet para @alvarezpau7 → 1937539528182640839
+2025-06-30T15:29:29.291737688Z ❌ Error de Twitter API en retweet: Error: La cuenta @alvarezpau7 no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:29.291750518Z     at QueueService.executeRetweet (/opt/render/project/src/backend/src/services/queueService.js:1049:15)
+2025-06-30T15:29:29.291752858Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:925:21)
+2025-06-30T15:29:29.291754848Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:29:29.2918356Z ❌ Error ejecutando acción action_1751262911251_2dnu4xnfl: Error ejecutando retweet: La cuenta @alvarezpau7 no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:30.275644193Z [RATE_LIMIT] Tracker actualizado para cmccr4gae0000jjupdfcdah97, acción tweet
+2025-06-30T15:29:30.275663984Z 🔄 Ejecutando acción action_1751263496068_ux8fdo5jy (tweet) para cuenta cmccr4gae0000jjupdfcdah97
+2025-06-30T15:29:30.275840788Z 📝 Ejecutando tweet para @silva_tomi9090: "le puse "buen día" y me clavó el visto"
+2025-06-30T15:29:30.275966131Z 🔍 Configurando cliente Twitter para @silva_tomi9090...
+2025-06-30T15:29:30.276192787Z ❌ Error de Twitter API en tweet: Error: Cuenta @silva_tomi9090 no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:29:30.276203757Z     at TwitterService.getTwitterClient (/opt/render/project/src/backend/src/services/twitterService.js:39:11)
+2025-06-30T15:29:30.276207917Z     at QueueService.executeTweet (/opt/render/project/src/backend/src/services/queueService.js:944:48)
+2025-06-30T15:29:30.276211447Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:919:21)
+2025-06-30T15:29:30.276214827Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:29:30.276259348Z ❌ Error ejecutando acción action_1751263496068_ux8fdo5jy: Error ejecutando tweet: Cuenta @silva_tomi9090 no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:29:30.951293878Z [RATE_LIMIT] Tracker actualizado para cmccr4gwn0002jjupws0qhy8b, acción tweet
+2025-06-30T15:29:30.951334039Z 🔄 Ejecutando acción action_1751263603920_4rkmqodr2 (tweet) para cuenta cmccr4gwn0002jjupws0qhy8b
+2025-06-30T15:29:30.951345399Z 📝 Ejecutando tweet para @BelTorressss: "hoy él miró"
+2025-06-30T15:29:30.951348359Z 🔍 Configurando cliente Twitter para @BelTorressss...
+2025-06-30T15:29:30.951600545Z ❌ Error de Twitter API en tweet: Error: Cuenta @BelTorressss no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:29:30.951611016Z     at TwitterService.getTwitterClient (/opt/render/project/src/backend/src/services/twitterService.js:39:11)
+2025-06-30T15:29:30.951615305Z     at QueueService.executeTweet (/opt/render/project/src/backend/src/services/queueService.js:944:48)
+2025-06-30T15:29:30.951619746Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:919:21)
+2025-06-30T15:29:30.951623576Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:29:30.951679507Z ❌ Error ejecutando acción action_1751263603920_4rkmqodr2: Error ejecutando tweet: Cuenta @BelTorressss no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:29:31.625701591Z ❌ Error de Twitter API en tweet: Error: Cuenta @belubarra7 no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:29:31.625721452Z     at TwitterService.getTwitterClient (/opt/render/project/src/backend/src/services/twitterService.js:39:11)
+2025-06-30T15:29:31.625724412Z     at QueueService.executeTweet (/opt/render/project/src/backend/src/services/queueService.js:944:48)
+2025-06-30T15:29:31.625727312Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:919:21)
+2025-06-30T15:29:31.625730102Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:29:31.625734552Z ❌ Error ejecutando acción action_1751263736678_7ajds17bh: Error ejecutando tweet: Cuenta @belubarra7 no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:29:31.625753113Z [RATE_LIMIT] Tracker actualizado para cmccr4hlx0005jjupldombqen, acción tweet
+2025-06-30T15:29:31.625756273Z 🔄 Ejecutando acción action_1751263736678_7ajds17bh (tweet) para cuenta cmccr4hlx0005jjupldombqen
+2025-06-30T15:29:31.625758613Z 📝 Ejecutando tweet para @belubarra7: "hay días que solo quiero que me abracen y me digan "ya fue""
+2025-06-30T15:29:31.625761523Z 🔍 Configurando cliente Twitter para @belubarra7...
+2025-06-30T15:29:32.299812198Z [RATE_LIMIT] Tracker actualizado para cmccr4huc0006jjup9p7803er, acción retweet
+2025-06-30T15:29:32.299845729Z 🔄 Ejecutando acción action_1751262915048_1rpjiordx (retweet) para cuenta cmccr4huc0006jjup9p7803er
+2025-06-30T15:29:32.29986055Z 🔄 Ejecutando retweet para @raminavarra → 1938223202875924633%20%7C
+2025-06-30T15:29:32.300032714Z ❌ Error de Twitter API en retweet: Error: La cuenta @raminavarra no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:32.300040244Z     at QueueService.executeRetweet (/opt/render/project/src/backend/src/services/queueService.js:1049:15)
+2025-06-30T15:29:32.300042734Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:925:21)
+2025-06-30T15:29:32.300045494Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:29:32.300104905Z ❌ Error ejecutando acción action_1751262915048_1rpjiordx: Error ejecutando retweet: La cuenta @raminavarra no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:33.027595223Z [RATE_LIMIT] Tracker actualizado para cmccr4ijl0009jjupi2vi8vr5, acción retweet
+2025-06-30T15:29:33.027701426Z 🔄 Ejecutando acción action_1751262915048_4z0r2jtid (retweet) para cuenta cmccr4ijl0009jjupi2vi8vr5
+2025-06-30T15:29:33.027754457Z 🔄 Ejecutando retweet para @JulietaAlv44555 → 1938223202875924633%20%7C
+2025-06-30T15:29:33.027951372Z ❌ Error de Twitter API en retweet: Error: La cuenta @JulietaAlv44555 no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:33.027957372Z     at QueueService.executeRetweet (/opt/render/project/src/backend/src/services/queueService.js:1049:15)
+2025-06-30T15:29:33.027960042Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:925:21)
+2025-06-30T15:29:33.027962512Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:29:33.028073815Z ❌ Error ejecutando acción action_1751262915048_4z0r2jtid: Error ejecutando retweet: La cuenta @JulietaAlv44555 no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:33.701377211Z [RATE_LIMIT] Tracker actualizado para cmccr4hlx0005jjupldombqen, acción retweet
+2025-06-30T15:29:33.702042888Z 🔄 Ejecutando acción action_1751262916682_v8h7yi1g5 (retweet) para cuenta cmccr4hlx0005jjupldombqen
+2025-06-30T15:29:33.702053328Z 🔄 Ejecutando retweet para @belubarra7 → 1937565939773636641
+2025-06-30T15:29:33.702067088Z ❌ Error de Twitter API en retweet: Error: La cuenta @belubarra7 no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:33.702073709Z     at QueueService.executeRetweet (/opt/render/project/src/backend/src/services/queueService.js:1049:15)
+2025-06-30T15:29:33.702076459Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:925:21)
+2025-06-30T15:29:33.702080149Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:29:33.702084319Z ❌ Error ejecutando acción action_1751262916682_v8h7yi1g5: Error ejecutando retweet: La cuenta @belubarra7 no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:34.375759615Z [RATE_LIMIT] Tracker actualizado para cmcdyy83w0003xfna438cvb2n, acción retweet
+2025-06-30T15:29:34.375782716Z 🔄 Ejecutando acción action_1751262916682_dmkufwe8j (retweet) para cuenta cmcdyy83w0003xfna438cvb2n
+2025-06-30T15:29:34.375856937Z 🔄 Ejecutando retweet para @zonkapires → 1937565939773636641
+2025-06-30T15:29:34.376034912Z ❌ Error de Twitter API en retweet: Error: La cuenta @zonkapires no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:34.376040282Z     at QueueService.executeRetweet (/opt/render/project/src/backend/src/services/queueService.js:1049:15)
+2025-06-30T15:29:34.376042812Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:925:21)
+2025-06-30T15:29:34.376045182Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:29:34.376608166Z ❌ Error ejecutando acción action_1751262916682_dmkufwe8j: Error ejecutando retweet: La cuenta @zonkapires no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:35.050913677Z [RATE_LIMIT] Tracker actualizado para cmccr4i2t0007jjupft4s5ymj, acción tweet
+2025-06-30T15:29:35.050939718Z 🔄 Ejecutando acción action_1751264209243_j9wn3dhi7 (tweet) para cuenta cmccr4i2t0007jjupft4s5ymj
+2025-06-30T15:29:35.050944018Z 📝 Ejecutando tweet para @julilopezzzzzz: "la última vez que me sentí bien fue en el río con amigos y sin señal."
+2025-06-30T15:29:35.050949708Z 🔍 Configurando cliente Twitter para @julilopezzzzzz...
+2025-06-30T15:29:35.051195164Z ❌ Error de Twitter API en tweet: Error: Cuenta @julilopezzzzzz no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:29:35.051203544Z     at TwitterService.getTwitterClient (/opt/render/project/src/backend/src/services/twitterService.js:39:11)
+2025-06-30T15:29:35.051206874Z     at QueueService.executeTweet (/opt/render/project/src/backend/src/services/queueService.js:944:48)
+2025-06-30T15:29:35.051209724Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:919:21)
+2025-06-30T15:29:35.051212344Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:29:35.051220835Z ❌ Error ejecutando acción action_1751264209243_j9wn3dhi7: Error ejecutando tweet: Cuenta @julilopezzzzzz no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:29:35.931343051Z [RATE_LIMIT] Tracker actualizado para cmccr4ijl0009jjupi2vi8vr5, acción tweet
+2025-06-30T15:29:35.931434844Z 🔄 Ejecutando acción action_1751264289211_7p2tio0gy (tweet) para cuenta cmccr4ijl0009jjupi2vi8vr5
+2025-06-30T15:29:35.931443064Z 📝 Ejecutando tweet para @JulietaAlv44555: "el mundo se cae a pedazos y yo viendo historias de alguien que ni me sigue"
+2025-06-30T15:29:35.931447044Z 🔍 Configurando cliente Twitter para @JulietaAlv44555...
+2025-06-30T15:29:35.93167766Z ❌ Error de Twitter API en tweet: Error: Cuenta @JulietaAlv44555 no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:29:35.9316859Z     at TwitterService.getTwitterClient (/opt/render/project/src/backend/src/services/twitterService.js:39:11)
+2025-06-30T15:29:35.93168885Z     at QueueService.executeTweet (/opt/render/project/src/backend/src/services/queueService.js:944:48)
+2025-06-30T15:29:35.9316914Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:919:21)
+2025-06-30T15:29:35.93169387Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:29:35.931750881Z ❌ Error ejecutando acción action_1751264289211_7p2tio0gy: Error ejecutando tweet: Cuenta @JulietaAlv44555 no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:29:36.269150073Z ⏰ Saltando acción action_1751264211241_lnbotr0pi - delay mínimo no cumplido
+2025-06-30T15:29:36.269283757Z ⏰ Saltando acción action_1751262919010_xhm0r87ae - delay mínimo no cumplido
+2025-06-30T15:29:36.60430418Z [RATE_LIMIT] Tracker actualizado para cmccr4gwn0002jjupws0qhy8b, acción retweet
+2025-06-30T15:29:36.604546166Z ❌ Error de Twitter API en retweet: Error: La cuenta @BelTorressss no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:36.604552096Z 🔄 Ejecutando acción action_1751262919010_av0tfuxz9 (retweet) para cuenta cmccr4gwn0002jjupws0qhy8b
+2025-06-30T15:29:36.604559687Z     at QueueService.executeRetweet (/opt/render/project/src/backend/src/services/queueService.js:1049:15)
+2025-06-30T15:29:36.604564167Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:925:21)
+2025-06-30T15:29:36.604567957Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:29:36.604576967Z 🔄 Ejecutando retweet para @BelTorressss → 1936078698232304065
+2025-06-30T15:29:36.604585587Z ❌ Error ejecutando acción action_1751262919010_av0tfuxz9: Error ejecutando retweet: La cuenta @BelTorressss no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:37.279143925Z [RATE_LIMIT] Tracker actualizado para cmccr4ib80008jjupf7o653ix, acción retweet
+2025-06-30T15:29:37.279164035Z 🔄 Ejecutando acción action_1751262919010_zhkcj00gj (retweet) para cuenta cmccr4ib80008jjupf7o653ix
+2025-06-30T15:29:37.279168805Z 🔄 Ejecutando retweet para @carlasanchz__ → 1936078698232304065
+2025-06-30T15:29:37.279181856Z ❌ Error de Twitter API en retweet: Error: La cuenta @carlasanchz__ no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:37.279194156Z     at QueueService.executeRetweet (/opt/render/project/src/backend/src/services/queueService.js:1049:15)
+2025-06-30T15:29:37.279198236Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:925:21)
+2025-06-30T15:29:37.279202106Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:29:37.279226637Z ❌ Error ejecutando acción action_1751262919010_zhkcj00gj: Error ejecutando retweet: La cuenta @carlasanchz__ no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:37.616842154Z ⏰ Saltando acción action_1751264212809_1ae5sks6v - delay mínimo no cumplido
+2025-06-30T15:29:37.616870115Z ⏰ Saltando acción action_1751263497726_ffiohjgi5 - delay mínimo no cumplido
+2025-06-30T15:29:37.955058485Z [RATE_LIMIT] Tracker actualizado para cmccr4go30001jjup7k4v7xx2, acción tweet
+2025-06-30T15:29:37.955075756Z 🔄 Ejecutando acción action_1751263569867_ycjeds60r (tweet) para cuenta cmccr4go30001jjup7k4v7xx2
+2025-06-30T15:29:37.955108767Z 📝 Ejecutando tweet para @maxilopp99: "no tengo sueño pero tampoco tengo motivos para dormir"
+2025-06-30T15:29:37.955118397Z 🔍 Configurando cliente Twitter para @maxilopp99...
+2025-06-30T15:29:37.955334592Z ❌ Error de Twitter API en tweet: Error: Cuenta @maxilopp99 no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:29:37.955343243Z     at TwitterService.getTwitterClient (/opt/render/project/src/backend/src/services/twitterService.js:39:11)
+2025-06-30T15:29:37.955345732Z     at QueueService.executeTweet (/opt/render/project/src/backend/src/services/queueService.js:944:48)
+2025-06-30T15:29:37.955348183Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:919:21)
+2025-06-30T15:29:37.955350613Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:29:37.955797904Z ❌ Error ejecutando acción action_1751263569867_ycjeds60r: Error ejecutando tweet: Cuenta @maxilopp99 no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:29:38.363599141Z ⏰ Saltando acción action_1751264290805_ltnw29861 - delay mínimo no cumplido
+2025-06-30T15:29:38.363615061Z ⏰ Saltando acción action_1751264293246_hhnkgabzd - delay mínimo no cumplido
+2025-06-30T15:29:38.699061376Z [RATE_LIMIT] Tracker actualizado para cmccr4go30001jjup7k4v7xx2, acción retweet
+2025-06-30T15:29:38.699278901Z 🔄 Ejecutando acción action_1751262920546_1z7o2p3pr (retweet) para cuenta cmccr4go30001jjup7k4v7xx2
+2025-06-30T15:29:38.699352703Z 🔄 Ejecutando retweet para @maxilopp99 → 1937574684914065559
+2025-06-30T15:29:38.699698731Z ❌ Error de Twitter API en retweet: Error: La cuenta @maxilopp99 no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:38.699705842Z     at QueueService.executeRetweet (/opt/render/project/src/backend/src/services/queueService.js:1049:15)
+2025-06-30T15:29:38.699708691Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:925:21)
+2025-06-30T15:29:38.699710931Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:29:38.699720352Z ❌ Error ejecutando acción action_1751262920546_1z7o2p3pr: Error ejecutando retweet: La cuenta @maxilopp99 no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:39.045554799Z ⏰ Saltando acción action_1751262920546_nlh2wytpm - delay mínimo no cumplido
+2025-06-30T15:29:39.045825116Z ⏰ Saltando acción action_1751262920546_nebg5klh4 - delay mínimo no cumplido
+2025-06-30T15:29:39.045831006Z ⏰ Saltando acción action_1751262920546_kopdsw1le - delay mínimo no cumplido
+2025-06-30T15:29:39.045834066Z ⏰ Saltando acción action_1751263605494_c41p93y01 - delay mínimo no cumplido
+2025-06-30T15:29:39.045845976Z ⏰ Saltando acción action_1751263572001_evuuodx55 - delay mínimo no cumplido
+2025-06-30T15:29:39.382113211Z [RATE_LIMIT] Tracker actualizado para cmccr4huc0006jjup9p7803er, acción tweet
+2025-06-30T15:29:39.382151601Z 🔄 Ejecutando acción action_1751264158549_f30pvkuxx (tweet) para cuenta cmccr4huc0006jjup9p7803er
+2025-06-30T15:29:39.382156901Z 📝 Ejecutando tweet para @raminavarra: "me dijeron que me relaje y me acordé que tengo que rendir, pagar el celu y llamar a OSDE."
+2025-06-30T15:29:39.382160612Z 🔍 Configurando cliente Twitter para @raminavarra...
+2025-06-30T15:29:39.382287205Z ❌ Error de Twitter API en tweet: Error: Cuenta @raminavarra no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:29:39.382296975Z     at TwitterService.getTwitterClient (/opt/render/project/src/backend/src/services/twitterService.js:39:11)
+2025-06-30T15:29:39.382299855Z     at QueueService.executeTweet (/opt/render/project/src/backend/src/services/queueService.js:944:48)
+2025-06-30T15:29:39.382302965Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:919:21)
+2025-06-30T15:29:39.382305545Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:29:39.382316885Z ❌ Error ejecutando acción action_1751264158549_f30pvkuxx: Error ejecutando tweet: Cuenta @raminavarra no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:29:39.718331534Z ⏰ Saltando acción action_1751263573576_y5kagl5xe - delay mínimo no cumplido
+2025-06-30T15:29:39.718362064Z ⏰ Saltando acción action_1751263607075_qgldr0evu - delay mínimo no cumplido
+2025-06-30T15:29:39.718381035Z ⏰ Saltando acción action_1751264160210_iam870seo - delay mínimo no cumplido
+2025-06-30T15:29:39.718388585Z ⏰ Saltando acción action_1751263575157_t85hkllod - delay mínimo no cumplido
+2025-06-30T15:29:39.718391305Z ⏰ Saltando acción action_1751262922093_g4f76hg5v - delay mínimo no cumplido
+2025-06-30T15:29:39.718416706Z ⏰ Saltando acción action_1751262922093_7fdjdfyzn - delay mínimo no cumplido
+2025-06-30T15:29:39.718420956Z ⏰ Saltando acción action_1751262922093_6epvxl2pe - delay mínimo no cumplido
+2025-06-30T15:29:39.718427256Z ⏰ Saltando acción action_1751263608660_6itr8yrr7 - delay mínimo no cumplido
+2025-06-30T15:29:39.718430006Z ⏰ Saltando acción action_1751263739230_4ddejbjxf - delay mínimo no cumplido
+2025-06-30T15:29:40.054776212Z [RATE_LIMIT] Tracker actualizado para cmccr4h510003jjuplzu20ghe, acción retweet
+2025-06-30T15:29:40.054962537Z ❌ Error de Twitter API en retweet: Error: La cuenta @gonzmoreno__ no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:40.070812473Z 🔄 Ejecutando acción action_1751262923649_dxbk2g25b (retweet) para cuenta cmccr4h510003jjuplzu20ghe
+2025-06-30T15:29:40.070829903Z 🔄 Ejecutando retweet para @gonzmoreno__ → 1937835667297628561
+2025-06-30T15:29:40.070835974Z     at QueueService.executeRetweet (/opt/render/project/src/backend/src/services/queueService.js:1049:15)
+2025-06-30T15:29:40.070840574Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:925:21)
+2025-06-30T15:29:40.070843614Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:29:40.070861204Z ❌ Error ejecutando acción action_1751262923649_dxbk2g25b: Error ejecutando retweet: La cuenta @gonzmoreno__ no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:40.730892478Z [RATE_LIMIT] Tracker actualizado para cmccr4i2t0007jjupft4s5ymj, acción retweet
+2025-06-30T15:29:40.730914759Z 🔄 Ejecutando acción action_1751262923649_1t6muzqoo (retweet) para cuenta cmccr4i2t0007jjupft4s5ymj
+2025-06-30T15:29:40.730926419Z 🔄 Ejecutando retweet para @julilopezzzzzz → 1937835667297628561
+2025-06-30T15:29:40.731130564Z ❌ Error de Twitter API en retweet: Error: La cuenta @julilopezzzzzz no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:40.731137474Z     at QueueService.executeRetweet (/opt/render/project/src/backend/src/services/queueService.js:1049:15)
+2025-06-30T15:29:40.731139964Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:925:21)
+2025-06-30T15:29:40.731142214Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:29:40.731191595Z ❌ Error ejecutando acción action_1751262923649_1t6muzqoo: Error ejecutando retweet: La cuenta @julilopezzzzzz no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:41.068861054Z ⏰ Saltando acción action_1751262923649_ji7sy7j9q - delay mínimo no cumplido
+2025-06-30T15:29:41.068876784Z ⏰ Saltando acción action_1751262925206_5p05zt0vf - delay mínimo no cumplido
+2025-06-30T15:29:41.523519393Z [RATE_LIMIT] Tracker actualizado para cmccr4gae0000jjupdfcdah97, acción retweet
+2025-06-30T15:29:41.523539263Z 🔄 Ejecutando acción action_1751262925206_9dsb2xdxn (retweet) para cuenta cmccr4gae0000jjupdfcdah97
+2025-06-30T15:29:41.5242255Z 🔄 Ejecutando retweet para @silva_tomi9090 → 1938275563476795773
+2025-06-30T15:29:41.524290162Z ❌ Error de Twitter API en retweet: Error: La cuenta @silva_tomi9090 no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:41.524303642Z     at QueueService.executeRetweet (/opt/render/project/src/backend/src/services/queueService.js:1049:15)
+2025-06-30T15:29:41.524306692Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:925:21)
+2025-06-30T15:29:41.524309482Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:29:41.524313122Z ❌ Error ejecutando acción action_1751262925206_9dsb2xdxn: Error ejecutando retweet: La cuenta @silva_tomi9090 no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:42.19844618Z [RATE_LIMIT] Tracker actualizado para cmccr4hdi0004jjupmo0c3b13, acción tweet
+2025-06-30T15:29:42.198542412Z 🔄 Ejecutando acción action_1751263706407_z484ztjon (tweet) para cuenta cmccr4hdi0004jjupmo0c3b13
+2025-06-30T15:29:42.198547582Z 📝 Ejecutando tweet para @alvarezpau7: "estoy en esa etapa de la vida donde todo me da paja"
+2025-06-30T15:29:42.198552032Z 🔍 Configurando cliente Twitter para @alvarezpau7...
+2025-06-30T15:29:42.198663185Z ❌ Error de Twitter API en tweet: Error: Cuenta @alvarezpau7 no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:29:42.198669235Z     at TwitterService.getTwitterClient (/opt/render/project/src/backend/src/services/twitterService.js:39:11)
+2025-06-30T15:29:42.198671465Z     at QueueService.executeTweet (/opt/render/project/src/backend/src/services/queueService.js:944:48)
+2025-06-30T15:29:42.198673505Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:919:21)
+2025-06-30T15:29:42.198675655Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:29:42.198763408Z ❌ Error ejecutando acción action_1751263706407_z484ztjon: Error ejecutando tweet: Cuenta @alvarezpau7 no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:29:42.536221371Z ⏰ Saltando acción action_1751264162232_iuzlgv06c - delay mínimo no cumplido
+2025-06-30T15:29:42.536257982Z ⏰ Saltando acción action_1751262925206_r0uooyfo8 - delay mínimo no cumplido
+2025-06-30T15:29:42.536264472Z ⏰ Saltando acción action_1751263708239_4sknb75io - delay mínimo no cumplido
+2025-06-30T15:29:42.536300003Z ⏰ Saltando acción action_1751264164237_65rb57a4f - delay mínimo no cumplido
+2025-06-30T15:29:42.877924187Z [RATE_LIMIT] Tracker actualizado para cmcdyy83w0003xfna438cvb2n, acción tweet
+2025-06-30T15:29:42.877945488Z 🔄 Ejecutando acción action_1751264326522_2d57qhipw (tweet) para cuenta cmcdyy83w0003xfna438cvb2n
+2025-06-30T15:29:42.877954158Z 📝 Ejecutando tweet para @zonkapires: "esta demasiado fresco"
+2025-06-30T15:29:42.877981929Z 🔍 Configurando cliente Twitter para @zonkapires...
+2025-06-30T15:29:42.878220495Z ❌ Error de Twitter API en tweet: Error: Cuenta @zonkapires no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:29:42.878226625Z     at TwitterService.getTwitterClient (/opt/render/project/src/backend/src/services/twitterService.js:39:11)
+2025-06-30T15:29:42.878228655Z     at QueueService.executeTweet (/opt/render/project/src/backend/src/services/queueService.js:944:48)
+2025-06-30T15:29:42.878230395Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:919:21)
+2025-06-30T15:29:42.878232935Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:29:42.878291847Z ❌ Error ejecutando acción action_1751264326522_2d57qhipw: Error ejecutando tweet: Cuenta @zonkapires no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:29:43.219915171Z ⏰ Saltando acción action_1751263741260_0xxdlx4rh - delay mínimo no cumplido
+2025-06-30T15:29:43.219965093Z ⏰ Saltando acción action_1751263710236_1pxubddnp - delay mínimo no cumplido
+2025-06-30T15:29:43.680207458Z [RATE_LIMIT] Tracker actualizado para cmccr4ib80008jjupf7o653ix, acción tweet
+2025-06-30T15:29:43.680227468Z 🔄 Ejecutando acción action_1751264246422_hc18ki70i (tweet) para cuenta cmccr4ib80008jjupf7o653ix
+2025-06-30T15:29:43.680231268Z 📝 Ejecutando tweet para @carlasanchz__: "hay gente que no sabe lo que duele ver a tu ex en la Arístides"
+2025-06-30T15:29:43.680234558Z 🔍 Configurando cliente Twitter para @carlasanchz__...
+2025-06-30T15:29:43.68029385Z ❌ Error de Twitter API en tweet: Error: Cuenta @carlasanchz__ no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:29:43.6803025Z     at TwitterService.getTwitterClient (/opt/render/project/src/backend/src/services/twitterService.js:39:11)
+2025-06-30T15:29:43.68030532Z     at QueueService.executeTweet (/opt/render/project/src/backend/src/services/queueService.js:944:48)
+2025-06-30T15:29:43.68030797Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:919:21)
+2025-06-30T15:29:43.68031085Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:29:43.68031403Z ❌ Error ejecutando acción action_1751264246422_hc18ki70i: Error ejecutando tweet: Cuenta @carlasanchz__ no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:29:44.022460428Z ⏰ Saltando acción action_1751263499290_aiy78xrrs - delay mínimo no cumplido
+2025-06-30T15:29:44.022481809Z ⏰ Saltando acción action_1751262926844_52g0jj1av - delay mínimo no cumplido
+2025-06-30T15:29:44.022494169Z ⏰ Saltando acción action_1751262926844_lju385knj - delay mínimo no cumplido
+2025-06-30T15:29:44.022513789Z ⏰ Saltando acción action_1751262926844_fkpypb5iz - delay mínimo no cumplido
+2025-06-30T15:29:44.022517419Z ⏰ Saltando acción action_1751264328085_py68pd0ph - delay mínimo no cumplido
+2025-06-30T15:29:44.022520419Z ⏰ Saltando acción action_1751264248251_qeigmyw8j - delay mínimo no cumplido
+2025-06-30T15:29:44.022523479Z ⏰ Saltando acción action_1751263500920_byblywgs4 - delay mínimo no cumplido
+2025-06-30T15:29:44.02252615Z ⏰ Saltando acción action_1751264329630_hhidhvpqn - delay mínimo no cumplido
+2025-06-30T15:29:44.022656463Z ⏰ Saltando acción action_1751264249840_w7ht7ywnp - delay mínimo no cumplido
+2025-06-30T15:29:44.022660913Z ⏰ Saltando acción action_1751264331167_ddl5xhgcz - delay mínimo no cumplido
+2025-06-30T15:29:44.022663493Z ⏰ Saltando acción action_1751262928460_bavp0g0qs - delay mínimo no cumplido
+2025-06-30T15:29:44.022666073Z ⏰ Saltando acción action_1751262928460_lgfwoaxqs - delay mínimo no cumplido
+2025-06-30T15:29:44.022668513Z ⏰ Saltando acción action_1751262928460_htpi5bnqv - delay mínimo no cumplido
+2025-06-30T15:29:44.022698414Z ⏰ Saltando acción action_1751262928460_hvbvoyrhw - delay mínimo no cumplido
+2025-06-30T15:29:44.022700844Z ⏰ Saltando acción action_1751262928460_dakvoxyno - delay mínimo no cumplido
+2025-06-30T15:29:44.022703354Z ⏰ Saltando acción action_1751264251418_ifpsdipf0 - delay mínimo no cumplido
+2025-06-30T15:29:44.022705634Z ⏰ Saltando acción action_1751262930076_cj8ydpe43 - delay mínimo no cumplido
+2025-06-30T15:29:44.022708394Z ⏰ Saltando acción action_1751262930076_m58htjtdz - delay mínimo no cumplido
+2025-06-30T15:29:44.022710934Z ⏰ Saltando acción action_1751262930076_5hm9pq4cn - delay mínimo no cumplido
+2025-06-30T15:29:44.022713214Z ⏰ Saltando acción action_1751262930076_v8mlx4g8w - delay mínimo no cumplido
+2025-06-30T15:29:44.022715494Z ⏰ Saltando acción action_1751262931625_g0cgm6r7y - delay mínimo no cumplido
+2025-06-30T15:29:44.022717754Z ⏰ Saltando acción action_1751262931625_t3y4u2b3u - delay mínimo no cumplido
+2025-06-30T15:29:44.022719954Z ⏰ Saltando acción action_1751262931625_r4xwbkn67 - delay mínimo no cumplido
+2025-06-30T15:29:44.022722254Z ⏰ Saltando acción action_1751262931625_on64z5y4m - delay mínimo no cumplido
+2025-06-30T15:29:44.022729795Z ⏰ Saltando acción action_1751262931625_gzg3l5or8 - delay mínimo no cumplido
+2025-06-30T15:29:44.361792537Z [RATE_LIMIT] Tracker actualizado para cmccr4qvg0018jjupbf7a550c, acción follow
+2025-06-30T15:29:44.361823328Z 🔄 Ejecutando acción action_1751261882105_9wi00nm7j (follow) para cuenta cmccr4qvg0018jjupbf7a550c
+2025-06-30T15:29:44.36231909Z ❌ [FOLLOW_VALIDATION] La cuenta @marceOrtegosa no tiene su Twitter ID configurado
+2025-06-30T15:29:44.362545985Z ❌ Error ejecutando acción action_1751261882105_9wi00nm7j: La cuenta @marceOrtegosa no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:48.604121996Z 🚀 Procesando 53 acciones listas
+2025-06-30T15:29:49.021309872Z [RATE_LIMIT] Tracker actualizado para cmccr4i2t0007jjupft4s5ymj, acción tweet
+2025-06-30T15:29:49.021475966Z 🔄 Ejecutando acción action_1751264211241_lnbotr0pi (tweet) para cuenta cmccr4i2t0007jjupft4s5ymj
+2025-06-30T15:29:49.021484587Z 📝 Ejecutando tweet para @julilopezzzzzz: "ando rara. como ver un pato en el centro"
+2025-06-30T15:29:49.021502717Z 🔍 Configurando cliente Twitter para @julilopezzzzzz...
+2025-06-30T15:29:49.021710902Z ❌ Error de Twitter API en tweet: Error: Cuenta @julilopezzzzzz no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:29:49.021721842Z     at TwitterService.getTwitterClient (/opt/render/project/src/backend/src/services/twitterService.js:39:11)
+2025-06-30T15:29:49.021724833Z     at QueueService.executeTweet (/opt/render/project/src/backend/src/services/queueService.js:944:48)
+2025-06-30T15:29:49.021727733Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:919:21)
+2025-06-30T15:29:49.021730683Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:29:49.021875656Z ❌ Error ejecutando acción action_1751264211241_lnbotr0pi: Error ejecutando tweet: Cuenta @julilopezzzzzz no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:29:49.696520676Z [RATE_LIMIT] Tracker actualizado para cmccr4huc0006jjup9p7803er, acción retweet
+2025-06-30T15:29:49.696538587Z 🔄 Ejecutando acción action_1751262919010_xhm0r87ae (retweet) para cuenta cmccr4huc0006jjup9p7803er
+2025-06-30T15:29:49.696549037Z 🔄 Ejecutando retweet para @raminavarra → 1936078698232304065
+2025-06-30T15:29:49.696711171Z ❌ Error de Twitter API en retweet: Error: La cuenta @raminavarra no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:49.696716941Z     at QueueService.executeRetweet (/opt/render/project/src/backend/src/services/queueService.js:1049:15)
+2025-06-30T15:29:49.696720121Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:925:21)
+2025-06-30T15:29:49.696722661Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:29:49.696792843Z ❌ Error ejecutando acción action_1751262919010_xhm0r87ae: Error ejecutando retweet: La cuenta @raminavarra no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:50.038298725Z ⏰ Saltando acción action_1751264212809_1ae5sks6v - delay mínimo no cumplido
+2025-06-30T15:29:50.374296243Z [RATE_LIMIT] Tracker actualizado para cmccr4gae0000jjupdfcdah97, acción tweet
+2025-06-30T15:29:50.374313083Z ❌ Error de Twitter API en tweet: Error: Cuenta @silva_tomi9090 no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:29:50.374319493Z 🔄 Ejecutando acción action_1751263497726_ffiohjgi5 (tweet) para cuenta cmccr4gae0000jjupdfcdah97
+2025-06-30T15:29:50.374324803Z 📝 Ejecutando tweet para @silva_tomi9090: "mañana hay prueba, pero la luna estaba linda. elegí mirar el cielo. desaprobado pero feliz."
+2025-06-30T15:29:50.374329174Z     at TwitterService.getTwitterClient (/opt/render/project/src/backend/src/services/twitterService.js:39:11)
+2025-06-30T15:29:50.374332594Z 🔍 Configurando cliente Twitter para @silva_tomi9090...
+2025-06-30T15:29:50.374334114Z     at QueueService.executeTweet (/opt/render/project/src/backend/src/services/queueService.js:944:48)
+2025-06-30T15:29:50.374339414Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:919:21)
+2025-06-30T15:29:50.374342134Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:29:50.374345764Z ❌ Error ejecutando acción action_1751263497726_ffiohjgi5: Error ejecutando tweet: Cuenta @silva_tomi9090 no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:29:51.130672745Z [RATE_LIMIT] Tracker actualizado para cmccr4ijl0009jjupi2vi8vr5, acción tweet
+2025-06-30T15:29:51.130709755Z 🔄 Ejecutando acción action_1751264290805_ltnw29861 (tweet) para cuenta cmccr4ijl0009jjupi2vi8vr5
+2025-06-30T15:29:51.130714566Z 📝 Ejecutando tweet para @JulietaAlv44555: "si me decís que vamos al cerro con sanguchitos y mantita, me caso"
+2025-06-30T15:29:51.130719036Z 🔍 Configurando cliente Twitter para @JulietaAlv44555...
+2025-06-30T15:29:51.13090173Z ❌ Error de Twitter API en tweet: Error: Cuenta @JulietaAlv44555 no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:29:51.130918961Z     at TwitterService.getTwitterClient (/opt/render/project/src/backend/src/services/twitterService.js:39:11)
+2025-06-30T15:29:51.130925401Z     at QueueService.executeTweet (/opt/render/project/src/backend/src/services/queueService.js:944:48)
+2025-06-30T15:29:51.130930641Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:919:21)
+2025-06-30T15:29:51.130935861Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:29:51.130951571Z ❌ Error ejecutando acción action_1751264290805_ltnw29861: Error ejecutando tweet: Cuenta @JulietaAlv44555 no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:29:51.530800335Z ⏰ Saltando acción action_1751264293246_hhnkgabzd - delay mínimo no cumplido
+2025-06-30T15:29:51.530824576Z ⏰ Saltando acción action_1751262920546_nlh2wytpm - delay mínimo no cumplido
+2025-06-30T15:29:51.865965553Z [RATE_LIMIT] Tracker actualizado para cmccr4ijl0009jjupi2vi8vr5, acción retweet
+2025-06-30T15:29:51.865990863Z 🔄 Ejecutando acción action_1751262920546_nebg5klh4 (retweet) para cuenta cmccr4ijl0009jjupi2vi8vr5
+2025-06-30T15:29:51.865995024Z 🔄 Ejecutando retweet para @JulietaAlv44555 → 1937574684914065559
+2025-06-30T15:29:51.866117276Z ❌ Error de Twitter API en retweet: Error: La cuenta @JulietaAlv44555 no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:51.866126247Z     at QueueService.executeRetweet (/opt/render/project/src/backend/src/services/queueService.js:1049:15)
+2025-06-30T15:29:51.866129937Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:925:21)
+2025-06-30T15:29:51.866133537Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:29:51.86707454Z ❌ Error ejecutando acción action_1751262920546_nebg5klh4: Error ejecutando retweet: La cuenta @JulietaAlv44555 no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:52.552557174Z ❌ Error de Twitter API en retweet: Error: La cuenta @alvarezpau7 no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:52.552573415Z [RATE_LIMIT] Tracker actualizado para cmccr4hdi0004jjupmo0c3b13, acción retweet
+2025-06-30T15:29:52.552583965Z     at QueueService.executeRetweet (/opt/render/project/src/backend/src/services/queueService.js:1049:15)
+2025-06-30T15:29:52.552589555Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:925:21)
+2025-06-30T15:29:52.552594485Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:29:52.552599475Z ❌ Error ejecutando acción action_1751262920546_kopdsw1le: Error ejecutando retweet: La cuenta @alvarezpau7 no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:52.552621956Z 🔄 Ejecutando acción action_1751262920546_kopdsw1le (retweet) para cuenta cmccr4hdi0004jjupmo0c3b13
+2025-06-30T15:29:52.552625446Z 🔄 Ejecutando retweet para @alvarezpau7 → 1937574684914065559
+2025-06-30T15:29:53.23400498Z [RATE_LIMIT] Tracker actualizado para cmccr4gwn0002jjupws0qhy8b, acción tweet
+2025-06-30T15:29:53.234030221Z 🔄 Ejecutando acción action_1751263605494_c41p93y01 (tweet) para cuenta cmccr4gwn0002jjupws0qhy8b
+2025-06-30T15:29:53.234041621Z 📝 Ejecutando tweet para @BelTorressss: "la profe preguntó qué era el capitalismo y dije "testo""
+2025-06-30T15:29:53.234129083Z 🔍 Configurando cliente Twitter para @BelTorressss...
+2025-06-30T15:29:53.234313137Z ❌ Error de Twitter API en tweet: Error: Cuenta @BelTorressss no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:29:53.234323428Z     at TwitterService.getTwitterClient (/opt/render/project/src/backend/src/services/twitterService.js:39:11)
+2025-06-30T15:29:53.234326388Z     at QueueService.executeTweet (/opt/render/project/src/backend/src/services/queueService.js:944:48)
+2025-06-30T15:29:53.234329328Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:919:21)
+2025-06-30T15:29:53.234331948Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:29:53.234521553Z ❌ Error ejecutando acción action_1751263605494_c41p93y01: Error ejecutando tweet: Cuenta @BelTorressss no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:29:53.918292415Z [RATE_LIMIT] Tracker actualizado para cmccr4go30001jjup7k4v7xx2, acción tweet
+2025-06-30T15:29:53.919905625Z 🔄 Ejecutando acción action_1751263572001_evuuodx55 (tweet) para cuenta cmccr4go30001jjup7k4v7xx2
+2025-06-30T15:29:53.919919105Z 📝 Ejecutando tweet para @maxilopp99: "ya estoy cansado de todo."
+2025-06-30T15:29:53.919923005Z 🔍 Configurando cliente Twitter para @maxilopp99...
+2025-06-30T15:29:53.919938216Z ❌ Error de Twitter API en tweet: Error: Cuenta @maxilopp99 no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:29:53.919942056Z     at TwitterService.getTwitterClient (/opt/render/project/src/backend/src/services/twitterService.js:39:11)
+2025-06-30T15:29:53.919944646Z     at QueueService.executeTweet (/opt/render/project/src/backend/src/services/queueService.js:944:48)
+2025-06-30T15:29:53.919947306Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:919:21)
+2025-06-30T15:29:53.919949866Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:29:53.919952886Z ❌ Error ejecutando acción action_1751263572001_evuuodx55: Error ejecutando tweet: Cuenta @maxilopp99 no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:29:54.356678708Z ⏰ Saltando acción action_1751263573576_y5kagl5xe - delay mínimo no cumplido
+2025-06-30T15:29:54.356697829Z ⏰ Saltando acción action_1751263607075_qgldr0evu - delay mínimo no cumplido
+2025-06-30T15:29:54.704625007Z [RATE_LIMIT] Tracker actualizado para cmccr4huc0006jjup9p7803er, acción tweet
+2025-06-30T15:29:54.704656968Z 🔄 Ejecutando acción action_1751264160210_iam870seo (tweet) para cuenta cmccr4huc0006jjup9p7803er
+2025-06-30T15:29:54.704667538Z 📝 Ejecutando tweet para @raminavarra: "qué ganas de tomar mate en el pretil con alguien que me guste y no me cague."
+2025-06-30T15:29:54.704671148Z 🔍 Configurando cliente Twitter para @raminavarra...
+2025-06-30T15:29:54.704802312Z ❌ Error de Twitter API en tweet: Error: Cuenta @raminavarra no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:29:54.704807222Z     at TwitterService.getTwitterClient (/opt/render/project/src/backend/src/services/twitterService.js:39:11)
+2025-06-30T15:29:54.704809482Z     at QueueService.executeTweet (/opt/render/project/src/backend/src/services/queueService.js:944:48)
+2025-06-30T15:29:54.704811712Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:919:21)
+2025-06-30T15:29:54.704814632Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:29:54.704827022Z ❌ Error ejecutando acción action_1751264160210_iam870seo: Error ejecutando tweet: Cuenta @raminavarra no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:29:55.041748643Z ⏰ Saltando acción action_1751263575157_t85hkllod - delay mínimo no cumplido
+2025-06-30T15:29:55.377404032Z [RATE_LIMIT] Tracker actualizado para cmccr4hlx0005jjupldombqen, acción retweet
+2025-06-30T15:29:55.377436533Z 🔄 Ejecutando acción action_1751262922093_g4f76hg5v (retweet) para cuenta cmccr4hlx0005jjupldombqen
+2025-06-30T15:29:55.377441073Z 🔄 Ejecutando retweet para @belubarra7 → 1937890930284970257
+2025-06-30T15:29:55.377457723Z ❌ Error de Twitter API en retweet: Error: La cuenta @belubarra7 no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:55.377461304Z     at QueueService.executeRetweet (/opt/render/project/src/backend/src/services/queueService.js:1049:15)
+2025-06-30T15:29:55.377463984Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:925:21)
+2025-06-30T15:29:55.377466474Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:29:55.377469734Z ❌ Error ejecutando acción action_1751262922093_g4f76hg5v: Error ejecutando retweet: La cuenta @belubarra7 no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:56.049967092Z [RATE_LIMIT] Tracker actualizado para cmccr4gwn0002jjupws0qhy8b, acción retweet
+2025-06-30T15:29:56.049995863Z 🔄 Ejecutando acción action_1751262922093_7fdjdfyzn (retweet) para cuenta cmccr4gwn0002jjupws0qhy8b
+2025-06-30T15:29:56.050000243Z 🔄 Ejecutando retweet para @BelTorressss → 1937890930284970257
+2025-06-30T15:29:56.050186757Z ❌ Error de Twitter API en retweet: Error: La cuenta @BelTorressss no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:56.050194917Z     at QueueService.executeRetweet (/opt/render/project/src/backend/src/services/queueService.js:1049:15)
+2025-06-30T15:29:56.050199097Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:925:21)
+2025-06-30T15:29:56.050206978Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:29:56.050271989Z ❌ Error ejecutando acción action_1751262922093_7fdjdfyzn: Error ejecutando retweet: La cuenta @BelTorressss no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:56.7245327Z [RATE_LIMIT] Tracker actualizado para cmcdyy83w0003xfna438cvb2n, acción retweet
+2025-06-30T15:29:56.724566191Z 🔄 Ejecutando acción action_1751262922093_6epvxl2pe (retweet) para cuenta cmcdyy83w0003xfna438cvb2n
+2025-06-30T15:29:56.724574851Z 🔄 Ejecutando retweet para @zonkapires → 1937890930284970257
+2025-06-30T15:29:56.724747715Z ❌ Error de Twitter API en retweet: Error: La cuenta @zonkapires no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:56.724754335Z     at QueueService.executeRetweet (/opt/render/project/src/backend/src/services/queueService.js:1049:15)
+2025-06-30T15:29:56.724756936Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:925:21)
+2025-06-30T15:29:56.724759346Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:29:56.724830417Z ❌ Error ejecutando acción action_1751262922093_6epvxl2pe: Error ejecutando retweet: La cuenta @zonkapires no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:57.060755094Z ⏰ Saltando acción action_1751263608660_6itr8yrr7 - delay mínimo no cumplido
+2025-06-30T15:29:57.528394719Z [RATE_LIMIT] Tracker actualizado para cmccr4hlx0005jjupldombqen, acción tweet
+2025-06-30T15:29:57.528452411Z 🔄 Ejecutando acción action_1751263739230_4ddejbjxf (tweet) para cuenta cmccr4hlx0005jjupldombqen
+2025-06-30T15:29:57.528525373Z 📝 Ejecutando tweet para @belubarra7: "me saludó y me olvidé cómo hablar"
+2025-06-30T15:29:57.528532803Z 🔍 Configurando cliente Twitter para @belubarra7...
+2025-06-30T15:29:57.528692237Z ❌ Error de Twitter API en tweet: Error: Cuenta @belubarra7 no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:29:57.528697957Z     at TwitterService.getTwitterClient (/opt/render/project/src/backend/src/services/twitterService.js:39:11)
+2025-06-30T15:29:57.528699897Z     at QueueService.executeTweet (/opt/render/project/src/backend/src/services/queueService.js:944:48)
+2025-06-30T15:29:57.528701967Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:919:21)
+2025-06-30T15:29:57.528703707Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:29:57.528752428Z ❌ Error ejecutando acción action_1751263739230_4ddejbjxf: Error ejecutando tweet: Cuenta @belubarra7 no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:29:58.201960413Z [RATE_LIMIT] Tracker actualizado para cmccr4ib80008jjupf7o653ix, acción retweet
+2025-06-30T15:29:58.201995184Z 🔄 Ejecutando acción action_1751262923649_ji7sy7j9q (retweet) para cuenta cmccr4ib80008jjupf7o653ix
+2025-06-30T15:29:58.201999034Z 🔄 Ejecutando retweet para @carlasanchz__ → 1937835667297628561
+2025-06-30T15:29:58.202168229Z ❌ Error de Twitter API en retweet: Error: La cuenta @carlasanchz__ no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:58.202176499Z     at QueueService.executeRetweet (/opt/render/project/src/backend/src/services/queueService.js:1049:15)
+2025-06-30T15:29:58.202179669Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:925:21)
+2025-06-30T15:29:58.202182519Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:29:58.20222701Z ❌ Error ejecutando acción action_1751262923649_ji7sy7j9q: Error ejecutando retweet: La cuenta @carlasanchz__ no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:58.538142856Z ⏰ Saltando acción action_1751262925206_5p05zt0vf - delay mínimo no cumplido
+2025-06-30T15:29:58.538177937Z ⏰ Saltando acción action_1751264162232_iuzlgv06c - delay mínimo no cumplido
+2025-06-30T15:29:58.877011464Z [RATE_LIMIT] Tracker actualizado para cmccr4i2t0007jjupft4s5ymj, acción retweet
+2025-06-30T15:29:58.877034104Z 🔄 Ejecutando acción action_1751262925206_r0uooyfo8 (retweet) para cuenta cmccr4i2t0007jjupft4s5ymj
+2025-06-30T15:29:58.877049995Z 🔄 Ejecutando retweet para @julilopezzzzzz → 1938275563476795773
+2025-06-30T15:29:58.877619369Z ❌ Error de Twitter API en retweet: Error: La cuenta @julilopezzzzzz no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:58.877633409Z     at QueueService.executeRetweet (/opt/render/project/src/backend/src/services/queueService.js:1049:15)
+2025-06-30T15:29:58.877636439Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:925:21)
+2025-06-30T15:29:58.877638849Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:29:58.877641539Z ❌ Error ejecutando acción action_1751262925206_r0uooyfo8: Error ejecutando retweet: La cuenta @julilopezzzzzz no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:29:59.55558741Z [RATE_LIMIT] Tracker actualizado para cmccr4hdi0004jjupmo0c3b13, acción tweet
+2025-06-30T15:29:59.555621261Z 🔄 Ejecutando acción action_1751263708239_4sknb75io (tweet) para cuenta cmccr4hdi0004jjupmo0c3b13
+2025-06-30T15:29:59.555639001Z 📝 Ejecutando tweet para @alvarezpau7: "no sé qué duele más: el alquiler o que no me hable"
+2025-06-30T15:29:59.555643121Z 🔍 Configurando cliente Twitter para @alvarezpau7...
+2025-06-30T15:29:59.555823806Z ❌ Error de Twitter API en tweet: Error: Cuenta @alvarezpau7 no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:29:59.555834206Z     at TwitterService.getTwitterClient (/opt/render/project/src/backend/src/services/twitterService.js:39:11)
+2025-06-30T15:29:59.555837256Z     at QueueService.executeTweet (/opt/render/project/src/backend/src/services/queueService.js:944:48)
+2025-06-30T15:29:59.555840016Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:919:21)
+2025-06-30T15:29:59.555842946Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:29:59.555908528Z ❌ Error ejecutando acción action_1751263708239_4sknb75io: Error ejecutando tweet: Cuenta @alvarezpau7 no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:30:02.950735576Z ⏰ Saltando acción action_1751264164237_65rb57a4f - delay mínimo no cumplido
+2025-06-30T15:30:02.951198078Z ⏰ Saltando acción action_1751263741260_0xxdlx4rh - delay mínimo no cumplido
+2025-06-30T15:30:02.951213748Z ⏰ Saltando acción action_1751263710236_1pxubddnp - delay mínimo no cumplido
+2025-06-30T15:30:02.951219048Z ⏰ Saltando acción action_1751263499290_aiy78xrrs - delay mínimo no cumplido
+2025-06-30T15:30:02.951223858Z ⏰ Saltando acción action_1751262926844_52g0jj1av - delay mínimo no cumplido
+2025-06-30T15:30:02.951228498Z ⏰ Saltando acción action_1751262926844_lju385knj - delay mínimo no cumplido
+2025-06-30T15:30:03.571969615Z [RATE_LIMIT] Tracker actualizado para cmccr4go30001jjup7k4v7xx2, acción retweet
+2025-06-30T15:30:03.572001156Z 🔄 Ejecutando acción action_1751262926844_fkpypb5iz (retweet) para cuenta cmccr4go30001jjup7k4v7xx2
+2025-06-30T15:30:03.572015776Z 🔄 Ejecutando retweet para @maxilopp99 → 1937811806908747938
+2025-06-30T15:30:03.57216677Z ❌ Error de Twitter API en retweet: Error: La cuenta @maxilopp99 no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:30:03.57217507Z     at QueueService.executeRetweet (/opt/render/project/src/backend/src/services/queueService.js:1049:15)
+2025-06-30T15:30:03.57217922Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:925:21)
+2025-06-30T15:30:03.57218314Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:30:03.572225841Z ❌ Error ejecutando acción action_1751262926844_fkpypb5iz: Error ejecutando retweet: La cuenta @maxilopp99 no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:30:04.207971304Z [RATE_LIMIT] Tracker actualizado para cmcdyy83w0003xfna438cvb2n, acción tweet
+2025-06-30T15:30:04.207993134Z 🔄 Ejecutando acción action_1751264328085_py68pd0ph (tweet) para cuenta cmcdyy83w0003xfna438cvb2n
+2025-06-30T15:30:04.208011815Z 📝 Ejecutando tweet para @zonkapires: "qué difícil es estudiar cuando tu mente está en alguien que no te responde desde abril."
+2025-06-30T15:30:04.208019455Z 🔍 Configurando cliente Twitter para @zonkapires...
+2025-06-30T15:30:04.20819699Z ❌ Error de Twitter API en tweet: Error: Cuenta @zonkapires no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:30:04.20820446Z     at TwitterService.getTwitterClient (/opt/render/project/src/backend/src/services/twitterService.js:39:11)
+2025-06-30T15:30:04.20820994Z     at QueueService.executeTweet (/opt/render/project/src/backend/src/services/queueService.js:944:48)
+2025-06-30T15:30:04.20821284Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:919:21)
+2025-06-30T15:30:04.20821578Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:30:04.208282561Z ❌ Error ejecutando acción action_1751264328085_py68pd0ph: Error ejecutando tweet: Cuenta @zonkapires no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:30:04.837822453Z [RATE_LIMIT] Tracker actualizado para cmccr4ib80008jjupf7o653ix, acción tweet
+2025-06-30T15:30:04.837854374Z 🔄 Ejecutando acción action_1751264248251_qeigmyw8j (tweet) para cuenta cmccr4ib80008jjupf7o653ix
+2025-06-30T15:30:04.837858304Z 📝 Ejecutando tweet para @carlasanchz__: "anoche soñé con vos y me desperté con resaca. que casualidad"
+2025-06-30T15:30:04.837862134Z 🔍 Configurando cliente Twitter para @carlasanchz__...
+2025-06-30T15:30:04.838063369Z ❌ Error de Twitter API en tweet: Error: Cuenta @carlasanchz__ no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:30:04.838073079Z     at TwitterService.getTwitterClient (/opt/render/project/src/backend/src/services/twitterService.js:39:11)
+2025-06-30T15:30:04.838076989Z     at QueueService.executeTweet (/opt/render/project/src/backend/src/services/queueService.js:944:48)
+2025-06-30T15:30:04.838079959Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:919:21)
+2025-06-30T15:30:04.838082709Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:30:04.83809886Z ❌ Error ejecutando acción action_1751264248251_qeigmyw8j: Error ejecutando tweet: Cuenta @carlasanchz__ no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:30:05.268061558Z ⏰ Saltando acción action_1751263500920_byblywgs4 - delay mínimo no cumplido
+2025-06-30T15:30:05.268081768Z ⏰ Saltando acción action_1751264329630_hhidhvpqn - delay mínimo no cumplido
+2025-06-30T15:30:05.268091458Z ⏰ Saltando acción action_1751264249840_w7ht7ywnp - delay mínimo no cumplido
+2025-06-30T15:30:05.268094608Z ⏰ Saltando acción action_1751264331167_ddl5xhgcz - delay mínimo no cumplido
+2025-06-30T15:30:05.268098008Z ⏰ Saltando acción action_1751262928460_bavp0g0qs - delay mínimo no cumplido
+2025-06-30T15:30:05.268204131Z ⏰ Saltando acción action_1751262928460_lgfwoaxqs - delay mínimo no cumplido
+2025-06-30T15:30:05.585119964Z [RATE_LIMIT] Tracker actualizado para cmccr4h510003jjuplzu20ghe, acción retweet
+2025-06-30T15:30:05.585137685Z 🔄 Ejecutando acción action_1751262928460_htpi5bnqv (retweet) para cuenta cmccr4h510003jjuplzu20ghe
+2025-06-30T15:30:05.585140065Z 🔄 Ejecutando retweet para @gonzmoreno__ → 1936036708480377155
+2025-06-30T15:30:05.585300618Z ❌ Error de Twitter API en retweet: Error: La cuenta @gonzmoreno__ no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:30:05.585309479Z     at QueueService.executeRetweet (/opt/render/project/src/backend/src/services/queueService.js:1049:15)
+2025-06-30T15:30:05.585312209Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:925:21)
+2025-06-30T15:30:05.585314059Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:30:05.585381611Z ❌ Error ejecutando acción action_1751262928460_htpi5bnqv: Error ejecutando retweet: La cuenta @gonzmoreno__ no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:30:05.899576367Z ⏰ Saltando acción action_1751262928460_hvbvoyrhw - delay mínimo no cumplido
+2025-06-30T15:30:06.213091087Z [RATE_LIMIT] Tracker actualizado para cmccr4gae0000jjupdfcdah97, acción retweet
+2025-06-30T15:30:06.213181979Z 🔄 Ejecutando acción action_1751262928460_dakvoxyno (retweet) para cuenta cmccr4gae0000jjupdfcdah97
+2025-06-30T15:30:06.213189419Z 🔄 Ejecutando retweet para @silva_tomi9090 → 1936036708480377155
+2025-06-30T15:30:06.213366144Z ❌ Error de Twitter API en retweet: Error: La cuenta @silva_tomi9090 no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:30:06.213374524Z     at QueueService.executeRetweet (/opt/render/project/src/backend/src/services/queueService.js:1049:15)
+2025-06-30T15:30:06.213376584Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:925:21)
+2025-06-30T15:30:06.213378584Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:30:06.213433456Z ❌ Error ejecutando acción action_1751262928460_dakvoxyno: Error ejecutando retweet: La cuenta @silva_tomi9090 no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:30:06.526945685Z ⏰ Saltando acción action_1751264251418_ifpsdipf0 - delay mínimo no cumplido
+2025-06-30T15:30:06.526965826Z ⏰ Saltando acción action_1751262930076_cj8ydpe43 - delay mínimo no cumplido
+2025-06-30T15:30:06.526969006Z ⏰ Saltando acción action_1751262930076_m58htjtdz - delay mínimo no cumplido
+2025-06-30T15:30:06.526971886Z ⏰ Saltando acción action_1751262930076_5hm9pq4cn - delay mínimo no cumplido
+2025-06-30T15:30:06.526974826Z ⏰ Saltando acción action_1751262930076_v8mlx4g8w - delay mínimo no cumplido
+2025-06-30T15:30:06.526988397Z ⏰ Saltando acción action_1751262931625_g0cgm6r7y - delay mínimo no cumplido
+2025-06-30T15:30:06.526991587Z ⏰ Saltando acción action_1751262931625_t3y4u2b3u - delay mínimo no cumplido
+2025-06-30T15:30:06.527011957Z ⏰ Saltando acción action_1751262931625_r4xwbkn67 - delay mínimo no cumplido
+2025-06-30T15:30:06.527014967Z ⏰ Saltando acción action_1751262931625_on64z5y4m - delay mínimo no cumplido
+2025-06-30T15:30:06.527042568Z ⏰ Saltando acción action_1751262931625_gzg3l5or8 - delay mínimo no cumplido
+2025-06-30T15:30:08.60393792Z 🚀 Procesando 32 acciones listas
+2025-06-30T15:30:08.916765394Z [RATE_LIMIT] Tracker actualizado para cmccr4i2t0007jjupft4s5ymj, acción tweet
+2025-06-30T15:30:08.917071231Z ❌ Error de Twitter API en tweet: Error: Cuenta @julilopezzzzzz no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:30:08.955494227Z 🔄 Ejecutando acción action_1751264212809_1ae5sks6v (tweet) para cuenta cmccr4i2t0007jjupft4s5ymj
+2025-06-30T15:30:08.955518868Z 📝 Ejecutando tweet para @julilopezzzzzz: "la vida universitaria es 10% estudiar y 90% dudar de todo"
+2025-06-30T15:30:08.955523498Z 🔍 Configurando cliente Twitter para @julilopezzzzzz...
+2025-06-30T15:30:08.955533019Z     at TwitterService.getTwitterClient (/opt/render/project/src/backend/src/services/twitterService.js:39:11)
+2025-06-30T15:30:08.955536848Z     at QueueService.executeTweet (/opt/render/project/src/backend/src/services/queueService.js:944:48)
+2025-06-30T15:30:08.955542719Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:919:21)
+2025-06-30T15:30:08.955546419Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:30:08.955556389Z ❌ Error ejecutando acción action_1751264212809_1ae5sks6v: Error ejecutando tweet: Cuenta @julilopezzzzzz no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:30:09.546459489Z [RATE_LIMIT] Tracker actualizado para cmccr4ijl0009jjupi2vi8vr5, acción tweet
+2025-06-30T15:30:09.54648986Z 🔄 Ejecutando acción action_1751264293246_hhnkgabzd (tweet) para cuenta cmccr4ijl0009jjupi2vi8vr5
+2025-06-30T15:30:09.54649474Z 📝 Ejecutando tweet para @JulietaAlv44555: "qué fácil sería todo si me pagasen por procastinar"
+2025-06-30T15:30:09.54649828Z 🔍 Configurando cliente Twitter para @JulietaAlv44555...
+2025-06-30T15:30:09.546687925Z ❌ Error de Twitter API en tweet: Error: Cuenta @JulietaAlv44555 no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:30:09.546699675Z     at TwitterService.getTwitterClient (/opt/render/project/src/backend/src/services/twitterService.js:39:11)
+2025-06-30T15:30:09.546705615Z     at QueueService.executeTweet (/opt/render/project/src/backend/src/services/queueService.js:944:48)
+2025-06-30T15:30:09.546711105Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:919:21)
+2025-06-30T15:30:09.546717975Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:30:09.546755086Z ❌ Error ejecutando acción action_1751264293246_hhnkgabzd: Error ejecutando tweet: Cuenta @JulietaAlv44555 no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:30:10.275763992Z [RATE_LIMIT] Tracker actualizado para cmccr4huc0006jjup9p7803er, acción retweet
+2025-06-30T15:30:10.275789242Z 🔄 Ejecutando acción action_1751262920546_nlh2wytpm (retweet) para cuenta cmccr4huc0006jjup9p7803er
+2025-06-30T15:30:10.275826833Z 🔄 Ejecutando retweet para @raminavarra → 1937574684914065559
+2025-06-30T15:30:10.275957516Z ❌ Error de Twitter API en retweet: Error: La cuenta @raminavarra no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:30:10.275962857Z     at QueueService.executeRetweet (/opt/render/project/src/backend/src/services/queueService.js:1049:15)
+2025-06-30T15:30:10.275965317Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:925:21)
+2025-06-30T15:30:10.275967797Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:30:10.276023128Z ❌ Error ejecutando acción action_1751262920546_nlh2wytpm: Error ejecutando retweet: La cuenta @raminavarra no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:30:10.907093127Z [RATE_LIMIT] Tracker actualizado para cmccr4go30001jjup7k4v7xx2, acción tweet
+2025-06-30T15:30:10.907116007Z 🔄 Ejecutando acción action_1751263573576_y5kagl5xe (tweet) para cuenta cmccr4go30001jjup7k4v7xx2
+2025-06-30T15:30:10.907130927Z 📝 Ejecutando tweet para @maxilopp99: "me olvidé la sube, me olvidé la carpeta, me olvidé que me gustaba."
+2025-06-30T15:30:10.907137658Z 🔍 Configurando cliente Twitter para @maxilopp99...
+2025-06-30T15:30:10.907330812Z ❌ Error de Twitter API en tweet: Error: Cuenta @maxilopp99 no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:30:10.907341283Z     at TwitterService.getTwitterClient (/opt/render/project/src/backend/src/services/twitterService.js:39:11)
+2025-06-30T15:30:10.907344423Z     at QueueService.executeTweet (/opt/render/project/src/backend/src/services/queueService.js:944:48)
+2025-06-30T15:30:10.907347623Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:919:21)
+2025-06-30T15:30:10.907350283Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:30:10.907416405Z ❌ Error ejecutando acción action_1751263573576_y5kagl5xe: Error ejecutando tweet: Cuenta @maxilopp99 no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:30:11.538621817Z [RATE_LIMIT] Tracker actualizado para cmccr4gwn0002jjupws0qhy8b, acción tweet
+2025-06-30T15:30:11.538652577Z 🔄 Ejecutando acción action_1751263607075_qgldr0evu (tweet) para cuenta cmccr4gwn0002jjupws0qhy8b
+2025-06-30T15:30:11.538686128Z 📝 Ejecutando tweet para @BelTorressss: "viernes a la noche, puchito y a llorar por algo que ya pasó"
+2025-06-30T15:30:11.538691798Z 🔍 Configurando cliente Twitter para @BelTorressss...
+2025-06-30T15:30:11.538856112Z ❌ Error de Twitter API en tweet: Error: Cuenta @BelTorressss no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:30:11.538864133Z     at TwitterService.getTwitterClient (/opt/render/project/src/backend/src/services/twitterService.js:39:11)
+2025-06-30T15:30:11.538867663Z     at QueueService.executeTweet (/opt/render/project/src/backend/src/services/queueService.js:944:48)
+2025-06-30T15:30:11.538870863Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:919:21)
+2025-06-30T15:30:11.538874243Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:30:11.538924014Z ❌ Error ejecutando acción action_1751263607075_qgldr0evu: Error ejecutando tweet: Cuenta @BelTorressss no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:30:11.855189251Z ⏰ Saltando acción action_1751263575157_t85hkllod - delay mínimo no cumplido
+2025-06-30T15:30:11.855205382Z ⏰ Saltando acción action_1751263608660_6itr8yrr7 - delay mínimo no cumplido
+2025-06-30T15:30:12.16741421Z [RATE_LIMIT] Tracker actualizado para cmccr4ijl0009jjupi2vi8vr5, acción retweet
+2025-06-30T15:30:12.167497772Z 🔄 Ejecutando acción action_1751262925206_5p05zt0vf (retweet) para cuenta cmccr4ijl0009jjupi2vi8vr5
+2025-06-30T15:30:12.167501982Z 🔄 Ejecutando retweet para @JulietaAlv44555 → 1938275563476795773
+2025-06-30T15:30:12.167654596Z ❌ Error de Twitter API en retweet: Error: La cuenta @JulietaAlv44555 no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:30:12.167660946Z     at QueueService.executeRetweet (/opt/render/project/src/backend/src/services/queueService.js:1049:15)
+2025-06-30T15:30:12.167676506Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:925:21)
+2025-06-30T15:30:12.167679017Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:30:12.167871011Z ❌ Error ejecutando acción action_1751262925206_5p05zt0vf: Error ejecutando retweet: La cuenta @JulietaAlv44555 no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:30:12.838624067Z [RATE_LIMIT] Tracker actualizado para cmccr4huc0006jjup9p7803er, acción tweet
+2025-06-30T15:30:12.838643848Z 🔄 Ejecutando acción action_1751264162232_iuzlgv06c (tweet) para cuenta cmccr4huc0006jjup9p7803er
+2025-06-30T15:30:12.838655708Z 📝 Ejecutando tweet para @raminavarra: "quiero abrazos largos, sombra de álamo y alguien que se quede."
+2025-06-30T15:30:12.838665568Z 🔍 Configurando cliente Twitter para @raminavarra...
+2025-06-30T15:30:12.838831392Z ❌ Error de Twitter API en tweet: Error: Cuenta @raminavarra no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:30:12.838837742Z     at TwitterService.getTwitterClient (/opt/render/project/src/backend/src/services/twitterService.js:39:11)
+2025-06-30T15:30:12.838840652Z     at QueueService.executeTweet (/opt/render/project/src/backend/src/services/queueService.js:944:48)
+2025-06-30T15:30:12.838843252Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:919:21)
+2025-06-30T15:30:12.838845862Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:30:12.838888514Z ❌ Error ejecutando acción action_1751264162232_iuzlgv06c: Error ejecutando tweet: Cuenta @raminavarra no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:30:13.159601249Z ⏰ Saltando acción action_1751264164237_65rb57a4f - delay mínimo no cumplido
+2025-06-30T15:30:13.473276973Z [RATE_LIMIT] Tracker actualizado para cmccr4hlx0005jjupldombqen, acción tweet
+2025-06-30T15:30:13.473309994Z 🔄 Ejecutando acción action_1751263741260_0xxdlx4rh (tweet) para cuenta cmccr4hlx0005jjupldombqen
+2025-06-30T15:30:13.473320104Z 📝 Ejecutando tweet para @belubarra7: "a veces me dan ganas de cambiar de carrera, de país, de vida"
+2025-06-30T15:30:13.473324624Z 🔍 Configurando cliente Twitter para @belubarra7...
+2025-06-30T15:30:13.47353906Z ❌ Error de Twitter API en tweet: Error: Cuenta @belubarra7 no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:30:13.47356048Z     at TwitterService.getTwitterClient (/opt/render/project/src/backend/src/services/twitterService.js:39:11)
+2025-06-30T15:30:13.47356445Z     at QueueService.executeTweet (/opt/render/project/src/backend/src/services/queueService.js:944:48)
+2025-06-30T15:30:13.47356698Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:919:21)
+2025-06-30T15:30:13.47356961Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:30:13.473636632Z ❌ Error ejecutando acción action_1751263741260_0xxdlx4rh: Error ejecutando tweet: Cuenta @belubarra7 no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:30:14.183332727Z [RATE_LIMIT] Tracker actualizado para cmccr4hdi0004jjupmo0c3b13, acción tweet
+2025-06-30T15:30:14.183355387Z 🔄 Ejecutando acción action_1751263710236_1pxubddnp (tweet) para cuenta cmccr4hdi0004jjupmo0c3b13
+2025-06-30T15:30:14.183365538Z 📝 Ejecutando tweet para @alvarezpau7: "me enamoré de alguien que estudia en otra facultad"
+2025-06-30T15:30:14.183368518Z 🔍 Configurando cliente Twitter para @alvarezpau7...
+2025-06-30T15:30:14.183552782Z ❌ Error de Twitter API en tweet: Error: Cuenta @alvarezpau7 no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:30:14.183560023Z     at TwitterService.getTwitterClient (/opt/render/project/src/backend/src/services/twitterService.js:39:11)
+2025-06-30T15:30:14.183563783Z     at QueueService.executeTweet (/opt/render/project/src/backend/src/services/queueService.js:944:48)
+2025-06-30T15:30:14.183567583Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:919:21)
+2025-06-30T15:30:14.183570973Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:30:14.183584183Z ❌ Error ejecutando acción action_1751263710236_1pxubddnp: Error ejecutando tweet: Cuenta @alvarezpau7 no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:30:14.816350743Z [RATE_LIMIT] Tracker actualizado para cmccr4gae0000jjupdfcdah97, acción tweet
+2025-06-30T15:30:14.817157703Z 🔄 Ejecutando acción action_1751263499290_aiy78xrrs (tweet) para cuenta cmccr4gae0000jjupdfcdah97
+2025-06-30T15:30:14.817159283Z ❌ Error de Twitter API en tweet: Error: Cuenta @silva_tomi9090 no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:30:14.817169613Z 📝 Ejecutando tweet para @silva_tomi9090: "pensé que me iba a invitar a salir y solo me pidió la tarea"
+2025-06-30T15:30:14.817173763Z 🔍 Configurando cliente Twitter para @silva_tomi9090...
+2025-06-30T15:30:14.817180984Z     at TwitterService.getTwitterClient (/opt/render/project/src/backend/src/services/twitterService.js:39:11)
+2025-06-30T15:30:14.817185664Z     at QueueService.executeTweet (/opt/render/project/src/backend/src/services/queueService.js:944:48)
+2025-06-30T15:30:14.817190254Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:919:21)
+2025-06-30T15:30:14.817194704Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:30:14.817201394Z ❌ Error ejecutando acción action_1751263499290_aiy78xrrs: Error ejecutando tweet: Cuenta @silva_tomi9090 no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:30:15.50969841Z [RATE_LIMIT] Tracker actualizado para cmccr4hlx0005jjupldombqen, acción retweet
+2025-06-30T15:30:15.50972021Z 🔄 Ejecutando acción action_1751262926844_52g0jj1av (retweet) para cuenta cmccr4hlx0005jjupldombqen
+2025-06-30T15:30:15.50973087Z 🔄 Ejecutando retweet para @belubarra7 → 1937811806908747938
+2025-06-30T15:30:15.509902555Z ❌ Error de Twitter API en retweet: Error: La cuenta @belubarra7 no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:30:15.509909005Z     at QueueService.executeRetweet (/opt/render/project/src/backend/src/services/queueService.js:1049:15)
+2025-06-30T15:30:15.509911715Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:925:21)
+2025-06-30T15:30:15.509914185Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:30:15.509968296Z ❌ Error ejecutando acción action_1751262926844_52g0jj1av: Error ejecutando retweet: La cuenta @belubarra7 no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:30:16.146676173Z [RATE_LIMIT] Tracker actualizado para cmcdyy83w0003xfna438cvb2n, acción retweet
+2025-06-30T15:30:16.146711124Z 🔄 Ejecutando acción action_1751262926844_lju385knj (retweet) para cuenta cmcdyy83w0003xfna438cvb2n
+2025-06-30T15:30:16.146752374Z 🔄 Ejecutando retweet para @zonkapires → 1937811806908747938
+2025-06-30T15:30:16.14699042Z ❌ Error de Twitter API en retweet: Error: La cuenta @zonkapires no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:30:16.14699674Z     at QueueService.executeRetweet (/opt/render/project/src/backend/src/services/queueService.js:1049:15)
+2025-06-30T15:30:16.14699964Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:925:21)
+2025-06-30T15:30:16.147013841Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:30:16.147145104Z ❌ Error ejecutando acción action_1751262926844_lju385knj: Error ejecutando retweet: La cuenta @zonkapires no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:30:16.462402857Z ⏰ Saltando acción action_1751263500920_byblywgs4 - delay mínimo no cumplido
+2025-06-30T15:30:16.778335786Z [RATE_LIMIT] Tracker actualizado para cmcdyy83w0003xfna438cvb2n, acción tweet
+2025-06-30T15:30:16.778355016Z 🔄 Ejecutando acción action_1751264329630_hhidhvpqn (tweet) para cuenta cmcdyy83w0003xfna438cvb2n
+2025-06-30T15:30:16.778358837Z 📝 Ejecutando tweet para @zonkapires: "que aburrido esto"
+2025-06-30T15:30:16.778451289Z 🔍 Configurando cliente Twitter para @zonkapires...
+2025-06-30T15:30:16.778521841Z ❌ Error de Twitter API en tweet: Error: Cuenta @zonkapires no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:30:16.778527361Z     at TwitterService.getTwitterClient (/opt/render/project/src/backend/src/services/twitterService.js:39:11)
+2025-06-30T15:30:16.778529581Z     at QueueService.executeTweet (/opt/render/project/src/backend/src/services/queueService.js:944:48)
+2025-06-30T15:30:16.778531781Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:919:21)
+2025-06-30T15:30:16.778534201Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:30:16.778601642Z ❌ Error ejecutando acción action_1751264329630_hhidhvpqn: Error ejecutando tweet: Cuenta @zonkapires no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:30:17.408699968Z ❌ Error de Twitter API en tweet: Error: Cuenta @carlasanchz__ no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:30:17.408720248Z     at TwitterService.getTwitterClient (/opt/render/project/src/backend/src/services/twitterService.js:39:11)
+2025-06-30T15:30:17.408725078Z     at QueueService.executeTweet (/opt/render/project/src/backend/src/services/queueService.js:944:48)
+2025-06-30T15:30:17.408729168Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:919:21)
+2025-06-30T15:30:17.408731239Z [RATE_LIMIT] Tracker actualizado para cmccr4ib80008jjupf7o653ix, acción tweet
+2025-06-30T15:30:17.408733628Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:30:17.408738789Z ❌ Error ejecutando acción action_1751264249840_w7ht7ywnp: Error ejecutando tweet: Cuenta @carlasanchz__ no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:30:17.408762749Z 🔄 Ejecutando acción action_1751264249840_w7ht7ywnp (tweet) para cuenta cmccr4ib80008jjupf7o653ix
+2025-06-30T15:30:17.408767739Z 📝 Ejecutando tweet para @carlasanchz__: "el frio de mendoza no es normal"
+2025-06-30T15:30:17.408772109Z 🔍 Configurando cliente Twitter para @carlasanchz__...
+2025-06-30T15:30:17.727109237Z ⏰ Saltando acción action_1751264331167_ddl5xhgcz - delay mínimo no cumplido
+2025-06-30T15:30:18.039982832Z [RATE_LIMIT] Tracker actualizado para cmccr4i2t0007jjupft4s5ymj, acción retweet
+2025-06-30T15:30:18.040035253Z 🔄 Ejecutando acción action_1751262928460_bavp0g0qs (retweet) para cuenta cmccr4i2t0007jjupft4s5ymj
+2025-06-30T15:30:18.040047143Z 🔄 Ejecutando retweet para @julilopezzzzzz → 1936036708480377155
+2025-06-30T15:30:18.040154526Z ❌ Error de Twitter API en retweet: Error: La cuenta @julilopezzzzzz no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:30:18.040164516Z     at QueueService.executeRetweet (/opt/render/project/src/backend/src/services/queueService.js:1049:15)
+2025-06-30T15:30:18.040169476Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:925:21)
+2025-06-30T15:30:18.040174036Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:30:18.040221208Z ❌ Error ejecutando acción action_1751262928460_bavp0g0qs: Error ejecutando retweet: La cuenta @julilopezzzzzz no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:30:18.747788281Z [RATE_LIMIT] Tracker actualizado para cmccr4go30001jjup7k4v7xx2, acción retweet
+2025-06-30T15:30:18.747820412Z 🔄 Ejecutando acción action_1751262928460_lgfwoaxqs (retweet) para cuenta cmccr4go30001jjup7k4v7xx2
+2025-06-30T15:30:18.747831792Z 🔄 Ejecutando retweet para @maxilopp99 → 1936036708480377155
+2025-06-30T15:30:18.747969095Z ❌ Error de Twitter API en retweet: Error: La cuenta @maxilopp99 no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:30:18.747977096Z     at QueueService.executeRetweet (/opt/render/project/src/backend/src/services/queueService.js:1049:15)
+2025-06-30T15:30:18.747981345Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:925:21)
+2025-06-30T15:30:18.747985286Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:30:18.748061387Z ❌ Error ejecutando acción action_1751262928460_lgfwoaxqs: Error ejecutando retweet: La cuenta @maxilopp99 no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:30:19.388193577Z [RATE_LIMIT] Tracker actualizado para cmccr4ib80008jjupf7o653ix, acción retweet
+2025-06-30T15:30:19.388220788Z 🔄 Ejecutando acción action_1751262928460_hvbvoyrhw (retweet) para cuenta cmccr4ib80008jjupf7o653ix
+2025-06-30T15:30:19.388278039Z 🔄 Ejecutando retweet para @carlasanchz__ → 1936036708480377155
+2025-06-30T15:30:19.388416963Z ❌ Error de Twitter API en retweet: Error: La cuenta @carlasanchz__ no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:30:19.388429083Z     at QueueService.executeRetweet (/opt/render/project/src/backend/src/services/queueService.js:1049:15)
+2025-06-30T15:30:19.388432573Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:925:21)
+2025-06-30T15:30:19.388435743Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:30:19.388506365Z ❌ Error ejecutando acción action_1751262928460_hvbvoyrhw: Error ejecutando retweet: La cuenta @carlasanchz__ no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:30:19.702968289Z ⏰ Saltando acción action_1751264251418_ifpsdipf0 - delay mínimo no cumplido
+2025-06-30T15:30:19.702985119Z ⏰ Saltando acción action_1751262930076_cj8ydpe43 - delay mínimo no cumplido
+2025-06-30T15:30:20.017002221Z [RATE_LIMIT] Tracker actualizado para cmccr4hdi0004jjupmo0c3b13, acción retweet
+2025-06-30T15:30:20.017021552Z 🔄 Ejecutando acción action_1751262930076_m58htjtdz (retweet) para cuenta cmccr4hdi0004jjupmo0c3b13
+2025-06-30T15:30:20.017026062Z 🔄 Ejecutando retweet para @alvarezpau7 → 1937972904198824314
+2025-06-30T15:30:20.017637327Z ❌ Error de Twitter API en retweet: Error: La cuenta @alvarezpau7 no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:30:20.017648327Z     at QueueService.executeRetweet (/opt/render/project/src/backend/src/services/queueService.js:1049:15)
+2025-06-30T15:30:20.017652497Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:925:21)
+2025-06-30T15:30:20.017656577Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:30:20.017661387Z ❌ Error ejecutando acción action_1751262930076_m58htjtdz: Error ejecutando retweet: La cuenta @alvarezpau7 no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:30:20.333139535Z ⏰ Saltando acción action_1751262930076_5hm9pq4cn - delay mínimo no cumplido
+2025-06-30T15:30:20.775010483Z [RATE_LIMIT] Tracker actualizado para cmccr4gae0000jjupdfcdah97, acción retweet
+2025-06-30T15:30:20.775032184Z 🔄 Ejecutando acción action_1751262930076_v8mlx4g8w (retweet) para cuenta cmccr4gae0000jjupdfcdah97
+2025-06-30T15:30:20.775037684Z 🔄 Ejecutando retweet para @silva_tomi9090 → 1937972904198824314
+2025-06-30T15:30:20.775320781Z ❌ Error de Twitter API en retweet: Error: La cuenta @silva_tomi9090 no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:30:20.775333251Z     at QueueService.executeRetweet (/opt/render/project/src/backend/src/services/queueService.js:1049:15)
+2025-06-30T15:30:20.775337982Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:925:21)
+2025-06-30T15:30:20.775341932Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:30:20.775346692Z ❌ Error ejecutando acción action_1751262930076_v8mlx4g8w: Error ejecutando retweet: La cuenta @silva_tomi9090 no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:30:21.10147271Z ⏰ Saltando acción action_1751262931625_g0cgm6r7y - delay mínimo no cumplido
+2025-06-30T15:30:21.10149013Z ⏰ Saltando acción action_1751262931625_t3y4u2b3u - delay mínimo no cumplido
+2025-06-30T15:30:21.414316513Z [RATE_LIMIT] Tracker actualizado para cmccr4gwn0002jjupws0qhy8b, acción retweet
+2025-06-30T15:30:21.414333574Z 🔄 Ejecutando acción action_1751262931625_r4xwbkn67 (retweet) para cuenta cmccr4gwn0002jjupws0qhy8b
+2025-06-30T15:30:21.414454157Z ❌ Error de Twitter API en retweet: Error: La cuenta @BelTorressss no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:30:21.414638281Z 🔄 Ejecutando retweet para @BelTorressss → 1937980123858272522
+2025-06-30T15:30:21.414650431Z     at QueueService.executeRetweet (/opt/render/project/src/backend/src/services/queueService.js:1049:15)
+2025-06-30T15:30:21.414653322Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:925:21)
+2025-06-30T15:30:21.414655862Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:30:21.414667032Z ❌ Error ejecutando acción action_1751262931625_r4xwbkn67: Error ejecutando retweet: La cuenta @BelTorressss no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:30:22.042554823Z [RATE_LIMIT] Tracker actualizado para cmccr4h510003jjuplzu20ghe, acción retweet
+2025-06-30T15:30:22.042571334Z 🔄 Ejecutando acción action_1751262931625_on64z5y4m (retweet) para cuenta cmccr4h510003jjuplzu20ghe
+2025-06-30T15:30:22.042580644Z 🔄 Ejecutando retweet para @gonzmoreno__ → 1937980123858272522
+2025-06-30T15:30:22.042741018Z ❌ Error de Twitter API en retweet: Error: La cuenta @gonzmoreno__ no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:30:22.042746858Z     at QueueService.executeRetweet (/opt/render/project/src/backend/src/services/queueService.js:1049:15)
+2025-06-30T15:30:22.042749818Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:925:21)
+2025-06-30T15:30:22.042752598Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:30:22.04283239Z ❌ Error ejecutando acción action_1751262931625_on64z5y4m: Error ejecutando retweet: La cuenta @gonzmoreno__ no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:30:22.358848021Z ⏰ Saltando acción action_1751262931625_gzg3l5or8 - delay mínimo no cumplido
+2025-06-30T15:30:23.607363587Z 🚀 Procesando 11 acciones listas
+2025-06-30T15:30:24.011841974Z [RATE_LIMIT] Tracker actualizado para cmccr4go30001jjup7k4v7xx2, acción tweet
+2025-06-30T15:30:24.011863015Z 🔄 Ejecutando acción action_1751263575157_t85hkllod (tweet) para cuenta cmccr4go30001jjup7k4v7xx2
+2025-06-30T15:30:24.011867195Z 📝 Ejecutando tweet para @maxilopp99: "la secundaria es una excusa para ver a mis amigos"
+2025-06-30T15:30:24.011871075Z 🔍 Configurando cliente Twitter para @maxilopp99...
+2025-06-30T15:30:24.011890556Z ❌ Error de Twitter API en tweet: Error: Cuenta @maxilopp99 no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:30:24.011894146Z     at TwitterService.getTwitterClient (/opt/render/project/src/backend/src/services/twitterService.js:39:11)
+2025-06-30T15:30:24.011896676Z     at QueueService.executeTweet (/opt/render/project/src/backend/src/services/queueService.js:944:48)
+2025-06-30T15:30:24.011899266Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:919:21)
+2025-06-30T15:30:24.011901926Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:30:24.011916106Z ❌ Error ejecutando acción action_1751263575157_t85hkllod: Error ejecutando tweet: Cuenta @maxilopp99 no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:30:24.639935391Z [RATE_LIMIT] Tracker actualizado para cmccr4gwn0002jjupws0qhy8b, acción tweet
+2025-06-30T15:30:24.639958942Z 🔄 Ejecutando acción action_1751263608660_6itr8yrr7 (tweet) para cuenta cmccr4gwn0002jjupws0qhy8b
+2025-06-30T15:30:24.639962172Z 📝 Ejecutando tweet para @BelTorressss: "me dijo "no sos vos, soy yo". igual me arruinó el día"
+2025-06-30T15:30:24.639969442Z 🔍 Configurando cliente Twitter para @BelTorressss...
+2025-06-30T15:30:24.640223048Z ❌ Error de Twitter API en tweet: Error: Cuenta @BelTorressss no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:30:24.640229498Z     at TwitterService.getTwitterClient (/opt/render/project/src/backend/src/services/twitterService.js:39:11)
+2025-06-30T15:30:24.640231348Z     at QueueService.executeTweet (/opt/render/project/src/backend/src/services/queueService.js:944:48)
+2025-06-30T15:30:24.640233058Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:919:21)
+2025-06-30T15:30:24.640235408Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:30:24.640356071Z ❌ Error ejecutando acción action_1751263608660_6itr8yrr7: Error ejecutando tweet: Cuenta @BelTorressss no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:30:25.267412262Z [RATE_LIMIT] Tracker actualizado para cmccr4huc0006jjup9p7803er, acción tweet
+2025-06-30T15:30:25.267502635Z 🔄 Ejecutando acción action_1751264164237_65rb57a4f (tweet) para cuenta cmccr4huc0006jjup9p7803er
+2025-06-30T15:30:25.267509395Z 📝 Ejecutando tweet para @raminavarra: "hoy soñé con San Martín, me decía que no afloje."
+2025-06-30T15:30:25.267514005Z 🔍 Configurando cliente Twitter para @raminavarra...
+2025-06-30T15:30:25.267642578Z ❌ Error de Twitter API en tweet: Error: Cuenta @raminavarra no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:30:25.267650448Z     at TwitterService.getTwitterClient (/opt/render/project/src/backend/src/services/twitterService.js:39:11)
+2025-06-30T15:30:25.267835903Z     at QueueService.executeTweet (/opt/render/project/src/backend/src/services/queueService.js:944:48)
+2025-06-30T15:30:25.267841383Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:919:21)
+2025-06-30T15:30:25.267844313Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:30:25.267859393Z ❌ Error ejecutando acción action_1751264164237_65rb57a4f: Error ejecutando tweet: Cuenta @raminavarra no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:30:25.893731416Z [RATE_LIMIT] Tracker actualizado para cmccr4gae0000jjupdfcdah97, acción tweet
+2025-06-30T15:30:25.893751646Z 🔄 Ejecutando acción action_1751263500920_byblywgs4 (tweet) para cuenta cmccr4gae0000jjupdfcdah97
+2025-06-30T15:30:25.893762617Z 📝 Ejecutando tweet para @silva_tomi9090: "me quedé sin datos, sin batería y sin ganas. alta trilogía"
+2025-06-30T15:30:25.893776327Z 🔍 Configurando cliente Twitter para @silva_tomi9090...
+2025-06-30T15:30:25.89389833Z ❌ Error de Twitter API en tweet: Error: Cuenta @silva_tomi9090 no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:30:25.89390728Z     at TwitterService.getTwitterClient (/opt/render/project/src/backend/src/services/twitterService.js:39:11)
+2025-06-30T15:30:25.89391077Z     at QueueService.executeTweet (/opt/render/project/src/backend/src/services/queueService.js:944:48)
+2025-06-30T15:30:25.89391372Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:919:21)
+2025-06-30T15:30:25.89391639Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:30:25.894000303Z ❌ Error ejecutando acción action_1751263500920_byblywgs4: Error ejecutando tweet: Cuenta @silva_tomi9090 no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:30:26.52829342Z [RATE_LIMIT] Tracker actualizado para cmcdyy83w0003xfna438cvb2n, acción tweet
+2025-06-30T15:30:26.528312631Z 🔄 Ejecutando acción action_1751264331167_ddl5xhgcz (tweet) para cuenta cmcdyy83w0003xfna438cvb2n
+2025-06-30T15:30:26.528322321Z 📝 Ejecutando tweet para @zonkapires: "cada vez entiendo más a los que se van al campo y crían animales"
+2025-06-30T15:30:26.528329081Z 🔍 Configurando cliente Twitter para @zonkapires...
+2025-06-30T15:30:26.528593788Z ❌ Error de Twitter API en tweet: Error: Cuenta @zonkapires no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:30:26.528600138Z     at TwitterService.getTwitterClient (/opt/render/project/src/backend/src/services/twitterService.js:39:11)
+2025-06-30T15:30:26.528603048Z     at QueueService.executeTweet (/opt/render/project/src/backend/src/services/queueService.js:944:48)
+2025-06-30T15:30:26.528605818Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:919:21)
+2025-06-30T15:30:26.528608358Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:30:26.528849584Z ❌ Error ejecutando acción action_1751264331167_ddl5xhgcz: Error ejecutando tweet: Cuenta @zonkapires no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:30:27.245844077Z [RATE_LIMIT] Tracker actualizado para cmccr4ib80008jjupf7o653ix, acción tweet
+2025-06-30T15:30:27.247383394Z 🔄 Ejecutando acción action_1751264251418_ifpsdipf0 (tweet) para cuenta cmccr4ib80008jjupf7o653ix
+2025-06-30T15:30:27.247389874Z ❌ Error de Twitter API en tweet: Error: Cuenta @carlasanchz__ no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:30:27.247399375Z 📝 Ejecutando tweet para @carlasanchz__: "no se si seguir o soltar"
+2025-06-30T15:30:27.247402805Z 🔍 Configurando cliente Twitter para @carlasanchz__...
+2025-06-30T15:30:27.247408815Z     at TwitterService.getTwitterClient (/opt/render/project/src/backend/src/services/twitterService.js:39:11)
+2025-06-30T15:30:27.247411555Z     at QueueService.executeTweet (/opt/render/project/src/backend/src/services/queueService.js:944:48)
+2025-06-30T15:30:27.247414225Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:919:21)
+2025-06-30T15:30:27.247427575Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:30:27.247432856Z ❌ Error ejecutando acción action_1751264251418_ifpsdipf0: Error ejecutando tweet: Cuenta @carlasanchz__ no tiene credenciales válidas configuradas. Necesita OAuth 2.0 (ownOAuth2AccessToken) o OAuth 1.0a completo (ownApiKey, ownApiSecret, ownAccessToken, ownAccessTokenSecret).
+2025-06-30T15:30:27.875881651Z [RATE_LIMIT] Tracker actualizado para cmccr4ijl0009jjupi2vi8vr5, acción retweet
+2025-06-30T15:30:27.875913372Z 🔄 Ejecutando acción action_1751262930076_cj8ydpe43 (retweet) para cuenta cmccr4ijl0009jjupi2vi8vr5
+2025-06-30T15:30:27.876529707Z ❌ Error de Twitter API en retweet: Error: La cuenta @JulietaAlv44555 no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:30:27.876532187Z 🔄 Ejecutando retweet para @JulietaAlv44555 → 1937972904198824314
+2025-06-30T15:30:27.876563698Z     at QueueService.executeRetweet (/opt/render/project/src/backend/src/services/queueService.js:1049:15)
+2025-06-30T15:30:27.876567047Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:925:21)
+2025-06-30T15:30:27.876570227Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:30:27.876573458Z ❌ Error ejecutando acción action_1751262930076_cj8ydpe43: Error ejecutando retweet: La cuenta @JulietaAlv44555 no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:30:28.507211296Z [RATE_LIMIT] Tracker actualizado para cmccr4hlx0005jjupldombqen, acción retweet
+2025-06-30T15:30:28.507229207Z 🔄 Ejecutando acción action_1751262930076_5hm9pq4cn (retweet) para cuenta cmccr4hlx0005jjupldombqen
+2025-06-30T15:30:28.507255808Z 🔄 Ejecutando retweet para @belubarra7 → 1937972904198824314
+2025-06-30T15:30:28.507456522Z ❌ Error de Twitter API en retweet: Error: La cuenta @belubarra7 no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:30:28.507461502Z     at QueueService.executeRetweet (/opt/render/project/src/backend/src/services/queueService.js:1049:15)
+2025-06-30T15:30:28.507464082Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:925:21)
+2025-06-30T15:30:28.507466413Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:30:28.507485263Z ❌ Error ejecutando acción action_1751262930076_5hm9pq4cn: Error ejecutando retweet: La cuenta @belubarra7 no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:30:28.822325246Z ⏰ Saltando acción action_1751262931625_g0cgm6r7y - delay mínimo no cumplido
+2025-06-30T15:30:29.211950211Z [RATE_LIMIT] Tracker actualizado para cmccr4i2t0007jjupft4s5ymj, acción retweet
+2025-06-30T15:30:29.212035703Z 🔄 Ejecutando acción action_1751262931625_t3y4u2b3u (retweet) para cuenta cmccr4i2t0007jjupft4s5ymj
+2025-06-30T15:30:29.212041033Z 🔄 Ejecutando retweet para @julilopezzzzzz → 1937980123858272522
+2025-06-30T15:30:29.212220768Z ❌ Error de Twitter API en retweet: Error: La cuenta @julilopezzzzzz no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:30:29.212227108Z     at QueueService.executeRetweet (/opt/render/project/src/backend/src/services/queueService.js:1049:15)
+2025-06-30T15:30:29.212229918Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:925:21)
+2025-06-30T15:30:29.212232738Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:30:29.213026637Z ❌ Error ejecutando acción action_1751262931625_t3y4u2b3u: Error ejecutando retweet: La cuenta @julilopezzzzzz no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:30:29.938929037Z [RATE_LIMIT] Tracker actualizado para cmccr4hdi0004jjupmo0c3b13, acción retweet
+2025-06-30T15:30:29.938949928Z 🔄 Ejecutando acción action_1751262931625_gzg3l5or8 (retweet) para cuenta cmccr4hdi0004jjupmo0c3b13
+2025-06-30T15:30:29.938952928Z 🔄 Ejecutando retweet para @alvarezpau7 → 1937980123858272522
+2025-06-30T15:30:29.938969768Z ❌ Error de Twitter API en retweet: Error: La cuenta @alvarezpau7 no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:30:29.938973268Z     at QueueService.executeRetweet (/opt/render/project/src/backend/src/services/queueService.js:1049:15)
+2025-06-30T15:30:29.938975819Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:925:21)
+2025-06-30T15:30:29.938978228Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:30:29.938982589Z ❌ Error ejecutando acción action_1751262931625_gzg3l5or8: Error ejecutando retweet: La cuenta @alvarezpau7 no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:30:33.604340444Z 🚀 Procesando 1 acciones listas
+2025-06-30T15:30:33.919943545Z [RATE_LIMIT] Tracker actualizado para cmccr4ijl0009jjupi2vi8vr5, acción retweet
+2025-06-30T15:30:33.919966976Z ❌ Error de Twitter API en retweet: Error: La cuenta @JulietaAlv44555 no tiene su Twitter ID configurado en la base de datos.
+2025-06-30T15:30:33.919981576Z 🔄 Ejecutando acción action_1751262931625_g0cgm6r7y (retweet) para cuenta cmccr4ijl0009jjupi2vi8vr5
+2025-06-30T15:30:33.919987397Z 🔄 Ejecutando retweet para @JulietaAlv44555 → 1937980123858272522
+2025-06-30T15:30:33.919998037Z     at QueueService.executeRetweet (/opt/render/project/src/backend/src/services/queueService.js:1049:15)
+2025-06-30T15:30:33.920002297Z     at QueueService.executeAction (/opt/render/project/src/backend/src/services/queueService.js:925:21)
+2025-06-30T15:30:33.920006557Z     at QueueService.processQueue (/opt/render/project/src/backend/src/services/queueService.js:743:37)
+2025-06-30T15:30:33.920011697Z ❌ Error ejecutando acción action_1751262931625_g0cgm6r7y: Error ejecutando retweet: La cuenta @JulietaAlv44555 no tiene su Twitter ID configurado en la base de datos.

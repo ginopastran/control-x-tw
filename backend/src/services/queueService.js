@@ -50,7 +50,18 @@ class QueueService {
         distributionConfig: true,
         createdAt: true,
         account: {
-          select: { id: true, username: true },
+          select: {
+            id: true,
+            username: true,
+            twitterId: true,
+            twitterUserId: true,
+            userId: true,
+            ownOAuth2AccessToken: true,
+            ownApiKey: true,
+            ownApiSecret: true,
+            ownAccessToken: true,
+            ownAccessTokenSecret: true,
+          },
         },
       };
 
@@ -883,11 +894,9 @@ class QueueService {
   }
 
   async executeAction(action) {
-    // 🔥 ARREGLAR: Asegurar que la acción tenga los datos de la cuenta
-    if (!action.account && action.accountId) {
-      console.log(
-        `[QUEUE] Cargando datos de cuenta para ${action.accountId}...`
-      );
+    // 🚀 SIEMPRE recargar la cuenta desde la BD para garantizar que tengamos
+    // twitterId / twitterUserId y TODAS las credenciales OAuth presentes.
+    if (action.accountId) {
       try {
         const account = await this.prisma.xAccount.findUnique({
           where: { id: action.accountId },
@@ -899,17 +908,18 @@ class QueueService {
           );
         }
 
+        // Reemplazar (o añadir) los datos completos de cuenta
         action.account = account;
         console.log(
-          `✅ [QUEUE] Cuenta cargada: @${account.username} (ID: ${account.id})`
+          `✅ [QUEUE] Cuenta actualizada: @${account.username} (ID: ${account.id})`
         );
       } catch (error) {
         console.error(
-          `❌ [QUEUE] Error cargando cuenta ${action.accountId}:`,
+          `❌ [QUEUE] Error recargando cuenta ${action.accountId}:`,
           error
         );
         throw new Error(
-          `No se pudo cargar la cuenta ${action.accountId}: ${error.message}`
+          `No se pudo recargar la cuenta ${action.accountId}: ${error.message}`
         );
       }
     }
@@ -1817,7 +1827,6 @@ class QueueService {
       const deleteResult = await this.prisma.queuedAction.deleteMany({
         where: {
           action: { in: typesLower },
-          status: { in: ["QUEUED", "SCHEDULED"] },
         },
       });
       removedFromDb = deleteResult.count || 0;
