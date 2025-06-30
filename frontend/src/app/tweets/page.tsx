@@ -1971,7 +1971,8 @@ export default function TweetsPage() {
     // 2. Desordenar para randomizar el orden inicial y evitar que todas apunten igual
     const shuffled = [...accArr].sort(() => Math.random() - 0.5);
 
-    const SLOT_MS = 15 * 60 * 1000; // 15 minutos para prueba
+    const FIRST_SLOT_MS = 5 * 60 * 1000; // primer acción a los 5 min
+    const SLOT_MS = 30 * 60 * 1000; // 30 minutos entre acciones siguientes
     const now = Date.now();
 
     let ok = 0,
@@ -1980,7 +1981,7 @@ export default function TweetsPage() {
 
     // 3. Round-robin: en el slot s (0..n-2) cada cuenta i sigue a (i+s+1) % n
     for (let s = 0; s < n - 1; s++) {
-      const slotTimeISO = new Date(now + s * SLOT_MS).toISOString();
+      const slotTimeISO = new Date(now + FIRST_SLOT_MS + s * SLOT_MS).toISOString();
 
       // envío paralelo de todas las acciones de este slot
       const promises = shuffled.map(async (follower, idx) => {
@@ -2014,7 +2015,7 @@ export default function TweetsPage() {
     }
 
     setLoading(false);
-    toast.success(`Encolados ${ok} follows (fallidos: ${fail}) en ${(n - 1)} slots de 15m`);
+    toast.success(`Encolados ${ok} follows (fallidos: ${fail}) en ${(n - 1)} slots de 30m`);
   };
 
   // 🧪 TEST: Seguirse entre 5 cuentas (máx)
@@ -2033,7 +2034,8 @@ export default function TweetsPage() {
 
     const shuffled = [...accArr].sort(() => Math.random() - 0.5).slice(0, n);
 
-    const SLOT_MS = 15 * 60 * 1000; // 15 minutos para prueba
+    const FIRST_SLOT_MS = 5 * 60 * 1000; // 5 minutos primer acción
+    const SLOT_MS = 30 * 60 * 1000; // 30 min intervalo
     const now = Date.now();
 
     let ok = 0,
@@ -2042,7 +2044,7 @@ export default function TweetsPage() {
 
     try {
       for (let s = 0; s < n - 1; s++) {
-        const slotTime = new Date(now + s * SLOT_MS).toISOString();
+        const slotTime = new Date(now + FIRST_SLOT_MS + s * SLOT_MS).toISOString();
         for (let i = 0; i < n; i++) {
           const follower = shuffled[i];
           const target = shuffled[(i + s + 1) % n];
