@@ -466,23 +466,32 @@ class QueueService {
       for (let i = 0; i < accountActions.length; i++) {
         let action = accountActions[i];
         let scheduledTime;
-        const minDelayMs = action.action === "follow" ? minDelayFollowMs : minDelayDefaultMs;
-        if (
-          action.useRandomDistribution &&
-          action.distributionTimes &&
-          action.distributionTimes[i]
-        ) {
-          // Distribución aleatoria, pero respetando el mínimo de 16 minutos entre acciones de la misma cuenta
-          const candidateTime = new Date(action.distributionTimes[i]);
-          if (i === 0 || candidateTime - lastScheduled >= minDelayMs) {
-            scheduledTime = candidateTime;
-          } else {
-            scheduledTime = new Date(lastScheduled.getTime() + minDelayMs);
-          }
+
+        // 👉 1. Si la acción ya contiene scheduledTime (por ejemplo, lote pre-calculado desde el frontend), úsalo tal cual
+        if (action.scheduledTime) {
+          scheduledTime = new Date(action.scheduledTime);
         } else {
-          // Espaciar 16 minutos entre cada acción de la misma cuenta
-          scheduledTime =
-            i === 0 ? now : new Date(lastScheduled.getTime() + minDelayMs);
+          // 👉 2. Caso normal: calcular en función del delay mínimo por cuenta
+          const minDelayMs =
+            action.action === "follow" ? minDelayFollowMs : minDelayDefaultMs;
+
+          if (
+            action.useRandomDistribution &&
+            action.distributionTimes &&
+            action.distributionTimes[i]
+          ) {
+            // Distribución aleatoria respetando delay mínimo
+            const candidateTime = new Date(action.distributionTimes[i]);
+            if (i === 0 || candidateTime - lastScheduled >= minDelayMs) {
+              scheduledTime = candidateTime;
+            } else {
+              scheduledTime = new Date(lastScheduled.getTime() + minDelayMs);
+            }
+          } else {
+            // Secuencial
+            scheduledTime =
+              i === 0 ? now : new Date(lastScheduled.getTime() + minDelayMs);
+          }
         }
         lastScheduled = scheduledTime;
 
@@ -646,7 +655,7 @@ class QueueService {
     try {
       // Obtener acciones listas para ejecutar
       const readyActions = this.actionQueue.filter((action) => {
-        const minDelayMs = action.action === "follow" ? minDelayFollowMs : minDelayDefaultMs;
+        const minDelayMsLoop = action.action === "follow" ? minDelayFollowMs : minDelayDefaultMs;
         const isReady =
           action.status === "queued" && new Date(action.scheduledTime) <= now;
 
@@ -656,11 +665,11 @@ class QueueService {
           if (lastActionTime) {
             const timeSinceLastAction =
               now.getTime() - lastActionTime.getTime();
-            if (timeSinceLastAction < minDelayMs) {
+            if (timeSinceLastAction < minDelayMsLoop) {
               if (VERBOSE_QUEUE_LOGS) {
                 console.log(
                   `⏰ Cuenta ${action.accountId} debe esperar ${Math.ceil(
-                    (minDelayMs - timeSinceLastAction) / 60000
+                    (minDelayMsLoop - timeSinceLastAction) / 60000
                   )} minutos más`
                 );
               }
@@ -682,11 +691,12 @@ class QueueService {
       for (const action of readyActions) {
         try {
           // Verificar nuevamente el delay mínimo antes de ejecutar
+          const minDelayMsLoop = action.action === "follow" ? minDelayFollowMs : minDelayDefaultMs;
           const lastActionTime = this.rateLimitTracker.get(action.accountId);
           if (lastActionTime) {
             const timeSinceLastAction =
               now.getTime() - lastActionTime.getTime();
-            if (timeSinceLastAction < minDelayMs) {
+            if (timeSinceLastAction < minDelayMsLoop) {
               console.log(
                 `⏰ Saltando acción ${action.id} - delay mínimo no cumplido`
               );
@@ -809,15 +819,16 @@ class QueueService {
           if (idx < readyActions.length - 1) {
             const nextAction = readyActions[idx + 1];
             if (
+              nextAction &&
               nextAction.accountId === action.accountId &&
               nextAction.action === action.action
             ) {
               if (VERBOSE_QUEUE_LOGS) {
                 console.log(
-                  `⏰ Misma cuenta + tipo; esperando 16 minutos antes de la siguiente acción...`
+                  `⏰ Misma cuenta + tipo; esperando ${minDelayMsLoop / 60000} minutos antes de la siguiente acción...`
                 );
               }
-              await new Promise((resolve) => setTimeout(resolve, minDelayMs));
+              await new Promise((resolve) => setTimeout(resolve, minDelayMsLoop));
             }
           }
         } catch (error) {
