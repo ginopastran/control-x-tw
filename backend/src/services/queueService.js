@@ -28,40 +28,57 @@ class QueueService {
     try {
       console.log("🔄 Inicializando cola desde la base de datos...");
 
-      // Cargar acciones en cola desde la BD
+      const selectFields = {
+        actionId: true,
+        accountId: true,
+        action: true,
+        text: true,
+        tweetId: true,
+        targetUserId: true,
+        targetUsername: true,
+        status: true,
+        priority: true,
+        scheduledTime: true,
+        estimatedStartTime: true,
+        startedAt: true,
+        baseDelay: true,
+        randomDelay: true,
+        actualDelay: true,
+        batchId: true,
+        accountLabels: true,
+        useRandomDistribution: true,
+        distributionConfig: true,
+        createdAt: true,
+        account: {
+          select: { id: true, username: true },
+        },
+      };
+
       const queuedFromDb = await this.prisma.queuedAction.findMany({
         where: {
           status: "QUEUED",
         },
-        include: {
-          account: true,
-        },
+        select: selectFields,
         orderBy: {
           estimatedStartTime: "asc",
         },
       });
 
-      // Cargar acciones programadas desde la BD
       const scheduledFromDb = await this.prisma.queuedAction.findMany({
         where: {
           status: "SCHEDULED",
         },
-        include: {
-          account: true,
-        },
+        select: selectFields,
         orderBy: {
           scheduledTime: "asc",
         },
       });
 
-      // Cargar acciones en ejecución desde la BD
       const runningFromDb = await this.prisma.queuedAction.findMany({
         where: {
           status: "RUNNING",
         },
-        include: {
-          account: true,
-        },
+        select: selectFields,
       });
 
       // Convertir y cargar en memoria
@@ -427,7 +444,8 @@ class QueueService {
 
     const processedActions = [];
     const now = new Date();
-    const minDelayMs = 16 * 60 * 1000; // 16 minutos en milisegundos
+    const minDelayDefaultMs = 16 * 60 * 1000; // 16 minutes
+    const minDelayFollowMs = 30 * 60 * 1000; // 30 minutes
 
     // Agrupar acciones por cuenta
     const actionsByAccount = {};
@@ -438,6 +456,7 @@ class QueueService {
     }
 
     // Para cada cuenta, distribuir los tiempos de ejecución
+    const bulkToPersist = [];
     for (const [accountId, accountActions] of Object.entries(
       actionsByAccount
     )) {
@@ -447,6 +466,7 @@ class QueueService {
       for (let i = 0; i < accountActions.length; i++) {
         let action = accountActions[i];
         let scheduledTime;
+        const minDelayMs = action.action === "follow" ? minDelayFollowMs : minDelayDefaultMs;
         if (
           action.useRandomDistribution &&
           action.distributionTimes &&
@@ -509,8 +529,8 @@ class QueueService {
           });
         }
 
-        // Persistir en base de datos
-        await this.persistActionToDb(actionObj);
+        // Persistir más tarde (bulk)
+        bulkToPersist.push(actionObj);
 
         // Agregar a memoria
         this.actionQueue.push(actionObj);
@@ -523,6 +543,9 @@ class QueueService {
         );
       }
     }
+
+    // Persistencia BULK
+    await this.persistActionToDbBulk(bulkToPersist);
 
     // Ordenar cola por tiempo programado
     this.actionQueue.sort(
@@ -561,6 +584,54 @@ class QueueService {
     };
   }
 
+  async persistActionToDbBulk(actions) {
+    try {
+      if (!actions || actions.length === 0) return;
+
+      const statusMapping = {
+        queued: "QUEUED",
+        scheduled: "SCHEDULED",
+        running: "RUNNING",
+        completed: "COMPLETED",
+        failed: "FAILED",
+        cancelled: "CANCELLED",
+      };
+
+      const data = actions.map((action) => ({
+        actionId: action.id,
+        accountId: action.accountId,
+        action: action.action,
+        text: action.text,
+        tweetId: action.tweetId,
+        targetUserId: action.targetUserId,
+        targetUsername: action.targetUsername,
+        status: statusMapping[action.status.toLowerCase()] || "QUEUED",
+        scheduledTime: action.scheduledTime
+          ? new Date(action.scheduledTime)
+          : null,
+        estimatedStartTime: action.estimatedStartTime
+          ? new Date(action.estimatedStartTime)
+          : null,
+        startedAt: action.startedAt ? new Date(action.startedAt) : null,
+        baseDelay: action.baseDelay,
+        randomDelay: action.randomDelay,
+        actualDelay: action.actualDelay,
+        batchId: action.batchId,
+        accountLabels: action.accountLabels || [],
+        useRandomDistribution: action.useRandomDistribution || false,
+        distributionConfig: action.distributionConfig || null,
+      }));
+
+      await this.prisma.queuedAction.createMany({
+        data,
+        skipDuplicates: true,
+      });
+    } catch (error) {
+      console.error("[QUEUE] Error en persistActionToDbBulk:", error);
+      throw error;
+    }
+  }
+
   // Modificar: processQueue para actualizar BD
   async processQueue() {
     if (this.isProcessing) {
@@ -569,11 +640,13 @@ class QueueService {
 
     this.isProcessing = true;
     const now = new Date();
-    const minDelayMs = 16 * 60 * 1000; // 16 minutos en milisegundos
+    const minDelayDefaultMs = 16 * 60 * 1000;
+    const minDelayFollowMs = 30 * 60 * 1000;
 
     try {
       // Obtener acciones listas para ejecutar
       const readyActions = this.actionQueue.filter((action) => {
+        const minDelayMs = action.action === "follow" ? minDelayFollowMs : minDelayDefaultMs;
         const isReady =
           action.status === "queued" && new Date(action.scheduledTime) <= now;
 

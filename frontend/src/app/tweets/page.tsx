@@ -221,6 +221,9 @@ export default function TweetsPage() {
     {}
   );
 
+  const [quickFollowEnabled, setQuickFollowEnabled] = useState(false);
+  const [quickFollowText, setQuickFollowText] = useState("");
+
   useEffect(() => {
     fetchAccounts();
     fetchScheduledActions();
@@ -1881,6 +1884,120 @@ export default function TweetsPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleQuickFollowExecute = async () => {
+    const targets = quickFollowText
+      .split("\n")
+      .map((l) => l.trim())
+      .filter(Boolean)
+      .slice(0, 50);
+
+    if (targets.length === 0) {
+      toast.error("Agrega usuarios destino (máx 50)");
+      return;
+    }
+
+    if (selectedAccounts.length === 0) {
+      toast.error("Selecciona cuentas de tus perfiles");
+      return;
+    }
+
+    const accountsForBatch = selectedAccounts.slice(0, 50);
+
+    const shuffledTargets = [...targets].sort(() => Math.random() - 0.5);
+    const shuffledAccounts = [...accountsForBatch].sort(
+      () => Math.random() - 0.5
+    );
+
+    const pairs = shuffledAccounts.map((accId, idx) => ({
+      accountId: accId,
+      targetUsername:
+        extractUsernameFromUrl(shuffledTargets[idx % shuffledTargets.length]) ||
+        shuffledTargets[idx % shuffledTargets.length],
+    }));
+
+    let success = 0;
+    let errors = 0;
+    setLoading(true);
+    try {
+      for (const pair of pairs) {
+        const actionData = {
+          action: "follow",
+          accountIds: [pair.accountId],
+          targetUsername: pair.targetUsername,
+          // Se enviará como queued; backend aplica delay de 30 min automáticamente
+          baseDelay: 0,
+          randomDelay: 0,
+          useRandomDistribution: false,
+        };
+        const res = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.QUEUE.ADD), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(actionData),
+        });
+        if (res.ok) success++;
+        else errors++;
+      }
+      if (success) {
+        toast.success(`Se encolaron ${success} follows 1:1 (demora 30m c/u)`);
+        setQuickFollowText("");
+        setQuickFollowEnabled(false);
+      }
+      if (errors) toast.error(`${errors} acciones fallaron al encolar`);
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Error enviando lote rápido");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMutualFollowAll = async () => {
+    const accList =
+      selectedAccounts.length > 1
+        ? accounts.filter((a) => selectedAccounts.includes(a._id))
+        : accounts;
+
+    if (accList.length < 2) {
+      toast.error("Selecciona (o carga) al menos 2 cuentas");
+      return;
+    }
+
+    const totalActions = accList.length * (accList.length - 1);
+    if (totalActions > 3000) {
+      toast.warning(
+        `Se crearán ${totalActions} follows (esto puede tardar unos minutos)`
+      );
+    }
+
+    setLoading(true);
+    let ok = 0,
+      fail = 0;
+    for (const follower of accList) {
+      for (const target of accList) {
+        if (follower._id === target._id) continue;
+        try {
+          const res = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.QUEUE.ADD), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              action: "follow",
+              accountIds: [follower._id],
+              targetUsername: target.username,
+              baseDelay: 0,
+              randomDelay: 0,
+              useRandomDistribution: false,
+            }),
+          });
+          res.ok ? ok++ : fail++;
+        } catch {
+          fail++;
+        }
+      }
+    }
+    setLoading(false);
+    toast.success(`Encolados ${ok} follows; ${fail} fallidos`);
   };
 
   return (
@@ -4835,6 +4952,77 @@ Pega las URLs de los tweets que quieres retwitear`}
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* NUEVA SECCIÓN: Lote Rápido Follow 50×50 */}
+      <Card className="bg-white border border-gray-200 shadow-sm">
+        <CardHeader>
+          <div className="flex items-center gap-3 justify-between">
+            <div className="flex items-center gap-3">
+              <div className="bg-purple-100 p-2 rounded-lg">
+                <UserPlus className="h-5 w-5 text-purple-600" />
+              </div>
+              <div>
+                <CardTitle className="text-xl text-gray-900">
+                  Lote Rápido: Follow 50×50
+                </CardTitle>
+                <p className="text-sm text-gray-600">
+                  Empareja hasta 50 de tus cuentas con 50 perfiles a seguir
+                  (delay 30 min por cuenta)
+                </p>
+              </div>
+            </div>
+            <Switch
+              checked={quickFollowEnabled}
+              onCheckedChange={setQuickFollowEnabled}
+            />
+          </div>
+        </CardHeader>
+        {quickFollowEnabled && (
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-purple-800">
+                Usernames/URLs destino (máx 50, uno por línea)
+              </Label>
+              <Textarea
+                rows={6}
+                placeholder={`@elonmusk\nhttps://twitter.com/nasa\nusuario3`}
+                className="resize-none border-2 focus:border-purple-500"
+                value={quickFollowText}
+                onChange={(e) => setQuickFollowText(e.target.value)}
+              />
+              <p className="text-xs text-gray-600">
+                {quickFollowText.split("\n").filter((l) => l.trim()).length}
+                /50 objetivos
+              </p>
+            </div>
+            <Button
+              className="bg-purple-600 hover:bg-purple-700 text-white"
+              disabled={loading}
+              onClick={handleQuickFollowExecute}
+            >
+              {loading ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <UserPlus className="h-4 w-4 mr-2" />
+              )}
+              Ejecutar Lote 1:1
+            </Button>
+            <Button
+              variant="outline"
+              disabled={loading || accounts.length < 2}
+              onClick={handleMutualFollowAll}
+              className="border-purple-300 text-purple-700 hover:bg-purple-50"
+            >
+              {loading ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Users className="h-4 w-4 mr-2" />
+              )}
+              Seguirse entre Todas
+            </Button>
+          </CardContent>
+        )}
+      </Card>
     </div>
   );
 }
