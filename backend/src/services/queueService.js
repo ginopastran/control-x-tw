@@ -445,7 +445,7 @@ class QueueService {
     const processedActions = [];
     const now = new Date();
     const minDelayDefaultMs = 16 * 60 * 1000; // 16 minutes
-    const minDelayFollowMs = 30 * 60 * 1000; // 30 minutes
+    const minDelayFollowMs = 15 * 60 * 1000; // 15 minutes
     const resolveMinDelay = (act) =>
       act.customMinDelayMs ?? (act.action === "follow" ? minDelayFollowMs : minDelayDefaultMs);
 
@@ -648,7 +648,7 @@ class QueueService {
     this.isProcessing = true;
     const now = new Date();
     const minDelayDefaultMs = 16 * 60 * 1000;
-    const minDelayFollowMs = 30 * 60 * 1000;
+    const minDelayFollowMs = 15 * 60 * 1000;
     const resolveMinDelay = (act) =>
       act.customMinDelayMs ?? (act.action === "follow" ? minDelayFollowMs : minDelayDefaultMs);
 
@@ -1128,7 +1128,7 @@ class QueueService {
         action.targetUserId = resolvedId;
 
         // Reprogramar acción 30 minutos después de la resolución para respetar delay FOLLOW
-        const followDelayMs = action.customMinDelayMs ?? 30 * 60 * 1000;
+        const followDelayMs = action.customMinDelayMs ?? 15 * 60 * 1000;
         const newSchedule = new Date(Date.now() + followDelayMs);
 
         action.status = "queued";
