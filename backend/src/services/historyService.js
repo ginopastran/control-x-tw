@@ -76,7 +76,10 @@ class HistoryService {
         where,
         skip,
         take,
-        orderBy: { createdAt: "desc" },
+        orderBy: [
+          { completedAt: "desc" },
+          { createdAt: "desc" },
+        ],
         include: {
           account: {
             select: {

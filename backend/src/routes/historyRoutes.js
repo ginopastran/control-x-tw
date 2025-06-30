@@ -61,7 +61,10 @@ function createHistoryRoutes(historyService, prisma) {
       const [actions, total] = await Promise.all([
         prisma.actionHistory.findMany({
           where,
-          orderBy: { createdAt: "desc" },
+          orderBy: [
+            { completedAt: "desc" },
+            { createdAt: "desc" },
+          ],
           take: parseInt(limit),
           skip: (parseInt(page) - 1) * parseInt(limit),
           include: {

@@ -319,7 +319,10 @@ function createQueueRoutes(queueService, prisma) {
             in: ["COMPLETED", "FAILED"],
           },
         },
-        orderBy: { completedAt: "desc" },
+        orderBy: [
+          { completedAt: "desc" },
+          { createdAt: "desc" },
+        ],
         take: parseInt(historyLimit),
         skip: (parseInt(historyPage) - 1) * parseInt(historyLimit),
         include: {
