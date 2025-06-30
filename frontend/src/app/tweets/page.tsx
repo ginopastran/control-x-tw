@@ -1971,7 +1971,7 @@ export default function TweetsPage() {
     // 2. Desordenar para randomizar el orden inicial y evitar que todas apunten igual
     const shuffled = [...accArr].sort(() => Math.random() - 0.5);
 
-    const SLOT_MS = 30 * 60 * 1000; // 30 minutos
+    const SLOT_MS = 15 * 60 * 1000; // 15 minutos para prueba
     const now = Date.now();
 
     let ok = 0,
@@ -1994,6 +1994,7 @@ export default function TweetsPage() {
           targetUsername: target.username,
           scheduledTime: slotTimeISO,
           useRandomDistribution: false,
+          customMinDelayMs: SLOT_MS,
         };
 
         try {
@@ -2013,7 +2014,7 @@ export default function TweetsPage() {
     }
 
     setLoading(false);
-    toast.success(`Encolados ${ok} follows (fallidos: ${fail}) en ${(n - 1)} slots de 30m`);
+    toast.success(`Encolados ${ok} follows (fallidos: ${fail}) en ${(n - 1)} slots de 15m`);
   };
 
   // 🧪 TEST: Seguirse entre 5 cuentas (máx)
@@ -2032,7 +2033,7 @@ export default function TweetsPage() {
 
     const shuffled = [...accArr].sort(() => Math.random() - 0.5).slice(0, n);
 
-    const SLOT_MS = 30 * 60 * 1000; // 30 minutos
+    const SLOT_MS = 15 * 60 * 1000; // 15 minutos para prueba
     const now = Date.now();
 
     let ok = 0,
@@ -2055,6 +2056,7 @@ export default function TweetsPage() {
                 accountIds: [follower._id],
                 targetUsername: target.username,
                 scheduledTime: slotTime,
+                customMinDelayMs: SLOT_MS,
               }),
             });
             ok++;

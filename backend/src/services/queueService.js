@@ -446,6 +446,8 @@ class QueueService {
     const now = new Date();
     const minDelayDefaultMs = 16 * 60 * 1000; // 16 minutes
     const minDelayFollowMs = 30 * 60 * 1000; // 30 minutes
+    const resolveMinDelay = (act) =>
+      act.customMinDelayMs ?? (act.action === "follow" ? minDelayFollowMs : minDelayDefaultMs);
 
     // Agrupar acciones por cuenta
     const actionsByAccount = {};
@@ -468,8 +470,7 @@ class QueueService {
         let scheduledTime;
 
         // Determinar delay mínimo según tipo de acción (se usará a lo largo del loop)
-        const minDelayMs =
-          action.action === "follow" ? minDelayFollowMs : minDelayDefaultMs;
+        const minDelayMs = resolveMinDelay(action);
 
         if (action.scheduledTime) {
           scheduledTime = new Date(action.scheduledTime);
@@ -648,11 +649,13 @@ class QueueService {
     const now = new Date();
     const minDelayDefaultMs = 16 * 60 * 1000;
     const minDelayFollowMs = 30 * 60 * 1000;
+    const resolveMinDelay = (act) =>
+      act.customMinDelayMs ?? (act.action === "follow" ? minDelayFollowMs : minDelayDefaultMs);
 
     try {
       // Obtener acciones listas para ejecutar
       const readyActions = this.actionQueue.filter((action) => {
-        const minDelayMsLoop = action.action === "follow" ? minDelayFollowMs : minDelayDefaultMs;
+        const minDelayMsLoop = resolveMinDelay(action);
         const isReady =
           action.status === "queued" && new Date(action.scheduledTime) <= now;
 
@@ -688,7 +691,7 @@ class QueueService {
       for (const action of readyActions) {
         try {
           // Verificar nuevamente el delay mínimo antes de ejecutar
-          const minDelayMsLoop = action.action === "follow" ? minDelayFollowMs : minDelayDefaultMs;
+          const minDelayMsLoop = resolveMinDelay(action);
           const lastActionTime = this.rateLimitTracker.get(action.accountId);
           if (lastActionTime) {
             const timeSinceLastAction =
@@ -1125,8 +1128,8 @@ class QueueService {
         action.targetUserId = resolvedId;
 
         // Reprogramar acción 30 minutos después de la resolución para respetar delay FOLLOW
-        const minDelayFollowMs = 30 * 60 * 1000;
-        const newSchedule = new Date(Date.now() + minDelayFollowMs);
+        const followDelayMs = action.customMinDelayMs ?? 30 * 60 * 1000;
+        const newSchedule = new Date(Date.now() + followDelayMs);
 
         action.status = "queued";
         action.scheduledTime = newSchedule;

@@ -13,17 +13,17 @@ function createQueueRoutes(queueService, prisma) {
         randomDelay,
         text,
         tweetId,
-        targetUserId,
-        targetUsername,
-        scheduledTime,
-        // Nuevos campos para distribución aleatoria
+        targetUserId: bodyTargetUserId,
+        targetUsername: bodyTargetUsername,
+        scheduledTime: incomingScheduledTime,
         useRandomDistribution,
         distributionTimes,
         distributionConfig,
+        customMinDelayMs,
       } = req.body;
 
       // Variable mutable para la hora final programada. Inicialmente la que llega en body.
-      let localScheduledTime = scheduledTime;
+      let localScheduledTime = incomingScheduledTime;
 
       // 🔥 LOGGING DETALLADO PARA DEBUGGEAR
       console.log(`[QUEUE_DEBUG] Datos recibidos en /add:`, {
@@ -31,11 +31,11 @@ function createQueueRoutes(queueService, prisma) {
         accountIds: accountIds?.length
           ? `[${accountIds.length} cuentas]`
           : accountIds,
-        targetUserId,
-        targetUsername,
+        targetUserId: bodyTargetUserId,
+        targetUsername: bodyTargetUsername,
         text: text ? `"${text.substring(0, 50)}..."` : text,
         tweetId,
-        scheduledTime,
+        scheduledTime: localScheduledTime,
         useRandomDistribution,
       });
 
@@ -56,13 +56,13 @@ function createQueueRoutes(queueService, prisma) {
 
       // 🔥 VALIDACIÓN ESPECÍFICA PARA FOLLOWS
       if (action === "follow") {
-        if (!targetUserId && !targetUsername) {
+        if (!bodyTargetUserId && !bodyTargetUsername) {
           console.error(
             `❌ [QUEUE_VALIDATION] Acción follow sin target válido:`,
             {
               action,
-              targetUserId,
-              targetUsername,
+              targetUserId: bodyTargetUserId,
+              targetUsername: bodyTargetUsername,
               bodyCompleto: req.body,
             }
           );
@@ -70,7 +70,7 @@ function createQueueRoutes(queueService, prisma) {
             error:
               "Para acciones de follow se requiere targetUserId o targetUsername",
             details: {
-              received: { targetUserId, targetUsername },
+              received: { targetUserId: bodyTargetUserId, targetUsername: bodyTargetUsername },
               requirement:
                 "Debe especificar al menos uno: targetUserId (ID numérico) o targetUsername (sin @)",
             },
@@ -78,41 +78,41 @@ function createQueueRoutes(queueService, prisma) {
         }
 
         // Validar formato de targetUsername si está presente
-        if (targetUsername) {
-          const cleanedUsername = (targetUsername || "")
+        if (bodyTargetUsername) {
+          const cleanedUsername = (bodyTargetUsername || "")
             .replace(/^@+/, "")
             .trim();
           if (cleanedUsername.length === 0) {
             console.error(`❌ [QUEUE_VALIDATION] targetUsername inválido:`, {
-              original: targetUsername,
+              original: bodyTargetUsername,
               cleaned: cleanedUsername,
             });
             return res.status(400).json({
               error: "targetUsername no puede estar vacío",
               details: {
-                received: targetUsername,
+                received: bodyTargetUsername,
                 requirement: "Debe ser un username válido sin @ al inicio",
               },
             });
           }
           console.log(
-            `✅ [QUEUE_VALIDATION] targetUsername válido: "${targetUsername}" → "${cleanedUsername}"`
+            `✅ [QUEUE_VALIDATION] targetUsername válido: "${bodyTargetUsername}" → "${cleanedUsername}"`
           );
         }
 
         // Validar formato de targetUserId si está presente
-        if (targetUserId) {
-          if (typeof targetUserId === "string" && !/^\d+$/.test(targetUserId)) {
+        if (bodyTargetUserId) {
+          if (typeof bodyTargetUserId === "string" && !/^\d+$/.test(bodyTargetUserId)) {
             // Es un string pero no numérico - probablemente es un username
             console.log(
-              `⚠️ [QUEUE_VALIDATION] targetUserId parece ser username: "${targetUserId}"`
+              `⚠️ [QUEUE_VALIDATION] targetUserId parece ser username: "${bodyTargetUserId}"`
             );
-            if (!targetUsername) {
+            if (!bodyTargetUsername) {
               console.log(
                 `🔄 [QUEUE_VALIDATION] Moviendo targetUserId a targetUsername`
               );
               // Mover a targetUsername y limpiar targetUserId
-              req.body.targetUsername = targetUserId;
+              req.body.targetUsername = bodyTargetUserId;
               req.body.targetUserId = null;
             }
           }
@@ -192,8 +192,8 @@ function createQueueRoutes(queueService, prisma) {
             action,
             text,
             tweetId,
-            targetUserId: req.body.targetUserId, // Usar el valor actualizado
-            targetUsername: req.body.targetUsername, // Usar el valor actualizado
+            targetUserId: bodyTargetUserId,
+            targetUsername: bodyTargetUsername,
             account: account,
             accountUsername: account.username,
             accountLabels: account.labels || [],
@@ -206,7 +206,7 @@ function createQueueRoutes(queueService, prisma) {
               .toString(36)
               .substr(2, 6)}`,
             scheduledTime: localScheduledTime,
-            // Metadatos de distribución aleatoria
+            customMinDelayMs: customMinDelayMs || null,
             useRandomDistribution: useRandomDistribution || false,
             distributionConfig: distributionConfig || null,
             distributionTimes: distributionTimes || [],
