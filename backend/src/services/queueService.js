@@ -455,14 +455,14 @@ class QueueService {
 
     const processedActions = [];
     const now = new Date();
-    // === NUEVO MAPEO DE DELAYS ===
-    const minDelayFollowMs = 15 * 60 * 1000; // follow mantiene 15m
+    // === MAPA DE DELAYS POR TIPO ===
     const minDelayActionMap = {
-      follow: minDelayFollowMs,
-      tweet: 0, // sin delay extra entre tweets
-      retweet: 0, // sin delay extra entre retweets
+      follow: 15 * 60 * 1000, // 15m para follows
+      tweet: 0,
+      retweet: 0,
       reply: 0,
       like: 0,
+      unfollow: 0,
     };
 
     const resolveMinDelay = (act) =>
@@ -666,14 +666,14 @@ class QueueService {
 
     this.isProcessing = true;
     const now = new Date();
-    // === NUEVO MAPEO DE DELAYS ===
-    const minDelayFollowMs = 15 * 60 * 1000; // follow mantiene 15m
+    // === MAPA DE DELAYS POR TIPO ===
     const minDelayActionMap = {
-      follow: minDelayFollowMs,
-      tweet: 0, // sin delay extra entre tweets
-      retweet: 0, // sin delay extra entre retweets
+      follow: 15 * 60 * 1000, // 15m para follows
+      tweet: 0,
+      retweet: 0,
       reply: 0,
       like: 0,
+      unfollow: 0,
     };
 
     const resolveMinDelay = (act) =>
@@ -688,8 +688,8 @@ class QueueService {
 
         // VERIFICAR DELAY MÍNIMO DESDE LA ÚLTIMA ACCIÓN DE LA MISMA CUENTA
         if (isReady) {
-          const trackerKeyLoop = `${action.accountId}_${action.action}`;
-          const lastActionTime = this.rateLimitTracker.get(trackerKeyLoop);
+          const trackerKeyFilter = `${action.accountId}_${action.action}`;
+          const lastActionTime = this.rateLimitTracker.get(trackerKeyFilter);
           if (lastActionTime) {
             const timeSinceLastAction =
               now.getTime() - lastActionTime.getTime();
@@ -720,8 +720,8 @@ class QueueService {
         try {
           // Verificar nuevamente el delay mínimo antes de ejecutar
           const minDelayMsLoop = resolveMinDelay(action);
-          const trackerKeyLoop = `${action.accountId}_${action.action}`;
-          const lastActionTime = this.rateLimitTracker.get(trackerKeyLoop);
+          const trackerKeyFilter = `${action.accountId}_${action.action}`;
+          const lastActionTime = this.rateLimitTracker.get(trackerKeyFilter);
           if (lastActionTime) {
             const timeSinceLastAction =
               now.getTime() - lastActionTime.getTime();
@@ -742,8 +742,8 @@ class QueueService {
           });
 
           // Actualizar rate limit tracker ANTES de ejecutar
-          const trackerKeySet = `${action.accountId}_${action.action}`;
-          this.rateLimitTracker.set(trackerKeySet, new Date());
+          const trackerKeyRun = `${action.accountId}_${action.action}`;
+          this.rateLimitTracker.set(trackerKeyRun, new Date());
           await this.updateRateLimitTracker(action.accountId, action.action);
 
           console.log(
@@ -1108,8 +1108,9 @@ class QueueService {
       );
     }
 
-    // 🆕 (3.a) Intentar resolver targetUserId desde historial/BD antes de usar la API
+    // 🆕 (3.a) Intentar resolver targetUserId desde historial o desde la tabla xAccount
     if (!action.targetUserId && action.targetUsername) {
+      // 3.a.1 Historial
       try {
         const prev = await this.prisma.actionHistory.findFirst({
           where: {
@@ -1131,79 +1132,39 @@ class QueueService {
           histErr.message
         );
       }
-    }
 
-    // 3.b  Si todavía no hay ID → lookup API
-    if (!action.targetUserId) {
-      if (!action.targetUsername) {
-        const errorMsg = `❌ [FOLLOW_VALIDATION] No se proporcionó targetUsername ni targetUserId`;
-        console.error(errorMsg);
-        throw new Error(
-          "Debe proporcionar targetUsername o targetUserId para realizar el follow"
-        );
-      }
-
-      const cleanUsername = action.targetUsername.replace(/^@+/, "").trim();
-
-      try {
-        console.log(
-          `🔍 [FOLLOW_ID_LOOKUP] Resolviendo ID para @${cleanUsername} en tiempo de ejecución...`
-        );
-
-        const client = await this.twitterService.getTwitterClient(
-          action.account
-        );
-        const resolvedId = await this.getUserIdFromUsername(
-          client,
-          cleanUsername
-        );
-
-        action.targetUserId = resolvedId;
-
-        // Reprogramar acción 30 minutos después de la resolución para respetar delay FOLLOW
-        const followDelayMs = action.customMinDelayMs ?? 15 * 60 * 1000;
-        const newSchedule = new Date(Date.now() + followDelayMs);
-
-        action.status = "queued";
-        action.scheduledTime = newSchedule;
-        action.estimatedStartTime = newSchedule;
-
-        // Persistir cambios en BD
+      // 3.a.2 Tabla de cuentas (xAccount)
+      if (!action.targetUserId) {
         try {
-          await this.updateActionInDb(action.id, {
-            status: "QUEUED",
-            targetUserId: resolvedId,
-            scheduledTime: newSchedule,
-            estimatedStartTime: newSchedule,
+          const accountMatch = await this.prisma.xAccount.findFirst({
+            where: {
+              username: {
+                equals: action.targetUsername,
+                mode: "insensitive",
+              },
+            },
+            select: {
+              userId: true,
+              twitterUserId: true,
+              twitterId: true,
+            },
           });
-        } catch (persistErr) {
+          const resolvedFromDb =
+            accountMatch?.twitterId ||
+            accountMatch?.twitterUserId ||
+            accountMatch?.userId;
+          if (resolvedFromDb) {
+            console.log(
+              `[FOLLOW_ID_LOOKUP] ID recuperado desde xAccount: @${action.targetUsername} → ${resolvedFromDb}`
+            );
+            action.targetUserId = resolvedFromDb;
+          }
+        } catch (accErr) {
           console.warn(
-            `⚠️  [FOLLOW_ID_LOOKUP] No se pudo persistir targetUserId/scheduledTime en BD:`,
-            persistErr.message
+            `[FOLLOW_ID_LOOKUP] No se pudo consultar xAccount para @${action.targetUsername}:`,
+            accErr.message
           );
         }
-
-        console.log(
-          `✅ [FOLLOW_ID_LOOKUP] Resuelto @${cleanUsername} → ${resolvedId}. Acción reprogramada para ${newSchedule.toLocaleString(
-            "es-ES"
-          )}`
-        );
-
-        // Indicar al processQueue que la acción fue reprogramada
-        return {
-          success: false,
-          data: {
-            stage: "ID_LOOKUP_COMPLETED",
-          },
-        };
-      } catch (lookupErr) {
-        console.error(
-          `❌ [FOLLOW_ID_LOOKUP] Error obteniendo ID de @${cleanUsername}:`,
-          lookupErr.message
-        );
-        throw new Error(
-          `Error resolviendo usuario objetivo (@${cleanUsername}): ${lookupErr.message}`
-        );
       }
     }
 
@@ -1569,8 +1530,7 @@ class QueueService {
   async updateRateLimitTracker(accountId, actionType) {
     const now = new Date();
 
-    // ARREGLAR: Mantener consistencia en rateLimitTracker
-    // Usar Date directamente en lugar de Map anidado para simplificar
+    // Mantener consistencia: usar clave compuesta accountId_actionType
     const trackerKey = `${accountId}_${actionType}`;
     this.rateLimitTracker.set(trackerKey, now);
 
