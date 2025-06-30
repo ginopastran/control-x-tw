@@ -1067,6 +1067,25 @@ class QueueService {
         `✅ Like ejecutado exitosamente para tweet ${action.tweetId}`
       );
 
+      // Manejar caso idempotente: tweet ya estaba likeado → lo consideramos éxito
+      if (
+        result?.code === 400 &&
+        result?.errors?.[0]?.message?.toLowerCase?.().includes("already favorited") ||
+        result?.errors?.[0]?.message?.toLowerCase?.().includes("already liked")
+      ) {
+        console.warn(`⚠️ Tweet ${action.tweetId} ya estaba con like – se marca como éxito`);
+        return {
+          success: true,
+          data: {
+            likedTweetId: action.tweetId,
+            liked: true,
+            userId: actingUserId,
+            alreadyLiked: true,
+            timestamp: new Date().toISOString(),
+          },
+        };
+      }
+
       return {
         success: true,
         data: {
@@ -1077,6 +1096,25 @@ class QueueService {
         },
       };
     } catch (error) {
+      // Manejar caso idempotente: tweet ya estaba likeado → lo consideramos éxito
+      if (
+        error?.code === 400 &&
+        error?.errors?.[0]?.message?.toLowerCase?.().includes("already favorited") ||
+        error?.errors?.[0]?.message?.toLowerCase?.().includes("already liked")
+      ) {
+        console.warn(`⚠️ Tweet ${action.tweetId} ya estaba con like – se marca como éxito`);
+        return {
+          success: true,
+          data: {
+            likedTweetId: action.tweetId,
+            liked: true,
+            userId: actingUserId,
+            alreadyLiked: true,
+            timestamp: new Date().toISOString(),
+          },
+        };
+      }
+
       this.twitterService.handleTwitterError(error, "like");
       throw error;
     }
