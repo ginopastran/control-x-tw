@@ -878,6 +878,23 @@ export default function TweetsPage() {
     toast.success(message);
   };
 
+  // 🔄 Helper: genera un mapa accountId -> array de ISO strings distribuidas aleatoriamente
+  // respetando al menos 15 min entre cada acción propia y dentro de la ventana configurada
+  const generateAccountWiseTimes = (
+    accountCounts: Record<string, number>,
+    anchorDate: Date = new Date()
+  ): Record<string, string[]> => {
+    const result: Record<string, string[]> = {};
+    Object.entries(accountCounts).forEach(([accId, cnt]) => {
+      result[accId] = generateRandomDistributionTimes(
+        cnt,
+        /*requireMinGap*/ true,
+        anchorDate
+      );
+    });
+    return result;
+  };
+
   // Función para ejecutar tweets en lote
   const handleBatchTweetExecute = async () => {
     let tweetsToExecute = batchTweets.filter(
@@ -891,6 +908,18 @@ export default function TweetsPage() {
       return;
     }
 
+    // 👉 Preparar tiempos aleatorios por cuenta si se seleccionó distribución aleatoria
+    let accountTimesMap: Record<string, string[]> = {};
+    if (useRandomDistribution) {
+      const accountCounts: Record<string, number> = {};
+      tweetsToExecute.forEach((tweet) => {
+        tweet.assignedAccounts.forEach((acc) => {
+          accountCounts[acc] = (accountCounts[acc] || 0) + 1;
+        });
+      });
+      accountTimesMap = generateAccountWiseTimes(accountCounts, new Date());
+    }
+
     setLoading(true);
     setActionResults([]);
 
@@ -901,22 +930,22 @@ export default function TweetsPage() {
     try {
       for (const tweet of tweetsToExecute) {
         try {
-          // 📋 Construir payload con soporte de distribución aleatoria
           let actionData: any;
 
           if (useRandomDistribution) {
-            const randomTimes = generateRandomDistributionTimes(
-              tweet.assignedAccounts.length,
-              false,
-              new Date() // ejecuciones inmediatas desde ahora
-            );
+            // Tomar un tiempo por cada cuenta asignada garantizando separación
+            const distributionTimes = tweet.assignedAccounts.map((acc) => {
+              const t = accountTimesMap[acc].shift();
+              // fallback por seguridad
+              return t || new Date().toISOString();
+            });
 
             actionData = {
               action: "tweet",
               accountIds: tweet.assignedAccounts,
               text: tweet.text,
               useRandomDistribution: true,
-              distributionTimes: randomTimes,
+              distributionTimes,
               distributionConfig: {
                 value: distributionValue,
                 unit: distributionUnit,
@@ -1649,46 +1678,40 @@ export default function TweetsPage() {
       return;
     }
 
+    // 👉 Preparar tiempos aleatorios por cuenta
+    let accountTimesMap: Record<string, string[]> = {};
+    if (useRandomDistribution) {
+      const accountCounts: Record<string, number> = {};
+      followsToExecute.forEach((follow) => {
+        follow.assignedAccounts.forEach((acc) => {
+          accountCounts[acc] = (accountCounts[acc] || 0) + 1;
+        });
+      });
+      accountTimesMap = generateAccountWiseTimes(accountCounts, new Date());
+    }
+
     setLoading(true);
     setActionResults([]);
 
     let successCount = 0;
     let errorCount = 0;
 
-    // Si hay distribución aleatoria pre-calcular horarios únicos para todo el lote
-    let globalTimes: string[] = [];
-    if (useRandomDistribution) {
-      globalTimes = generateRandomDistributionTimes(
-        followsToExecute.length,
-        true,
-        new Date()
-      );
-    }
-
-    // Asociar cada follow con su tiempo y ordenar por fecha ascendente
-    const followsWithTime = followsToExecute.map((f, idx) => ({
-      ...f,
-      scheduledISO: useRandomDistribution ? globalTimes[idx] : null,
-    }));
-
-    if (useRandomDistribution) {
-      followsWithTime.sort((a, b) =>
-        a.scheduledISO!.localeCompare(b.scheduledISO!)
-      );
-    }
-
     try {
-      for (const follow of followsWithTime) {
+      for (const follow of followsToExecute) {
         try {
-          // 📋 Construir payload con distribución aleatoria cuando corresponda
           let actionData: any;
           if (useRandomDistribution) {
+            const distributionTimes = follow.assignedAccounts.map((acc) => {
+              const t = accountTimesMap[acc].shift();
+              return t || new Date().toISOString();
+            });
+
             actionData = {
               action: "follow",
               accountIds: follow.assignedAccounts,
               targetUsername: follow.username,
               useRandomDistribution: true,
-              distributionTimes: [follow.scheduledISO],
+              distributionTimes,
               distributionConfig: {
                 value: distributionValue,
                 unit: distributionUnit,
@@ -1786,6 +1809,18 @@ export default function TweetsPage() {
       return;
     }
 
+    // 👉 Preparar tiempos aleatorios por cuenta
+    let accountTimesMap: Record<string, string[]> = {};
+    if (useRandomDistribution) {
+      const accountCounts: Record<string, number> = {};
+      retweetsToExecute.forEach((rt) => {
+        rt.assignedAccounts.forEach((acc) => {
+          accountCounts[acc] = (accountCounts[acc] || 0) + 1;
+        });
+      });
+      accountTimesMap = generateAccountWiseTimes(accountCounts, new Date());
+    }
+
     setLoading(true);
     setActionResults([]);
 
@@ -1793,30 +1828,21 @@ export default function TweetsPage() {
     let errorCount = 0;
 
     try {
-      // Si se usa distribución aleatoria generar una lista global de tiempos
-      let globalTimes: string[] = [];
-      if (useRandomDistribution) {
-        globalTimes = generateRandomDistributionTimes(
-          retweetsToExecute.length,
-          false,
-          new Date()
-        ).sort();
-      }
-
-      for (let idx = 0; idx < retweetsToExecute.length; idx++) {
-        const retweet = retweetsToExecute[idx];
+      for (const retweet of retweetsToExecute) {
         try {
           let actionData: any;
           if (useRandomDistribution) {
-            // Utilizar un único tiempo pre-calculado para este retweet
-            const scheduledISO = globalTimes[idx];
+            const distributionTimes = retweet.assignedAccounts.map((acc) => {
+              const t = accountTimesMap[acc].shift();
+              return t || new Date().toISOString();
+            });
 
             actionData = {
               action: "retweet",
               accountIds: retweet.assignedAccounts,
               tweetId: retweet.tweetId,
               useRandomDistribution: true,
-              distributionTimes: [scheduledISO],
+              distributionTimes,
               distributionConfig: {
                 value: distributionValue,
                 unit: distributionUnit,

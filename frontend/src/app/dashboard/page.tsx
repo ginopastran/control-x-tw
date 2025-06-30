@@ -319,13 +319,20 @@ export default function Dashboard() {
 
   const fetchQueueStatus = async () => {
     try {
+      const queryParams: Record<string, string | number> = {
+        historyPage,
+        historyLimit: historyItemsPerPage,
+        queuePage: queuedPage,
+        queueLimit: itemsPerPage,
+      };
+
+      // Incluir el filtro de tipo de acción si el usuario seleccionó algo distinto a "all"
+      if (queueActionFilter !== "all") {
+        queryParams.actionTypes = queueActionFilter;
+      }
+
       const response = await fetch(
-        buildApiUrl(API_CONFIG.ENDPOINTS.QUEUE.STATUS, {
-          historyPage,
-          historyLimit: historyItemsPerPage,
-          queuePage: queuedPage,
-          queueLimit: itemsPerPage,
-        })
+        buildApiUrl(API_CONFIG.ENDPOINTS.QUEUE.STATUS, queryParams)
       );
       if (!response.ok) throw new Error("Error al cargar estado de cola");
       const data = await response.json();
@@ -388,7 +395,7 @@ export default function Dashboard() {
     }, 10000);
 
     return () => clearInterval(interval);
-  }, [queuedPage]);
+  }, [queuedPage, queueActionFilter]);
 
   // Ejecutar fetchHistory cada vez que filtros/página cambien
   useEffect(() => {
