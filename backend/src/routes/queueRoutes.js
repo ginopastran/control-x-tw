@@ -211,7 +211,9 @@ function createQueueRoutes(queueService, prisma) {
             batchId: `batch_${Date.now()}_${Math.random()
               .toString(36)
               .substr(2, 6)}`,
-            scheduledTime: useRandomDistribution ? null : localScheduledTime,
+            scheduledTime: useRandomDistribution
+              ? null
+              : localScheduledTime || estimatedStartTime,
             customMinDelayMs: customMinDelayMs || null,
             useRandomDistribution: useRandomDistribution || false,
             distributionConfig: distributionConfig || null,

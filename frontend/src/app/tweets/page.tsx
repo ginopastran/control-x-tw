@@ -150,6 +150,12 @@ export default function TweetsPage() {
   // Estados para delays
   const [baseDelay, setBaseDelay] = useState(30);
   const [randomDelay, setRandomDelay] = useState(60);
+  // Nuevo: unidad para los delays (segundos o minutos)
+  const [delayUnit, setDelayUnit] = useState<"seconds" | "minutes">(
+    "seconds"
+  );
+  const delayMultiplier = delayUnit === "minutes" ? 60000 : 1000;
+  const toMs = (v: number) => v * delayMultiplier;
 
   // Estados de animación
   const [isVisible, setIsVisible] = useState(false);
@@ -350,8 +356,8 @@ export default function TweetsPage() {
           action: actionType,
           accountIds: selectedAccounts,
           scheduledTime: localDateTime.toISOString(),
-          baseDelay: baseDelay * 1000,
-          randomDelay: randomDelay * 1000,
+          baseDelay: toMs(baseDelay),
+          randomDelay: toMs(randomDelay),
           useRandomDistribution: false,
           ...actionData,
         };
@@ -923,8 +929,8 @@ export default function TweetsPage() {
               action: "tweet",
               accountIds: tweet.assignedAccounts,
               text: tweet.text,
-              baseDelay: baseDelay * 1000, // ms
-              randomDelay: randomDelay * 1000, // ms
+              baseDelay: toMs(baseDelay),
+              randomDelay: toMs(randomDelay),
               useRandomDistribution: false,
             };
           }
@@ -1130,8 +1136,8 @@ export default function TweetsPage() {
         actionData = {
           action: actionType,
           accountIds: selectedAccounts,
-          baseDelay: baseDelay * 1000,
-          randomDelay: randomDelay * 1000,
+          baseDelay: toMs(baseDelay),
+          randomDelay: toMs(randomDelay),
           useRandomDistribution: false,
           ...data,
         };
@@ -1692,8 +1698,8 @@ export default function TweetsPage() {
               action: "follow",
               accountIds: follow.assignedAccounts,
               targetUsername: follow.username,
-              baseDelay: baseDelay * 1000,
-              randomDelay: randomDelay * 1000,
+              baseDelay: toMs(baseDelay),
+              randomDelay: toMs(randomDelay),
               useRandomDistribution: false,
             };
           }
@@ -1819,8 +1825,8 @@ export default function TweetsPage() {
               action: "retweet",
               accountIds: retweet.assignedAccounts,
               tweetId: retweet.tweetId,
-              baseDelay: baseDelay * 1000,
-              randomDelay: randomDelay * 1000,
+              baseDelay: toMs(baseDelay),
+              randomDelay: toMs(randomDelay),
               useRandomDistribution: false,
             };
           }
@@ -2677,22 +2683,27 @@ export default function TweetsPage() {
                       variant="outline"
                       className="border-gray-300 text-gray-700"
                     >
-                      {baseDelay}s
+                      {baseDelay}
+                      {delayUnit === "seconds" ? "s" : "m"}
                     </Badge>
                   </div>
                   <Input
                     type="range"
-                    min="5"
-                    max="120"
+                    min={delayUnit === "minutes" ? 1 : 5}
+                    max={delayUnit === "minutes" ? 120 : 900}
                     value={baseDelay}
                     onChange={(e) => setBaseDelay(parseInt(e.target.value))}
                     className="w-full"
                   />
                   <div className="flex justify-between text-xs text-gray-500">
-                    <span>5s</span>
+                    <span>
+                      {delayUnit === "seconds" ? "5s" : "1m"}
+                    </span>
                     <span>Rápido</span>
                     <span>Seguro</span>
-                    <span>120s</span>
+                    <span>
+                      {delayUnit === "seconds" ? "900s" : "120m"}
+                    </span>
                   </div>
                 </div>
                 <div className="space-y-3">
@@ -2704,22 +2715,25 @@ export default function TweetsPage() {
                       variant="outline"
                       className="border-gray-300 text-gray-700"
                     >
-                      ±{randomDelay}s
+                      ±{randomDelay}
+                      {delayUnit === "seconds" ? "s" : "m"}
                     </Badge>
                   </div>
                   <Input
                     type="range"
-                    min="0"
-                    max="180"
+                    min={0}
+                    max={delayUnit === "minutes" ? 240 : 1800}
                     value={randomDelay}
                     onChange={(e) => setRandomDelay(parseInt(e.target.value))}
                     className="w-full"
                   />
                   <div className="flex justify-between text-xs text-gray-500">
-                    <span>0s</span>
+                    <span>0{delayUnit === "seconds" ? "s" : "m"}</span>
                     <span>Predictible</span>
                     <span>Natural</span>
-                    <span>180s</span>
+                    <span>
+                      {delayUnit === "seconds" ? "1800s" : "240m"}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -2734,7 +2748,7 @@ export default function TweetsPage() {
                   </span>
                 </div>
                 <p className="text-xs text-gray-600">
-                  {baseDelay} - {baseDelay + randomDelay} segundos entre
+                  {baseDelay} - {baseDelay + randomDelay} {delayUnit === "seconds" ? "segundos" : "minutos"} entre
                   acciones
                 </p>
               </div>

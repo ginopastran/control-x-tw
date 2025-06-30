@@ -504,19 +504,37 @@ class QueueService {
           //           el control de rate-limit global se aplicará más abajo (solo si minDelayMs>0)
           scheduledTime = new Date(action.distributionTimes[i]);
         } else {
-          // Caso 3: delay secuencial clásico
+          // Caso 3: delay secuencial clásico con soporte de baseDelay & randomDelay
+          const base = action.baseDelay || 0;
+          const randomPart = action.randomDelay
+            ? Math.floor(Math.random() * action.randomDelay)
+            : 0;
+
+          // Gap propuesto entre esta acción y la anterior
+          let gapMs = base + randomPart;
+
+          // Asegurar que se respete el minDelay por tipo de acción
+          if (gapMs < minDelayMs) {
+            gapMs = minDelayMs;
+          }
+
+          // Si es la primera acción de la cuenta, usar "now"; caso contrario sumar gap
           scheduledTime =
-            i === 0 ? now : new Date(lastScheduled.getTime() + minDelayMs);
+            i === 0 ? new Date(now.getTime() + gapMs) : new Date(lastScheduled.getTime() + gapMs);
         }
         lastScheduled = scheduledTime;
 
         // 🛡️  Ajustar para respetar delay mínimo con acciones previas de LA MISMA CUENTA (incluso de lotes anteriores)
         // (Mantener compatibilidad con el tracker de rate limit)
         const trackerKey = `${accountId}_${action.action}`;
-        let latest = this.rateLimitTracker.get(trackerKey) || new Date(0);
-        if (minDelayMs > 0) {
-          if (scheduledTime < new Date(latest.getTime() + minDelayMs)) {
-            scheduledTime = new Date(latest.getTime() + minDelayMs);
+        const latest = this.rateLimitTracker.get(trackerKey) || new Date(0);
+
+        // Para acciones con baseDelay > 0 queremos garantizar un gap mínimo incluso entre peticiones separadas
+        const trackerDelayMs = Math.max(minDelayMs, action.baseDelay || 0);
+
+        if (trackerDelayMs > 0) {
+          if (scheduledTime < new Date(latest.getTime() + trackerDelayMs)) {
+            scheduledTime = new Date(latest.getTime() + trackerDelayMs);
             lastScheduled = scheduledTime;
           }
         }
