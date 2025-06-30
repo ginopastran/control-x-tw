@@ -467,20 +467,18 @@ class QueueService {
         let action = accountActions[i];
         let scheduledTime;
 
-        // 👉 1. Si la acción ya contiene scheduledTime (por ejemplo, lote pre-calculado desde el frontend), úsalo tal cual
+        // Determinar delay mínimo según tipo de acción (se usará a lo largo del loop)
+        const minDelayMs =
+          action.action === "follow" ? minDelayFollowMs : minDelayDefaultMs;
+
         if (action.scheduledTime) {
           scheduledTime = new Date(action.scheduledTime);
         } else {
-          // 👉 2. Caso normal: calcular en función del delay mínimo por cuenta
-          const minDelayMs =
-            action.action === "follow" ? minDelayFollowMs : minDelayDefaultMs;
-
           if (
             action.useRandomDistribution &&
             action.distributionTimes &&
             action.distributionTimes[i]
           ) {
-            // Distribución aleatoria respetando delay mínimo
             const candidateTime = new Date(action.distributionTimes[i]);
             if (i === 0 || candidateTime - lastScheduled >= minDelayMs) {
               scheduledTime = candidateTime;
@@ -488,7 +486,6 @@ class QueueService {
               scheduledTime = new Date(lastScheduled.getTime() + minDelayMs);
             }
           } else {
-            // Secuencial
             scheduledTime =
               i === 0 ? now : new Date(lastScheduled.getTime() + minDelayMs);
           }
