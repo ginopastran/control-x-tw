@@ -492,23 +492,21 @@ class QueueService {
         const minDelayMs = resolveMinDelay(action);
 
         if (action.scheduledTime) {
+          // Caso 1: hora fija provista por el cliente
           scheduledTime = new Date(action.scheduledTime);
+        } else if (
+          action.useRandomDistribution &&
+          action.distributionTimes &&
+          action.distributionTimes[i]
+        ) {
+          // Caso 2: distribución aleatoria ⇒ usar exactamente el timestamp enviado
+          //           sin forzar un orden creciente;
+          //           el control de rate-limit global se aplicará más abajo (solo si minDelayMs>0)
+          scheduledTime = new Date(action.distributionTimes[i]);
         } else {
-          if (
-            action.useRandomDistribution &&
-            action.distributionTimes &&
-            action.distributionTimes[i]
-          ) {
-            const candidateTime = new Date(action.distributionTimes[i]);
-            if (i === 0 || candidateTime - lastScheduled >= minDelayMs) {
-              scheduledTime = candidateTime;
-            } else {
-              scheduledTime = new Date(lastScheduled.getTime() + minDelayMs);
-            }
-          } else {
-            scheduledTime =
-              i === 0 ? now : new Date(lastScheduled.getTime() + minDelayMs);
-          }
+          // Caso 3: delay secuencial clásico
+          scheduledTime =
+            i === 0 ? now : new Date(lastScheduled.getTime() + minDelayMs);
         }
         lastScheduled = scheduledTime;
 
@@ -516,9 +514,11 @@ class QueueService {
         // (Mantener compatibilidad con el tracker de rate limit)
         const trackerKey = `${accountId}_${action.action}`;
         let latest = this.rateLimitTracker.get(trackerKey) || new Date(0);
-        if (scheduledTime < new Date(latest.getTime() + minDelayMs)) {
-          scheduledTime = new Date(latest.getTime() + minDelayMs);
-          lastScheduled = scheduledTime;
+        if (minDelayMs > 0) {
+          if (scheduledTime < new Date(latest.getTime() + minDelayMs)) {
+            scheduledTime = new Date(latest.getTime() + minDelayMs);
+            lastScheduled = scheduledTime;
+          }
         }
         this.rateLimitTracker.set(trackerKey, scheduledTime);
 
@@ -562,10 +562,16 @@ class QueueService {
         this.actionQueue.push(actionObj);
         processedActions.push(actionObj);
 
+        const argTimeStr = scheduledTime.toLocaleString("es-AR", {
+          timeZone: "America/Argentina/Buenos_Aires",
+          dateStyle: "short",
+          timeStyle: "short",
+        });
+
         console.log(
-          `✅ Acción ${
-            actionObj.id
-          } programada para: ${scheduledTime.toLocaleString("es-ES")}`
+          `✅ Acción ${actionObj.id} programada para: ${scheduledTime.toLocaleString(
+            "es-ES"
+          )} (${argTimeStr} ARG)`
         );
       }
     }
@@ -588,10 +594,23 @@ class QueueService {
     if (processedActions.length > 0) {
       const firstAction = processedActions[0];
       const lastAction = processedActions[processedActions.length - 1];
+      const firstArg = firstAction.scheduledTime.toLocaleString("es-AR", {
+        timeZone: "America/Argentina/Buenos_Aires",
+        dateStyle: "short",
+        timeStyle: "short",
+      });
+      const lastArg = lastAction.scheduledTime.toLocaleString("es-AR", {
+        timeZone: "America/Argentina/Buenos_Aires",
+        dateStyle: "short",
+        timeStyle: "short",
+      });
+
       console.log(
         `⏰ Rango de ejecución: ${firstAction.scheduledTime.toLocaleString(
           "es-ES"
-        )} - ${lastAction.scheduledTime.toLocaleString("es-ES")}`
+        )} (${firstArg} ARG) - ${lastAction.scheduledTime.toLocaleString(
+          "es-ES"
+        )} (${lastArg} ARG)`
       );
     }
 

@@ -900,7 +900,7 @@ export default function TweetsPage() {
           if (useRandomDistribution) {
             const randomTimes = generateRandomDistributionTimes(
               tweet.assignedAccounts.length,
-              false
+              false // sin gap obligatorio, todo dentro del rango asignado
             );
 
             actionData = {
@@ -1052,7 +1052,8 @@ export default function TweetsPage() {
       distributionUnit
     );
     const now = Date.now();
-    const minDelayMs = requireMinGap ? 16 * 60 * 1000 : 0; // 16 min solo si se requiere
+    // Usar un delay mínimo de 15 minutos cuando se requiera (para evitar rate-limits)
+    const minDelayMs = requireMinGap ? 15 * 60 * 1000 : 0;
 
     // Si solo hay 1 acción basta con un único offset aleatorio
     if (count <= 1) {
