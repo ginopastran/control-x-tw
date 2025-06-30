@@ -331,7 +331,8 @@ export default function TweetsPage() {
       if (useRandomDistribution) {
         const randomTimes = generateRandomDistributionTimes(
           selectedAccounts.length,
-          false
+          false,
+          localDateTime
         );
 
         scheduleData = {
@@ -906,7 +907,8 @@ export default function TweetsPage() {
           if (useRandomDistribution) {
             const randomTimes = generateRandomDistributionTimes(
               tweet.assignedAccounts.length,
-              false // sin gap obligatorio, todo dentro del rango asignado
+              false,
+              new Date() // ejecuciones inmediatas desde ahora
             );
 
             actionData = {
@@ -1049,7 +1051,8 @@ export default function TweetsPage() {
   // Función para generar tiempos aleatorios distribuidos con delay mínimo
   const generateRandomDistributionTimes = (
     count: number,
-    requireMinGap: boolean = false
+    requireMinGap: boolean = false,
+    anchorDate: Date = new Date()
   ) => {
     if (!useRandomDistribution) return [];
 
@@ -1057,14 +1060,14 @@ export default function TweetsPage() {
       distributionValue,
       distributionUnit
     );
-    const now = Date.now();
+    const startMs = anchorDate.getTime();
     // Usar un delay mínimo de 15 minutos cuando se requiera (para evitar rate-limits)
     const minDelayMs = requireMinGap ? 15 * 60 * 1000 : 0;
 
     // Si solo hay 1 acción basta con un único offset aleatorio
     if (count <= 1) {
       const offset = Math.random() * maxTimeMs;
-      return [new Date(now + offset).toISOString()];
+      return [new Date(startMs + offset).toISOString()];
     }
 
     // -----------------------------------------------
@@ -1085,7 +1088,7 @@ export default function TweetsPage() {
     );
 
     // 3) Construimos los tiempos acumulando las brechas
-    const times: Date[] = [new Date(now + gaps[0])];
+    const times: Date[] = [new Date(startMs + gaps[0])];
     for (let i = 1; i < count; i++) {
       const prev = times[i - 1].getTime();
       const gap = gaps[i - 1]; // el (i-1)-ésimo gap existe seguro
@@ -1113,7 +1116,8 @@ export default function TweetsPage() {
         // Generar tiempos aleatorios para cada cuenta
         const randomTimes = generateRandomDistributionTimes(
           selectedAccounts.length,
-          false
+          false,
+          new Date()
         );
 
         actionData = {
@@ -1656,7 +1660,8 @@ export default function TweetsPage() {
     if (useRandomDistribution) {
       globalTimes = generateRandomDistributionTimes(
         followsToExecute.length,
-        true
+        true,
+        new Date()
       );
     }
 
@@ -1793,7 +1798,8 @@ export default function TweetsPage() {
       if (useRandomDistribution) {
         globalTimes = generateRandomDistributionTimes(
           retweetsToExecute.length,
-          false
+          false,
+          new Date()
         ).sort();
       }
 
