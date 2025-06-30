@@ -1954,50 +1954,64 @@ export default function TweetsPage() {
   };
 
   const handleMutualFollowAll = async () => {
-    const accList =
+    // 1. Tomar cuentas: si seleccionaste >1 se usan esas, sino todas
+    const accArr =
       selectedAccounts.length > 1
         ? accounts.filter((a) => selectedAccounts.includes(a._id))
         : accounts;
 
-    if (accList.length < 2) {
-      toast.error("Selecciona (o carga) al menos 2 cuentas");
+    const n = accArr.length;
+    if (n < 2) {
+      toast.error("Se necesitan al menos 2 cuentas");
       return;
     }
 
-    const totalActions = accList.length * (accList.length - 1);
-    if (totalActions > 3000) {
-      toast.warning(
-        `Se crearán ${totalActions} follows (esto puede tardar unos minutos)`
-      );
-    }
+    // 2. Desordenar para randomizar el orden inicial y evitar que todas apunten igual
+    const shuffled = [...accArr].sort(() => Math.random() - 0.5);
 
-    setLoading(true);
+    const SLOT_MS = 30 * 60 * 1000; // 30 minutos
+    const now = Date.now();
+
     let ok = 0,
       fail = 0;
-    for (const follower of accList) {
-      for (const target of accList) {
-        if (follower._id === target._id) continue;
+    setLoading(true);
+
+    // 3. Round-robin: en el slot s (0..n-2) cada cuenta i sigue a (i+s+1) % n
+    for (let s = 0; s < n - 1; s++) {
+      const slotTimeISO = new Date(now + s * SLOT_MS).toISOString();
+
+      // envío paralelo de todas las acciones de este slot
+      const promises = shuffled.map(async (follower, idx) => {
+        const target = shuffled[(idx + s + 1) % n];
+        // seguridad extra por si coincide (no debería)
+        if (follower._id === target._id) return;
+
+        const payload = {
+          action: "follow",
+          accountIds: [follower._id],
+          targetUsername: target.username,
+          scheduledTime: slotTimeISO,
+          useRandomDistribution: false,
+        };
+
         try {
           const res = await fetch(buildApiUrl(API_CONFIG.ENDPOINTS.QUEUE.ADD), {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              action: "follow",
-              accountIds: [follower._id],
-              targetUsername: target.username,
-              baseDelay: 0,
-              randomDelay: 0,
-              useRandomDistribution: false,
-            }),
+            body: JSON.stringify(payload),
           });
-          res.ok ? ok++ : fail++;
-        } catch {
+          if (res.ok) ok++;
+          else fail++;
+        } catch (e) {
           fail++;
         }
-      }
+      });
+      // esperar a terminar slot antes de construir siguiente para evitar saturar backend
+      await Promise.all(promises);
     }
+
     setLoading(false);
-    toast.success(`Encolados ${ok} follows; ${fail} fallidos`);
+    toast.success(`Encolados ${ok} follows (fallidos: ${fail}) en ${(n - 1)} slots de 30m`);
   };
 
   return (
