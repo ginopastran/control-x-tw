@@ -549,6 +549,39 @@ function createQueueRoutes(queueService, prisma) {
     }
   });
 
+  // Agregar endpoint DELETE /filtered para remover acciones según parámetro actionTypes (ej. tweet,retweet)
+  router.delete("/filtered", async (req, res) => {
+    try {
+      const { actionTypes = "" } = req.query;
+      const types = actionTypes
+        .toString()
+        .split(",")
+        .map((t) => t.trim().toLowerCase())
+        .filter(Boolean);
+
+      if (types.length === 0) {
+        return res.status(400).json({
+          success: false,
+          error: "Se requiere query param actionTypes (ej. tweet,retweet)",
+        });
+      }
+
+      const result = await queueService.clearQueuedActionsByType(types);
+      res.json({
+        success: true,
+        message: `Se eliminaron ${result.count} acciones (${types.join(
+          ", "
+        )}).`,
+        ...result,
+      });
+    } catch (error) {
+      console.error("Error en DELETE /queue/filtered:", error);
+      res.status(500).json({
+        error: error.message || "Error interno del servidor",
+      });
+    }
+  });
+
   return router;
 }
 

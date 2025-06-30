@@ -444,10 +444,18 @@ class QueueService {
 
     const processedActions = [];
     const now = new Date();
-    const minDelayDefaultMs = 16 * 60 * 1000; // 16 minutes
-    const minDelayFollowMs = 15 * 60 * 1000; // 15 minutes
+    // === NUEVO MAPEO DE DELAYS ===
+    const minDelayFollowMs = 15 * 60 * 1000; // follow mantiene 15m
+    const minDelayActionMap = {
+      follow: minDelayFollowMs,
+      tweet: 0, // sin delay extra entre tweets
+      retweet: 0, // sin delay extra entre retweets
+      reply: 0,
+      like: 0,
+    };
+
     const resolveMinDelay = (act) =>
-      act.customMinDelayMs ?? (act.action === "follow" ? minDelayFollowMs : minDelayDefaultMs);
+      act.customMinDelayMs ?? minDelayActionMap[act.action] ?? 0;
 
     // Agrupar acciones por cuenta
     const actionsByAccount = {};
@@ -647,10 +655,18 @@ class QueueService {
 
     this.isProcessing = true;
     const now = new Date();
-    const minDelayDefaultMs = 16 * 60 * 1000;
-    const minDelayFollowMs = 15 * 60 * 1000;
+    // === NUEVO MAPEO DE DELAYS ===
+    const minDelayFollowMs = 15 * 60 * 1000; // follow mantiene 15m
+    const minDelayActionMap = {
+      follow: minDelayFollowMs,
+      tweet: 0, // sin delay extra entre tweets
+      retweet: 0, // sin delay extra entre retweets
+      reply: 0,
+      like: 0,
+    };
+
     const resolveMinDelay = (act) =>
-      act.customMinDelayMs ?? (act.action === "follow" ? minDelayFollowMs : minDelayDefaultMs);
+      act.customMinDelayMs ?? minDelayActionMap[act.action] ?? 0;
 
     try {
       // Obtener acciones listas para ejecutar
@@ -661,7 +677,8 @@ class QueueService {
 
         // VERIFICAR DELAY MÍNIMO DESDE LA ÚLTIMA ACCIÓN DE LA MISMA CUENTA
         if (isReady) {
-          const lastActionTime = this.rateLimitTracker.get(action.accountId);
+          const trackerKeyLoop = `${action.accountId}_${action.action}`;
+          const lastActionTime = this.rateLimitTracker.get(trackerKeyLoop);
           if (lastActionTime) {
             const timeSinceLastAction =
               now.getTime() - lastActionTime.getTime();
@@ -692,7 +709,8 @@ class QueueService {
         try {
           // Verificar nuevamente el delay mínimo antes de ejecutar
           const minDelayMsLoop = resolveMinDelay(action);
-          const lastActionTime = this.rateLimitTracker.get(action.accountId);
+          const trackerKeyLoop = `${action.accountId}_${action.action}`;
+          const lastActionTime = this.rateLimitTracker.get(trackerKeyLoop);
           if (lastActionTime) {
             const timeSinceLastAction =
               now.getTime() - lastActionTime.getTime();
@@ -713,7 +731,8 @@ class QueueService {
           });
 
           // Actualizar rate limit tracker ANTES de ejecutar
-          this.rateLimitTracker.set(action.accountId, new Date());
+          const trackerKeySet = `${action.accountId}_${action.action}`;
+          this.rateLimitTracker.set(trackerKeySet, new Date());
           await this.updateRateLimitTracker(action.accountId, action.action);
 
           console.log(
@@ -825,10 +844,14 @@ class QueueService {
             ) {
               if (VERBOSE_QUEUE_LOGS) {
                 console.log(
-                  `⏰ Misma cuenta + tipo; esperando ${minDelayMsLoop / 60000} minutos antes de la siguiente acción...`
+                  `⏰ Misma cuenta + tipo; esperando ${
+                    minDelayMsLoop / 60000
+                  } minutos antes de la siguiente acción...`
                 );
               }
-              await new Promise((resolve) => setTimeout(resolve, minDelayMsLoop));
+              await new Promise((resolve) =>
+                setTimeout(resolve, minDelayMsLoop)
+              );
             }
           }
         } catch (error) {
@@ -1538,7 +1561,8 @@ class QueueService {
 
     // ARREGLAR: Mantener consistencia en rateLimitTracker
     // Usar Date directamente en lugar de Map anidado para simplificar
-    this.rateLimitTracker.set(accountId, now);
+    const trackerKey = `${accountId}_${actionType}`;
+    this.rateLimitTracker.set(trackerKey, now);
 
     // Persistir en BD
     try {
@@ -1777,6 +1801,58 @@ class QueueService {
       this.scheduledActions.splice(index, 1);
       this.actionQueue.push(action);
     }
+  }
+
+  async clearQueuedActionsByType(actionTypes = []) {
+    if (!Array.isArray(actionTypes) || actionTypes.length === 0) {
+      return { count: 0, removedFromDb: 0 };
+    }
+
+    // Normalizar a minúsculas
+    const typesLower = actionTypes.map((t) => t.toLowerCase());
+
+    // 1) Eliminar de la base de datos (QUEUED & SCHEDULED)
+    let removedFromDb = 0;
+    try {
+      const deleteResult = await this.prisma.queuedAction.deleteMany({
+        where: {
+          action: { in: typesLower },
+          status: { in: ["QUEUED", "SCHEDULED"] },
+        },
+      });
+      removedFromDb = deleteResult.count || 0;
+    } catch (dbErr) {
+      console.error("[QUEUE] Error eliminando acciones de BD por tipo:", dbErr);
+    }
+
+    // 2) Eliminar de memoria
+    const initialQueued = this.actionQueue.length;
+    const initialScheduled = this.scheduledActions.length;
+
+    this.actionQueue = this.actionQueue.filter(
+      (a) => !typesLower.includes((a.action || "").toLowerCase())
+    );
+    this.scheduledActions = this.scheduledActions.filter(
+      (a) => !typesLower.includes((a.action || "").toLowerCase())
+    );
+
+    const removedFromMemory =
+      initialQueued +
+      initialScheduled -
+      (this.actionQueue.length + this.scheduledActions.length);
+
+    console.log(
+      `[QUEUE] Eliminadas ${removedFromMemory} acciones de memoria y ${removedFromDb} de BD para tipos: ${typesLower.join(
+        ","
+      )}`
+    );
+
+    return {
+      count: removedFromMemory + removedFromDb,
+      removedFromMemory,
+      removedFromDb,
+      types: typesLower,
+    };
   }
 }
 

@@ -54,6 +54,7 @@ export default function EmailsAdminPage() {
   const [success, setSuccess] = useState("");
   const [adding, setAdding] = useState(false);
   const [clearingQueue, setClearingQueue] = useState(false);
+  const [clearingTweetsQueue, setClearingTweetsQueue] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -172,6 +173,41 @@ export default function EmailsAdminPage() {
       setError(err.message);
     } finally {
       setClearingQueue(false);
+    }
+  };
+
+  const handleClearTweetsQueue = async () => {
+    if (
+      !window.confirm(
+        "¿Estás seguro que deseas eliminar SOLO las acciones de tweet y retweet en cola?"
+      )
+    )
+      return;
+
+    try {
+      setClearingTweetsQueue(true);
+      setError("");
+      setSuccess("");
+
+      const response = await fetch(
+        buildApiUrl("/api/queue/filtered", { actionTypes: "tweet,retweet" }),
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Error al limpiar tweets/retweets");
+      }
+
+      const data = await response.json();
+      setSuccess(data.message || "Acciones de tweets/retweets eliminadas.");
+      // Opcional: refrescar datos de cola si los mostraras
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setClearingTweetsQueue(false);
     }
   };
 
@@ -376,22 +412,41 @@ export default function EmailsAdminPage() {
                   programadas.
                 </p>
               </div>
-              <Button
-                variant="destructive"
-                onClick={handleClearQueue}
-                disabled={clearingQueue}
-              >
-                {clearingQueue ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />{" "}
-                    Limpiando...
-                  </>
-                ) : (
-                  <>
-                    <Trash2 className="mr-2 h-4 w-4" /> Limpiar Cola
-                  </>
-                )}
-              </Button>
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <Button
+                  variant="destructive"
+                  onClick={handleClearQueue}
+                  disabled={clearingQueue}
+                >
+                  {clearingQueue ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Limpiando...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="mr-2 h-4 w-4" /> Limpiar Cola
+                    </>
+                  )}
+                </Button>
+
+                <Button
+                  variant="destructive"
+                  onClick={handleClearTweetsQueue}
+                  disabled={clearingTweetsQueue}
+                >
+                  {clearingTweetsQueue ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Limpiando Tuits...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="mr-2 h-4 w-4" /> Limpiar Tweets/RT
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
