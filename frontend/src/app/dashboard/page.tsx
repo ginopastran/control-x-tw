@@ -626,36 +626,38 @@ export default function Dashboard() {
 
   // Función para cancelar una acción
   const cancelAction = async (actionId: string) => {
+    const confirmMsg = `¿Seguro que deseas cancelar la acción ${actionId}?`;
+    if (!window.confirm(confirmMsg)) return;
+
     try {
-      // Intentar cancelar como acción programada primero
-      const response = await fetch(
-        buildApiUrl(API_CONFIG.ENDPOINTS.QUEUE.CANCEL(actionId)),
+      // Endpoint principal basado en nueva API: /api/queue/cancel/:id
+      let response = await fetch(
+        buildApiUrl(`/api/queue/cancel/${actionId}`),
         {
           method: "DELETE",
         }
       );
 
-      if (response.ok) {
-        // Actualizar estado local
-        fetchQueueStatus();
-        // Mostrar mensaje de éxito (opcional)
-      } else {
-        // Si no funciona como programada, intentar como acción normal
-        const fallbackResponse = await fetch(
-          buildApiUrl(API_CONFIG.ENDPOINTS.QUEUE.DELETE(actionId)),
+      // Si no existe (por compatibilidad) intentar ruta /api/queue/action/:id
+      if (response.status === 404) {
+        response = await fetch(
+          buildApiUrl(`/api/queue/action/${actionId}`),
           {
             method: "DELETE",
           }
         );
+      }
 
-        if (fallbackResponse.ok) {
-          fetchQueueStatus();
-        } else {
-          throw new Error("Error al cancelar acción");
-        }
+      if (response.ok) {
+        await fetchQueueStatus();
+        alert("Acción cancelada exitosamente");
+      } else {
+        const err = await response.json();
+        throw new Error(err.error || "No se pudo cancelar la acción");
       }
     } catch (error) {
       console.error("Error cancelando acción:", error);
+      alert("Error cancelando acción");
     }
   };
 
