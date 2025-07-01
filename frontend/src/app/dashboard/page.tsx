@@ -330,6 +330,9 @@ export default function Dashboard() {
       if (queueActionFilter !== "all") {
         queryParams.actionTypes = queueActionFilter;
       }
+      if (queueSearch.trim() !== "") {
+        queryParams.search = queueSearch.trim();
+      }
 
       const response = await fetch(
         buildApiUrl(API_CONFIG.ENDPOINTS.QUEUE.STATUS, queryParams)
@@ -395,7 +398,7 @@ export default function Dashboard() {
     }, 10000);
 
     return () => clearInterval(interval);
-  }, [queuedPage, queueActionFilter]);
+  }, [queuedPage, queueActionFilter, queueSearch]);
 
   // Ejecutar fetchHistory cada vez que filtros/página cambien
   useEffect(() => {
@@ -411,23 +414,9 @@ export default function Dashboard() {
     ? Math.ceil(queueStatus.scheduled.length / itemsPerPage)
     : 1;
 
-  // Aplicar filtros a la cola
-  const filteredQueuedAll = queueStatus.queue?.filter((a) => {
-    const searchMatch =
-      queueSearch.trim() === "" ||
-      a.accountUsername.toLowerCase().includes(queueSearch.toLowerCase()) ||
-      (a.targetUsername &&
-        a.targetUsername.toLowerCase().includes(queueSearch.toLowerCase()));
-
-    const actionMatch =
-      queueActionFilter === "all" || a.action === queueActionFilter;
-
-    return searchMatch && actionMatch;
-  });
-
+  // Los datos que llegan del backend ya están filtrados y paginados
   const totalQueuedPages = Math.ceil(totalQueuedItems / itemsPerPage);
-
-  const paginatedQueued = filteredQueuedAll;
+  const paginatedQueued = queueStatus.queue;
 
   const filteredAccounts = accountLimits.filter(
     (account: AccountLimits) =>

@@ -291,6 +291,7 @@ function createQueueRoutes(queueService, prisma) {
         queuePage = 1,
         queueLimit = 100,
         actionTypes,
+        search,
       } = req.query;
 
       // Permitir filtrado opcional por tipo de acción (por ejemplo: "tweet,retweet")
@@ -311,6 +312,26 @@ function createQueueRoutes(queueService, prisma) {
         queueStatus.running = queueStatus.running.filter(matchesFilter);
         queueStatus.scheduled = queueStatus.scheduled.filter(matchesFilter);
       }
+
+      // Filtro por búsqueda de username/targetUsername
+      const normalizedSearch = (search || "").toString().trim().toLowerCase();
+      if (normalizedSearch.length > 0) {
+        const matchesSearch = (a) => {
+          return (
+            (a.accountUsername || "").toLowerCase().includes(normalizedSearch) ||
+            (a.targetUsername || "").toLowerCase().includes(normalizedSearch)
+          );
+        };
+
+        queueStatus.queue = queueStatus.queue.filter(matchesSearch);
+        queueStatus.running = queueStatus.running.filter(matchesSearch);
+        queueStatus.scheduled = queueStatus.scheduled.filter(matchesSearch);
+      }
+
+      // Recalcular stats tras filtros
+      queueStatus.stats.queueLength = queueStatus.queue.length;
+      queueStatus.stats.runningCount = queueStatus.running.length;
+      queueStatus.stats.scheduled = queueStatus.scheduled.length;
 
       // Obtener historial desde la base de datos (solo acciones ejecutadas)
       const historyActions = await prisma.actionHistory.findMany({
